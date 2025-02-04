@@ -13,7 +13,6 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
 
   const configService = app.get(ConfigService<AllConfigType>);
 
@@ -21,7 +20,7 @@ async function bootstrap() {
     infer: true,
   }) as AppConfig;
 
-  app.enableVersioning({ type: VersioningType.URI });
+  app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   app.setGlobalPrefix(appConfig.apiPrefix, { exclude: ['/'] });
 
@@ -34,6 +33,7 @@ async function bootstrap() {
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
+  await app.listen(process.env.PORT ?? 3000);
   if (module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());
