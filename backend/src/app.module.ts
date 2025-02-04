@@ -5,8 +5,8 @@ import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import appConfig from './config/app.config';
-import { DataBaseModule } from './core/database/database.module';
-import typeormConfig from './core/database/typeorm/typeorm.config';
+import { DataBaseModule } from './database/database.module';
+import typeormConfig from './database/typeorm/typeorm.config';
 
 @Module({
   imports: [

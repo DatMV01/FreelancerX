@@ -1,4 +1,4 @@
-import { TypeORMConfig } from 'src/core/database/typeorm/typeorm.config';
+import { TypeORMConfig } from 'src/database/typeorm/typeorm.config';
 import { AppConfig } from './app.config';
 
 export const APP_CONFIG_REGISTER = 'app';
