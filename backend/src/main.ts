@@ -1,4 +1,4 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
@@ -8,6 +8,7 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
+import { AllExceptionsFilter } from './common/filters';
 
 declare const module: any;
 
@@ -27,9 +28,12 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
-      // whitelist: true,
+      whitelist: true,
     }),
   );
+
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
