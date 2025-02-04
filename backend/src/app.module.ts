@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import appConfig from './config/app.config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { TypeORMModule } from './modules/database/typeorm/typeorm.module';
-import typeormConfig from './modules/database/typeorm/typeorm.config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import appConfig from './config/app.config';
+import { DataBaseModule } from './core/database/database.module';
+import typeormConfig from './core/database/typeorm/typeorm.config';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import typeormConfig from './modules/database/typeorm/typeorm.config';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/public',
     }),
-    TypeORMModule,
+    DataBaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
