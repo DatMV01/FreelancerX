@@ -1,20 +1,16 @@
-import {
-  CreateDateColumn,
-  DeleteDateColumn,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { AutoMap } from '@automapper/classes';
+import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 export class BaseEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+  @AutoMap()
   @CreateDateColumn()
   createdAt: Date;
 
+  @AutoMap()
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @AutoMap()
   @DeleteDateColumn()
   deletedAt: Date;
 }

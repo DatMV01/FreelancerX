@@ -33,7 +33,9 @@ export class BaseService<T extends ObjectLiteral> {
   }
 
   async findOne(id: any): Promise<T | null> {
-    return this.repository.findOne(id);
+    return await this.repository.findOne({
+      where: { id } as unknown as FindOptionsWhere<T>,
+    });
   }
 
   async update(id: any, data: DeepPartial<T>): Promise<T | null> {
@@ -41,8 +43,9 @@ export class BaseService<T extends ObjectLiteral> {
     return this.findOne(id);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.repository.softDelete(id);
+  async remove(id: number): Promise<boolean> {
+    const result = await this.repository.softDelete(id);
+    return (result.affected || 0) > 0;
   }
 
   async findWithFilters(

@@ -1,14 +1,13 @@
-import { HttpAdapterHost, NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
-import { AppConfig } from './config/app.config';
 import {
   ClassSerializerInterceptor,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
-import { AllExceptionsFilter } from './common/filters';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { AppConfig } from './config/app.config';
+import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
 
 declare const module: any;
 
@@ -32,8 +31,8 @@ async function bootstrap() {
     }),
   );
 
-  const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
+  // const httpAdapterHost = app.get(HttpAdapterHost);
+  // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 

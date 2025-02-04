@@ -1,3 +1,5 @@
+import { classes } from '@automapper/classes';
+import { AutomapperModule } from '@automapper/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -7,6 +9,7 @@ import { AppService } from './app.service';
 import appConfig from './config/app.config';
 import { DataBaseModule } from './database/database.module';
 import typeormConfig from './database/typeorm/typeorm.config';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
@@ -18,7 +21,11 @@ import typeormConfig from './database/typeorm/typeorm.config';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/public',
     }),
+    AutomapperModule.forRoot({
+      strategyInitializer: classes(),
+    }),
     DataBaseModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

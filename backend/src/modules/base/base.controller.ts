@@ -1,38 +1,44 @@
+import { Mapper } from '@automapper/core';
+import { InjectMapper } from '@automapper/nestjs';
 import {
   BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  Type,
   UseInterceptors,
 } from '@nestjs/common';
-import { FindOptionsOrder, ObjectLiteral } from 'typeorm';
+import { FindOptionsOrder, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 import { BaseService } from './base.service';
-import { BaseDto } from './dto/base.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
   Entity extends ObjectLiteral,
-  Dto extends BaseDto<Dto>,
+  Dto,
   CreateBaseDto,
   UpdateBaseDto,
 > {
+  @InjectMapper() protected readonly mapper: Mapper;
+
   constructor(
     protected readonly baseService: BaseService<Entity>,
-    private type: new (...args: any) => Dto,
+    private dtoType: Type,
+    private entityType: Type,
   ) {}
 
   @Post()
-  async create(@Body() createBaseDto: CreateBaseDto): Promise<Dto> {
-    if (Object.keys(createBaseDto as any).length == 0) {
+  async create(@Body() data: CreateBaseDto): Promise<Dto> {
+    if (Object.keys(data as any).length == 0) {
       throw new BadRequestException('Body is empty');
     }
 
-    const entity = await this.baseService.create(createBaseDto as any);
+    const entity = await this.baseService.create(data as any);
     return this.toDtoDefault(entity);
   }
 
@@ -40,27 +46,45 @@ export abstract class BaseController<
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query() filters: any,
-    @Query('sort') sort: string = 'name:ASC',
+    @Query('sort') sort: string,
+    @Query('filters') filters: any,
   ) {
-    // GET /products?page=1&limit=10&name=ProductName&price=10000&sort=name:ASC,price:DESC
+    // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
 
     const sortParams = this.parseSortParam(sort);
-    // return this.baseService.findAll(page, limit, filters, sortParams);
-    return this.baseService.findWithFilters(page, limit, filters, sort);
+    const filterParams = this.parseFiltersParam(filters);
+    // return this.baseService.findAll(page, limit, filterParams, sortParams);
+    const results = await this.baseService.findWithFilters(
+      page,
+      limit,
+      filterParams,
+      sortParams,
+    );
+    return this.toDtoDefault(results);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.baseService.findOne(+id);
+    const entity = await this.baseService.findOne(+id);
+
+    if (!entity) {
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
+    return this.toDtoDefault(entity);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateBaseDto: UpdateBaseDto,
+    @Body() data: UpdateBaseDto,
   ): Promise<Dto | null> {
-    const entity = await this.baseService.update(id, updateBaseDto as any);
+    const entity = await this.baseService.update(id, data as any);
+
+    if (!entity) {
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
     return this.toDtoDefault(entity as any);
   }
 
@@ -73,11 +97,17 @@ export abstract class BaseController<
   toDtoDefault(entity: Entity[]): Dto[];
   toDtoDefault(entity: unknown): Dto | Dto[] {
     if (Array.isArray(entity)) {
-      return entity.map((item) => new this.type(item as Entity)) as Dto[];
+      return entity.map((item) =>
+        this.createInstance(
+          this.mapper.map(item, this.dtoType, this.entityType),
+        ),
+      );
     }
 
     if (entity) {
-      return new this.type(entity as Entity) as Dto;
+      return this.createInstance(
+        this.mapper.map(entity, this.dtoType, this.entityType),
+      );
     }
 
     return undefined as any;
@@ -87,6 +117,18 @@ export abstract class BaseController<
   toDtoChildImpl(entity: Entity[]): Dto[];
   toDtoChildImpl(entity: unknown): Dto | Dto[] {
     throw new Error('Child do not implement yet !!!');
+  }
+
+  private parseFiltersParam(filters: string): FindOptionsWhere<Entity> {
+    const filtersObj: FindOptionsWhere<Entity> = {};
+    if (filters) {
+      const filterFields = filters.split(',');
+      filterFields.forEach((field) => {
+        const [key, value] = field.split(':');
+        (filtersObj as any)[key] = value;
+      });
+    }
+    return filtersObj;
   }
 
   private parseSortParam(sort: string): FindOptionsOrder<Entity> {
@@ -99,5 +141,9 @@ export abstract class BaseController<
       });
     }
     return sortObj;
+  }
+
+  createInstance(...args: any): Dto {
+    return new this.dtoType(...args);
   }
 }
