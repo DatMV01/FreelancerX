@@ -11,12 +11,17 @@ import {
   Patch,
   Post,
   Query,
+  SerializeOptions,
   Type,
   UseInterceptors,
 } from '@nestjs/common';
 import { FindOptionsOrder, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
+import {
+  CREATE_GROUP,
+  UPDATE_GROUP,
+} from 'src/common/constant/serialize.group';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -34,6 +39,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
+  @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
       throw new BadRequestException('Body is empty');
@@ -91,6 +97,7 @@ export abstract class BaseController<
   }
 
   @Patch(':id')
+  @SerializeOptions({ groups: [UPDATE_GROUP] })
   async update(
     @Param('id') id: string,
     @Body() data: UpdateBaseDto,

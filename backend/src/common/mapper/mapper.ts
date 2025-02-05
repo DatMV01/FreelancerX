@@ -5,6 +5,8 @@ import { RoleDto } from '../../modules/roles/dto/role.dto';
 import { RoleEntity } from '../../modules/roles/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
+import { SessionEntity } from 'src/modules/session/entities/session.entity';
+import { SessionDto } from 'src/modules/session/dto/session.dto';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -19,6 +21,9 @@ export class AutoMapper extends AutomapperProfile {
 
       createMap(mapper, StatusEntity, StatusDto);
       createMap(mapper, StatusDto, StatusEntity);
+
+      createMap(mapper, SessionEntity, SessionDto);
+      createMap(mapper, SessionDto, SessionEntity);
     };
   }
 }

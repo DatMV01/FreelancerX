@@ -12,7 +12,10 @@ import typeormConfig from './database/typeorm/typeorm.config';
 import { RolesModule } from './modules/roles/roles.module';
 import { StatusModule } from './modules/status/status.module';
 import { FilesModule } from './modules/files/files.module';
+import { AuthModule } from './modules/auth/auth.module';
 import fileConfig from './modules/files/config/file.config';
+import { SessionModule } from './modules/session/session.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import fileConfig from './modules/files/config/file.config';
     RolesModule,
     StatusModule,
     FilesModule,
+    AuthModule,
+    SessionModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
