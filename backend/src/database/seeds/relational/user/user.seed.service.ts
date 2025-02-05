@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { RoleEnum } from 'src/modules/roles/roles.enum';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
-
+import { faker } from '@faker-js/faker';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -32,12 +32,12 @@ export class UserSeedService {
 
     for (let index = 1; index <= 500; index++) {
       users.push({
-        email: `user${index}@example.com`,
-        firstName: `user${index} firstName`,
-        lastName: `user${index} lastName`,
+        email: faker.internet.email().toLowerCase(),
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
         password: bcrypt.hashSync('user123', 10),
         role: {
-          id: Math.floor(Math.random() * 3 + 2),
+          id: Math.floor(Math.random() * 4 + 2),
         } as any,
         status: {
           id: Math.floor(Math.random() * 4 + 1),
@@ -45,7 +45,7 @@ export class UserSeedService {
       });
     }
 
-    await this.repository.clear();
+    //  await this.repository.clear();
     await this.repository.save(users);
   }
 }
