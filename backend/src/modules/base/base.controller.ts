@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { FindOptionsOrder, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 import { BaseService } from './base.service';
+import { PageDto, PageMetaDto } from './dto/pagination';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -46,21 +47,36 @@ export abstract class BaseController<
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
-    @Query('sort') sort: string,
+    @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
     @Query('filters') filters: any,
   ) {
     // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
+    const _limit = Math.min(limit || 10, 50);
 
     const sortParams = this.parseSortParam(sort);
     const filterParams = this.parseFiltersParam(filters);
     // return this.baseService.findAll(page, limit, filterParams, sortParams);
-    const results = await this.baseService.findWithFilters(
+    const [results, count] = await this.baseService.findWithFilters(
       page,
-      limit,
+      _limit,
       filterParams,
       sortParams,
     );
-    return this.toDtoDefault(results);
+
+    const pageDto = new PageDto<Dto>(
+      this.toDtoDefault(results),
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: {
+          limit: _limit,
+          page,
+          filter: filterParams,
+          sort: sortParams,
+        },
+      }),
+    );
+
+    return pageDto;
   }
 
   @Get(':id')

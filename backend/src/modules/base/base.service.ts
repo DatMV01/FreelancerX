@@ -48,12 +48,17 @@ export class BaseService<T extends ObjectLiteral> {
     return (result.affected || 0) > 0;
   }
 
+  async removeByCondition(where: FindOptionsWhere<T>): Promise<boolean> {
+    const result = await this.repository.softDelete(where);
+    return (result.affected ?? 0) > 0;
+  }
+
   async findWithFilters(
     page: number = 1,
     limit: number = 10,
     filters: any = {},
     sort: any = {},
-  ): Promise<T[]> {
+  ): Promise<[T[], number]> {
     const queryBuilder: SelectQueryBuilder<T> =
       this.repository.createQueryBuilder();
 
@@ -84,6 +89,6 @@ export class BaseService<T extends ObjectLiteral> {
 
     queryBuilder.skip((page - 1) * limit).take(limit);
 
-    return queryBuilder.getMany();
+    return queryBuilder.getManyAndCount();
   }
 }
