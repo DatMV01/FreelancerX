@@ -3,6 +3,8 @@ import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
 import { RoleDto } from '../../modules/roles/dto/role.dto';
 import { RoleEntity } from '../../modules/roles/entities/role.entity';
+import { StatusEntity } from 'src/modules/status/entities/status.entity';
+import { StatusDto } from 'src/modules/status/dto/status.dto';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -14,6 +16,9 @@ export class AutoMapper extends AutomapperProfile {
     return (mapper) => {
       createMap(mapper, RoleEntity, RoleDto);
       createMap(mapper, RoleDto, RoleEntity);
+
+      createMap(mapper, StatusEntity, StatusDto);
+      createMap(mapper, StatusDto, StatusEntity);
     };
   }
 }

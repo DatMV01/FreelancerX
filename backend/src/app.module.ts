@@ -10,6 +10,7 @@ import appConfig from './config/app.config';
 import { DataBaseModule } from './database/database.module';
 import typeormConfig from './database/typeorm/typeorm.config';
 import { RolesModule } from './modules/roles/roles.module';
+import { StatusModule } from './modules/status/status.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RolesModule } from './modules/roles/roles.module';
     }),
     DataBaseModule,
     RolesModule,
+    StatusModule,
   ],
   controllers: [AppController],
   providers: [AppService],

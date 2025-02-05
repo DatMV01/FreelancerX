@@ -137,7 +137,7 @@ export abstract class BaseController<
       const sortFields = sort.split(',');
       sortFields.forEach((field) => {
         const [key, order] = field.split(':');
-        (sortObj as any)[key] = order === 'DESC' ? 'DESC' : 'ASC';
+        (sortObj as any)[key] = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
       });
     }
     return sortObj;
