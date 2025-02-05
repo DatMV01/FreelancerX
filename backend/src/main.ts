@@ -8,6 +8,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppConfig } from './config/app.config';
 import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
+import * as cookieParser from 'cookie-parser';
 
 declare const module: any;
 
@@ -35,6 +36,8 @@ async function bootstrap() {
   // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  app.use(cookieParser());
 
   await app.listen(process.env.PORT ?? 3000);
   if (module.hot) {

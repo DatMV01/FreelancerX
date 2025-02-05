@@ -16,12 +16,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import fileConfig from './modules/files/config/file.config';
 import { SessionModule } from './modules/session/session.module';
 import { UsersModule } from './modules/users/users.module';
+import authConfig from './modules/auth/config/auth.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, typeormConfig, fileConfig],
+      load: [appConfig, typeormConfig, fileConfig, authConfig],
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -37,6 +38,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     SessionModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
