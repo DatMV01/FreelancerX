@@ -6,11 +6,14 @@ import {
   UploadedFile,
   Response,
   UseInterceptors,
+  Request,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FilesLocalService } from './files.service';
 import { FileResponseDto } from './uploader/local/dto/file-response.dto';
+import { join } from 'path';
 
 @Controller({
   path: 'files',
@@ -28,10 +31,17 @@ export class FilesController {
     return this.filesService.create(file);
   }
 
-  @Get(':path')
+  @Get('*')
   download(@Param('path') path, @Response() response) {
-    console.log(path);
+    const filePath = join(...path);
 
-    return response.sendFile(path, { root: './public/images' });
+    return response.sendFile(filePath, { root: './public' });
   }
+
+  // @Get(':path')
+  // download(@Param('path') path, @Response() response) {
+  //   console.log(path);
+
+  //   return response.sendFile(path, { root: './public/images' });
+  // }
 }
