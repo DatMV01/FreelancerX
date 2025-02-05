@@ -31,7 +31,7 @@ export class FilesController {
     return this.filesService.create(file);
   }
 
-  @Get('*')
+  @Get('/*path')
   download(@Param('path') path, @Response() response) {
     const filePath = join(...path);
 
