@@ -35,6 +35,11 @@ export class UserMapper {
         : undefined,
 
       photo: domainEntity.photo && FileMapper.toPersistence(domainEntity.photo),
+      gigs: [],
+      orders: [],
+      sellerOrders: [],
+      reviews: [],
+      notifications: [],
     };
     return persistenceEntity;
   }

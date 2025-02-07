@@ -1,6 +1,10 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
+import { GigEntity } from 'src/modules/gig/entities/gig.entity';
+import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { RoleEntity } from 'src/modules/roles/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import {
@@ -9,6 +13,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -66,4 +71,19 @@ export class UserEntity extends BaseEntity {
     eager: true,
   })
   status?: StatusEntity;
+
+  @OneToMany(() => GigEntity, (gig) => gig.seller)
+  gigs: GigEntity[];
+
+  @OneToMany(() => OrderEntity, (order) => order.buyer)
+  orders: OrderEntity[];
+
+  @OneToMany(() => OrderEntity, (order) => order.seller)
+  sellerOrders: OrderEntity[];
+
+  @OneToMany(() => ReviewEntity, (review) => review.buyer)
+  reviews: ReviewEntity[];
+
+  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  notifications: NotificationEntity[];
 }

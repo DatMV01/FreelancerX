@@ -16,6 +16,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import fileConfig from './modules/files/config/file.config';
 import { SessionModule } from './modules/session/session.module';
 import { UsersModule } from './modules/users/users.module';
+import { GigModule } from './modules/gig/gig.module';
+import { ReviewModule } from './modules/review/review.module';
+import { PaymentModule } from './modules/payment/payment.module';
+import { OrderdetailModule } from './modules/orderdetail/orderdetail.module';
+import { OrderModule } from './modules/order/order.module';
+import { CategoryModule } from './modules/category/category.module';
+import { NotificationModule } from './modules/notification/notification.module';
 import authConfig from './modules/auth/config/auth.config';
 
 @Module({
@@ -39,6 +46,13 @@ import authConfig from './modules/auth/config/auth.config';
     SessionModule,
     UsersModule,
     AuthModule,
+    GigModule,
+    OrderModule,
+    OrderdetailModule,
+    PaymentModule,
+    ReviewModule,
+    CategoryModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
