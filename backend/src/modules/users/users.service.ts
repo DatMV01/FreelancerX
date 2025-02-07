@@ -91,22 +91,22 @@ export class UsersService {
       ? await bcrypt.hash(password, UsersService.SALT)
       : undefined;
 
-    let photo: FileType | undefined = undefined;
-    if (createUserDto.photo?.id) {
-      const fileObject = await this.filesService.findById(
-        createUserDto.photo.id,
-      );
+    let photo: string | undefined | null = createUserDto.photo;
+    // if (createUserDto.photo?.id) {
+    //   const fileObject = await this.filesService.findById(
+    //     createUserDto.photo.id,
+    //   );
 
-      if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
-      }
-      photo = fileObject;
-    }
+    //   if (!fileObject) {
+    //     throw new UnprocessableEntityException({
+    //       status: HttpStatus.UNPROCESSABLE_ENTITY,
+    //       errors: {
+    //         photo: 'imageNotExists',
+    //       },
+    //     });
+    //   }
+    //   photo = fileObject;
+    // }
 
     const entity: DeepPartial<UserEntity> = {
       firstName,

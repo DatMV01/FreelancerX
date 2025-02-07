@@ -1,6 +1,5 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
@@ -11,10 +10,8 @@ import {
   Column,
   Entity,
   Index,
-  JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -54,11 +51,8 @@ export class UserEntity extends BaseEntity {
   lastName: string | null;
 
   @AutoMap()
-  @OneToOne(() => FileEntity, {
-    eager: true,
-  })
-  @JoinColumn()
-  photo?: FileEntity | null;
+  @Column({ type: String, nullable: true })
+  photo?: string | null;
 
   @AutoMap()
   @ManyToOne(() => RoleEntity, {
