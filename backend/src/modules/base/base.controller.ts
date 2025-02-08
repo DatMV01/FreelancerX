@@ -22,6 +22,7 @@ import {
   CREATE_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
+import { QueryDto } from './dto/query.dto';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -76,8 +77,38 @@ export abstract class BaseController<
         pageOptionsDto: {
           limit: _limit,
           page,
-          filter: filterParams,
+          filters: filterParams,
           sort: sortParams,
+        },
+      }),
+    );
+
+    return pageDto;
+  }
+
+  @Get('/findexact')
+  async findExact(@Query() query: QueryDto<Entity>) {
+    // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
+
+    const { page, _limit: limit, sort, filters } = query;
+
+    // return this.baseService.findAll(page, limit, filterParams, sortParams);
+    const [results, count] = await this.baseService.findExact(
+      page,
+      limit,
+      filters,
+      sort,
+    );
+
+    const pageDto = new PageDto<Dto>(
+      this.toDtoDefault(results),
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: {
+          limit,
+          page,
+          filters,
+          sort,
         },
       }),
     );

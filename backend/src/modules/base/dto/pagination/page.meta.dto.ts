@@ -21,7 +21,7 @@ export class PageMetaDto {
     this.page = pageOptionsDto.page;
     this.limit = pageOptionsDto.limit;
     this.sort = pageOptionsDto.sort;
-    this.filter = pageOptionsDto.filter;
+    this.filter = pageOptionsDto.filters;
     this.itemCount = itemCount;
     this.pageCount = Math.ceil(this.itemCount / this.limit);
     this.hasPreviousPage = this.page > 1;

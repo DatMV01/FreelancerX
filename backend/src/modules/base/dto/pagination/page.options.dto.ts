@@ -19,5 +19,5 @@ export class PageOptionsDto {
   sort?: any;
 
   @IsOptional()
-  filter?: any;
+  filters?: any;
 }

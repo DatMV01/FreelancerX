@@ -17,21 +17,6 @@ export class BaseService<T extends ObjectLiteral> {
     return this.repository.save(entity);
   }
 
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    filters: FindOptionsWhere<T> = {},
-    sort: FindOptionsOrder<T> = {},
-  ): Promise<T[]> {
-    const skip = (page - 1) * limit;
-    return this.repository.find({
-      where: filters,
-      skip,
-      take: limit,
-      order: sort,
-    });
-  }
-
   async findOne(id: any): Promise<T | null> {
     return await this.repository.findOne({
       where: { id } as unknown as FindOptionsWhere<T>,
@@ -51,6 +36,21 @@ export class BaseService<T extends ObjectLiteral> {
   async removeByCondition(where: FindOptionsWhere<T>): Promise<boolean> {
     const result = await this.repository.softDelete(where);
     return (result.affected ?? 0) > 0;
+  }
+
+  async findExact(
+    page: number = 1,
+    limit: number = 10,
+    filters: FindOptionsWhere<T> = {},
+    sort: FindOptionsOrder<T> = {},
+  ): Promise<[T[], number]> {
+    const skip = (page - 1) * limit;
+    return this.repository.findAndCount({
+      where: filters,
+      skip,
+      take: limit,
+      order: sort,
+    });
   }
 
   async findWithFilters(
