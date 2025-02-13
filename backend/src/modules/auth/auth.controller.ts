@@ -35,24 +35,20 @@ export class AuthController {
     const loginResponse = await this.service.validateUser(loginDto);
 
     const { accessToken, refreshToken } = loginResponse;
-    const userAgent = req.headers['user-agent'];
-    if (userAgent && userAgent.includes('Mozilla')) {
-      res.cookie('access_token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: loginResponse.accessExpires,
-      });
 
-      res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: loginResponse.refreshExpires,
-      });
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: loginResponse.accessExpires,
+    });
 
-      return loginResponse;
-    }
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: loginResponse.refreshExpires,
+    });
 
     return loginResponse;
   }
