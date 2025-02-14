@@ -126,6 +126,11 @@ export class AuthService {
     const tokenExpires = Date.now() + ms(tokenExpiresIn);
     const refreshExpires = Date.now() + ms(refreshExpiresIn);
 
+    console.log('====================================');
+    console.log(authConfig.expires);
+    console.log(authConfig.refreshExpires);
+    console.log('====================================');
+
     const [accessToken, refreshToken] = await Promise.all([
       await this.jwtService.signAsync(
         {
@@ -145,7 +150,7 @@ export class AuthService {
         },
         {
           secret: authConfig.refreshSecret,
-          expiresIn: refreshExpires,
+          expiresIn: refreshExpiresIn,
         },
       ),
     ]);
