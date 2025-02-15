@@ -27,6 +27,7 @@ export class AuthController {
   constructor(private readonly service: AuthService) {}
 
   @Post('email/login')
+  @HttpCode(HttpStatus.OK)
   public async login(
     @Body() loginDto: AuthEmailLoginDto,
     @Req() req: Request,
