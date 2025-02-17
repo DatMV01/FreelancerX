@@ -9,8 +9,8 @@ const Footer = () => {
       <div
         className={clsx(
           "bottom",
-          "flex flex-col",
-          "sm:flex-row",
+          "flex h-20 flex-col border-t-[3px] ",
+          "sm:flex-row sm:justify-between sm:mx-10",
           "md:flex-row",
           "lg:flex-row",
         )}
@@ -19,14 +19,14 @@ const Footer = () => {
           className={clsx(
             "left",
             "flex flex-col items-center",
-            "sm:flex-col",
-            "md:flex-col",
-            "lg:flex-col",
+            "sm:flex-row",
+            "md:flex-row",
+            "lg:flex-row",
           )}
         >
           <Image alt="logo" height={50} src={logo} />
 
-          <p>
+          <p className={clsx("pl-5")}>
             <span className="copyright">© FC International Ltd. 2025</span>
           </p>
         </div>
@@ -34,7 +34,7 @@ const Footer = () => {
         <div
           className={clsx(
             "bottom",
-            "flex flex-col",
+            "flex flex-col items-center",
             "sm:flex-row",
             "md:flex-row",
             "lg:flex-row",
@@ -43,8 +43,8 @@ const Footer = () => {
           <div>
             <ul
               className={clsx(
-                "flex flex-row items-center justify-center [&>li]:mx-2 [&>li]:fill-[#74767E]",
-                "sm:flex-row",
+                "flex flex-row items-center justify-center [&_svg]:mx-2 [&_svg]:fill-[#74767E] ",
+                "sm:flex-row sm:[&_svg]:mx-1 sm:[&_svg]:h-[25px] sm:[&_svg]:w-[25px]",
                 "md:flex-row",
                 "lg:flex-row",
               )}
