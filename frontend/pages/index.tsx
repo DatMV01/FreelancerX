@@ -1,5 +1,9 @@
-import { CircularProgress } from "@mui/material";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { InferGetServerSidePropsType } from "next";
+import { getServerSession } from "next-auth";
+import { Geist, Roboto } from "next/font/google";
+import { authOptions } from "./api/auth/[...nextauth]";
+import GuestHomePage from "./home/guest_homepage";
+import UserHomePage from "./home/user_homepage";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,16 +15,24 @@ const roboto = Roboto({
   subsets: ["latin"],
 });
 
-export default function Home() {
-  return (
-    <div
-      className={`flex h-screen flex-col items-center ${roboto.className} ${geistSans.variable} `}
-    >
-      <div className="mt-4 w-full text-center">Home Page</div>
+export async function getServerSideProps(context: any) {
+  const session = await getServerSession(context.req, context.res, authOptions);
 
-      <div className="flex flex-grow items-center justify-center">
-        <CircularProgress />
-      </div>
+  return {
+    props: {
+      isLogin: session ? true : false,
+    },
+  };
+}
+
+export default function Index({
+  isLogin,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  console.log(isLogin);
+
+  return (
+    <div className={`${roboto.className} ${geistSans.variable} `}>
+      {isLogin ? <UserHomePage /> : <GuestHomePage />}
     </div>
   );
 }

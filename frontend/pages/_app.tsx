@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { AppCacheProvider } from "@mui/material-nextjs/v15-pagesRouter";
+import RootLayout from "@/components/layouts/root-layout";
 
 export default function App({
   Component,
@@ -10,7 +11,9 @@ export default function App({
   return (
     <AppCacheProvider {...pageProps}>
       <SessionProvider session={session}>
-        <Component {...pageProps} />
+        <RootLayout>
+          <Component {...pageProps} />
+        </RootLayout>
       </SessionProvider>
     </AppCacheProvider>
   );
