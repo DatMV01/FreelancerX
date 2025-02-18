@@ -31,7 +31,7 @@ export default function Index({
   console.log(isLogin);
 
   return (
-    <div className={`${roboto.className} ${geistSans.variable} `}>
+    <div className={`${roboto.className} ${geistSans.variable}  `}>
       {isLogin ? <UserHomePage /> : <GuestHomePage />}
     </div>
   );

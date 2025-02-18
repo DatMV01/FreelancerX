@@ -1,8 +1,7 @@
-import { Html, Head, Main, NextScript } from "next/document";
 import {
-  DocumentHeadTags,
-  documentGetInitialProps,
+  DocumentHeadTags
 } from "@mui/material-nextjs/v15-pagesRouter";
+import { Head, Html, Main, NextScript } from "next/document";
 
 export default function Document(props: any) {
   return (
@@ -10,7 +9,7 @@ export default function Document(props: any) {
       <Head>
         <DocumentHeadTags {...props} />
       </Head>
-      <body className="antialiased">
+      <body>
         <Main />
         <NextScript />
       </body>
