@@ -1,54 +1,431 @@
-export const categoriesNavLinks = [
+const programmingTechSubCategories = [
   {
-    to: "/categories/programming-tech",
+    id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Website Development",
+    subCategories: [
+      {
+        id: "b9f7c618-cc7a-4a63-a927-fd15e1a569ed",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        title: "Business Websites",
+        slug: "business-websites",
+      },
+      {
+        id: "7620a97b-8f5f-4d45-9a29-345b8e2c5752",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        title: "E-Commerce Development",
+        slug: "e-commerce-development",
+      },
+      {
+        id: "5bda5b78-c8c0-4de1-95c1-e1a9b61c29ea",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        title: "Landing Pages",
+        slug: "landing-pages",
+      },
+      {
+        id: "14f1b758-2a2b-4414-80d7-f76f4b1695a7",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        title: "Dropshipping Websites",
+        slug: "dropshipping-websites",
+      },
+      {
+        id: "acbe1f82-cfd8-4c1a-82fe-befde076ab0e",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        title: "Build a Complete Website",
+        slug: "build-a-complete-website",
+      },
+    ],
+  },
+
+  {
+    id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Website Platform",
+    subCategories: [
+      {
+        id: "f8c2df49-e84a-46bc-bc10-2df8f8a5b129",
+        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
+        title: "WordPress",
+        slug: "wordpress",
+      },
+      {
+        id: "e5a9b8b0-6c3f-4f1d-a723-2f8d834529d3",
+        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
+        title: "Shopify",
+        slug: "e-commerce-development",
+      },
+      {
+        id: "72c914c0-1939-41d2-8b91-4f372f92d4d5",
+        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
+        title: "Wix",
+        slug: "landing-pages",
+      },
+      {
+        id: "3f1d45e8-2d53-4c8e-9e9d-897d3c8f1b57",
+        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
+        title: "GoDaddy",
+        slug: "dropshipping-websites",
+      },
+    ],
+  },
+
+  {
+    id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Website Maintenance",
+    subCategories: [
+      {
+        id: "33a74bc2-78b4-45e9-a8a9-5197d462abf5",
+        category_id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
+        title: "Website Customization",
+        slug: "website-customization",
+      },
+      {
+        id: "27db6e5f-93f9-4b26-82b9-13978b397a5e",
+        category_id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
+        title: "Bug Fixes",
+        slug: "bug-fixes",
+      },
+      {
+        id: "0f9b7d7d-e78e-4f63-a209-30368fbb0b83",
+        category_id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
+        title: "Backup & Migration",
+        slug: "backup-migration",
+      },
+      {
+        id: "c9d75a1e-2b49-49c9-b9b3-4bb2b2087b35",
+        category_id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
+        title: "Speed Optimization",
+        slug: "speed-optimization",
+      },
+    ],
+  },
+  {
+    id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "AI Development",
+    subCategories: [
+      {
+        id: "cdd32bfa-dcf7-4699-bc77-bf467c6ed7a4",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Websites & Software",
+        slug: "ai-websites-software",
+      },
+      {
+        id: "5b4b7a34-9b8f-4b1b-b3e6-30f99eb10061",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Mobile Apps",
+        slug: "ai-mobile-apps",
+      },
+      {
+        id: "b0a634f9-cd88-4198-a4bc-c65ad9f1e27e",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Integrations",
+        slug: "ai-integrations",
+      },
+      {
+        id: "71c87f2e-9a31-4b55-b43e-c29b2b8762fc",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Agents",
+        slug: "ai-agents",
+      },
+      {
+        id: "7fe47cd4-c76d-4f27-90c3-c1d8a93bba32",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Fine-Tuning",
+        slug: "ai-fine-tuning",
+      },
+      {
+        id: "1119f032-c299-4403-9d1f-e63a06433b35",
+        category_id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
+        title: "AI Technology Consulting",
+        slug: "ai-technology-consulting",
+      },
+    ],
+  },
+  {
+    id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Chatbot Development",
+    subCategories: [
+      {
+        id: "f97d0a92-30c1-4e7f-83c4-276acbce098e",
+        category_id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
+        title: "AI Chatbot",
+        slug: "ai-chatbot",
+      },
+      {
+        id: "d7b799b6-975f-49d3-a33d-5b462a7a9b87",
+        category_id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
+        title: "Rules Based Chatbot",
+        slug: "rules-based-chatbot",
+      },
+      {
+        id: "e68555d7-b48c-4007-8830-b57fe9f88ff0",
+        category_id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
+        title: "Discord",
+        slug: "discord",
+      },
+      {
+        id: "07dce4e0-12f7-497d-bb44-b7d4979efed0",
+        category_id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
+        title: "Telegram",
+        slug: "telegram",
+      },
+    ],
+  },
+  {
+    id: "8fefea57-cff4-4690-bba9-febcb87283b3",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Game Development",
+    subCategories: [
+      {
+        id: "3ed72dfd-89ed-4685-a91c-cb47820c1578",
+        category_id: "8fefea57-cff4-4690-bba9-febcb87283b3",
+        title: "Gameplay Experience & Feedback",
+        slug: "gameplay-experience-feedback",
+      },
+      {
+        id: "54238f60-bc1b-4b59-a028-cd0977087cb9",
+        category_id: "8fefea57-cff4-4690-bba9-febcb87283b3",
+        title: "PC Games",
+        slug: "pc-games",
+      },
+      {
+        id: "c7f79b9d-b40b-4ac1-a9bb-d98adfc727ea",
+        category_id: "8fefea57-cff4-4690-bba9-febcb87283b3",
+        title: "Mobile Games",
+        slug: "mobile-games",
+      },
+    ],
+  },
+  {
+    id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Mobile App Development",
+    subCategories: [
+      {
+        id: "1a57b82b-019b-44e6-9e8b-89d5b703e4ea",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "Cross-platform Development",
+        slug: "cross-platform-development",
+      },
+      {
+        id: "2d3a0e3d-157a-43bb-bbe6-5f06b4bb75b1",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "Android App Development",
+        slug: "android-app-development",
+      },
+      {
+        id: "ad63965a-5cc2-4520-8c5a-b5d08bc30f5f",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "iOS App Development",
+        slug: "ios-app-development",
+      },
+      {
+        id: "d5c7db1f-f6d7-4b3b-a2c7-b8c5c25ec599",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "Website to App",
+        slug: "website-to-app",
+      },
+      {
+        id: "50ae8b27-b064-4c1f-a7e7-d0ebd30a2db6",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "Mobile App Maintenance",
+        slug: "mobile-app-maintenance",
+      },
+      {
+        id: "1897200f-88b5-4c7c-b9e9-e3f0f83ed2d0",
+        category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
+        title: "VR & AR Development",
+        slug: "vr-ar-development",
+      },
+    ],
+  },
+  {
+    id: "76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Cloud & Cybersecurity",
+    subCategories: [
+      {
+        id: "b4f3c59e-d319-4edb-a062-5f8c4d37f6e0",
+        category_id: "76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0",
+        title: "Cloud Computing",
+        slug: "cloud-computing",
+      },
+      {
+        id: "f4c03b78-54d4-4971-9dbb-42e7e58d70f1",
+        category_id: "76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0",
+        title: "DevOps Engineering",
+        slug: "devops-engineering",
+      },
+      {
+        id: "a7596f43-c70c-4878-a48a-2a76e61cf97b",
+        category_id: "76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0",
+        title: "Cybersecurity",
+        slug: "cybersecurity",
+      },
+    ],
+  },
+  {
+    id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Data Science & ML",
+    subCategories: [
+      {
+        id: "f82ff9b7-56be-4e27-8f6f-053d66e3dff9",
+        category_id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
+        title: "Machine Learning",
+        slug: "machine-learning",
+      },
+      {
+        id: "ce65cbe1-c3cc-47b4-8312-28259b8970fd",
+        category_id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
+        title: "Computer Vision",
+        slug: "computer-vision",
+      },
+      {
+        id: "83a86a91-66a6-4b24-8a6c-303f36fe52b0",
+        category_id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
+        title: "NLP (Natural Language Processing)",
+        slug: "nlp-natural-language-processing",
+      },
+      {
+        id: "ce3f3027-dcf1-408f-88d5-b706620f0be0",
+        category_id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
+        title: "Deep Learning",
+        slug: "deep-learning",
+      },
+    ],
+  },
+  {
+    id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+    category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    title: "Software Development",
+    subCategories: [
+      {
+        id: "70ed0547-7d79-460e-bb51-97c1b65e3df7",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "Web Applications",
+        slug: "web-applications",
+      },
+      {
+        id: "76423207-3068-4cf1-8a60-4a8f2311a535",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "Desktop Applications",
+        slug: "desktop-applications",
+      },
+      {
+        id: "85ab2385-b1d5-46d1-80b5-2ee25b35d1ed",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "Automations & Workflows",
+        slug: "automations-workflows",
+      },
+      {
+        id: "bf0878bb-b56c-49ad-8366-6d7ca3d77b8d",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "APIs & Integrations",
+        slug: "apis-integrations",
+      },
+      {
+        id: "9ccf2530-76f1-47d4-b3a9-4d1c8a85cc09",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "Databases",
+        slug: "databases",
+      },
+      {
+        id: "380c02a5-cd72-44b3-b657-bb3c47724376",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "Scripting",
+        slug: "scripting",
+      },
+      {
+        id: "5ecfe1ff-bcd5-4638-b8d5-8b89f5b5f649",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "QA & Review",
+        slug: "qa-review",
+      },
+      {
+        id: "3f927240-4426-4b98-a9c3-524fa2fffe64",
+        category_id: "8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa",
+        title: "User Testing",
+        slug: "user-testing",
+      },
+    ],
+  },
+];
+
+export const categories = [
+  {
+    id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    category_id: null,
+    slug: "programming-tech",
     title: "Programming & Tech",
     description:
       "Web development, mobile app development, eCommerce development, WordPress, AI & machine learning, and cybersecurity.",
+    subCategories: programmingTechSubCategories,
   },
+
   {
-    to: "#",
+    id: "f3a5d8a2-7b1f-4c90-9c1c-9e1b3b1f2a33",
+    category_id: null,
+    slug: "graphics-design",
     title: "Graphics & Design",
     description:
       "Logo design, website design, game design, illustration, packaging design, architecture & interior design, fashion & jewelry design, and more.",
   },
   {
-    to: "#",
+    id: "1c9a3b6e-6d41-4d82-9423-58b8e3b0df29",
+    category_id: null,
+    slug: "digital-marketing",
     title: "Digital Marketing",
     description:
       "SEO, social media marketing, paid advertising, content management, and marketing campaigns.",
   },
   {
-    to: "#",
+    id: "a7d28bfa-2b87-4e4a-8f4e-1d1b2d4e1a7c",
+    category_id: null,
+    slug: "writing-translation",
     title: "Writing & Translation",
     description:
       "Blog writing, copywriting, book writing, translation services, proofreading, and editing.",
   },
   {
-    to: "#",
+    id: "5fbc3d2e-1d5a-4f07-b6d1-8e1c9a5f2d7e",
+    category_id: null,
+    slug: "video-animation",
     title: "Video & Animation",
     description:
       "Video editing, animation, 3D modeling, explainer videos, intros & outros, and more.",
   },
   {
-    to: "#",
+    id: "9e4d2a1b-3f8c-4b71-81d5-2b7a1e9c3d5f",
+    category_id: null,
+    slug: "music-audio",
     title: "Music & Audio",
     description:
       "Voice-over, music production, sound effects, mixing & mastering, podcast editing, and jingles.",
   },
   {
-    to: "#",
+    id: "2b1d4e7a-5c3f-4a9d-8e1c-7b2f1d5a9e3c",
+    category_id: null,
+    slug: "business",
     title: "Business",
     description:
       "Business consulting, virtual assistants, financial consulting, market research, presentations, and business plans.",
   },
   {
-    to: "#",
+    id: "3d5a9e1c-7b2f-4a8d-2b1d4e1c5f7a",
+    category_id: null,
+    slug: "lifestyle",
     title: "Lifestyle",
     description:
       "Personal coaching, fitness, astrology, gaming, arts & crafts, and relationship advice.",
   },
   {
-    to: "#",
+    id: "7b2f1d5a-9e3c-4a8d-2b1d4e1c5f7a",
+    category_id: null,
+    slug: "data",
     title: "Data",
     description:
       "Data entry, data analysis, data visualization, data science, and databases.",
