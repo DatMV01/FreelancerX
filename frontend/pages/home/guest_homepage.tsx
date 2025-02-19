@@ -1,9 +1,19 @@
+import SignInForm from "@/components/form/signin";
+import LoginDialog from "@/components/navbar/login-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { categories, subCategoriesByCategory } from "@/data/data";
 import useGenerateRandomColor from "@/hooks/useGenerateRandomColor";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import { VisuallyHidden } from "radix-ui";
+import React, { useState } from "react";
 
 const SearchSection = () => {
   return (
@@ -101,12 +111,100 @@ const PopularServiceSection = () => {
   );
 };
 
+const FingerTips = () => {
+  return (
+    <div className="flex flex-col items-center py-4">
+      <h2 className="text-3xl text-[#404145]">
+        Make it all happen with freelancers
+      </h2>
+
+      <ul className="grid grid-cols-1 gap-1 md:grid-cols-2">
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/categories.8badf97.svg"
+            height={0}
+            width={0}
+            alt="Access a pool of top talent across 700 categories"
+            className="my-2 mr-2 h-12 w-12"
+          />
+          <p className="text-ml max-w-xs">
+            Access a pool of top talent across 700 categories
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/matching.0eef7cc.svg"
+            height={0}
+            width={0}
+            alt="Enjoy a simple, easy-to-use matching experience"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">
+            Enjoy a simple, easy-to-use matching experience
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/quickly.6879514.svg"
+            height={0}
+            width={0}
+            alt="Get quality work done quickly and within budget"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">
+            Get quality work done quickly and within budget
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/happy.42ed7bd.svg"
+            height={0}
+            width={0}
+            alt="Only pay when you’re happy"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">Only pay when you’re happy</p>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
+const LoginDialogGuestHomePage = () => {
+  const [isShowLoginForn, setShowLoginForm] = useState(false);
+
+  return (
+    <Dialog open={isShowLoginForn} onOpenChange={setShowLoginForm}>
+      <DialogTrigger
+        asChild
+        className="rounded-lg bg-[#222325] px-2 py-2 text-base font-bold text-white"
+      >
+        <button>Join Now</button>
+      </DialogTrigger>
+
+      <DialogContent className="max-w-fit rounded-xl bg-white px-0 py-[16px]">
+        <VisuallyHidden.Root>
+          <DialogTitle>DialogTitle</DialogTitle>
+          <DialogDescription>DialogDescription</DialogDescription>
+        </VisuallyHidden.Root>
+
+        <SignInForm setShowLoginForm={setShowLoginForm} />
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const GuestHomePage = () => {
   return (
     <div className="my-4">
       <SearchSection />
       <CategoriesSection />
       <PopularServiceSection />
+      <FingerTips />
+      <LoginDialogGuestHomePage />
     </div>
   );
 };
