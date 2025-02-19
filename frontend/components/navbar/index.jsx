@@ -14,15 +14,16 @@ import {
 import { categories } from "@/data/data";
 import { stringAvatar } from "@/lib/utils";
 import { Avatar, Divider } from "@mui/material";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import Logo from "../logo";
+import LoginDialog from "./login-dialog";
 import { CategoriesNav } from "./sub-categories-nav";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 const Navbar = () => {
   return (
-    <nav className="grid grid-cols-3 items-center">
+    <nav className="grid grid-cols-3 items-center border-b-2">
       <Sheet>
         <SheetTrigger asChild>
           <button className="w-[50px] border-none">
@@ -78,8 +79,11 @@ const Navbar = () => {
 
                 {categories &&
                   categories.map((category) => (
-                    <AccordionContent className="flex h-[40px] items-center pb-0 pl-4 text-base">
-                      <CategoriesNav key={category.id} category={category} />
+                    <AccordionContent
+                      className="flex h-[40px] items-center pb-0 pl-4 text-base"
+                      key={category.id}
+                    >
+                      <CategoriesNav category={category} />
                     </AccordionContent>
                   ))}
               </AccordionItem>
@@ -117,6 +121,8 @@ const Navbar = () => {
       <Link href="/" className="justify-self-center">
         <Logo />
       </Link>
+
+      <LoginDialog />
     </nav>
   );
 };

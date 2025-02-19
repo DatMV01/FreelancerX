@@ -29,7 +29,7 @@ export function CategoriesNav({ category }: { category: any }) {
       </SheetTrigger>
       <SheetContent side={side} className="ex bg-white">
         <SheetTitle>
-          <div className="grid grid-cols-3 items-center h-[40px]">
+          <div className="grid h-[40px] grid-cols-3 items-center">
             <SheetClose asChild>
               <button>
                 <LeftArrow />
@@ -60,18 +60,23 @@ export function CategoriesNav({ category }: { category: any }) {
           </div> */}
         </SheetTitle>
 
-        <ScrollArea className="h-full w-max" type="always">
+        <ScrollArea className="h-full w-full" type="always">
           {subCategories &&
             subCategories.map((subCategory: any) => (
               <div key={subCategory.id}>
-                <SheetTitle className="text-base h-[40px] flex items-center">
+                <SheetTitle className="flex h-[40px] items-center text-base">
                   {subCategory.title}
                 </SheetTitle>
 
                 <ul className="pl-4" key={subCategory.id}>
                   {subCategory.subCategories &&
                     subCategory.subCategories.map((subCategory: any) => (
-                      <li key={subCategory.id} className="text-base h-[40px] flex items-center"  >{subCategory.title}</li>
+                      <li
+                        key={subCategory.id}
+                        className="flex h-[40px] items-center text-base"
+                      >
+                        {subCategory.title}
+                      </li>
                     ))}
                 </ul>
               </div>
