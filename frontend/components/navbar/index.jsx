@@ -20,11 +20,13 @@ import Link from "next/link";
 import Logo from "../logo";
 import LoginDialog from "./login-dialog";
 import { CategoriesNav } from "./sub-categories-nav";
+import { useState } from "react";
 
 const Navbar = () => {
+  const [open, setOpen] = useState(false);
   return (
     <nav className="grid grid-cols-3 items-center border-b-2">
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button className="w-[50px] border-none">
             <svg
@@ -83,7 +85,7 @@ const Navbar = () => {
                       className="flex h-[40px] items-center pb-0 pl-4 text-base"
                       key={category.id}
                     >
-                      <CategoriesNav category={category} />
+                      <CategoriesNav category={category} setOpen={setOpen} />
                     </AccordionContent>
                   ))}
               </AccordionItem>

@@ -10,17 +10,26 @@ import {
 } from "@/components/ui/sheet";
 import LeftArrow from "../left-arrow";
 import RightArrow from "../right-arrow";
+import Link from "next/link";
+import { useState } from "react";
 const side = "left";
 
-export function CategoriesNav({ category }: { category: any }) {
+export function CategoriesNav({
+  category,
+  setOpen: setOpenParent,
+}: {
+  category: any;
+  setOpen: any;
+}) {
   if (!category) {
     return;
   }
 
   const { id, title, subCategories } = category;
+  const [open, setOpen] = useState(false);
 
   return (
-    <Sheet key={side}>
+    <Sheet key={side} open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <div className="flex w-full flex-row justify-between">
           <span>{title}</span>
@@ -75,7 +84,15 @@ export function CategoriesNav({ category }: { category: any }) {
                         key={subCategory.id}
                         className="flex h-[40px] items-center text-base"
                       >
-                        {subCategory.title}
+                        <Link
+                          href={`/categories/programming-tech/${subCategory.slug}`}
+                          onClick={() => {
+                            setOpen((prev: boolean) => !prev);
+                            setOpenParent((prev: boolean) => !prev);
+                          }}
+                        >
+                          {subCategory.title}
+                        </Link>
                       </li>
                     ))}
                 </ul>

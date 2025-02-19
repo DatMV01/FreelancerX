@@ -15,6 +15,7 @@ import { useState } from "react";
 import Facebook from "./facebook";
 import Instagram from "./instagram";
 import Linkedin from "./linkedin";
+import { v4 as uuidv4 } from "uuid";
 
 const Footer = () => {
   const [openAccordion1, setOpenAccordion1] = useState<string | null>(null);
@@ -50,6 +51,7 @@ const Footer = () => {
                   key={category.id}
                 >
                   <Link
+                    key={uuidv4()}
                     href={`/categories/${category.slug}`}
                     className="flex h-[40px] items-center"
                     onClick={() => toggleAccordion("item-1")}
@@ -83,6 +85,7 @@ const Footer = () => {
                 "Freelancer Connect Answers",
               ].map((link) => (
                 <Link
+                  key={uuidv4()}
                   href="#"
                   className="flex h-[40px] items-center"
                   onClick={() => toggleAccordion("item-2")}
@@ -114,6 +117,7 @@ const Footer = () => {
                 "Events",
               ].map((link) => (
                 <Link
+                  key={uuidv4()}
                   href="#"
                   className="flex h-[40px] items-center"
                   onClick={() => toggleAccordion("item-3")}
@@ -153,6 +157,7 @@ const Footer = () => {
                 "Investor Relations",
               ].map((link) => (
                 <Link
+                  key={uuidv4()}
                   href="#"
                   className="flex h-[40px] items-center"
                   onClick={() => toggleAccordion("item-4")}

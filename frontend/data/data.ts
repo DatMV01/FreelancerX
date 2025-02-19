@@ -52,19 +52,19 @@ const programmingTechSubCategories = [
         id: "e5a9b8b0-6c3f-4f1d-a723-2f8d834529d3",
         category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
         title: "Shopify",
-        slug: "e-commerce-development",
+        slug: "shopify",
       },
       {
         id: "72c914c0-1939-41d2-8b91-4f372f92d4d5",
         category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
         title: "Wix",
-        slug: "landing-pages",
+        slug: "wix",
       },
       {
         id: "3f1d45e8-2d53-4c8e-9e9d-897d3c8f1b57",
         category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
         title: "GoDaddy",
-        slug: "dropshipping-websites",
+        slug: "go-daddy",
       },
     ],
   },
@@ -355,12 +355,26 @@ const programmingTechSubCategories = [
   },
 ];
 
+export const subCategoriesByCategory = programmingTechSubCategories.flatMap(
+  (category) => {
+    const subCategories = category.subCategories.map((e) => {
+      return { ...e, slug: `programming-tech/${e.slug}` };
+    });
+
+    return Object.values({
+      ...subCategories,
+    });
+  },
+);
+
 export const categories = [
   {
     id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     category_id: null,
     slug: "programming-tech",
     title: "Programming & Tech",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/programming-tech-thin.56382a2.svg",
+    icon2: "categories-section/programming-tech-thin.56382a2.svg",
     description:
       "Web development, mobile app development, eCommerce development, WordPress, AI & machine learning, and cybersecurity.",
     subCategories: programmingTechSubCategories,
@@ -371,6 +385,8 @@ export const categories = [
     category_id: null,
     slug: "graphics-design",
     title: "Graphics & Design",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/graphics-design-thin.ff38893.svg",
+    icon2: "categories-section/graphics-design-thin.ff38893.svg",
     description:
       "Logo design, website design, game design, illustration, packaging design, architecture & interior design, fashion & jewelry design, and more.",
   },
@@ -379,6 +395,8 @@ export const categories = [
     category_id: null,
     slug: "digital-marketing",
     title: "Digital Marketing",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/digital-marketing-thin.68edb44.svg",
+    icon2: "categories-section/digital-marketing-thin.68edb44.svg",
     description:
       "SEO, social media marketing, paid advertising, content management, and marketing campaigns.",
   },
@@ -387,6 +405,8 @@ export const categories = [
     category_id: null,
     slug: "writing-translation",
     title: "Writing & Translation",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/writing-translation-thin.fd3699b.svg",
+    icon2: "categories-section/writing-translation-thin.fd3699b.svg",
     description:
       "Blog writing, copywriting, book writing, translation services, proofreading, and editing.",
   },
@@ -395,6 +415,8 @@ export const categories = [
     category_id: null,
     slug: "video-animation",
     title: "Video & Animation",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/video-animation-thin.9d3f24d.svg",
+    icon2: "categories-section/video-animation-thin.9d3f24d.svg",
     description:
       "Video editing, animation, 3D modeling, explainer videos, intros & outros, and more.",
   },
@@ -403,6 +425,8 @@ export const categories = [
     category_id: null,
     slug: "music-audio",
     title: "Music & Audio",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/music-audio-thin.43a9801.svg",
+    icon2: "categories-section/music-audio-thin.43a9801.svg",
     description:
       "Voice-over, music production, sound effects, mixing & mastering, podcast editing, and jingles.",
   },
@@ -411,23 +435,29 @@ export const categories = [
     category_id: null,
     slug: "business",
     title: "Business",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/business-thin.885e68e.svg",
+    icon2: "categories-section/business-thin.885e68e.svg",
     description:
       "Business consulting, virtual assistants, financial consulting, market research, presentations, and business plans.",
+  },
+
+  {
+    id: "7b2f1d5a-9e3c-4a8d-2b1d4e1c5f7a",
+    category_id: null,
+    slug: "data",
+    title: "Data",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/ai-services-thin.104f389.svg",
+    icon2: "categories-section/ai-services-thin.104f389.svg",
+    description:
+      "Data entry, data analysis, data visualization, data science, and databases.",
   },
   {
     id: "3d5a9e1c-7b2f-4a8d-2b1d4e1c5f7a",
     category_id: null,
     slug: "lifestyle",
     title: "Lifestyle",
-    description:
-      "Personal coaching, fitness, astrology, gaming, arts & crafts, and relationship advice.",
-  },
-  {
-    id: "7b2f1d5a-9e3c-4a8d-2b1d4e1c5f7a",
-    category_id: null,
-    slug: "data",
-    title: "Data",
-    description:
-      "Data entry, data analysis, data visualization, data science, and databases.",
+    icon: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/consulting-thin.d5547ff.svg",
+    icon2: "categories-section/consulting-thin.d5547ff.svg",
+    description: "Consulting",
   },
 ];

@@ -28,10 +28,8 @@ export async function getServerSideProps(context: any) {
 export default function Index({
   isLogin,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  console.log(isLogin);
-
   return (
-    <div className={`${roboto.className} ${geistSans.variable}  `}>
+    <div className={`${roboto.className} ${geistSans.variable} `}>
       {isLogin ? <UserHomePage /> : <GuestHomePage />}
     </div>
   );
