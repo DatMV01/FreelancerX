@@ -31,7 +31,7 @@ const Footer = () => {
   };
 
   return (
-    <div className="mt-4">
+    <div className="my-4">
       <div>
         <Accordion
           type="single"

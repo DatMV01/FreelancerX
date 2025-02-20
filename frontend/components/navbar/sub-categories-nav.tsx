@@ -69,7 +69,7 @@ export function CategoriesNav({
           </div> */}
         </SheetTitle>
 
-        <ScrollArea className="h-full w-full" type="always">
+        <ScrollArea className="h-full w-full pb-[40px]" type="always">
           {subCategories &&
             subCategories.map((subCategory: any) => (
               <div key={subCategory.id}>
@@ -95,7 +95,10 @@ export function CategoriesNav({
                         </Link>
                       </li>
                     ))}
+
+              
                 </ul>
+                
               </div>
             ))}
         </ScrollArea>

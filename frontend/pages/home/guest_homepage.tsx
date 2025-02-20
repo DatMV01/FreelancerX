@@ -173,14 +173,14 @@ const FingerTips = () => {
   );
 };
 
-const LoginDialogGuestHomePage = () => {
+const LoginDialogGuestHomePage = ({ className }: { className?: any }) => {
   const [isShowLoginForn, setShowLoginForm] = useState(false);
 
   return (
     <Dialog open={isShowLoginForn} onOpenChange={setShowLoginForm}>
       <DialogTrigger
         asChild
-        className="rounded-lg bg-[#222325] px-2 py-2 text-base font-bold text-white"
+        className={`rounded-lg bg-[#222325] px-2 py-2 text-base font-bold text-white ${className}`}
       >
         <button>Join Now</button>
       </DialogTrigger>
@@ -197,6 +197,23 @@ const LoginDialogGuestHomePage = () => {
   );
 };
 
+const MakeOnFreelancerConnect = () => {
+  return <div>MakeOnFreelancerConnect</div>;
+};
+
+const FingerTips2 = () => {
+  return (
+    <div className="flex h-[250px] w-full flex-col items-center justify-between rounded-lg bg-[#4d1727] px-6 py-8">
+      <h2 className="text-center text-3xl text-white">
+        Freelance services at your <br />
+        <span className="text-[#ff7640]">fingertips</span>
+      </h2>
+
+      <LoginDialogGuestHomePage className="bg-[white] px-4 text-black" />
+    </div>
+  );
+};
+
 const GuestHomePage = () => {
   return (
     <div className="my-4">
@@ -205,6 +222,8 @@ const GuestHomePage = () => {
       <PopularServiceSection />
       <FingerTips />
       <LoginDialogGuestHomePage />
+      <MakeOnFreelancerConnect />
+      <FingerTips2 />
     </div>
   );
 };
