@@ -1,5 +1,4 @@
 import SignInForm from "@/components/form/signin";
-import LoginDialog from "@/components/navbar/login-dialog";
 import {
   Dialog,
   DialogContent,
@@ -9,11 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { categories, subCategoriesByCategory } from "@/data/data";
-import useGenerateRandomColor from "@/hooks/useGenerateRandomColor";
 import Image from "next/image";
 import Link from "next/link";
 import { VisuallyHidden } from "radix-ui";
-import React, { useState } from "react";
+import { useState } from "react";
+import MasonryGrid from "./masonry-grid";
 
 const SearchSection = () => {
   return (
@@ -198,7 +197,7 @@ const LoginDialogGuestHomePage = ({ className }: { className?: any }) => {
 };
 
 const MakeOnFreelancerConnect = () => {
-  return <div>MakeOnFreelancerConnect</div>;
+  return <MasonryGrid />;
 };
 
 const FingerTips2 = () => {
@@ -209,7 +208,7 @@ const FingerTips2 = () => {
         <span className="text-[#ff7640]">fingertips</span>
       </h2>
 
-      <LoginDialogGuestHomePage className="bg-[white] px-4 text-black" />
+      <LoginDialogGuestHomePage className="px-4" />
     </div>
   );
 };
