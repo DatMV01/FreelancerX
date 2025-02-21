@@ -14,6 +14,13 @@ import { VisuallyHidden } from "radix-ui";
 import { useState } from "react";
 import MasonryGrid from "./masonry-grid";
 
+import { Swiper, SwiperSlide } from "swiper/react";
+import { useEffect } from "react";
+import { Scrollbar } from "swiper/modules";
+
+import "swiper/css";
+import "swiper/css/scrollbar";
+ 
 const SearchSection = () => {
   return (
     <div className="flex h-[300px] w-full flex-col items-center justify-between rounded-lg bg-gradient-to-b from-green-900 to-green-500 px-6 py-12">
@@ -109,6 +116,67 @@ const PopularServiceSection = () => {
     </div>
   );
 };
+
+export const PopularServiceSectionSwipper = () => {
+  const [slideWidth, setSlideWidth] = useState("120px");
+  const [slideHeight, setSlideHeight] = useState("170px");
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (window.innerWidth < 640) {
+      } else if (window.innerWidth >= 640) {
+      } else if (window.innerWidth >= 768) {
+      } else if (window.innerWidth >= 1024) {
+      } else if (window.innerWidth >= 1280) {
+      } else if (window.innerWidth >= 1536) {
+      }
+    };
+
+    window.addEventListener("resize", updateWidth);
+    updateWidth();
+
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  return (
+    <Swiper
+      modules={[Scrollbar]}
+      scrollbar={{ draggable: true, hide: true }}
+      spaceBetween={15}
+      slidesPerView={"auto"}
+      className="my-4 w-full"
+      style={{ paddingBottom: "10px" }}
+    >
+      {subCategoriesByCategory.map((category: any) => {
+        return (
+          <SwiperSlide style={{ width: slideWidth, height: slideHeight }}>
+            <Link key={category.id} href={`/categories/${category.slug}`}>
+              <div
+                className={`flex h-full flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1`}
+              >
+                <p className="line-clamp-2 h-[50px] overflow-hidden text-ellipsis text-center text-white">
+                  {category.title}
+                </p>
+
+                <div className="relative h-2/3">
+                  <Image
+                    className="rounded-lg"
+                    alt="Website Development"
+                    fill
+                    src="/images/website-development.webp"
+                    objectFit="cover"
+                    priority
+                  />
+                </div>
+              </div>
+            </Link>
+          </SwiperSlide>
+        );
+      })}
+    </Swiper>
+  );
+};
+
 
 const FingerTips = () => {
   return (
@@ -216,13 +284,16 @@ const FingerTips2 = () => {
 const GuestHomePage = () => {
   return (
     <div className="my-4">
+           
       <SearchSection />
       <CategoriesSection />
-      <PopularServiceSection />
+      {/* <PopularServiceSection /> */}
+      <PopularServiceSectionSwipper />
       <FingerTips />
       <LoginDialogGuestHomePage />
       <MakeOnFreelancerConnect />
       <FingerTips2 />
+ 
     </div>
   );
 };
