@@ -360,7 +360,7 @@ const Explore = ({ title = "", ...props }: { title: any }) => {
         ))}
       </div>
 
-      <div className="grid grid-cols-4 gap-6 md:visible">
+      <div className="hidden grid-cols-4 gap-6 md:visible md:grid">
         {programmingTechSubCategories.map((category) => (
           <div>
             <div>
@@ -431,7 +431,7 @@ const FAQ = ({ title = "", ...props }: { title: any }) => {
     },
   ];
   return (
-    <div className="bg-[#FAFAFA]">
+    <div className="bg-[#FAFAFA] pt-4">
       <h2 className="text-base font-bold">{title} FAQs</h2>
 
       {faqs.map((faq) => (
@@ -460,9 +460,72 @@ const FAQ = ({ title = "", ...props }: { title: any }) => {
 };
 
 const Interested = ({ title = "", ...props }: { title: any }) => {
+  const interesteds = [
+    {
+      title: "Fivem Script",
+      link: "/categories/programming-tech/buy/game-development/customization/fivem",
+    },
+    {
+      title: "Convert Website to App",
+      link: "/categories/programming-tech/mobile-app-services/convert-site-to-app",
+    },
+    {
+      title: "Custom App",
+      link: "/categories/programming-tech/mobile-app-services/custom-app",
+    },
+    { title: "Discord Server", link: "/gigs/discord-server" },
+    { title: "Python Developer", link: "/gigs/python-developer" },
+    { title: "PHP Programmer", link: "/hire/php-programmer" },
+    { title: "Unity Developer", link: "/gigs/unity-game-developer" },
+    {
+      title: "Discord Chatbot",
+      link: "/categories/programming-tech/buy/chatbots/discord",
+    },
+    {
+      title: "Twitch Trivia Bot",
+      link: "/categories/programming-tech/buy/chatbots/trivia-gaming",
+    },
+    { title: "Shopify Expert", link: "/gigs/shopify-expert" },
+    {
+      title: "Wix website builder",
+      link: "/categories/programming-tech/website-development/wix-development",
+    },
+    {
+      title: "Squarespace Programmer",
+      link: "/categories/programming-tech/website-development/squarespace-development",
+    },
+    { title: "Roblox Scripter", link: "/hire/roblox-scripter" },
+    { title: "Bloxburg Builder", link: "/hire/bloxburg-builder" },
+    { title: "Minecraft Builders", link: "/hire/minecraft-builder" },
+    {
+      title: "Wordpress Customization",
+      link: "/categories/programming-tech/buy/website-maintenance/customization/wordpress",
+    },
+    {
+      title: "Book Formatting",
+      link: "/categories/programming-tech/file-conversion-services/convert-to-e-book",
+    },
+    {
+      title: "Custom Landing Page",
+      link: "/categories/programming-tech/buy/website-development/custom-websites-development/landing-page",
+    },
+    { title: "Web Scraping", link: "/categories/data/data-mining" },
+    { title: "NFT Promotion", link: "/gigs/nft-promotion" },
+  ];
+
   return (
-    <div>
-      <h2>You might be interested in {title}</h2>
+    <div className="p-8">
+      <h2 className="w-full p-8 text-center text-2xl font-bold">
+        You might be interested in {title}
+      </h2>
+
+      <div className="flex flex-wrap items-center justify-center">
+        {interesteds.map((i) => (
+          <div className="m-1 w-fit rounded-3xl bg-[#EFEFF0] px-4 py-1 font-medium">
+            {i.title}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
