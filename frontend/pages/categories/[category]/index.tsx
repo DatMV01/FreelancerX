@@ -46,14 +46,11 @@ const Banner = ({ category, ...props }: { category: any }) => {
   const { title, slogen } = category;
   return (
     <div
-      className="relative flex h-[250px] w-full flex-col items-center justify-center"
-      style={{
-        backgroundImage:
-          "url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/67119574fcb6178f7b270ef6e50d2ff5-1689143593532/Programing.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundColor: "rgb(37,66,0)",
-      }}
+      className={clsx(
+        "relative flex h-[250px] w-full flex-col items-center justify-center",
+        "bg-[rgb(37,66,0)] bg-contain bg-center",
+        "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/67119574fcb6178f7b270ef6e50d2ff5-1689143593532/Programing.png')]",
+      )}
     >
       <h1 className="mb-6 text-3xl text-white">{title}</h1>
 
@@ -104,6 +101,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import clsx from "clsx";
 
 const Explore = ({ title = "", ...props }: { title: any }) => {
   const programmingTechSubCategories = [
