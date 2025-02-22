@@ -69,7 +69,7 @@ const MostPopular = ({ category, ...props }: { category: any }) => {
     <div className="my-6">
       <h2 className="text-base font-bold">Most Popular in {title} </h2>
 
-      <div className="grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto">
+      <div className="scrollbar grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto scroll-smooth py-2 md:grid-cols-[repeat(9,_300px)] md:grid-rows-1">
         {mostPopulars.map((m: any) => (
           <Link href={m.url}>
             <div className="flex h-[75px] w-[300px] items-center rounded-lg bg-slate-50 p-4 shadow">
@@ -102,6 +102,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import clsx from "clsx";
+import { useRef, useState } from "react";
 
 const Explore = ({ title = "", ...props }: { title: any }) => {
   const programmingTechSubCategories = [
@@ -327,43 +328,71 @@ const Explore = ({ title = "", ...props }: { title: any }) => {
     <div className="my-4">
       <h2 className="text-base font-bold">Explore {title} </h2>
 
-      {programmingTechSubCategories.map((category) => (
-        <Accordion className="border-none shadow-none" defaultExpanded>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-            className="p-0"
-          >
-            <Typography component="span">
-              <div className="flex items-center justify-center">
-                <img
-                  className="aspect-video h-[50px]"
-                  src={category.bucketImage}
-                />
-                <span className="pl-4 font-bold">{category.bucketTitle}</span>
+      <div className="md:hidden">
+        {programmingTechSubCategories.map((category) => (
+          <Accordion className="border-none shadow-none" defaultExpanded>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1-content"
+              id="panel1-header"
+              className="p-0"
+            >
+              <Typography component="span">
+                <div className="flex items-center justify-center">
+                  <img
+                    className="aspect-video h-[50px]"
+                    src={category.bucketImage}
+                  />
+                  <span className="pl-4 font-bold">{category.bucketTitle}</span>
+                </div>
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {category.bucketContent.map((c) => (
+                <div className="hover:pointer flex h-10 items-center text-base text-[#62646a] hover:bg-gray-50">
+                  <Link className="w-full" href={c.href}>
+                    {c.name}
+                  </Link>
+                </div>
+              ))}
+            </AccordionDetails>
+          </Accordion>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-4 gap-6 md:visible">
+        {programmingTechSubCategories.map((category) => (
+          <div>
+            <div>
+              <div className="flex flex-col">
+                <div className="relative aspect-video w-full rounded-2xl">
+                  <Image alt="" src={category.bucketImage} fill />
+                </div>
+                <span className="py-4 font-bold">{category.bucketTitle}</span>
               </div>
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {category.bucketContent.map((c) => (
-              <div className="hover:pointer flex h-10 items-center text-base text-[#62646a] hover:bg-gray-50">
-                <Link className="w-full" href={c.href}>
-                  {c.name}
-                </Link>
+
+              <div>
+                {category.bucketContent.map((c) => (
+                  <div className="hover:pointer flex h-8 items-center text-base text-[#62646a] hover:bg-gray-50">
+                    <Link className="w-full" href={c.href}>
+                      {c.name}
+                    </Link>
+                  </div>
+                ))}
               </div>
-            ))}
-          </AccordionDetails>
-        </Accordion>
-      ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
 const Guides = ({ title = "", ...props }: { title: any }) => {
   return (
-    <div>
+    <div className="py-4">
       <h2 className="text-base font-bold">Guides related to {title}</h2>
+      <p>Not implement</p>
     </div>
   );
 };
@@ -402,11 +431,11 @@ const FAQ = ({ title = "", ...props }: { title: any }) => {
     },
   ];
   return (
-    <div>
+    <div className="bg-[#FAFAFA]">
       <h2 className="text-base font-bold">{title} FAQs</h2>
 
       {faqs.map((faq) => (
-        <Accordion className="border-none shadow-none" defaultExpanded>
+        <Accordion className="border-none bg-[#FAFAFA] shadow-none">
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
@@ -415,17 +444,17 @@ const FAQ = ({ title = "", ...props }: { title: any }) => {
           >
             <Typography component="span">
               <div className="flex items-center justify-center">
-                <span className="pl-4">{faq.title}</span>
+                <span className="pl-4 text-[16px]">{faq.title}</span>
               </div>
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <div>
-              <span className=" ">{faq.content}</span>
-            </div>
+            <div className="pl-4">{faq.content}</div>
           </AccordionDetails>
         </Accordion>
       ))}
+
+      <div className="h-20"></div>
     </div>
   );
 };
