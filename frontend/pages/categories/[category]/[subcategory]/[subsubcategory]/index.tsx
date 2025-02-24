@@ -1,5 +1,15 @@
 import React from "react";
 import { useRouter } from "next/router";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import BreadcrumbCpn from "@/components/breadcrumb";
+
 const Page = () => {
   const router = useRouter();
 
@@ -7,11 +17,7 @@ const Page = () => {
 
   return (
     <div>
-      <div>
-        <h1>Category: {category}</h1>
-        {subcategory && <h2>Subcategory: {subcategory}</h2>}
-        {subsubcategory && <h3>Sub-subcategory: {subsubcategory}</h3>}
-      </div>
+      <BreadcrumbCpn />
     </div>
   );
 };

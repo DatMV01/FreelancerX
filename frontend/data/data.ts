@@ -1,3 +1,5 @@
+import { consoleLog } from "@/utils/console";
+
 const programmingTechSubCategories = [
   {
     id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
@@ -5,7 +7,40 @@ const programmingTechSubCategories = [
     title: "Website Development",
     slug: "website-development",
     url: "/categories/programming-tech/website-development",
+    description:
+      "Create, build, and develop your website with skilled website developers",
     subCategories: [
+      {
+        id: "af0722a4-00c2-484e-b205-4d8527a78228",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044233/Python%20Developers.png",
+        title: "Python Developers",
+        slug: "python",
+        url: "/categories/programming-tech/software-development/python",
+        description:
+          "Create professional Python based web applications with the help of freelance Python experts",
+      },
+      {
+        id: "3cc198c5-7192-4d6c-b4d8-b062ee1c7b4d",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/8ab683c462bb7021359f813a67f0a210-1727008217020/HTML%20_%20CSS%20Developers.png",
+        title: "HTML & CSS Developers",
+        slug: "html-css",
+        url: "/categories/programming-tech/software-development/html-css",
+        description:
+          "Find the best HTML & CSS developers services you need to help you successfully meet your project planning goals and deadline",
+      },
+
+      {
+        id: "9656aec9-8c36-4c07-98a2-bc37fdd5ff63",
+        category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044218/JavaScript%20Developers.png",
+        title: "JavaScript Developers",
+        slug: "javascript",
+        url: "/categories/programming-tech/software-development/javascript",
+        description:
+          "Find the best JavaScript developers services you need to help you successfully meet your project planning goals and deadline",
+      },
       {
         id: "b9f7c618-cc7a-4a63-a927-fd15e1a569ed",
         category_id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
@@ -43,7 +78,6 @@ const programmingTechSubCategories = [
       },
     ],
   },
-
   {
     id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
@@ -52,25 +86,33 @@ const programmingTechSubCategories = [
     url: "/categories/programming-tech/website-platform",
     subCategories: [
       {
-        id: "f8c2df49-e84a-46bc-bc10-2df8f8a5b129",
-        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
-        title: "WordPress",
+        id: "afb9e093-b692-45a5-8d18-a25299e7e8f9",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447004/WordPress%20Developers.png",
+        title: "WordPress Developers",
         slug: "wordpress",
         url: "/categories/programming-tech/website-platform/wordpress",
+        description:
+          "Find a freelance Wordpress development expert to build your WordPress website",
       },
+
       {
-        id: "e5a9b8b0-6c3f-4f1d-a723-2f8d834529d3",
-        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
-        title: "Shopify",
+        id: "33594b0e-f360-46ea-9a00-94b417c819b2",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583518/Shopify%20Developers.png",
+        title: "Shopify Developers",
         slug: "shopify",
+
         url: "/categories/programming-tech/website-platform/shopify",
+
+        description: "Find a developer to build your Shopify site",
       },
+
       {
-        id: "72c914c0-1939-41d2-8b91-4f372f92d4d5",
-        category_id: "d0739b2a-df3b-4cb2-8f80-7416a3e13c4a",
-        title: "Wix",
+        id: "dede312d-6e9c-474d-92b9-85aa50650aa2",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447000/Wix%20Developers.png",
+        title: "Wix Developers",
         slug: "wix",
         url: "/categories/programming-tech/website-platform/wix",
+        description: "Find a developer to build your Wix site",
       },
       {
         id: "3f1d45e8-2d53-4c8e-9e9d-897d3c8f1b57",
@@ -190,6 +232,7 @@ const programmingTechSubCategories = [
     id: "8fefea57-cff4-4690-bba9-febcb87283b3",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     title: "Game Development",
+    slug: "game-development",
     subCategories: [
       {
         id: "3ed72dfd-89ed-4685-a91c-cb47820c1578",
@@ -209,6 +252,15 @@ const programmingTechSubCategories = [
         title: "Mobile Games",
         slug: "mobile-games",
       },
+      {
+        id: "bf90a7bf-ca86-42b6-bb33-9869ecc79182",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583542/Unity%20Developers.png",
+        title: "Unity Developers",
+        slug: "unity",
+        url: "/categories/programming-tech/game-development/unity",
+        description:
+          "Find the best unity game developers services you need to help you successfully meet your project planning goals and deadline",
+      },
     ],
   },
   {
@@ -221,36 +273,46 @@ const programmingTechSubCategories = [
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
         title: "Cross-platform Development",
         slug: "cross-platform-development",
+        url: "/categories/software-development/mobile-app-development/cross-platform-development",
       },
       {
         id: "2d3a0e3d-157a-43bb-bbe6-5f06b4bb75b1",
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
-        title: "Android App Development",
-        slug: "android-app-development",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011179/Android%20App%20Development.png",
+        title: "Android App Developers",
+        slug: "android",
+        url: "/categories/software-development/mobile-app-development/android",
+        description: "Go mobile with custom Android apps.",
       },
       {
         id: "ad63965a-5cc2-4520-8c5a-b5d08bc30f5f",
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
-        title: "iOS App Development",
-        slug: "ios-app-development",
+        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011194/iOS%20App%20Development.png",
+        title: "iOS App Developers",
+        slug: "ios",
+        url: "/categories/software-development/mobile-app-development/ios",
+        description: "Go mobile with custom iOS apps.",
       },
       {
         id: "d5c7db1f-f6d7-4b3b-a2c7-b8c5c25ec599",
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
         title: "Website to App",
         slug: "website-to-app",
+        url: "/categories/software-development/mobile-app-development/website-to-app",
       },
       {
         id: "50ae8b27-b064-4c1f-a7e7-d0ebd30a2db6",
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
         title: "Mobile App Maintenance",
         slug: "mobile-app-maintenance",
+        url: "/categories/software-development/mobile-app-development/mobile-app-maintenance",
       },
       {
         id: "1897200f-88b5-4c7c-b9e9-e3f0f83ed2d0",
         category_id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
         title: "VR & AR Development",
         slug: "vr-ar-development",
+        url: "/categories/software-development/mobile-app-development/vr-ar-development",
       },
     ],
   },
@@ -389,6 +451,60 @@ export const subCategoriesByCategory = programmingTechSubCategories.flatMap(
   },
 );
 
+export function findCategoryBySlug(slug: String) {
+  return programmingTechSubCategories.reduce((result: any, category: any) => {
+    if (result) return result; // If found, keep the result
+
+    const found = category.slug === slug;
+    if (found) return category;
+
+    if (category.subCategories) {
+      const found = category.subCategories.find(
+        (sub: any) => sub.slug === slug,
+      );
+      if (found) return found;
+    }
+    return null;
+  }, null);
+}
+
+export function findCategoriesBySlugs(slugs: string[]) {
+  return programmingTechSubCategories.reduce(
+    (foundSubcategories: any[], category) => {
+      if (category.subCategories) {
+        const matchingSubcategories = category.subCategories.filter(
+          (subcategory) => slugs.includes(subcategory.slug),
+        );
+        foundSubcategories.push(...matchingSubcategories);
+      }
+      if (category.slug && slugs.includes(category.slug)) {
+        foundSubcategories.push(category);
+      }
+      return foundSubcategories;
+    },
+    [],
+  );
+}
+
+const slugsToFind = [
+  "python",
+  "html-css",
+  "javascript",
+  "wordpress",
+  "shopify",
+  "wix",
+  "ios",
+  "android",
+  "unity",
+];
+const foundMostPopulars = findCategoriesBySlugs(slugsToFind);
+
+if (foundMostPopulars.length > 0) {
+  console.log("Found subcategories:", foundMostPopulars);
+} else {
+  console.log("Subcategories not found.");
+}
+
 export const categories = [
   {
     id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
@@ -400,64 +516,9 @@ export const categories = [
     description:
       "Web development, mobile app development, eCommerce development, WordPress, AI & machine learning, and cybersecurity.",
     slogen: "You think it. A programmer <br /> <span>develops it.</span>",
-    subCategories: programmingTechSubCategories,
     url: "/categories/programming-tech",
-    mostPopulars: [
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044233/Python%20Developers.png",
-        title: "Python Developers",
-        slug: "python",
-        url: "/categories/programming-tech/software-development/python",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/8ab683c462bb7021359f813a67f0a210-1727008217020/HTML%20_%20CSS%20Developers.png",
-        title: "HTML & CSS Developers",
-        slug: "html-css",
-        url: "/categories/programming-tech/software-development/html-css",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044218/JavaScript%20Developers.png",
-        title: "JavaScript Developers",
-        slug: "javascript",
-        url: "/categories/programming-tech/software-development/javascript",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447004/WordPress%20Developers.png",
-        title: "WordPress  Developers",
-        slug: "wordpress",
-        url: "/categories/programming-tech/software-development/wordpress",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583518/Shopify%20Developers.png",
-        title: "Shopify  Developers",
-        slug: "shopify",
-        url: "/categories/programming-tech/software-development/shopify",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447000/Wix%20Developers.png",
-        title: "Wix Developers",
-        slug: "wix",
-        url: "/categories/programming-tech/software-development/wix",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011194/iOS%20App%20Development.png",
-        title: "iOS App Developers",
-        slug: "ios",
-        url: "/categories/programming-tech/software-development/ios",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011179/Android%20App%20Development.png",
-        title: "Android App Developers",
-        slug: "android",
-        url: "/categories/programming-tech/software-development/android",
-      },
-      {
-        icon: "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583542/Unity%20Developers.png",
-        title: "Unity Developers",
-        slug: "unity",
-        url: "/categories/programming-tech/software-development/unity",
-      },
-    ],
+    subCategories: programmingTechSubCategories,
+    mostPopulars: foundMostPopulars,
   },
 
   {
