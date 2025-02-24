@@ -69,7 +69,7 @@ const MostPopular = ({ category, ...props }: { category: any }) => {
     <div className="my-6">
       <h2 className="text-base font-bold">Most Popular in {title} </h2>
 
-      <ScrollableDiv
+      <ScrollableDiv2
         showScrollBar={true}
         showLeftRightButton={true}
         layout="grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto scroll-smooth py-2 md:grid-cols-[repeat(9,_300px)] md:grid-rows-1"
@@ -103,7 +103,7 @@ const MostPopular = ({ category, ...props }: { category: any }) => {
           </Link>
         ))}
         {/* </div> */}
-      </ScrollableDiv>
+      </ScrollableDiv2>
     </div>
   );
 };
@@ -115,7 +115,8 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import clsx from "clsx";
 import { useRef, useState } from "react";
-import ScrollableDiv from "@/components/scrollable-div ";
+import ScrollableDiv from "@/components/scrollable-div";
+import ScrollableDiv2 from "@/components/scrollable-div-2";
 
 const Explore = ({ title = "", ...props }: { title: any }) => {
   const programmingTechSubCategories = [

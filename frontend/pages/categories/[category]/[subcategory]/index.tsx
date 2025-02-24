@@ -1,20 +1,8 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/router";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import BreadcrumbCpn from "@/components/breadcrumb";
 import { findCategoryBySlug } from "@/data/data";
-import { consoleLog } from "@/utils/console";
-import { useSearchParams } from "next/navigation";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
 
 const Page = () => {
   const router = useRouter();
@@ -35,8 +23,6 @@ const Page = () => {
           </p>
         </div>
       )}
-
-      
     </div>
   );
 };

@@ -21,7 +21,7 @@ import Logo from "../logo";
 import LoginDialog from "./login-dialog";
 import { CategoriesNav } from "./sub-categories-nav";
 import { useState } from "react";
-import ScrollableDiv from "../scrollable-div ";
+import ScrollableDiv from "../scrollable-div";
 import { categoriesMenuData } from "@/data/data";
 
 const CategoriesMenu = () => {
@@ -152,6 +152,7 @@ const Navbar = () => {
 
         <LoginDialog />
       </nav>
+      
       <CategoriesMenu />
     </div>
   );

@@ -1,13 +1,21 @@
 import clsx from "clsx";
-import { useRef, useState, MouseEvent, PropsWithChildren } from "react";
+import {
+  MouseEvent,
+  PropsWithChildren,
+  ReactNode,
+  useRef,
+  useState,
+} from "react";
 
 type Props = {
+  children?: ReactNode;
   className?: any;
   layout?: any;
   dragAndScroll?: boolean;
   showScrollBar?: boolean;
   showLeftRightButton?: boolean;
 };
+type Ref = HTMLDivElement;
 
 const ScrollableDiv = ({
   children,
@@ -70,16 +78,13 @@ const ScrollableDiv = ({
     clearTimeout((scrollRef.current as any)?._scrollTimeout);
     (scrollRef.current as any)._scrollTimeout = setTimeout(
       () => setIsScrolling(false),
-      1000,
+      2000,
     );
 
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     setIsTopScrollLeft(scrollLeft != 0);
     setIsLastScrollLeft(scrollLeft + clientWidth <= scrollWidth - 1);
-
-    console.log(scrollRef.current?.scrollWidth);
-    console.log(scrollRef.current?.scrollLeft);
   };
 
   return (

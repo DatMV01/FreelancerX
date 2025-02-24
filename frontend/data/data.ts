@@ -497,7 +497,7 @@ const slugsToFind = [
   "android",
   "unity",
 ];
-const foundMostPopulars = findCategoriesBySlugs(slugsToFind);
+export const foundMostPopulars = findCategoriesBySlugs(slugsToFind);
 
 if (foundMostPopulars.length > 0) {
   console.log("Found subcategories:", foundMostPopulars);
