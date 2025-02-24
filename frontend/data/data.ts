@@ -541,3 +541,58 @@ export const categories = [
     description: "Consulting",
   },
 ];
+
+export const categoriesMenuData = [
+  {
+    title: "Programming & Tech",
+    href: "/categories/programming-tech?source=category_tree",
+  },
+  {
+    title: "Graphics & Design",
+    href: "/categories/graphics-design?source=category_tree",
+  },
+  {
+    title: "Digital Marketing",
+    href: "/categories/online-marketing?source=category_tree",
+  },
+  {
+    title: "Video & Animation",
+    href: "/categories/video-animation?source=category_tree",
+  },
+  {
+    title: "Writing & Translation",
+    href: "/categories/writing-translation?source=category_tree",
+  },
+  {
+    title: "Music & Audio",
+    href: "/categories/music-audio?source=category_tree",
+  },
+  {
+    title: "Business",
+    href: "/categories/business?source=category_tree",
+  },
+  {
+    title: "Finance",
+    href: "/categories/finance?source=category_tree",
+  },
+  {
+    title: "AI Services",
+    href: "/categories/ai-services",
+  },
+  {
+    title: "Personal Growth",
+    href: "/categories/lifestyle?source=category_tree",
+  },
+  {
+    title: "Consulting",
+    href: "/categories/consulting-services",
+  },
+  {
+    title: "Data",
+    href: "/categories/data?source=category_tree",
+  },
+  {
+    title: "Photography",
+    href: "/categories/photography?source=category_tree",
+  },
+];

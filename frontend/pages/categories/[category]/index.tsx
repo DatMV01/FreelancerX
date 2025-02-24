@@ -63,18 +63,29 @@ const Banner = ({ category, ...props }: { category: any }) => {
 };
 
 const MostPopular = ({ category, ...props }: { category: any }) => {
-  const { title, mostPopulars } = category;
+  const { title = "", mostPopulars = [] } = category;
 
   return (
     <div className="my-6">
       <h2 className="text-base font-bold">Most Popular in {title} </h2>
 
-      <div className="scrollbar grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto scroll-smooth py-2 md:grid-cols-[repeat(9,_300px)] md:grid-rows-1">
+      <ScrollableDiv
+        showScrollBar={true}
+        showLeftRightButton={true}
+        layout="grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto scroll-smooth py-2 md:grid-cols-[repeat(9,_300px)] md:grid-rows-1"
+      >
+        {/* <div className="scrollbar grid grid-cols-[repeat(3,_300px)] grid-rows-3 gap-3 overflow-auto scroll-smooth py-2 md:grid-cols-[repeat(9,_300px)] md:grid-rows-1"> */}
         {mostPopulars.map((m: any) => (
           <Link href={m.url}>
-            <div className="flex h-[75px] w-[300px] items-center rounded-lg bg-slate-50 p-4 shadow">
+            <div className="mr-4 flex h-[75px] w-[300px] items-center rounded-lg bg-slate-50 p-4 font-bold shadow hover:fill-green-600 hover:text-green-600">
               <span className="relative h-[50px] w-[50px]">
-                <Image alt="logo" src={m.icon} fill objectFit="cover" />
+                <Image
+                  alt="logo"
+                  src={m.icon}
+                  fill
+                  objectFit="cover"
+                  className=""
+                />
               </span>
 
               <span className="flex-grow">{m.title}</span>
@@ -91,7 +102,8 @@ const MostPopular = ({ category, ...props }: { category: any }) => {
             </div>
           </Link>
         ))}
-      </div>
+        {/* </div> */}
+      </ScrollableDiv>
     </div>
   );
 };
@@ -103,6 +115,7 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import clsx from "clsx";
 import { useRef, useState } from "react";
+import ScrollableDiv from "@/components/scrollable-div ";
 
 const Explore = ({ title = "", ...props }: { title: any }) => {
   const programmingTechSubCategories = [
@@ -373,7 +386,7 @@ const Explore = ({ title = "", ...props }: { title: any }) => {
 
               <div>
                 {category.bucketContent.map((c) => (
-                  <div className="hover:pointer flex h-8 items-center text-base text-[#62646a] hover:bg-gray-50">
+                  <div className="hover:pointer flex min-h-8 items-center text-base text-[#62646a] hover:bg-gray-50">
                     <Link className="w-full" href={c.href}>
                       {c.name}
                     </Link>
