@@ -2,6 +2,7 @@
 
 import BreadcrumbCpn from "@/components/breadcrumb";
 import { FilterSection } from "@/components/filter_section";
+import { GigCard } from "@/components/gig_card";
 import ScrollableDiv2 from "@/components/scrollable-div-2";
 import {
   Popover,
@@ -10,10 +11,12 @@ import {
 } from "@/components/ui/popover";
 import { findCategoryBySlug } from "@/data/data";
 import { recommendsWebDevelopmentData } from "@/data/recommend";
+import { Pagination } from "@mui/material";
+import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const DescriptionSection = (category: any) => {
@@ -119,6 +122,42 @@ const ResultAndSortSection = () => {
   );
 };
 
+const GigLitstingSection = () => {
+  return (
+    <div
+      // className="grid grid-cols-3"
+      className={clsx(
+        "mt-4 grid grid-cols-1 gap-4",
+        "md:grid-cols-2",
+        "lg:grid-cols-3",
+      )}
+    >
+      {Array.from({ length: 30 }, (_, i) => (
+        <GigCard key={i} />
+      ))}
+    </div>
+  );
+};
+
+const PaginationSection = () => {
+  const [page, setPage] = useState(1);
+
+  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+    console.log("Page changed to:", value);
+  };
+
+  return (
+    <Pagination
+      className="my-8 flex justify-center"
+      boundaryCount={3}
+      count={100}
+      page={page}
+      onChange={handleChange}
+    />
+  );
+};
+
 const Page = () => {
   const router = useRouter();
 
@@ -131,8 +170,10 @@ const Page = () => {
       <BreadcrumbCpn />
       <DescriptionSection category={_subcategory} />
       <RecommendSection />
-      <FilterSection  />
+      <FilterSection />
       <ResultAndSortSection />
+      <GigLitstingSection />
+      <PaginationSection />
     </div>
   );
 };

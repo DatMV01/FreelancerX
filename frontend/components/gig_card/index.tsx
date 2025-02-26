@@ -1,0 +1,121 @@
+import { stringAvatar } from "@/lib/utils";
+import { Avatar } from "@mui/material";
+import { Star } from "lucide-react";
+import "./style.css";
+import {
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+
+import React, { useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react"; // Biểu tượng nút từ lucide-react
+import { NavigationOptions } from "swiper/types";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+import Carousel from "./carousel";
+import CarouselV2 from "./carousel_v2";
+import { IconButton, Tooltip } from "@mui/material";
+export const GigCard = () => {
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const saveToListHandle = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    console.log("====================================");
+    console.log("saveToListHandle");
+    console.log("====================================");
+  };
+  return (
+    <div className="relative w-full rounded-sm border bg-white">
+      <div className="z-10 flex flex-col">
+        <Carousel />
+        {/* <CarouselV2 /> */}
+
+        <div className=" ">
+          <div className="my-2 flex flex-row items-center justify-between space-x-2">
+            <div className="flex flex-row items-center space-x-2">
+              <Avatar
+                className="h-6 w-6 text-[12px]"
+                {...stringAvatar("Mai Dat")}
+              />
+              <Avatar
+                className="h-6 w-6"
+                alt="Remy Sharp"
+                src="/avatar/1.jpg"
+              />
+              <div className="text-sm font-bold">Mai Dat</div>
+            </div>
+            <div>
+              <div className="flex items-center">
+                <span className="mr-2 text-[12px]">Level 2</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 10 10"
+                  width="10"
+                  height="10"
+                  fill="currentColor"
+                >
+                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
+                </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 10 10"
+                  width="10"
+                  height="10"
+                  fill="currentColor"
+                >
+                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
+                </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 10 10"
+                  width="10"
+                  height="10"
+                  fill="#E4E5E7"
+                >
+                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <h2 className="text-base">
+            I will design a professional WordPress website or web design
+          </h2>
+          <div className="mt-2 flex items-center text-yellow-500">
+            <Star size={16} fill="currentColor" className="mr-1" />
+            <span className="font-semibold">4.9</span>
+            <span className="ml-1 text-gray-500">(803)</span>
+          </div>
+          <p className="mt-2 font-semibold text-gray-700">From $125</p>
+        </div>
+      </div>
+
+      <div className="abcxyz z-999 absolute right-2 top-2">
+        <Tooltip title="Save to list" placement="top">
+          <button
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 fill-gray-500 hover:bg-gray-200"
+            onClick={(e) => saveToListHandle(e)}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M14.325 2.00937C12.5188 0.490623 9.72813 0.718748 8 2.47812C6.27188 0.718748 3.48125 0.487498 1.675 2.00937C-0.674996 3.9875 -0.331246 7.2125 1.34375 8.92187L6.825 14.5062C7.1375 14.825 7.55625 15.0031 8 15.0031C8.44688 15.0031 8.8625 14.8281 9.175 14.5094L14.6563 8.925C16.3281 7.21562 16.6781 3.99062 14.325 2.00937ZM13.5875 7.86875L8.10625 13.4531C8.03125 13.5281 7.96875 13.5281 7.89375 13.4531L2.4125 7.86875C1.27188 6.70625 1.04063 4.50625 2.64063 3.15937C3.85625 2.1375 5.73125 2.29062 6.90625 3.4875L8 4.60312L9.09375 3.4875C10.275 2.28437 12.15 2.1375 13.3594 3.15625C14.9563 4.50312 14.7188 6.71562 13.5875 7.86875Z"></path>
+            </svg>
+          </button>
+        </Tooltip>
+      </div>
+    </div>
+  );
+};
