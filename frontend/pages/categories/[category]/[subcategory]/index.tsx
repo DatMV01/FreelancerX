@@ -158,6 +158,119 @@ const PaginationSection = () => {
   );
 };
 
+const ExploreMore = ({ title = "", ...props }: { title: any }) => {
+  const categories = [
+    {
+      title: "Website Design",
+      link: "/categories/graphics-design/website-design",
+    },
+    {
+      title: "SEO",
+      link: "/categories/online-marketing/seo-services",
+    },
+    {
+      title: "Website Maintenance",
+      link: "/categories/programming-tech/website-maintenance",
+    },
+    {
+      title: "Website Migration",
+      link: "/categories/programming-tech/website-maintenance/backup-migration",
+    },
+    {
+      title: "Magento",
+      link: "/categories/programming-tech/website-development/magento-development",
+    },
+    {
+      title: "SiteBuilder",
+      link: "/categories/programming-tech/website-development/sitebuilder-development",
+    },
+    {
+      title: "Drupal",
+      link: "/categories/programming-tech/website-development/drupal-development",
+    },
+    {
+      title: "Front-End Development",
+      link: "/categories/programming-tech/front-end-development",
+    },
+    {
+      title: "Back-End Development",
+      link: "/categories/programming-tech/back-end-development",
+    },
+    {
+      title: "Full-Stack Development",
+      link: "/categories/programming-tech/full-stack-development",
+    },
+    {
+      title: "Mobile Apps",
+      link: "/categories/programming-tech/mobile-apps",
+    },
+    {
+      title: "CMS Development",
+      link: "/categories/programming-tech/cms-development",
+    },
+    {
+      title: "E-Commerce Development",
+      link: "/categories/programming-tech/ecommerce-development",
+    },
+    {
+      title: "AI & Chatbots",
+      link: "/categories/programming-tech/ai-chatbots",
+    },
+    {
+      title: "Blockchain & Cryptocurrency",
+      link: "/categories/programming-tech/blockchain-cryptocurrency",
+    },
+    {
+      title: "Game Development",
+      link: "/categories/programming-tech/game-development",
+    },
+    {
+      title: "Desktop Applications",
+      link: "/categories/programming-tech/desktop-applications",
+    },
+    {
+      title: "Software Testing",
+      link: "/categories/programming-tech/software-testing",
+    },
+    {
+      title: "Cybersecurity",
+      link: "/categories/programming-tech/cybersecurity",
+    },
+    {
+      title: "User Testing",
+      link: "/categories/programming-tech/user-testing",
+    },
+  ];
+
+  return (
+    <div className="p-8">
+      <h2 className="w-full p-8 text-center text-2xl font-bold">
+        Explore More {title} Service
+      </h2>
+
+      <div className="flex flex-wrap items-center justify-center">
+        {categories.map((i) => (
+          <Link
+            href={i.link}
+            className="m-1 w-fit rounded-3xl bg-[#EFEFF0] px-4 py-1 font-medium hover:bg-gray-300"
+          >
+            {i.title}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Guides = ({ title = "", ...props }: { title: any }) => {
+  return (
+    <div className="py-4">
+      <h2 className="text-base font-bold">Guides related to {title}</h2>
+      <p>Not implement</p>
+    </div>
+  );
+};
+
 const Page = () => {
   const router = useRouter();
 
@@ -174,6 +287,8 @@ const Page = () => {
       <ResultAndSortSection />
       <GigLitstingSection />
       <PaginationSection />
+      <ExploreMore title={"Website Development"} />
+      <Guides title={"Website Development"} />
     </div>
   );
 };

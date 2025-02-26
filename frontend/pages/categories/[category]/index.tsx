@@ -535,9 +535,12 @@ const Interested = ({ title = "", ...props }: { title: any }) => {
 
       <div className="flex flex-wrap items-center justify-center">
         {interesteds.map((i) => (
-          <div className="m-1 w-fit rounded-3xl bg-[#EFEFF0] px-4 py-1 font-medium">
+          <Link
+            href={i.link}
+            className="m-1 w-fit rounded-3xl bg-[#EFEFF0] px-4 py-1 font-medium hover:bg-gray-300"
+          >
             {i.title}
-          </div>
+          </Link>
         ))}
       </div>
     </div>
