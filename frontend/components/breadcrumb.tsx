@@ -7,10 +7,11 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useRouter } from "next/router";
 
-const BreadcrumbCpn = () => {
+const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
   const router = useRouter();
 
-  const { category, subcategory, subsubcategory } = router.query;
+  const { category, subcategory, subsubcategory } =
+    categoryInfo || router.query;
 
   return (
     <Breadcrumb className="my-6">

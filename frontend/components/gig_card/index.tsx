@@ -23,6 +23,8 @@ import "swiper/css/pagination";
 import Carousel from "./carousel";
 import CarouselV2 from "./carousel_v2";
 import { IconButton, Tooltip } from "@mui/material";
+import Link from "next/link";
+import RatedDiamond from "./rated-diamond";
 export const GigCard = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -52,44 +54,32 @@ export const GigCard = () => {
                 alt="Remy Sharp"
                 src="/avatar/1.jpg"
               />
-              <div className="text-sm font-bold">Mai Dat</div>
+              <Link href={"/"} className="text-sm font-bold hover:underline">
+                Mai Dat
+              </Link>
             </div>
             <div>
               <div className="flex items-center">
                 <span className="mr-2 text-[12px]">Level 2</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 10 10"
-                  width="10"
-                  height="10"
-                  fill="currentColor"
-                >
-                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 10 10"
-                  width="10"
-                  height="10"
-                  fill="currentColor"
-                >
-                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 10 10"
-                  width="10"
-                  height="10"
-                  fill="#E4E5E7"
-                >
-                  <path d="M4.839.22a.2.2 0 0 1 .322 0l1.942 2.636a.2.2 0 0 0 .043.043L9.782 4.84a.2.2 0 0 1 0 .322L7.146 7.105a.2.2 0 0 0-.043.043L5.161 9.784a.2.2 0 0 1-.322 0L2.897 7.148a.2.2 0 0 0-.043-.043L.218 5.163a.2.2 0 0 1 0-.322l2.636-1.942a.2.2 0 0 0 .043-.043L4.839.221Z"></path>
-                </svg>
+                {Array.from({ length: 2 }, (_, i) => i + 1).map((a) => (
+                  <RatedDiamond />
+                ))}
+
+                <RatedDiamond color={"#E4E5E7"} />
+              </div>
+
+              <div className="flex items-center rounded-sm bg-[#ffe0b3] px-1">
+                <span className="mr-2 text-[12px]">Top Rated</span>
+
+                {Array.from({ length: 3 }, (_, i) => i + 1).map((a) => (
+                  <RatedDiamond />
+                ))}
               </div>
             </div>
           </div>
-          <h2 className="text-base">
+          <Link  href="/user/user_123/create-a-high-converting-shopify-dropshipping-website"  target="_blank" className="text-base hover:underline">
             I will design a professional WordPress website or web design
-          </h2>
+          </Link>
           <div className="mt-2 flex items-center text-yellow-500">
             <Star size={16} fill="currentColor" className="mr-1" />
             <span className="font-semibold">4.9</span>
@@ -98,7 +88,7 @@ export const GigCard = () => {
           <p className="mt-2 font-semibold text-gray-700">From $125</p>
         </div>
       </div>
-
+ 
       <div className="abcxyz z-999 absolute right-2 top-2">
         <Tooltip title="Save to list" placement="top">
           <button
