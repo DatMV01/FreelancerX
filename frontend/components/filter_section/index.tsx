@@ -16,7 +16,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, InputAdornment } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { number, string, z } from "zod";
 import { Input } from "@/components/ui/input";
@@ -107,8 +107,25 @@ export const FilterSection = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [showCustomInput, setShowCustomInput] = useState(false);
 
+  const [isFixed, setIsFixed] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setIsFixed(true);
+      } else {
+        setIsFixed(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div>
+    <div
+      className={`${isFixed ? "fixed left-0 top-0 w-full bg-white px-14" : "relative"}`}
+    >
       <div className="flex w-full flex-wrap">
         <Popover>
           <PopoverTrigger className="mr-2 mt-2 flex items-center justify-center rounded-md border-2 p-2 font-bold">
@@ -486,7 +503,7 @@ export const FilterSection = () => {
       </div>
 
       <div>
-        <TagList  />
+        <TagList />
       </div>
 
       {/* <FormExample /> */}

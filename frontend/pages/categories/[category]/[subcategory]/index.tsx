@@ -131,7 +131,7 @@ const Page = () => {
       <BreadcrumbCpn />
       <DescriptionSection category={_subcategory} />
       <RecommendSection />
-      <FilterSection />
+      <FilterSection  />
       <ResultAndSortSection />
     </div>
   );
