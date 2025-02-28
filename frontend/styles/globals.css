@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.custom-pagination .swiper-pagination-bullet {
+  @apply h-2 w-2 bg-gray-300 opacity-50 transition-all duration-300;
+}
+
+.custom-pagination .swiper-pagination-bullet-active {
+  @apply scale-125 bg-gray-500 opacity-100;
+}
+
 @layer utilities {
 }
 
