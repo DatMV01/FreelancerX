@@ -42,7 +42,7 @@ const TabPanel = ({
 
 const MainContent = () => {
   return (
-    <div className="w-2/3 flex-[2_1_0%]">
+    <div className="w-2/3">
       <div>
         <p className="text-xl font-semibold">
           I will build your ecommerce shopify dropshipping website
@@ -104,9 +104,37 @@ const SideBarContent = () => {
     setValue(newValue);
   };
 
+  const saveToListHandle = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    console.log("====================================");
+    console.log("saveToListHandle");
+    console.log("====================================");
+  };
+
   return (
-    <div className="w-1/3 flex-[1_1_0%]">
-      <div>
+    <div className="fixed right-0 w-1/3 bg-slate-50">
+      <div className="my-4 flex justify-end px-4">
+        <Tooltip title="Save to list" placement="top">
+          <button
+            className="flex items-center justify-center rounded-full bg-transparent"
+            onClick={(e) => saveToListHandle(e)}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+              className="fill-[#b5b6ba]"
+            >
+              <path d="M14.4469 1.95625C12.7344 0.496875 10.1875 0.759375 8.61561 2.38125L7.99999 3.01562L7.38436 2.38125C5.81561 0.759375 3.26561 0.496875 1.55311 1.95625C-0.409388 3.63125 -0.512513 6.6375 1.24374 8.45312L7.29061 14.6969C7.68124 15.1 8.31561 15.1 8.70624 14.6969L14.7531 8.45312C16.5125 6.6375 16.4094 3.63125 14.4469 1.95625Z"></path>
+            </svg>
+          </button>
+        </Tooltip>
+      </div>
+
+      <div className="rounded-md border-2">
         <Tabs value={value} onChange={handleChange} centered>
           <Tab label="Basic" />
           <Tab label="Standard" />
@@ -304,15 +332,6 @@ const SideBarContent = () => {
 };
 
 const BreadcumSection = () => {
-  const saveToListHandle = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    e.preventDefault();
-    console.log("====================================");
-    console.log("saveToListHandle");
-    console.log("====================================");
-  };
-
   return (
     <div className="flex justify-between">
       <BreadcrumbCpn
@@ -322,23 +341,6 @@ const BreadcumSection = () => {
           subsubcategory: "shopify",
         }}
       />
-
-      <Tooltip title="Save to list" placement="top">
-        <button
-          className="flex items-center justify-center rounded-full bg-transparent"
-          onClick={(e) => saveToListHandle(e)}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            xmlns="http://www.w3.org/2000/svg"
-            className="fill-[#b5b6ba]"
-          >
-            <path d="M14.4469 1.95625C12.7344 0.496875 10.1875 0.759375 8.61561 2.38125L7.99999 3.01562L7.38436 2.38125C5.81561 0.759375 3.26561 0.496875 1.55311 1.95625C-0.409388 3.63125 -0.512513 6.6375 1.24374 8.45312L7.29061 14.6969C7.68124 15.1 8.31561 15.1 8.70624 14.6969L14.7531 8.45312C16.5125 6.6375 16.4094 3.63125 14.4469 1.95625Z"></path>
-          </svg>
-        </button>
-      </Tooltip>
     </div>
   );
 };
