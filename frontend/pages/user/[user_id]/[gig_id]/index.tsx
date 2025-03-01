@@ -21,6 +21,7 @@ import CarouselV2 from "@/components/gig_card/carousel_v2";
 import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
 import RatedDiamond from "@/components/gig_card/rated-diamond";
 import EditableTable from "@/components/edited-table";
+import { useRouter } from "next/router";
 
 const TabPanel = ({
   children,
@@ -86,6 +87,9 @@ const SellerOverviewSection = () => {
 };
 
 const MainContent = () => {
+  const router = useRouter();
+  const { user_id, gig_id } = router.query;
+
   return (
     <div className="w-2/3">
       <SellerOverviewSection />
@@ -99,6 +103,15 @@ const MainContent = () => {
       <FAQ />
       <Reviews />
       <CommentsSection />
+      <button
+        className="sticky bottom-10 rounded-full border-[1px] bg-white p-2"
+        onClick={() => console.log("abc")}
+      >
+        <div className="flex items-center justify-center space-x-2">
+          <AvatarOnline />
+          <p className="font-semibold">Mesage {user_id} </p>
+        </div>
+      </button>
     </div>
   );
 };
@@ -803,6 +816,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import { Card, CardContent } from "@/components/ui/card";
 import CommentBox from "@/components/comment";
 import { faker } from "@faker-js/faker";
+import AvatarOnline from "@/components/avatar_online";
 
 const CommentsSection = () => {
   interface Review {
@@ -853,16 +867,34 @@ const CommentsSection = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="my-4 space-y-4">
       <div className="space-y-4">
         {reviews && reviews.map((r) => <CommentBox comment={r} />)}
       </div>
       <button
-        className="rounded-md border-[1px] bg-white p-3 text-black"
+        className="rounded-md border-[1px] border-black bg-white p-2 font-bold text-black"
         onClick={loadMoreReviews}
       >
         Show More Reviews
       </button>
+    </div>
+  );
+};
+
+const ServiceAlsoViewed = () => {
+  return (
+    <div className="my-8">
+      <p className="text-xl font-bold">
+        People Who Viewed This Service Also Viewed
+      </p>
+    </div>
+  );
+};
+
+const BrowsingHistory = () => {
+  return (
+    <div className="my-8">
+      <p className="text-xl font-bold">Browsing History</p>
     </div>
   );
 };
@@ -875,6 +907,8 @@ const GigDetail = () => {
         <MainContent />
         <SideBarContent />
       </div>
+      <ServiceAlsoViewed />
+      <BrowsingHistory />
     </>
   );
 };

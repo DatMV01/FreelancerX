@@ -36,7 +36,7 @@ const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
             <BreadcrumbItem>
               <BreadcrumbLink
                 href={`/categories/${category}`}
-                className="capitalize"
+                className="capitalize hover:underline"
               >
                 {String(category).replaceAll("-", " ")}
               </BreadcrumbLink>
@@ -50,7 +50,7 @@ const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
             <BreadcrumbItem>
               <BreadcrumbLink
                 href={`/categories/${category}/${subcategory}`}
-                className="capitalize"
+                className="capitalize hover:underline"
               >
                 {subcategory && String(subcategory).replaceAll("-", " ")}
               </BreadcrumbLink>
@@ -64,7 +64,7 @@ const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
             <BreadcrumbItem>
               <BreadcrumbLink
                 href={`/categories/${category}/${subcategory}/${subsubcategory}`}
-                className="capitalize"
+                className="capitalize hover:underline"
               >
                 {String(subsubcategory).replaceAll("-", " ")}
               </BreadcrumbLink>
