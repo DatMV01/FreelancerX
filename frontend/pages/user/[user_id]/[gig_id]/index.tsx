@@ -2,7 +2,7 @@
 
 import BreadcrumbCpn from "@/components/breadcrumb";
 import { Avatar, Tooltip } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
@@ -103,6 +103,7 @@ const MainContent = () => {
       <EditableTable />
       <FAQ />
       <Reviews />
+      <CommentsSection />
     </div>
   );
 };
@@ -124,7 +125,7 @@ const SideBarContent = () => {
   };
 
   return (
-    <div className="fixed  top-[140px]  right-0 w-1/3 bg-white px-2 ">
+    <div className="fixed right-0 top-[140px] w-1/3 bg-white px-2">
       <div className="my-4 flex justify-end px-4">
         <Tooltip title="Save to list" placement="top">
           <button
@@ -144,7 +145,7 @@ const SideBarContent = () => {
         </Tooltip>
       </div>
 
-      <div className="rounded-md border-2 ">
+      <div className="rounded-md border-2">
         <Tabs value={value} onChange={handleChange} centered>
           <Tab label="Basic" />
           <Tab label="Standard" />
@@ -807,6 +808,73 @@ const GigReviews = () => {
           />
         ))}
       </div>
+    </div>
+  );
+};
+import { LoremIpsum } from "lorem-ipsum";
+import { Card, CardContent } from "@/components/ui/card";
+import CommentBox from "@/components/comment";
+import { faker } from "@faker-js/faker";
+
+const CommentsSection = () => {
+  interface Review {
+    user: {
+      username: string;
+      avatar: string;
+      country: string;
+      repeatClient: boolean;
+    };
+    content: string;
+    replies: string;
+  }
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  const lorem = new LoremIpsum({
+    sentencesPerParagraph: {
+      max: 8,
+      min: 4,
+    },
+    wordsPerSentence: {
+      max: 16,
+      min: 4,
+    },
+  });
+
+  useEffect(() => {
+    const initialReviews = Array.from({ length: 10 }, () => comment());
+    setReviews(initialReviews as any);
+  }, []);
+
+  const comment = () => {
+    return {
+      user: {
+        username: faker.internet.username(),
+        avatar: faker.image.avatar(),
+        country: faker.location.country(),
+        repeatClient: faker.datatype.boolean(0.5),
+      },
+      content: lorem.generateSentences(7),
+      replies: lorem.generateSentences(3),
+    };
+  };
+
+  const loadMoreReviews = () => {
+    const newReviews = Array.from({ length: 5 }, () => comment());
+    setReviews((prevReviews) => [...prevReviews, ...newReviews]);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-4">
+        {reviews && reviews.map((r) => <CommentBox comment={r} />)}
+      </div>
+      <button
+        className="rounded-md border-[1px] bg-white p-3 text-black"
+        onClick={loadMoreReviews}
+      >
+        Show More Reviews
+      </button>
     </div>
   );
 };
