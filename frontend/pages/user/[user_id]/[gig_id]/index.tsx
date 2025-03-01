@@ -42,58 +42,55 @@ const TabPanel = ({
   );
 };
 
+const SellerOverviewSection = () => {
+  return (
+    <div>
+      <p className="text-xl font-semibold">
+        I will build your ecommerce shopify dropshipping website
+      </p>
+      <div className="mt-2 flex items-center">
+        <div className="mr-2">
+          <Avatar
+            className="h-[70px] w-[70px]"
+            alt="Remy Sharp"
+            src="/avatar/1.jpg"
+          >
+            A
+          </Avatar>
+        </div>
+
+        <div>
+          <p className="flex space-x-2 font-semibold">
+            <Link href={"/"} className="text-sm font-bold hover:underline">
+              Mai Dat
+            </Link>
+            <span className="flex w-fit flex-row items-center rounded bg-yellow-300 px-2 py-1 text-xs font-bold">
+              <span>Top Rated</span>
+              {[...Array(3)].map((_, i) => (
+                <Diamond key={i} size={10} fill="currentColor" stroke="none" />
+              ))}
+            </span>
+          </p>
+          <p className="text-sm text-gray-500">4 orders in queue</p>
+          <div className="mt-1 flex items-center text-yellow-500">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={16} fill="currentColor" stroke="none" />
+            ))}
+            <span className="ml-2 font-semibold text-black">5.0</span>
+            <a href="#" className="ml-1 text-sm text-gray-500 underline">
+              (221 reviews)
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MainContent = () => {
   return (
     <div className="w-2/3">
-      <div>
-        <p className="text-xl font-semibold">
-          I will build your ecommerce shopify dropshipping website
-        </p>
-        <div className="mt-2 flex items-center">
-          <div className="mr-2">
-            {/* <Avatar
-              className="h-6 w-6 text-[12px]"
-              {...stringAvatar("Mai Dat")}
-            /> */}
-            <Avatar
-              className="h-[90px] w-[90px]"
-              alt="Remy Sharp"
-              src="/avatar/1.jpg"
-            />
-          </div>
-
-          <div>
-            <p className="flex space-x-2 font-semibold">
-              <Link href={"/"} className="text-sm font-bold hover:underline">
-                Mai Dat
-              </Link>
-              <span className="flex w-fit flex-row items-center rounded bg-yellow-300 px-2 py-1 text-xs font-bold">
-                <span>Top Rated</span>
-                {[...Array(3)].map((_, i) => (
-                  <Diamond
-                    key={i}
-                    size={10}
-                    fill="currentColor"
-                    stroke="none"
-                  />
-                ))}
-              </span>
-            </p>
-            <p className="text-sm text-gray-500">4 orders in queue</p>
-            <div className="mt-1 flex items-center text-yellow-500">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={16} fill="currentColor" stroke="none" />
-              ))}
-              <span className="ml-2 font-semibold text-black">5.0</span>
-              <a href="#" className="ml-1 text-sm text-gray-500 underline">
-                (221 reviews)
-              </a>
-            </div>
-          </div>
-        </div>
-        <Divider className="my-4" />
-      </div>
-
+      <SellerOverviewSection />
       <CarouselV2Fullscreen />
       <AboutThisGig />
       <GigMetaData />
@@ -494,37 +491,47 @@ const GigMetaData = () => {
 const AboutSeller = () => {
   return (
     <div className="mt-6">
-      <p>Get to know Mai Dat</p>
-      <div>
-        <div className="mt-2 flex items-center">
-          <div className="mr-2">
-            {/* <Avatar
+      <p className="my-4 text-2xl font-bold">Get to know Mai Dat</p>
+
+      <div className="flex items-center">
+        <div className="mr-2">
+          {/* <Avatar
               className="h-6 w-6 text-[12px]"
               {...stringAvatar("Mai Dat")}
             /> */}
-            <Avatar
-              className="h-[90px] w-[90px]"
-              alt="Remy Sharp"
-              src="/avatar/1.jpg"
-            />
-          </div>
+          <Avatar
+            alt="Remy Sharp"
+            src="/avatar/1.jpg"
+            sx={{ width: 70, height: 70 }}
+          />
+        </div>
 
-          <div>
-            <div className="flex space-x-2 font-semibold">
-              <Link href={"/"} className="text-sm font-bold hover:underline">
-                Mai Dat
-              </Link>
-              <span className="flex w-fit flex-row items-center rounded bg-yellow-300 px-2 py-1 text-xs font-bold">
-                <span>Top Rated</span>
-                {[...Array(3)].map((_, i) => (
-                  <Diamond
-                    key={i}
-                    size={10}
-                    fill="currentColor"
-                    stroke="none"
-                  />
-                ))}
-              </span>
+        <div>
+          <div className="flex space-x-2 font-semibold">
+            <Link href={"/"} className="text-sm font-bold hover:underline">
+              Mai Dat
+            </Link>
+            <span className="flex w-fit flex-row items-center rounded bg-yellow-300 px-2 py-1 text-xs font-bold">
+              <span>Top Rated</span>
+              {[...Array(3)].map((_, i) => (
+                <Diamond key={i} size={10} fill="currentColor" stroke="none" />
+              ))}
+            </span>
+          </div>
+          <div className="text-sm text-gray-500">
+            WordPress Website Developer
+          </div>
+          <div className="mt-1 flex items-center text-black">
+            <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center">
+                <Star fill="currentColor" stroke="none" size={16} />
+                <span className="text-base font-semibold text-black">5.0</span>
+                <a href="#" className="ml-1 text-base text-gray-500 underline">
+                  (221 reviews)
+                </a>
+              </div>
+
+              <Divider orientation="vertical" flexItem />
 
               <div className="flex items-center">
                 <span className="mr-2 text-[12px]">Level 2</span>
@@ -535,23 +542,11 @@ const AboutSeller = () => {
                 <RatedDiamond color={"#E4E5E7"} />
               </div>
             </div>
-            <div className="text-sm text-gray-500">
-              WordPress Website Developer
-            </div>
-            <div className="mt-1 flex flex-row items-center text-black">
-              <div className="flex items-center justify-center">
-                <Star size={16} fill="currentColor" stroke="none" />
-                <span className="ml-2 font-semibold text-black">5.0</span>
-                <a href="#" className="ml-1 text-sm text-gray-500 underline">
-                  (221 reviews)
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      <button className="mt-2 rounded-md border-[1px] border-black p-2">
+      <button className="my-2 rounded-md border-[1px] border-black p-2">
         Contact me
       </button>
     </div>
@@ -562,25 +557,25 @@ const UserStats = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="w-full max-w-md rounded-lg border-[1px] bg-white p-4">
-      <ul className="space-y-2">
-        <li>
+    <div className="w-full rounded-lg border-[1px] bg-white p-4">
+      <div className="space-y-2">
+        <p>
           <strong>From:</strong> <span>Pakistan</span>
-        </li>
-        <li>
+        </p>
+        <p>
           <strong>Member since:</strong> <span>Dec 2022</span>
-        </li>
-        <li>
+        </p>
+        <p>
           <strong>Avg. response time:</strong> <span>1 hour</span>
-        </li>
-        <li>
+        </p>
+        <p>
           <strong>Last delivery:</strong> <span>2 days</span>
-        </li>
-        <li>
+        </p>
+        <p>
           <strong>Languages:</strong> <span>Urdu, English, French, German</span>
-        </li>
+        </p>
         <Divider />
-      </ul>
+      </div>
 
       <article className="mt-4 hidden md:flex">
         <div className="text-gray-700">
@@ -711,17 +706,12 @@ const FAQ = ({ title = "", ...props }: { title?: any }) => {
     },
   ];
   return (
-    <div className="bg-[#FAFAFA] pt-4">
-      <h2 className="text-base font-bold">{title} FAQs</h2>
+    <div className="pt-4">
+      <p className="my-4 text-2xl font-bold">{title} FAQs</p>
 
       {faqs.map((faq) => (
-        <Accordion className="border-none bg-[#FAFAFA] shadow-none">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-            className="p-0"
-          >
+        <Accordion style={{ border: "none", boxShadow: "none" }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography component="span">
               <div className="flex items-center justify-center">
                 <span className="pl-4 text-[16px]">{faq.title}</span>
@@ -798,16 +788,18 @@ const GigReviews = () => {
         </div>
       </div>
 
-      <div className="mt-4 space-y-2">
-        {ratings.map(({ stars, count }) => (
-          <RatingBar
-            key={stars}
-            stars={stars}
-            count={count}
-            total={totalReviews}
-          />
-        ))}
-      </div>
+      <table className="mt-4 space-y-2">
+        <tbody>
+          {ratings.map(({ stars, count }) => (
+            <RatingBar
+              key={stars}
+              stars={stars}
+              count={count}
+              total={totalReviews}
+            />
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
