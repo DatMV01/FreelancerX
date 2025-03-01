@@ -48,16 +48,14 @@ const SellerOverviewSection = () => {
       <p className="text-xl font-semibold">
         I will build your ecommerce shopify dropshipping website
       </p>
-      <div className="mt-2 flex items-center">
-        <div className="mr-2">
-          <Avatar
-            className="h-[70px] w-[70px]"
-            alt="Remy Sharp"
-            src="/avatar/1.jpg"
-          >
-            A
-          </Avatar>
-        </div>
+      <div className="my-2 flex items-center space-x-2">
+        <Avatar
+          className="h-[70px] w-[70px]"
+          alt="Remy Sharp"
+          src="/avatar/1.jpg"
+        >
+          A
+        </Avatar>
 
         <div>
           <p className="flex space-x-2 font-semibold">
@@ -112,36 +110,8 @@ const SideBarContent = () => {
     setValue(newValue);
   };
 
-  const saveToListHandle = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    e.preventDefault();
-    console.log("====================================");
-    console.log("saveToListHandle");
-    console.log("====================================");
-  };
-
   return (
-    <div className="fixed right-0 top-[140px] w-1/3 bg-white px-2">
-      <div className="my-4 flex justify-end px-4">
-        <Tooltip title="Save to list" placement="top">
-          <button
-            className="flex items-center justify-center rounded-full bg-transparent"
-            onClick={(e) => saveToListHandle(e)}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-              className="fill-[#b5b6ba]"
-            >
-              <path d="M14.4469 1.95625C12.7344 0.496875 10.1875 0.759375 8.61561 2.38125L7.99999 3.01562L7.38436 2.38125C5.81561 0.759375 3.26561 0.496875 1.55311 1.95625C-0.409388 3.63125 -0.512513 6.6375 1.24374 8.45312L7.29061 14.6969C7.68124 15.1 8.31561 15.1 8.70624 14.6969L14.7531 8.45312C16.5125 6.6375 16.4094 3.63125 14.4469 1.95625Z"></path>
-            </svg>
-          </button>
-        </Tooltip>
-      </div>
-
+    <div className="sticky top-4 h-fit w-1/3 bg-white px-2">
       <div className="rounded-md border-2">
         <Tabs value={value} onChange={handleChange} centered>
           <Tab label="Basic" />
@@ -179,28 +149,27 @@ const SideBarContent = () => {
                   <div className="font-semibold">What's Included</div>
                 </AccordionSummary>
 
-                <AccordionDetails>
-                  {[
-                    "Functional website",
-                    "7 pages",
-                    "Responsive design",
-                    "Content upload",
-                    "3 plugins/extensions",
-                    "E-commerce functionality",
-                    "5 products",
-                    "Payment Integration",
-                    "Opt-in form",
-                    "Autoresponder integration",
-                    "Speed optimization",
-                    "Hosting setup",
-                    "5 Commercially licensed images",
-                    "Social media icons",
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <CheckCircle className="text-green-500" size={16} />{" "}
-                      {item}
-                    </li>
-                  ))}
+                <AccordionDetails className=" ">
+                  <ul className="max-h-[300px] overflow-auto">
+                    {[
+                      "Functional website",
+                      "7 pages",
+                      "Responsive design",
+                      "Content upload",
+                      "3 plugins/extensions",
+                      "Content upload",
+                      "Payment Integration",
+                      "Opt-in form",
+                      "Autoresponder integration",
+                      "5 Commercially licensed images",
+                      "Social media icons",
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <CheckCircle className="text-green-500" size={16} />{" "}
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </AccordionDetails>
               </Accordion>
             </div>
@@ -340,6 +309,15 @@ const SideBarContent = () => {
 };
 
 const BreadcumSection = () => {
+  const saveToListHandle = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    console.log("====================================");
+    console.log("saveToListHandle");
+    console.log("====================================");
+  };
+
   return (
     <div className="flex justify-between">
       <BreadcrumbCpn
@@ -349,6 +327,24 @@ const BreadcumSection = () => {
           subsubcategory: "shopify",
         }}
       />
+      <div className="my-4 flex justify-end px-4">
+        <Tooltip title="Save to list" placement="top">
+          <button
+            className="flex items-center justify-center rounded-full bg-transparent"
+            onClick={(e) => saveToListHandle(e)}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              xmlns="http://www.w3.org/2000/svg"
+              className="fill-[#b5b6ba]"
+            >
+              <path d="M14.4469 1.95625C12.7344 0.496875 10.1875 0.759375 8.61561 2.38125L7.99999 3.01562L7.38436 2.38125C5.81561 0.759375 3.26561 0.496875 1.55311 1.95625C-0.409388 3.63125 -0.512513 6.6375 1.24374 8.45312L7.29061 14.6969C7.68124 15.1 8.31561 15.1 8.70624 14.6969L14.7531 8.45312C16.5125 6.6375 16.4094 3.63125 14.4469 1.95625Z"></path>
+            </svg>
+          </button>
+        </Tooltip>
+      </div>
     </div>
   );
 };
@@ -875,7 +871,7 @@ const GigDetail = () => {
   return (
     <>
       <BreadcumSection />
-      <div className="flex">
+      <div className="relative flex gap-4">
         <MainContent />
         <SideBarContent />
       </div>
