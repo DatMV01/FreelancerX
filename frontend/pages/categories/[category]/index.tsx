@@ -4,50 +4,12 @@ import { faker } from "@faker-js/faker";
 import Image from "next/image";
 import Link from "next/link";
 
-const SearchBar = ({ ...props }: { title: any }) => {
-  const arr = Array.from({ length: 8 }, (_, i) => {
-    return {
-      userId: faker.string.uuid(),
-      username: faker.internet.username(), // before version 9.1.0, use userName()
-      email: faker.internet.email(),
-      avatar: faker.image.avatar(),
-      password: faker.internet.password(),
-      birthdate: faker.date.birthdate(),
-      registeredAt: faker.date.past(),
-      job: faker.person.jobTitle(),
-    };
-  });
-
-  return (
-    <div className="relative">
-      <form className="relative w-full">
-        <input
-          type="search"
-          placeholder="Find services"
-          className="my-4 h-[40px] w-full border-2 px-2"
-        />
-      </form>
-
-      <ul className="absolute hidden h-max w-full rounded-md border-2 bg-white p-2">
-        {arr.map((a) => (
-          <li className="flex h-8 items-center hover:bg-slate-400">
-            <button>
-              <span>{a.job.split(" ")[0]} </span>
-              <b>{a.job.split(" ")[1]} </b>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
 const Banner = ({ category, ...props }: { category: any }) => {
   const { title, slogen } = category;
   return (
     <div
       className={clsx(
-        "relative flex h-[250px] w-full flex-col items-center justify-center",
+        "relative z-10 flex h-[250px] w-full flex-col items-center justify-center",
         "bg-[rgb(37,66,0)] bg-contain bg-center",
         "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/67119574fcb6178f7b270ef6e50d2ff5-1689143593532/Programing.png')]",
       )}
@@ -117,6 +79,7 @@ import clsx from "clsx";
 import { useRef, useState } from "react";
 import ScrollableDiv from "@/components/scrollable-div";
 import ScrollableDiv2 from "@/components/scrollable-div-2";
+import SearchBar from "@/components/searchbar";
 
 const Explore = ({ title = "", ...props }: { title: any }) => {
   const programmingTechSubCategories = [
@@ -344,13 +307,8 @@ const Explore = ({ title = "", ...props }: { title: any }) => {
 
       <div className="md:hidden">
         {programmingTechSubCategories.map((category) => (
-          <Accordion className="border-none shadow-none" defaultExpanded>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1-content"
-              id="panel1-header"
-              className="p-0"
-            >
+          <Accordion className="border-none shadow-none">
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography component="span">
                 <div className="flex items-center justify-center">
                   <img
@@ -450,20 +408,15 @@ const FAQ = ({ title = "", ...props }: { title: any }) => {
 
       {faqs.map((faq) => (
         <Accordion className="border-none bg-[#FAFAFA] shadow-none">
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1-content"
-            id="panel1-header"
-            className="p-0"
-          >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography component="span">
               <div className="flex items-center justify-center">
-                <span className="pl-4 text-[16px]">{faq.title}</span>
+                <span className="text-[16px]">{faq.title} </span>
               </div>
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <div className="pl-4">{faq.content}</div>
+            <div className=" ">{faq.content}</div>
           </AccordionDetails>
         </Accordion>
       ))}
@@ -528,7 +481,7 @@ const Interested = ({ title = "", ...props }: { title: any }) => {
   ];
 
   return (
-    <div className="p-8">
+    <div className="pb-8">
       <h2 className="w-full p-8 text-center text-2xl font-bold">
         You might be interested in {title}
       </h2>
@@ -551,23 +504,28 @@ export default function Page() {
   const router = useRouter();
   const { category, subcategory, subsubcategory } = router.query;
 
+  if (category !== "programming-tech") {
+    return (
+      <div className="flex h-[100px] w-full items-center justify-center text-center">
+        <strong>
+          The category{" "}
+          <span className="capitalize">
+            "{typeof category === "string" ? category.replace(/-/g, " ") : ""}"
+          </span>{" "}
+          is under development.
+        </strong>
+      </div>
+    );
+  }
+
   const categoryData = categories.find((c) => c.slug == category);
 
   if (!categoryData) return;
-
-  console.log(categoryData);
 
   const { title } = categoryData;
 
   return (
     <div>
-      <div>
-        <h1>Category: {category}</h1>
-        {subcategory && <h2>Subcategory: {subcategory}</h2>}
-        {subsubcategory && <h3>Sub-subcategory: {subsubcategory}</h3>}
-        {categoryData && <p>{categoryData.id}</p>}
-      </div>
-
       <SearchBar title={title} />
       <Banner category={categoryData} />
       <MostPopular category={categoryData} />

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Accordion,
   AccordionContent,
@@ -23,21 +25,38 @@ import { CategoriesNav } from "./sub-categories-nav";
 import { useState } from "react";
 import ScrollableDiv from "../scrollable-div";
 import { categoriesMenuData } from "@/data/data";
+import clsx from "clsx";
+import { useRouter } from "next/router";
+import { faker } from "@faker-js/faker";
 
 const CategoriesMenu = () => {
+  const router = useRouter();
+  const { category, subcategory, subsubcategory } = router.query;
+
   return (
-    <ScrollableDiv showScrollBar={false} className="border-y-[2px] my-2">
-      {categoriesMenuData.map((c) => (
-        <div className="mr-4 text-nowrap rounded-sm border-b-4 border-transparent py-2 hover:cursor-pointer hover:border-b-4 hover:border-green-500">
-          <Link href={c.href}>{c.title}</Link>
-        </div>
-      ))}
+    <ScrollableDiv showScrollBar={false} className="my-2 border-y-[2px]">
+      {categoriesMenuData.map((categoryData) => {
+        const isActive = category && categoryData.href.includes(category);
+        return (
+          <div
+            key={categoryData.id}
+            className={clsx(
+              "mr-4 text-nowrap rounded-sm border-b-4 border-transparent py-2",
+              "active::border-green-500 hover:cursor-pointer hover:border-b-4",
+              { "border-green-500": isActive },
+            )}
+          >
+            <Link href={categoryData.href}>{categoryData.title}</Link>
+          </div>
+        );
+      })}
     </ScrollableDiv>
   );
 };
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   return (
     <div>
       <nav className="grid grid-cols-3 items-center">
@@ -134,9 +153,11 @@ const Navbar = () => {
                   className="flex h-[40px] w-full items-center"
                 >
                   <button
-                    onClick={() =>
-                      signOut({ redirect: true, callbackUrl: "/" })
-                    }
+                    onClick={async () => {
+                      //signOut({ redirect: true, callbackUrl: "/" });
+                      await signOut({ redirect: false, callbackUrl: "/" });
+                      router.push("/");
+                    }}
                   >
                     Logout
                   </button>
@@ -152,7 +173,7 @@ const Navbar = () => {
 
         <LoginDialog />
       </nav>
-      
+
       <CategoriesMenu />
     </div>
   );

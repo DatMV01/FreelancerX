@@ -144,7 +144,7 @@ const Footer = () => {
   };
 
   return (
-    <div className="my-4">
+    <div>
       <Divider />
       <div>
         <div className="md:hidden">

@@ -92,7 +92,7 @@ const ScrollableDiv = ({
       {showLeftRightButton && isTopScrollLeft && (
         <button
           onClick={scrollLeftOnClick}
-          className="absolute left-0 top-1/2 z-10 flex h-full w-8 -translate-y-1/2 items-center justify-center bg-[white] bg-opacity-50"
+          className="absolute left-0 top-1/2 z-10 hidden h-full w-8 -translate-y-1/2 items-center justify-center bg-[white] bg-opacity-50 md:flex"
         >
           <svg
             width="20"
@@ -128,7 +128,7 @@ const ScrollableDiv = ({
       {showLeftRightButton && isLastScrollLeft && (
         <button
           onClick={scrollRightOnClick}
-          className="absolute right-0 top-1/2 z-10 flex h-full w-8 -translate-y-1/2 items-center justify-center bg-[white] bg-opacity-50"
+          className="absolute right-0 top-1/2 z-10 hidden md:flex h-full w-8 -translate-y-1/2 items-center justify-center bg-[white] bg-opacity-50"
         >
           <svg
             width="20"
