@@ -452,12 +452,13 @@ export const subCategoriesByCategory = programmingTechSubCategories.flatMap(
 );
 
 export function findCategoryBySlug(slug: String) {
+  debugger
   return programmingTechSubCategories.reduce((result: any, category: any) => {
     if (result) return result; // If found, keep the result
 
     const found = category.slug === slug;
     if (found) return category;
-
+    debugger
     if (category.subCategories) {
       const found = category.subCategories.find(
         (sub: any) => sub.slug === slug,

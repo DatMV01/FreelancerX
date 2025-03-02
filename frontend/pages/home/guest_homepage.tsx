@@ -25,9 +25,12 @@ import SearchBar from "@/components/searchbar";
 
 const CategoriesSection = () => {
   return (
-    <div className={clsx("my-6 grid grid-cols-3 grid-rows-3 gap-3",
-      "md:grid-cols-4  "
-    )}>
+    <div
+      className={clsx(
+        "my-6 grid grid-cols-3 grid-rows-3 gap-3",
+        "md:grid-cols-4",
+      )}
+    >
       {categories.map((category) => (
         <Link
           key={category.id}
@@ -292,14 +295,15 @@ const Banner = ({ slogen, ...props }: { slogen: any }) => {
   return (
     <div
       className={clsx(
-        "relative z-10 flex h-[300px] w-full flex-col items-center justify-center space-y-2 rounded-lg md:h-[370px]",
+        "relative z-10 flex h-[300px] w-full flex-col items-center justify-center gap-4 rounded-md md:h-[370px]",
         "bg-[rgb(37,66,0)] bg-contain bg-center",
         "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/3a163e1090b4d0f0b8dc46abb36972ef-1739466831497/new-hero-md.png')]",
       )}
     >
+      <h1 className="text-3xl text-white">Bee Freelancer</h1>
       <p
         dangerouslySetInnerHTML={{ __html: slogen }}
-        className="text-center text-2xl text-white md:text-4xl"
+        className="text-center text-xl text-white md:text-4xl"
       />
 
       <div className="hidden flex-col items-center space-y-2 md:flex">
@@ -328,7 +332,7 @@ const Banner = ({ slogen, ...props }: { slogen: any }) => {
 
 const GuestHomePage = () => {
   return (
-    <div className="my-4">
+    <div className="my-2">
       <Banner
         slogen={"Scale your professional workforce <br/> with freelancers"}
       />

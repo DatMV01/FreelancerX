@@ -9,17 +9,21 @@ const Banner = ({ category, ...props }: { category: any }) => {
   return (
     <div
       className={clsx(
-        "relative z-10 flex h-[250px] w-full flex-col items-center justify-center",
+        "relative flex h-[300px] flex-col items-center justify-center gap-4 md:h-[370px] rounded-md",
         "bg-[rgb(37,66,0)] bg-contain bg-center",
         "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/67119574fcb6178f7b270ef6e50d2ff5-1689143593532/Programing.png')]",
       )}
     >
-      <h1 className="mb-6 text-3xl text-white">{title}</h1>
+      <h1 className="text-3xl text-white">{title}</h1>
 
       <p
         dangerouslySetInnerHTML={{ __html: slogen }}
         className="text-center text-xl text-white"
       />
+
+      <div className="w-[90%] md:hidden">
+        <SearchBar />
+      </div>
     </div>
   );
 };
@@ -526,7 +530,6 @@ export default function Page() {
 
   return (
     <div>
-      <SearchBar title={title} />
       <Banner category={categoryData} />
       <MostPopular category={categoryData} />
       <Explore title={title} />

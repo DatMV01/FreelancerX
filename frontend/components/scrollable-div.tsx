@@ -104,7 +104,7 @@ const ScrollableDiv = ({
         onScroll={handleScroll}
         className={clsx(
           `${layout && layout}`,
-          { "abcsy flex overflow-x-auto whitespace-nowrap p-1": !layout },
+          { "flex overflow-x-auto whitespace-nowrap p-1": !layout },
           {
             "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar]:h-2":
               showScrollBar,

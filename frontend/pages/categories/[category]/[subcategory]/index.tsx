@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-const DescriptionSection = (category: any) => {
+const DescriptionSection = ({ category }: any) => {
   return (
     <>
       {category && (
@@ -276,7 +276,7 @@ const Page = () => {
 
   const { category, subcategory, subsubcategory } = router.query;
 
-  const _subcategory = findCategoryBySlug(subcategory as String);
+  const _subcategory = subcategory && findCategoryBySlug(subcategory as String);
 
   return (
     <div>
