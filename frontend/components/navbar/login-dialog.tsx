@@ -4,7 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import SignInForm from "../form/signin";
@@ -37,7 +37,9 @@ const LoginDialog = () => {
           asChild
           className="justify-self-end text-base font-bold md:block"
         >
-          <button>Join</button>
+          <button className="whitespace-nowrap rounded-sm border-[1px] border-green-500 px-2 py-1 text-green-500">
+            Sign In
+          </button>
         </DialogTrigger>
       )}
 

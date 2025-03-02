@@ -20,45 +20,14 @@ import { Scrollbar } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/scrollbar";
- 
-const SearchSection = () => {
-  return (
-    <div className="flex h-[300px] w-full flex-col items-center justify-between rounded-lg bg-gradient-to-b from-green-900 to-green-500 px-6 py-12">
-      <h1 className="text-center text-3xl text-white">
-        Scale your professional workforce with <br />
-        <span>freelancers</span>
-      </h1>
-
-      <form className="relative flex h-[52px] w-full flex-row">
-        <input
-          placeholder="Search for any service..."
-          type="text"
-          autoComplete="off"
-          style={{ WebkitAppearance: "none" }}
-          className="h-[52px] w-full rounded-lg border border-gray-300 px-4 outline-none focus:border-transparent focus:ring-0"
-        ></input>
-
-        <button className="absolute right-2 top-1/2 flex h-[40px] w-[40px] -translate-y-1/2 items-center justify-center rounded-lg bg-green-900">
-          <div className="fill-white">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentFill"
-            >
-              <path d="m15.89 14.653-3.793-3.794a.37.37 0 0 0-.266-.109h-.412A6.499 6.499 0 0 0 6.5 0C2.91 0 0 2.91 0 6.5a6.499 6.499 0 0 0 10.75 4.919v.412c0 .1.04.194.11.266l3.793 3.794a.375.375 0 0 0 .531 0l.707-.707a.375.375 0 0 0 0-.53ZM6.5 11.5c-2.763 0-5-2.238-5-5 0-2.763 2.237-5 5-5 2.762 0 5 2.237 5 5 0 2.762-2.238 5-5 5Z"></path>
-            </svg>
-          </div>
-        </button>
-      </form>
-    </div>
-  );
-};
+import clsx from "clsx";
+import SearchBar from "@/components/searchbar";
 
 const CategoriesSection = () => {
   return (
-    <div className="col mt-6 grid grid-cols-3 grid-rows-[repeat(3,_170px)]">
+    <div className={clsx("my-6 grid grid-cols-3 grid-rows-3 gap-3",
+      "md:grid-cols-4  "
+    )}>
       {categories.map((category) => (
         <Link
           key={category.id}
@@ -177,7 +146,6 @@ export const PopularServiceSectionSwipper = () => {
   );
 };
 
-
 const FingerTips = () => {
   return (
     <div className="flex flex-col items-center py-4">
@@ -281,11 +249,90 @@ const FingerTips2 = () => {
   );
 };
 
+const Banner = ({ slogen, ...props }: { slogen: any }) => {
+  const companies = [
+    {
+      name: "Meta",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/meta.ff37dd3.svg",
+      width: 70,
+      height: 14,
+    },
+    {
+      name: "Google",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/google.e74f4d9.svg",
+      width: 53.41,
+      height: 17.87,
+    },
+    {
+      name: "Netflix",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/netflix.b310314.svg",
+      width: 53.64,
+      height: 14.37,
+    },
+    {
+      name: "P&G",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/pg.22fca85.svg",
+      width: 33.13,
+      height: 13.8,
+    },
+    {
+      name: "PayPal",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/paypal.d398de5.svg",
+      width: 53.01,
+      height: 12.69,
+    },
+    {
+      name: "Payoneer",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/payoneer.7c1170d.svg",
+      width: 82.42,
+      height: 16,
+    },
+  ];
+
+  return (
+    <div
+      className={clsx(
+        "relative z-10 flex h-[300px] w-full flex-col items-center justify-center space-y-2 rounded-lg md:h-[370px]",
+        "bg-[rgb(37,66,0)] bg-contain bg-center",
+        "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/3a163e1090b4d0f0b8dc46abb36972ef-1739466831497/new-hero-md.png')]",
+      )}
+    >
+      <p
+        dangerouslySetInnerHTML={{ __html: slogen }}
+        className="text-center text-2xl text-white md:text-4xl"
+      />
+
+      <div className="hidden flex-col items-center space-y-2 md:flex">
+        <span className="text-lg font-semibold text-gray-500">Trusted by:</span>
+        <ul className="flex flex-wrap justify-center gap-6">
+          {companies.map((company, index) => (
+            <li key={index}>
+              <Image
+                src={company.src}
+                alt={company.name}
+                width={company.width}
+                height={company.height}
+                className="h-auto"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="w-[90%] md:hidden">
+        <SearchBar />
+      </div>
+    </div>
+  );
+};
+
 const GuestHomePage = () => {
   return (
     <div className="my-4">
-           
-      <SearchSection />
+      <Banner
+        slogen={"Scale your professional workforce <br/> with freelancers"}
+      />
+
       <CategoriesSection />
       {/* <PopularServiceSection /> */}
       <PopularServiceSectionSwipper />
@@ -293,7 +340,6 @@ const GuestHomePage = () => {
       <LoginDialogGuestHomePage />
       <MakeOnFreelancerConnect />
       <FingerTips2 />
- 
     </div>
   );
 };

@@ -332,7 +332,7 @@ const Explore = ({ title = "", ...props }: { title: any }) => {
         ))}
       </div>
 
-      <div className="hidden grid-cols-4 gap-6 md:visible md:grid">
+      <div className="hidden gap-6 md:visible md:grid md:grid-cols-3 lg:grid-cols-4">
         {programmingTechSubCategories.map((category) => (
           <div>
             <div>
@@ -506,13 +506,13 @@ export default function Page() {
 
   if (category !== "programming-tech") {
     return (
-      <div className="flex h-[100px] w-full items-center justify-center text-center">
+      <div className="flex items-center justify-center text-center">
         <strong>
-          The category{" "}
+          <span>The category </span>
           <span className="capitalize">
             "{typeof category === "string" ? category.replace(/-/g, " ") : ""}"
-          </span>{" "}
-          is under development.
+          </span>
+          <span> is under development.</span>
         </strong>
       </div>
     );
