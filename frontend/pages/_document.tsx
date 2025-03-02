@@ -1,6 +1,5 @@
-import {
-  DocumentHeadTags
-} from "@mui/material-nextjs/v15-pagesRouter";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { DocumentHeadTags } from "@mui/material-nextjs/v15-pagesRouter";
 import { Head, Html, Main, NextScript } from "next/document";
 
 export default function Document(props: any) {
@@ -10,8 +9,10 @@ export default function Document(props: any) {
         <DocumentHeadTags {...props} />
       </Head>
       <body>
-        <Main />
-        <NextScript />
+        <AppRouterCacheProvider>
+          <Main />
+          <NextScript />
+        </AppRouterCacheProvider>
       </body>
     </Html>
   );
