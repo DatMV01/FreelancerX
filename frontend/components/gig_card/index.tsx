@@ -14,6 +14,7 @@ import CarouselV2 from "./carousel_v2";
 export const GigCard = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+
   const saveToListHandle = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
@@ -22,6 +23,7 @@ export const GigCard = () => {
     console.log("saveToListHandle");
     console.log("====================================");
   };
+
   return (
     <div className="relative w-full rounded-sm border bg-white">
       <div className="z-10 flex flex-col">
@@ -47,8 +49,13 @@ export const GigCard = () => {
             <div>
               <div className="flex items-center">
                 <span className="mr-2 text-[12px]">Level 2</span>
-                {Array.from({ length: 2 }, (_, i) => i + 1).map((a) => (
-                  <Diamond size={10} color="#000000" fill="#00000" />
+                {Array.from({ length: 2 }, (_, i) => i + 1).map((a, index) => (
+                  <Diamond
+                    key={index}
+                    size={10}
+                    color="#000000"
+                    fill="#00000"
+                  />
                 ))}
 
                 <Diamond size={10} color="#E4E5E7" fill="#E4E5E7" />
@@ -57,8 +64,13 @@ export const GigCard = () => {
               <div className="flex items-center rounded-sm bg-[#ffe0b3] px-1">
                 <span className="mr-2 text-[12px]">Top Rated</span>
 
-                {Array.from({ length: 3 }, (_, i) => i + 1).map((a) => (
-                  <Diamond size={10} color="#000000" fill="#00000" />
+                {Array.from({ length: 3 }, (_, i) => i + 1).map((_, index) => (
+                  <Diamond
+                    key={index}
+                    size={10}
+                    color="#000000"
+                    fill="#00000"
+                  />
                 ))}
               </div>
             </div>

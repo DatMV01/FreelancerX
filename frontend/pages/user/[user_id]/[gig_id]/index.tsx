@@ -544,8 +544,13 @@ const AboutSeller = () => {
 
               <div className="flex items-center">
                 <span className="mr-2 text-[12px]">Level 2</span>
-                {Array.from({ length: 2 }, (_, i) => i + 1).map((a) => (
-                  <Diamond size={10} color="#000000" fill="#00000" />
+                {Array.from({ length: 2 }, (_, i) => i + 1).map((a, index) => (
+                  <Diamond
+                    key={index}
+                    size={10}
+                    color="#000000"
+                    fill="#00000"
+                  />
                 ))}
 
                 <Diamond size={10} color="#E4E5E7" fill="#E4E5E7" />

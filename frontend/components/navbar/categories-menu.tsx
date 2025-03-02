@@ -18,16 +18,17 @@ const CategoriesMenu = () => {
           typeof category === "string" &&
           categoryData.href.includes(category);
         return (
-          <div
+          <Link
             key={categoryData.id}
             className={clsx(
-              "mr-4 text-nowrap rounded-sm border-b-4 border-transparent py-2",
-              "active::border-green-500 hover:cursor-pointer hover:border-b-4",
-              { "border-green-500": isActive },
+              { "border-b-2 border-green-500": isActive },
+              "mr-4 cursor-pointer text-nowrap",
+              "p-2 hover:bg-green-100",
             )}
+            href={categoryData.href}
           >
-            <Link href={categoryData.href}>{categoryData.title}</Link>
-          </div>
+            {categoryData.title}
+          </Link>
         );
       })}
     </ScrollableDiv>

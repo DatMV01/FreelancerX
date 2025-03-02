@@ -5,6 +5,8 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
@@ -12,6 +14,7 @@ import LeftArrow from "../left-arrow";
 import RightArrow from "../right-arrow";
 import Link from "next/link";
 import { useState } from "react";
+import { VisuallyHidden } from "radix-ui";
 const side = "left";
 
 export function CategoriesNav({
@@ -37,19 +40,20 @@ export function CategoriesNav({
         </div>
       </SheetTrigger>
       <SheetContent side={side} className="ex bg-white">
-        <SheetTitle>
-          <div className="grid h-[40px] grid-cols-3 items-center">
-            <SheetClose asChild>
-              <button>
-                <LeftArrow />
-              </button>
-            </SheetClose>
-            <span className="absolute left-1/2 w-max -translate-x-1/2 transform">
-              {title}
-            </span>
-          </div>
+        <SheetHeader>
+          <SheetTitle>
+            <div className="grid h-[40px] grid-cols-3 items-center">
+              <SheetClose asChild>
+                <button>
+                  <LeftArrow />
+                </button>
+              </SheetClose>
+              <span className="absolute left-1/2 w-max -translate-x-1/2 transform">
+                {title}
+              </span>
+            </div>
 
-          {/* <div className="relative flex items-center">
+            {/* <div className="relative flex items-center">
             <SheetClose asChild>
               <span aria-hidden="true" className="h-[16px] w-[16px] fill-black">
                 <svg
@@ -67,7 +71,11 @@ export function CategoriesNav({
               Programming &amp; Tech
             </span>
           </div> */}
-        </SheetTitle>
+          </SheetTitle>
+          <VisuallyHidden.Root>
+            <SheetDescription>SheetDescription</SheetDescription>
+          </VisuallyHidden.Root>
+        </SheetHeader>
 
         <ScrollArea className="h-full w-full pb-[40px]" type="always">
           {subCategories &&
@@ -95,10 +103,7 @@ export function CategoriesNav({
                         </Link>
                       </li>
                     ))}
-
-              
                 </ul>
-                
               </div>
             ))}
         </ScrollArea>

@@ -35,16 +35,15 @@ const DescriptionSection = ({ category }: any) => {
 const RecommendSection = () => {
   return (
     <ScrollableDiv2>
-      {recommendsWebDevelopmentData.map((m: any) => (
-        <Link href={m.url}>
+      {recommendsWebDevelopmentData.map((m: any, index) => (
+        <Link href={m.url} key={index}>
           <div className="mr-4 flex items-center justify-center rounded-full bg-slate-50 px-8 py-4 font-bold shadow hover:fill-green-600 hover:text-green-600">
             <span className="relative h-[40px] w-[40px]">
               <Image
                 alt="logo"
                 src={m.icon}
                 fill
-                objectFit="cover"
-                className=""
+                style={{ objectFit: "cover" }}
               />
             </span>
 
@@ -249,12 +248,13 @@ const ExploreMore = ({ title = "", ...props }: { title: any }) => {
       </h2>
 
       <div className="flex flex-wrap items-center justify-center">
-        {categories.map((i) => (
+        {categories.map((_, index) => (
           <Link
-            href={i.link}
+            key={index}
+            href={_.link}
             className="m-1 w-fit rounded-3xl bg-[#EFEFF0] px-4 py-1 font-medium hover:bg-gray-300"
           >
-            {i.title}
+            {_.title}
           </Link>
         ))}
       </div>

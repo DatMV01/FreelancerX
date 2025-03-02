@@ -102,7 +102,7 @@ const CarouselV2 = () => {
         {data.map((_, index) => {
           if (_.type === "image") {
             return (
-              <SwiperSlide className=" ">
+              <SwiperSlide key={index}>
                 <img src={_.url} alt={_.alt} className="m-auto h-full" />
               </SwiperSlide>
             );
@@ -110,7 +110,7 @@ const CarouselV2 = () => {
 
           if (_.type === "video") {
             return (
-              <SwiperSlide className=" ">
+              <SwiperSlide key={index}>
                 <video
                   controls
                   autoPlay={false}

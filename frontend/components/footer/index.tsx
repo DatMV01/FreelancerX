@@ -286,16 +286,19 @@ const Footer = () => {
         </div>
 
         <div className="mt-4 hidden md:grid md:grid-cols-4 md:gap-6">
-          {footerNav.map((nav) => (
-            <div>
+          {footerNav.map((nav, index) => (
+            <div key={index}>
               <div>
                 <div className="flex flex-col">
                   <span className="py-4 font-bold">{nav.title}</span>
                 </div>
 
                 <div>
-                  {nav.content.map((c) => (
-                    <div className="hover:pointer flex h-12 items-center text-base text-[#62646a] hover:bg-gray-50">
+                  {nav.content.map((c, index) => (
+                    <div
+                      key={index}
+                      className="hover:pointer flex h-12 items-center text-base text-[#62646a] hover:bg-gray-50"
+                    >
                       <Link className="w-full" href={c.href}>
                         {c.text}
                       </Link>

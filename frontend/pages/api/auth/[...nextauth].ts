@@ -35,6 +35,7 @@ declare module "next-auth" {
       role?: string;
       firstName?: string;
       lastName?: string;
+      avatar?: String,
       accessToken: string;
       refreshToken: string;
     } & DefaultSession["user"];

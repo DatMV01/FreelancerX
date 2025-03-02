@@ -1,32 +1,50 @@
 "use client";
 
 import {
-     Accordion,
-     AccordionContent,
-     AccordionItem,
-     AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-     Sheet,
-     SheetClose,
-     SheetContent,
-     SheetTitle,
-     SheetTrigger,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { categories } from "@/data/data";
 import { stringAvatar } from "@/lib/utils";
-import { Avatar, Divider } from "@mui/material";
+import { Avatar, Button, Divider } from "@mui/material";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoriesNav } from "./sub-categories-nav";
 import { AlignJustify } from "lucide-react";
+import LoginDialog from "./login-dialog";
+import { VisuallyHidden } from "radix-ui";
 
 const NavigationDrawer = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const [isShowJoinButton, setShowJoinButton] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      setShowJoinButton(false);
+    }
+    if (status === "unauthenticated") {
+      setShowJoinButton(true);
+    }
+  }, [status, router]);
+
+  const user = session?.user;
+  const fullName = `${user?.firstName} ${user?.lastName}`;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -37,15 +55,24 @@ const NavigationDrawer = () => {
       </SheetTrigger>
 
       <SheetContent side="left" className="bg-white">
-        <SheetTitle>
-          <div className="my-2 flex flex-row items-center [&>div]:mr-2">
-            <Avatar {...stringAvatar("Mai Dat")} />
-            <Avatar alt="Remy Sharp" src="/avatar/1.jpg" />
-            <div>Mai Dat</div>
-          </div>
+        <SheetHeader>
+          <SheetTitle>
+            {isShowJoinButton && <LoginDialog />}
 
-          <Divider className="mb-2 mt-4" />
-        </SheetTitle>
+            {!isShowJoinButton && (
+              <div className="my-2 flex flex-row items-center [&>div]:mr-2">
+                {user?.avatar && <Avatar src={user?.avatar as string}></Avatar>}
+                {!user?.avatar && <Avatar {...stringAvatar(fullName || "")} />}
+                <div>{fullName}</div>
+              </div>
+            )}
+
+            <Divider className="mb-2 mt-4" />
+          </SheetTitle>
+          <VisuallyHidden.Root>
+            <SheetDescription>SheetDescription</SheetDescription>
+          </VisuallyHidden.Root>
+        </SheetHeader>
 
         <ScrollArea className="h-full w-full" type="always">
           <SheetClose asChild className="flex h-[40px] items-center">
@@ -110,6 +137,12 @@ const NavigationDrawer = () => {
                 Logout
               </button>
             </SheetClose>
+
+            <div className="my-2 flex flex-row items-center [&>div]:mr-2">
+              <Avatar {...stringAvatar("Mai Dat")} />
+              <Avatar alt="Remy Sharp" src="/avatar/1.jpg" />
+              <div>Mai Dat</div>
+            </div>
           </div>
         </ScrollArea>
       </SheetContent>
