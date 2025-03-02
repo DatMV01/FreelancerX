@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -8,37 +8,59 @@ import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { NavigationOptions } from "swiper/types";
 
+const data = [
+  {
+    url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/pqadd5xxrezx4zithzpg",
+    type: "video",
+  },
+  {
+    url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/gags7a77f6zybuusmf7g",
+    type: "video",
+  },
+
+  {
+    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/187221060/original/498dee5818e4f41cec45d8abf27a15e081bdfaa7.jpg",
+    type: "image",
+    alt: "image",
+  },
+  {
+    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/364619355/original/9ed6cfb0d447d4ee25f1d4a525bdc7f56c031e3c.jpg",
+    type: "image",
+    alt: "image",
+  },
+  {
+    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/118505834/original/eb828312a9e5e7f58c23a12981ccae2f8b475fd0.jpg",
+    type: "image",
+    alt: "image",
+  },
+];
+
 const CarouselV2 = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  const data = [
-    {
-      url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/pqadd5xxrezx4zithzpg",
-      type: "video",
-    },
-    {
-      url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/gags7a77f6zybuusmf7g",
-      type: "video",
-    },
+  const videoRefs = useRef<HTMLVideoElement[]>([]);
+  const [videoTimes, setVideoTimes] = useState<{ [key: number]: number }>({});
 
-    {
-      url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/187221060/original/498dee5818e4f41cec45d8abf27a15e081bdfaa7.jpg",
-      type: "image",
-      alt: "image",
-    },
-    {
-      url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/364619355/original/9ed6cfb0d447d4ee25f1d4a525bdc7f56c031e3c.jpg",
-      type: "image",
-      alt: "image",
-    },
-    {
-      url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/118505834/original/eb828312a9e5e7f58c23a12981ccae2f8b475fd0.jpg",
-      type: "image",
-      alt: "image",
-    },
-  ];
+  const handleSlideChange = (swiper: any) => {
+    videoRefs.current.forEach((video, index) => {
+      if (video) {
+        if (index !== swiper.activeIndex) {
+          setVideoTimes((prev) => ({
+            ...prev,
+            [index]: video.currentTime,
+          }));
+          video.pause();
+        }
+      }
+    });
 
+    const activeVideo = videoRefs.current[swiper.activeIndex];
+    if (activeVideo && videoTimes[swiper.activeIndex] !== undefined) {
+      activeVideo.currentTime = videoTimes[swiper.activeIndex];
+      //  activeVideo.play();
+    }
+  };
   return (
     <div className="relative">
       <Button
@@ -57,11 +79,12 @@ const CarouselV2 = () => {
         <ChevronRight size={16} />
       </Button>
 
-      {/* Swiper */}
       <Swiper
         modules={[Navigation, Pagination]}
         slidesPerView={1}
+        onSlideChange={handleSlideChange}
         pagination={{
+          el: ".custom-pagination",
           clickable: true,
         }}
         navigation={{
@@ -76,25 +99,32 @@ const CarouselV2 = () => {
         }}
         className="rounded-sm"
       >
-        {data.map((d) => {
-          if (d.type === "image") {
+        {data.map((_, index) => {
+          if (_.type === "image") {
             return (
-              <SwiperSlide className="aspect-video">
-                <img src={d.url} alt={d.alt} className="w-full" />
+              <SwiperSlide className=" ">
+                <img src={_.url} alt={_.alt} className="m-auto h-full" />
               </SwiperSlide>
             );
           }
 
-          if (d.type === "video") {
+          if (_.type === "video") {
             return (
-              <SwiperSlide className="aspect-video">
-                <video controls muted autoPlay={false}>
-                  <source src={d.url} type="video/mp4" />
+              <SwiperSlide className=" ">
+                <video
+                  controls
+                  autoPlay={false}
+                  ref={(el) => {
+                    if (el) videoRefs.current[index] = el;
+                  }}
+                >
+                  <source src={_.url} type="video/mp4" />
                 </video>
               </SwiperSlide>
             );
           }
         })}
+        <div className="custom-pagination my-2 flex justify-center"></div>
       </Swiper>
     </div>
   );

@@ -5,7 +5,7 @@ import { Avatar, Tooltip } from "@mui/material";
 import React, { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
+import { Divider, Tab, Tabs, Typography } from "@mui/material";
 import { CheckCircle, Clock, Diamond, RefreshCw, Star } from "lucide-react";
 import { useState } from "react";
 
@@ -14,13 +14,13 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 
-import Link from "next/link";
-import Carousel from "@/components/gig_card/carousel";
-import CarouselFullScreen from "@/components/gig_card/carousel-fullscreen";
-import CarouselV2 from "@/components/gig_card/carousel_v2";
-import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
-import RatedDiamond from "@/components/gig_card/rated-diamond";
+import AvatarOnline from "@/components/avatar_online";
+import CommentBox from "@/components/comment";
 import EditableTable from "@/components/edited-table";
+import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
+import { faker } from "@faker-js/faker";
+import { LoremIpsum } from "lorem-ipsum";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 const TabPanel = ({
@@ -545,10 +545,10 @@ const AboutSeller = () => {
               <div className="flex items-center">
                 <span className="mr-2 text-[12px]">Level 2</span>
                 {Array.from({ length: 2 }, (_, i) => i + 1).map((a) => (
-                  <RatedDiamond />
+                  <Diamond size={10} color="#000000" fill="#00000" />
                 ))}
 
-                <RatedDiamond color={"#E4E5E7"} />
+                <Diamond size={10} color="#E4E5E7" fill="#E4E5E7" />
               </div>
             </div>
           </div>
@@ -812,11 +812,6 @@ const GigReviews = () => {
     </div>
   );
 };
-import { LoremIpsum } from "lorem-ipsum";
-import { Card, CardContent } from "@/components/ui/card";
-import CommentBox from "@/components/comment";
-import { faker } from "@faker-js/faker";
-import AvatarOnline from "@/components/avatar_online";
 
 const CommentsSection = () => {
   interface Review {
