@@ -500,11 +500,11 @@ const slugsToFind = [
 ];
 export const foundMostPopulars = findCategoriesBySlugs(slugsToFind);
 
-if (foundMostPopulars.length > 0) {
-  console.log("Found subcategories:", foundMostPopulars);
-} else {
-  console.log("Subcategories not found.");
-}
+// if (foundMostPopulars.length > 0) {
+//   console.log("Found subcategories:", foundMostPopulars);
+// } else {
+//   console.log("Subcategories not found.");
+// }
 
 export const categories = [
   {

@@ -20,9 +20,9 @@ const Banner = ({ category, ...props }: { category: any }) => {
         className="text-center text-xl text-white"
       />
 
-      <div className="w-[90%] md:hidden">
+      {/* <div className="w-[90%] md:hidden">
         <SearchBar />
-      </div>
+      </div> */}
     </div>
   );
 };

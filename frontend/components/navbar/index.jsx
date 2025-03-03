@@ -12,16 +12,29 @@ import SearchBar from "../searchbar";
 import CategoriesMenu from "./categories-menu";
 import LoginDialog from "./login-dialog";
 import NavigationDrawer from "./navigation-drawer";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import PopoverAvatar from "../popover_avatar";
 
 const Navbar = () => {
+  const [isShowJoinButton, setShowJoinButton] = useState(false);
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      setShowJoinButton(false);
+    }
+    if (status === "unauthenticated") {
+      setShowJoinButton(true);
+    }
+  }, [status, router]);
+
   return (
     <div>
-      <nav
-        className={clsx(
-          "grid grid-cols-3 items-center",
-          "md:flex md:items-center md:space-x-2",
-        )}
-      >
+      <nav className={clsx("grid grid-cols-3 items-center", "md:hidden")}>
         <NavigationDrawer />
 
         <Link href="/" className="justify-self-center">
@@ -35,16 +48,26 @@ const Navbar = () => {
         <div className="justify-self-end">
           <LoginDialog />
         </div>
-
-        <div className="hidden space-x-4 md:flex">
-          <PopoverMessages />
-          <PopoverNotifications />
-          <PopoverOrders />
-          <PopoverFavoriteListing />
-          <AvatarOnline />
-        </div>
       </nav>
 
+      <nav className={clsx("hidden", "md:flex md:items-center md:space-x-4")}>
+        <NavigationDrawer />
+
+        <Link href="/" className="justify-self-center">
+          <Logo />
+        </Link>
+
+        <div className="hidden w-full md:block">
+          <SearchBar />
+        </div>
+
+        <PopoverMessages />
+        <PopoverNotifications />
+        <PopoverOrders />
+        <PopoverFavoriteListing />
+
+        {isShowJoinButton ? <LoginDialog /> : <PopoverAvatar />}
+      </nav>
       <div className="my-2 md:hidden">
         <SearchBar />
       </div>

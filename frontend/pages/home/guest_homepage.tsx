@@ -323,9 +323,9 @@ const Banner = ({ slogen, ...props }: { slogen: any }) => {
         </ul>
       </div>
 
-      <div className="w-[90%] md:hidden">
+      {/* <div className="w-[90%] md:hidden">
         <SearchBar />
-      </div>
+      </div> */}
     </div>
   );
 };
