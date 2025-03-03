@@ -2,7 +2,12 @@
 
 import clsx from "clsx";
 import Link from "next/link";
+import AvatarOnline from "../avatar_online";
 import Logo from "../logo";
+import PopoverFavoriteListing from "../popover_favorite_listing";
+import PopoverMessages from "../popover_messages";
+import PopoverNotifications from "../popover_notification";
+import PopoverOrders from "../popover_orders";
 import SearchBar from "../searchbar";
 import CategoriesMenu from "./categories-menu";
 import LoginDialog from "./login-dialog";
@@ -19,7 +24,7 @@ const Navbar = () => {
       >
         <NavigationDrawer />
 
-        <Link href="/" className="justify-self-center  ">
+        <Link href="/" className="justify-self-center">
           <Logo />
         </Link>
 
@@ -27,10 +32,22 @@ const Navbar = () => {
           <SearchBar />
         </div>
 
-        <div className="justify-self-end" >
+        <div className="justify-self-end">
           <LoginDialog />
         </div>
+
+        <div className="hidden space-x-4 md:flex">
+          <PopoverMessages />
+          <PopoverNotifications />
+          <PopoverOrders />
+          <PopoverFavoriteListing />
+          <AvatarOnline />
+        </div>
       </nav>
+
+      <div className="my-2 md:hidden">
+        <SearchBar />
+      </div>
 
       <CategoriesMenu />
     </div>

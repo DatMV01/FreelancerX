@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "flowbite.s3.amazonaws.com",
       },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+      },
+      {
+        protocol: "https",
+        hostname: "source.unsplash.com",
+      },
+
+      {
+        protocol: "https",
+        hostname: "loremflickr.com",
+      },
     ],
   },
 };

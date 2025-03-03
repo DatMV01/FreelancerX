@@ -22,6 +22,7 @@ import { faker } from "@faker-js/faker";
 import { LoremIpsum } from "lorem-ipsum";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import SearchBar from "@/components/searchbar";
 
 const TabPanel = ({
   children,

@@ -4,6 +4,7 @@ import BreadcrumbCpn from "@/components/breadcrumb";
 import { FilterSection } from "@/components/filter_section";
 import { GigCard } from "@/components/gig_card";
 import ScrollableDiv2 from "@/components/scrollable-div-2";
+import SearchBar from "@/components/searchbar";
 import {
   Popover,
   PopoverContent,

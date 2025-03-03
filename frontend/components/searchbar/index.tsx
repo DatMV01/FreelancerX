@@ -72,7 +72,7 @@ const SearchBar = ({ ...props }) => {
         ></input>
 
         <button
-          className="absolute right-2 top-1/2 flex h-[30px] w-[30px] -translate-y-1/2 items-center justify-center rounded-lg bg-green-900"
+          className="absolute right-2 top-1/2 flex h-[30px] w-[30px] -translate-y-1/2 items-center justify-center rounded-sm bg-green-900"
           onClick={(e) => {
             e.preventDefault();
           }}
