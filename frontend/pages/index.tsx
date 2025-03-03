@@ -30,7 +30,8 @@ export default function Index({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <div className={`${roboto.className} ${geistSans.variable} `}>
-      {isLogin ? <UserHomePage /> : <GuestHomePage />}
+      {/* {isLogin ? <UserHomePage /> : <GuestHomePage />} */}
+      <GuestHomePage />
     </div>
   );
 }

@@ -34,17 +34,17 @@ export function CategoriesNav({
   return (
     <Sheet key={side} open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <div className="flex w-full flex-row justify-between">
+        <div className="flex w-full cursor-pointer flex-row items-center justify-between p-2 hover:bg-green-50 hover:text-green-500">
           <span>{title}</span>
           <RightArrow />
         </div>
       </SheetTrigger>
-      <SheetContent side={side} className="ex bg-white">
+      <SheetContent side={side} className="w-[300px] bg-white p-4">
         <SheetHeader>
           <SheetTitle>
             <div className="grid h-[40px] grid-cols-3 items-center">
               <SheetClose asChild>
-                <button>
+                <button className="w-full h-full">
                   <LeftArrow />
                 </button>
               </SheetClose>
@@ -90,7 +90,8 @@ export function CategoriesNav({
                     subCategory.subCategories.map((subCategory: any) => (
                       <li
                         key={subCategory.id}
-                        className="flex h-[40px] items-center text-base"
+                
+                        className="flex w-full cursor-pointer flex-row items-center justify-between p-2 hover:bg-green-50 hover:text-green-500"
                       >
                         <Link
                           href={`/categories/programming-tech/${subCategory.slug}`}

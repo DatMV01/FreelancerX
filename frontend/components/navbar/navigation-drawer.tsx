@@ -27,6 +27,7 @@ import { CategoriesNav } from "./sub-categories-nav";
 import { AlignJustify } from "lucide-react";
 import LoginDialog from "./login-dialog";
 import { VisuallyHidden } from "radix-ui";
+import clsx from "clsx";
 
 const NavigationDrawer = () => {
   const router = useRouter();
@@ -54,45 +55,71 @@ const NavigationDrawer = () => {
         </button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="bg-white">
+      <SheetContent side="left" className="w-[300px] bg-white p-4">
         <SheetHeader>
           <SheetTitle>
             {isShowJoinButton && <LoginDialog />}
 
             {!isShowJoinButton && (
-              <div className="my-2 flex flex-row items-center [&>div]:mr-2">
-                {user?.avatar && <Avatar src={user?.avatar as string}></Avatar>}
+              <div className="flex items-center space-x-2">
+                {user?.avatar && <Avatar src={user?.avatar}></Avatar>}
                 {!user?.avatar && <Avatar {...stringAvatar(fullName || "")} />}
                 <div>{fullName}</div>
               </div>
             )}
-
-            <Divider className="mb-2 mt-4" />
+            <Divider className="py-2" />
           </SheetTitle>
           <VisuallyHidden.Root>
             <SheetDescription>SheetDescription</SheetDescription>
           </VisuallyHidden.Root>
         </SheetHeader>
 
-        <ScrollArea className="h-full w-full" type="always">
-          <SheetClose asChild className="flex h-[40px] items-center">
-            <Link href="/">Home</Link>
+        <div
+          className={clsx(
+            "h-full overflow-auto",
+            "[&::-webkit-scrollbar]:w-1",
+            "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300",
+            "[&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100",
+          )}
+        >
+          <SheetClose asChild>
+            <Link
+              className="flex w-full items-center p-2 hover:bg-green-50 hover:text-green-500"
+              href="/"
+            >
+              Home
+            </Link>
           </SheetClose>
 
-          <SheetClose asChild className="flex h-[40px] items-center">
-            <Link href="/inbox">Inbox</Link>
+          <SheetClose asChild>
+            <Link
+              className="flex w-full items-center p-2 hover:bg-green-50 hover:text-green-500"
+              href="/inbox"
+            >
+              Inbox
+            </Link>
           </SheetClose>
 
-          <SheetClose asChild className="flex h-[40px] items-center">
-            <Link href="/orders">Manage Orders</Link>
+          <SheetClose asChild>
+            <Link
+              className="flex w-full items-center p-2 hover:bg-green-50 hover:text-green-500"
+              href="/orders"
+            >
+              Manage Orders
+            </Link>
           </SheetClose>
 
-          <SheetClose asChild className="flex h-[40px] items-center">
-            <Link href="/lists">Fovorite Lists</Link>
+          <SheetClose asChild>
+            <Link
+              className="flex w-full items-center p-2 hover:bg-green-50 hover:text-green-500"
+              href="/lists"
+            >
+              Fovorite Lists
+            </Link>
           </SheetClose>
 
           <Accordion type="single" collapsible>
-            <AccordionItem value="item-1" className="border-none font-[Arial]">
+            <AccordionItem value="item-1" className="m-2">
               <AccordionTrigger className="h-[40px] text-base font-bold">
                 Browse categories
               </AccordionTrigger>
@@ -109,25 +136,66 @@ const NavigationDrawer = () => {
             </AccordionItem>
           </Accordion>
 
-          <div className="flex h-[20px] items-center">
-            <hr className="w-full" />
-          </div>
+          <Accordion type="single" collapsible defaultValue="item-1">
+            <AccordionItem value="item-1" className="m-2">
+              <AccordionTrigger className="h-[40px] text-base font-bold">
+                My Business
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col items-center text-base">
+                <Link
+                  className="w-full p-2 hover:bg-green-50 hover:text-green-500"
+                  href={""}
+                >
+                  Orders
+                </Link>
+                <Link
+                  className="w-full p-2 hover:bg-green-50 hover:text-green-500"
+                  href={""}
+                >
+                  Gigs
+                </Link>
+                <Link
+                  className="w-full p-2 hover:bg-green-50 hover:text-green-500"
+                  href={""}
+                >
+                  Profile
+                </Link>
+                <Link
+                  className="w-full p-2 hover:bg-green-50 hover:text-green-500"
+                  href="/earning"
+                >
+                  Earnings
+                </Link>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-          <div>
-            <div className="flex h-[40px] w-full items-center text-base font-bold">
+          <div className="p-2">
+            <div className="flex w-full items-center text-base font-bold">
               General
             </div>
 
-            <SheetClose asChild className="flex h-[40px] w-full items-center">
-              <Link href="#">Setting</Link>
+            <SheetClose asChild className="flex w-full">
+              <Link
+                href={`/setting`}
+                className="p-2 hover:bg-green-50 hover:text-green-500"
+              >
+                Settings
+              </Link>
             </SheetClose>
 
-            <SheetClose asChild className="flex h-[40px] w-full items-center">
-              <Link href="#">Billing and payments</Link>
+            <SheetClose asChild className="flex w-full">
+              <Link
+                href="/billing"
+                className="p-2 hover:bg-green-50 hover:text-green-500"
+              >
+                Billing and payments
+              </Link>
             </SheetClose>
 
-            <SheetClose asChild className="flex h-[40px] w-full items-center">
+            <SheetClose asChild>
               <button
+                className="w-full p-2 text-left hover:bg-green-50 hover:text-green-500"
                 onClick={async () => {
                   //signOut({ redirect: true, callbackUrl: "/" });
                   await signOut({ redirect: false, callbackUrl: "/" });
@@ -137,14 +205,8 @@ const NavigationDrawer = () => {
                 Logout
               </button>
             </SheetClose>
-
-            <div className="my-2 flex flex-row items-center [&>div]:mr-2">
-              <Avatar {...stringAvatar("Mai Dat")} />
-              <Avatar alt="Remy Sharp" src="/avatar/1.jpg" />
-              <div>Mai Dat</div>
-            </div>
           </div>
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );
