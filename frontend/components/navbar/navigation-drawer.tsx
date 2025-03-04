@@ -150,7 +150,7 @@ const NavigationDrawer = () => {
                 </Link>
                 <Link
                   className="w-full p-2 hover:bg-green-50 hover:text-green-500"
-                  href={""}
+                  href="/gigs/manage"
                 >
                   Gigs
                 </Link>
