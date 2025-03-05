@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 import { Divider, CircularProgress } from "@mui/material";
 import { ChevronDown } from "lucide-react";
 import GigsManageTable from "@/components/gigs_manage_table";
+import Link from "next/link";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
@@ -59,7 +60,11 @@ function a11yProps(label: string) {
 
 const tabs = [
   { label: "ACTIVE", table_label: "Active Gigs", endpoint: "/api/active" },
-  { label: "PENDING APPROVAL", table_label: "Gigs pending approval", endpoint: "/api/pending" },
+  {
+    label: "PENDING APPROVAL",
+    table_label: "Gigs pending approval",
+    endpoint: "/api/pending",
+  },
   {
     label: "REQUIRES MODIFICATION",
     table_label: "Gigs that require modifications",
@@ -126,12 +131,14 @@ export default function ManageGig() {
           ))}
         </Tabs>
 
-        <button
-          className="inline-block rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
-          onClick={() => alert("Hello! I am an alert box!")}
+        <Link
+          className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
+          href="/gigs/new"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           CREATE A NEW GIG
-        </button>
+        </Link>
       </Box>
 
       <Divider className="py-1" />

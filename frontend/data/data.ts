@@ -1,6 +1,16 @@
 import { consoleLog } from "@/utils/console";
 
-const programmingTechSubCategories = [
+export interface Category {
+  id: string;
+  category_id: string;
+  title: string;
+  slug: string;
+  description: string;
+  icon: string;
+  subCategories: Category[];
+}
+
+export const programmingTechSubCategories = [
   {
     id: "8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
@@ -467,6 +477,8 @@ export function findCategoryBySlug(slug: String) {
     return null;
   }, null);
 }
+
+ 
 
 export function findCategoriesBySlugs(slugs: string[]) {
   return programmingTechSubCategories.reduce(

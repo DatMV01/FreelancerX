@@ -1,0 +1,390 @@
+{
+     "cache_version": "v2",
+     "handle": "fiverr-mp",
+     "name": "fiverr-mp",
+     "rollout": 1.0,
+     "alternative_bot": {
+         "handle": "",
+         "rollout": 0
+     },
+     "chatEnabled": true,
+     "chat": true,
+     "persistence": "normal",
+     "tint": "#003912",
+     "language": "en",
+     "translated_languages": [
+         "nl",
+         "fr",
+         "de",
+         "it",
+         "pt",
+         "es"
+     ],
+     "features": {
+         "afm_proactive_messaging": true,
+         "ada_glass_zendesk": true,
+         "conditionals": true,
+         "personalization": true,
+         "language_detection": true,
+         "selection": true,
+         "push_notifications": false,
+         "chat_ui_extra": true,
+         "end_chat": true,
+         "end_live_chat": true,
+         "forced_quick_replies": true,
+         "no_branding": true,
+         "redactions": true,
+         "request_block": true,
+         "live_chat_handoff": false,
+         "zendesk_client": false,
+         "liveperson_client": false,
+         "satisfaction": true,
+         "segmentation": true,
+         "variable_set_block": true,
+         "authentication": true,
+         "ada_glass_nuance": false,
+         "ada_glass_zendesk_messaging": false,
+         "predictive_suggestions": true,
+         "ada_glass_salesforce": false,
+         "limit_login_attempts": false,
+         "password_expiry": false,
+         "enforce_mfa": false,
+         "zendesk_ticketing": true,
+         "builder_bot": true,
+         "client_timezone_tracking": true,
+         "zendesk_file_transfer": true,
+         "airasia_validation_types": false,
+         "channel_smooch": false,
+         "salesforce_file_transfer": false,
+         "custom_javascript_event_block": true,
+         "custom_handoff_event_block": false,
+         "data_api": true,
+         "data_api_trial": false,
+         "ada_glass_zendesk_chatter_auth": true,
+         "csat_v2": true,
+         "zendesk_agent_workspace": false,
+         "ui_customization": true,
+         "widget_block": true,
+         "count_http_request_as_handoff": true,
+         "email_subject_handoff_field": false,
+         "disable_live_chat_log": false,
+         "local_notifications": false,
+         "ner_experiment": true,
+         "variable_change_meta_messages": false,
+         "csat_pro_post_chat": true,
+         "raw_json_modal": true,
+         "zendesk_jwt_no_verify": true,
+         "action_integrations": true,
+         "zendesk_ticketing_no_user_details": false,
+         "zendesk_department_matching": false,
+         "sso_dashboard": true,
+         "dynamic_ada_apps": true,
+         "afm_business_events": true,
+         "oauth2_token_v2": false,
+         "donated_bot": false,
+         "smart_search_confluence": false,
+         "smart_search_pinterest": false,
+         "ada_glass_oracle": false,
+         "ada_glass_intercom": false,
+         "ada_glass_kustomer": false,
+         "twilio_direct_sms": false,
+         "integration_block_salesforce": false,
+         "afm_goals": false,
+         "csat_waiting_state": true,
+         "sunco_multi_bot_routing": false,
+         "afm_handoff_events": false,
+         "sunco_zaw_handoff_include_channel_metadata": false,
+         "sunco_zaw_transcript_passthrough": false,
+         "transcript_passthrough_include_sunco_conversation_id_tag": false,
+         "afm_ab_testing": true,
+         "webhook_channel_api": false,
+         "sensitive_vars_handoff": false,
+         "use_mock_data_analytics": false,
+         "afm_proactive_sms": false,
+         "year_end_2022_report": false,
+         "simple_apps_api": false,
+         "secure_chatter_token_endpoint": false,
+         "experiment_voice": false,
+         "salesforce_timeout_notifications": false,
+         "salesforce_timeout_notifications_imminent": false,
+         "push_notifications_test": false,
+         "exclude_chat_session_auth": true,
+         "wflw_advanced_lob": true,
+         "salesforce_hide_sensitive_variables": false,
+         "labelling_resolution_temp": false,
+         "autolaunch_temp": false,
+         "bu_generative_answers_temp": false,
+         "smart_search_intercom": false,
+         "free_tier_plan": false,
+         "bu_no_am_temp": false,
+         "automated_resolution_report": true,
+         "automated_resolution_feedback": true,
+         "legacy_fb_messenger": false,
+         "generated_topics": true,
+         "bq_gen_core_with_actions": true,
+         "sunco_user_metavariables_and_locale": false,
+         "bg_temp_ar_jump_start": false,
+         "bu_generative_multilingual_ingestion_temp": false,
+         "emit_handoff_live_chat_events": false,
+         "grounded_reply_filter": false,
+         "ws_chat_ui_improvements_rollout_1": true,
+         "ws_chat_ui_improvements": true
+     },
+     "privacy": false,
+     "privacy_link": "https://ada.support/privacy/",
+     "time_to_expiry": 480000,
+     "show_logo": false,
+     "button_carousel": "mobile",
+     "button_layout_mobile": "carousel",
+     "button_layout_desktop": "stacked",
+     "chat_button": {
+         "icon_type": "custom",
+         "icon_path": "https://static.ada.support/images/018b5639-bcc2-4a61-b0bf-8f3429eb3fa8.svg",
+         "size": 44,
+         "background_color": "#1dbf73"
+     },
+     "ui_settings": {
+         "chat": {
+             "theme": "light",
+             "style": "rectangular",
+             "header_text_color": "#ffffff",
+             "header_color_enabled": false,
+             "bot_description_enabled": false,
+             "default_sound_on": false,
+             "text_size": "default",
+             "advanced_colors_enabled": false,
+             "bot_name": {
+                 "en": ""
+             },
+             "download_transcript_toggle": false,
+             "bot_description": {},
+             "header_color": "#00b22d",
+             "text_over_accent_color": "#ffffff",
+             "fallback_ui_settings": {
+                 "default": false,
+                 "icon": {
+                     "default": true,
+                     "image": "https://static.ada.support/images/2d557a82-63c4-4402-a692-e38b9ab3d37c.svg"
+                 },
+                 "message": {
+                     "en": "The chat is experiencing technical difficulties and we\u2019re working to fix it as soon as possible. We apologize for any inconvenience. Please try again shortly."
+                 },
+                 "links": {
+                     "en": [
+                         {
+                             "label": "",
+                             "url": ""
+                         },
+                         {
+                             "label": "",
+                             "url": ""
+                         },
+                         {
+                             "label": "",
+                             "url": ""
+                         },
+                         {
+                             "label": "",
+                             "url": ""
+                         }
+                     ]
+                 }
+             },
+             "branded_campaigns": "unbranded",
+             "email_transcript_setting": true
+         },
+         "embed": {
+             "style": "round",
+             "button_text": {}
+         },
+         "email": {
+             "sender_name": "",
+             "header_url": "",
+             "header_alignment": "left",
+             "footer_language": "en",
+             "footer": {}
+         }
+     },
+     "intros": [],
+     "num_predictive_suggestions": 0,
+     "agent_avatar": {
+         "default": true,
+         "image": "https://static.ada.support/images/db0f6bc6-febe-4824-a0f3-5ace8e795e05.svg"
+     },
+     "redactions": [
+         {
+             "key": "credit_card_number",
+             "active": true,
+             "regex": "[^\\d]*(\\d[\\d.\\- ]{11,23}\\d)(?!\\d)"
+         },
+         {
+             "key": "phone_number",
+             "active": false,
+             "regex": "[(]?[\\+]?\\b(\\+?1(\\s|-)?)?((\\(?\\d{3}\\)?(\\s|-|\\.)?\\d{3}(\\s|-|\\.)?\\d{4}))\\b[)]?"
+         },
+         {
+             "key": "sin",
+             "active": false,
+             "regex": "\\b(\\d{3}\\s?\\d{3}\\s?\\d{3})\\b"
+         },
+         {
+             "key": "ssn",
+             "active": false,
+             "regex": "\\b((?!000|666|9[0-9]{2})[0-9]{3}(\\s|-)?(?!00)[0-9]{2}(\\s|-)?(?!0000)[0-9]{4})\\b"
+         },
+         {
+             "key": "email",
+             "active": false,
+             "regex": "([a-zA-Z0-9\u00e9\u00e1\u00ed\u00f3\u00fa\u00e0\u00e8\u00ec\u00f2\u00f9\u00e2\u00ea\u00ee\u00f4\u00fb\u00e3\u00f5\u00f1\u00e4\u00eb\u00ef\u00f6\u00fc\u00e7_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+)"
+         }
+     ],
+     "custom_redactions": [],
+     "marketing_campaigns": [
+         {
+             "_id": "66816bf53d11055acc5775e1",
+             "campaign_key": "Proactive_-_Profession-based_catalog",
+             "status": "active",
+             "trigger_conditions": [
+                 {
+                     "type": "url-match",
+                     "conditions_any": [
+                         {
+                             "type": "contains",
+                             "value": "catalog/manage"
+                         }
+                     ]
+                 }
+             ],
+             "message_frequency": "every-time",
+             "message_delay": 0,
+             "message_duration": null,
+             "response_id": "66812e1cb23dba151df0409f",
+             "follow_up_response_id": null,
+             "version": "2021-01-12"
+         },
+         {
+             "_id": "64886f6687ec484210c6f4c5",
+             "campaign_key": "Welcome_-_Proactive",
+             "status": "off",
+             "trigger_conditions": [
+                 {
+                     "type": "url-match",
+                     "conditions_any": [
+                         {
+                             "type": "equals",
+                             "value": "https://www.fiverr.com/"
+                         },
+                         {
+                             "type": "equals",
+                             "value": "https://www.fiverr.com"
+                         },
+                         {
+                             "type": "ends-with",
+                             "value": "seller_dashboard"
+                         }
+                     ]
+                 }
+             ],
+             "message_frequency": "once-per-session",
+             "message_delay": 0,
+             "message_duration": 15,
+             "response_id": "64886f12c8fa9dac5a8c1007",
+             "follow_up_response_id": "63e3f238626a9f60a241c9b7",
+             "version": "2021-01-12"
+         },
+         {
+             "_id": "6433c982528065b847b95a93",
+             "campaign_key": "proactive_intervention",
+             "status": "active",
+             "trigger_conditions": [
+                 {
+                     "type": "url-match",
+                     "conditions_any": []
+                 }
+             ],
+             "message_frequency": "every-time",
+             "message_delay": 0,
+             "message_duration": null,
+             "response_id": "64008fa89fc7781ca864cc18",
+             "follow_up_response_id": null,
+             "version": "2021-01-12"
+         }
+     ],
+     "marketing_campaigns_order": [
+         "66816bf53d11055acc5775e1",
+         "64886f6687ec484210c6f4c5",
+         "6433c982528065b847b95a93"
+     ],
+     "business_events": [
+         {
+             "_id": "675701c6c9b962aaf5f544a1",
+             "event_key": "Sign_in_from_HC",
+             "trigger_conditions": [],
+             "value": 0.0,
+             "archived": false
+         },
+         {
+             "_id": "66ca1a6d01c7dda3b3a229c4",
+             "event_key": "Tracking_cancelation_via_order_helper_flow",
+             "trigger_conditions": [],
+             "value": 0.0,
+             "archived": false
+         },
+         {
+             "_id": "65c0ee3473f7047295f7f167",
+             "event_key": "test_event",
+             "trigger_conditions": [],
+             "value": 0.0,
+             "archived": false
+         },
+         {
+             "_id": "63e3f23a626a9f60a241c9dd",
+             "event_key": "ada_handoff_support",
+             "trigger_conditions": [],
+             "value": 0.0,
+             "archived": false
+         }
+     ],
+     "avatar": {
+         "letter": "F",
+         "image": "https://static.ada.support/images/26f5cedd-1f0e-451c-a9b5-0af8c4dc098b.jpg",
+         "use_letter": false
+     },
+     "private_config": {
+         "goal_limit": 5,
+         "campaign_rate_limit": 100000,
+         "zd_transcript_passthrough_department_id": "",
+         "ada_partner_name": "",
+         "max_enabled_web_actions": 5,
+         "max_enabled_processes": 20,
+         "max_enabled_handoffs": 5,
+         "max_enabled_custom_instructions": 10,
+         "generative_transcript_truncation_limit": 6
+     },
+     "product_type": "declarative",
+     "bot_status": "other",
+     "security_settings": {
+         "chat": {
+             "iframe_allow_list": [
+                 "https://*.fiverr.com"
+             ]
+         },
+         "app": {
+             "show_allow_list": true
+         }
+     },
+     "moderation_config": {
+         "sexual": true,
+         "hate": true,
+         "harassment": true,
+         "self_harm": true,
+         "sexual_minors": true,
+         "hate_threatening": true,
+         "violence_graphic": true,
+         "self_harm_intent": true,
+         "self_harm_instructions": true,
+         "harassment_threatening": true,
+         "violence": true
+     },
+     "proactive_conversations": {}
+ }

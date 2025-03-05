@@ -1,0 +1,129 @@
+{
+     "projects": [
+         {
+             "id": "66644d07430a190001bc6384",
+             "title": "Shopify custom store design",
+             "source": "EXTERNAL",
+             "items": {
+                 "nodes": [
+                     {
+                         "attachment": {
+                             "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_grid/v1/attachments/project_item/attachment/9d38c225b32f1c05b661fd158a82c1ec-1717920977473/damascusknifehub.png"
+                         }
+                     }
+                 ]
+             }
+         },
+         {
+             "id": "666567fe6a11e60001179b74",
+             "title": "Men's Beauty Shop",
+             "source": "EXTERNAL",
+             "items": {
+                 "nodes": [
+                     {
+                         "attachment": {
+                             "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_grid/v1/attachments/project_item/attachment/b0b8be9f743992394c0659da2ce46494-1717923928399/mo%20shop.png"
+                         }
+                     }
+                 ]
+             }
+         },
+         {
+             "id": "666569d413cf7400018511a1",
+             "title": "Candle Custom Shop",
+             "source": "EXTERNAL",
+             "items": {
+                 "nodes": [
+                     {
+                         "attachment": {
+                             "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_grid/v1/attachments/project_item/attachment/e895438a6a6b4b3ef56818c16ba359f4-1717922055777/screencapture-brooklyncandlestudio-2024-06-09-13_12_27.png"
+                         }
+                     }
+                 ]
+             }
+         },
+         {
+             "id": "666571df13cf7400018517fa",
+             "title": "DISPENSERS and Catering",
+             "source": "EXTERNAL",
+             "items": {
+                 "nodes": [
+                     {
+                         "attachment": {
+                             "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_grid/v1/attachments/project_item/attachment/6e799f108e04860f078c409210634a45-1717924270935/catering.png"
+                         }
+                     }
+                 ]
+             }
+         },
+         {
+             "id": "67a3360e9b62dc0001511dcb",
+             "title": "Nail Art and tools",
+             "source": "EXTERNAL",
+             "items": {
+                 "nodes": [
+                     {
+                         "attachment": {
+                             "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_grid/v1/attachments/project_item/attachment/0a7796bf0aea336a1e0ada5c6e75aeb2-1738749224577/screencapture-harmonifa-2025-02-05-01_52_55.png"
+                         }
+                     }
+                 ]
+             }
+         }
+     ],
+     "firstProject": {
+         "id": "66644d07430a190001bc6384",
+         "title": "Shopify custom store design",
+         "source": "EXTERNAL",
+         "internalProjectDetails": null,
+         "description": "Creating shopify custom design and also custom create custom product page it have custom fields that shown conditionally according to customer requirement ",
+         "items": {
+             "nodes": [
+                 {
+                     "id": "666565d039ed5f000111e585",
+                     "attachment": {
+                         "contentType": "image/png",
+                         "previewUrl": "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_portfolio_project_card/v1/attachments/project_item/attachment/9d38c225b32f1c05b661fd158a82c1ec-1717920977473/damascusknifehub.png",
+                         "mediaUrl": null,
+                         "pdfOpenUrl": null,
+                         "metadata": {
+                             "height": 18527,
+                             "width": 3840
+                         }
+                     }
+                 }
+             ]
+         },
+         "duration": "ONE_TO_SEVEN_DAYS",
+         "price": {
+             "amount": "450.0"
+         },
+         "subCategoryIds": [
+             514,
+             151,
+             333
+         ],
+         "projectStartedAt": 1704067200,
+         "industries": [
+             {
+                 "name": "Design services",
+                 "id": "1p6zEmbwC42tx1khUmNj16"
+             },
+             {
+                 "name": "Design Agency",
+                 "id": "36yLsQNWDki581WSMDLwPd"
+             }
+         ],
+         "services": [
+             {
+                 "id": "fdcb445f-821e-4369-b6ee-e6ea8fe2bd4b",
+                 "name": "Website development"
+             },
+             {
+                 "id": "4a55dcb6-6435-49a9-bba6-7303cd3bdd8e",
+                 "name": "E-commerce SEO"
+             }
+         ],
+         "metadataTypes": []
+     }
+ }
