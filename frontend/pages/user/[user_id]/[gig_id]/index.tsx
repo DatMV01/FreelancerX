@@ -16,7 +16,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 
 import AvatarOnline from "@/components/avatar_online";
 import CommentBox from "@/components/comment";
-import EditableTable from "@/components/edited-table";
+import GigPricing from "@/components/gig_pricing";
 import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
 import { faker } from "@faker-js/faker";
 import { LoremIpsum } from "lorem-ipsum";
@@ -100,7 +100,7 @@ const MainContent = () => {
       <AboutSeller />
       <UserStats />
       <ComparePackage />
-      <EditableTable />
+      {/* <GigPricing /> */}
       <FAQ />
       <Reviews />
       <CommentsSection />

@@ -17,7 +17,7 @@ import Link from "next/link";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
-    setTimeout(() => resolve(`Dữ liệu từ API: ${url}`), 1000),
+    setTimeout(() => resolve(`Dữ liệu từ API: ${url}`), 100),
   );
 
 // const fetcher = async (url: string) => {
@@ -56,7 +56,7 @@ function CustomTabPanel({
             display: "flex",
             justifyContent: "center",
 
-            height: "80vh",
+            minHeight: "80vh",
           }}
         >
           {loading ? <CircularProgress /> : children}
@@ -83,8 +83,9 @@ import {
   programmingTechSubCategories,
 } from "@/data/data";
 import AddGigOverview from "@/components/gig_add_overview";
-import EditableTable from "@/components/edited-table";
-
+import GigPricing from "@/components/gig_pricing";
+ 
+import GigDescriptionFaq from "@/components/gig_description_faq";
 
 const tabs = [
   { label: "1. Overview", table_label: "Overview", endpoint: "/api/overview" },
@@ -107,7 +108,6 @@ const tabs = [
   { label: "6.Publish", table_label: "Paused Gigs", endpoint: "/api/paused" },
 ];
 
- 
 export default function CreateNewGig() {
   const [value, setValue] = React.useState<string>(tabs[0].label);
 
@@ -131,7 +131,7 @@ export default function CreateNewGig() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen h-full">
       <Box
         sx={{
           borderBottom: 1,
@@ -197,8 +197,8 @@ export default function CreateNewGig() {
         loading={isLoading}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-   
-        <EditableTable />
+
+        <GigPricing switchToTab={switchToTab} tabs={tabs} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -208,7 +208,8 @@ export default function CreateNewGig() {
         loading={isLoading}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        {tabs[2].label}
+        <GigDescriptionFaq switchToTab={switchToTab} tabs={tabs} />
+
       </CustomTabPanel>
 
       <CustomTabPanel

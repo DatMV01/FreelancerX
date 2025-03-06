@@ -49,15 +49,14 @@ const deliveryOptions = [
   { day: 75, title: "75 days" },
   { day: 90, title: "90 days" },
 ];
-
-console.log(deliveryOptions);
+ 
 
 interface Props {
   switchToTab: (tab: string) => void;
   tabs: { label: string }[];
 }
 
-export default function EditableTable({ switchToTab, tabs }: Props) {
+export default function GigPricing({ switchToTab, tabs }: Props) {
   const [requiredInformation, setRequiredInformation] = useState([
     {
       id: 1,
@@ -638,7 +637,7 @@ export default function EditableTable({ switchToTab, tabs }: Props) {
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
-        onClick={() => switchToTab(tabs[1].label)}
+        onClick={() => switchToTab(tabs[2].label)}
       >
         Save & Continue
       </Button>

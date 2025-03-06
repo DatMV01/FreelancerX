@@ -51,7 +51,10 @@
     "usehooks-ts": "^3.1.1",
     "uuid": "^11.0.5",
     "vaul": "^1.1.2",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "@ckeditor/ckeditor5-build-classic": "^44.1.0",
+    "@ckeditor/ckeditor5-react": "^9.4.0",
+    "ckeditor5": "^44.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

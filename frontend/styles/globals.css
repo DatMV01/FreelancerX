@@ -10,6 +10,10 @@
   @apply scale-125 bg-gray-500 opacity-100;
 }
 
+.ck-editor__editable {
+  @apply min-h-[500px] overflow-y-auto;
+}
+
 @layer utilities {
 }
 
