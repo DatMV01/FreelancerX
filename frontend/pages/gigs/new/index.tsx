@@ -86,6 +86,7 @@ import AddGigOverview from "@/components/gig_add_overview";
 import GigPricing from "@/components/gig_pricing";
  
 import GigDescriptionFaq from "@/components/gig_description_faq";
+import GigGallary from "@/components/gig_gallery";
 
 const tabs = [
   { label: "1. Overview", table_label: "Overview", endpoint: "/api/overview" },
@@ -229,7 +230,8 @@ export default function CreateNewGig() {
         loading={isLoading}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        {tabs[4].label}
+ 
+        <GigGallary />
       </CustomTabPanel>
 
       <CustomTabPanel

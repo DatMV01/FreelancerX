@@ -14,7 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FilesLocalService } from './files.service';
 import { FileResponseDto } from './uploader/local/dto/file-response.dto';
 import { join } from 'path';
-
+import {setTimeout} from 'timers/promises'
 @Controller({
   path: 'files',
   version: '1',
@@ -25,9 +25,10 @@ export class FilesController {
   @Post('upload')
   // @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
+  async uploadFile(
     @UploadedFile() file: Express.Multer.File,
   ): Promise<FileResponseDto> {
+    await setTimeout(2000)
     return this.filesService.create(file);
   }
 
