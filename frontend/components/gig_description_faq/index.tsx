@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import MyCkEditorWithNoSSR from "../ckeditor/intex";
 import { Button } from "@mui/material";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
-import FrequentlyAskedQuestions from "./frequently_asked_questions";
+import MyCkEditorWithNoSSR from "../ckeditor/intex";
+import FrequentlyAskedQuestionsV2 from "./frequently_asked_questions_v2";
 
 interface Props {
   switchToTab: (tab: string) => void;
@@ -21,7 +19,10 @@ const GigDescriptionFaq = ({ switchToTab, tabs }: Props) => {
         <p className="text-3xl">Frequently Asked Questions</p>
         <p className="text-sm">Add Questions & Answers for Your Buyers.</p>
       </div>
-      <FrequentlyAskedQuestions />
+      {/* <FrequentlyAskedQuestions /> */}
+
+      <FrequentlyAskedQuestionsV2 />
+
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
@@ -29,7 +30,6 @@ const GigDescriptionFaq = ({ switchToTab, tabs }: Props) => {
       >
         Save & Continue
       </Button>
-      a
     </div>
   );
 };

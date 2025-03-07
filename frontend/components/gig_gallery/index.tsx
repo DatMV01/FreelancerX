@@ -31,6 +31,7 @@ const GigGallary = () => {
             ref={uploadRefs.image1}
             localStorageKey="1"
             fileType="image"
+            autoUpload
              
           />
           <UploadFile

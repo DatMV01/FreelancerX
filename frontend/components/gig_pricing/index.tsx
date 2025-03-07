@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2, Check, PlusCircle, XCircle } from "lucide-react";
 import {
   Button,
   FormControl,
@@ -10,6 +8,8 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+import { Check, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface RowData {
   id: number;
@@ -49,62 +49,90 @@ const deliveryOptions = [
   { day: 75, title: "75 days" },
   { day: 90, title: "90 days" },
 ];
- 
 
 interface Props {
   switchToTab: (tab: string) => void;
   tabs: { label: string }[];
 }
 
+const initialRequiredInformation = [
+  {
+    id: 1,
+    package: "Name",
+    basic: "",
+    standard: "",
+    premium: "",
+  },
+  {
+    id: 2,
+    package: "Detail",
+    basic: "",
+    standard: "",
+    premium: "",
+  },
+  {
+    id: 3,
+    package: "Delivery",
+    basic: "",
+    standard: "",
+    premium: "",
+  },
+
+  {
+    id: 4,
+    package: "Price",
+    basic: "",
+    standard: "",
+    premium: "",
+  },
+];
+
+const initialData: NewRowData = {
+  package: "",
+  basic: "",
+  standard: "",
+  premium: "",
+};
+
+const gig_requiredInformation = "gig_requiredInformation";
+const gig_additionalInformation = "gig_additionalInformation";
+
 export default function GigPricing({ switchToTab, tabs }: Props) {
-  const [requiredInformation, setRequiredInformation] = useState([
-    {
-      id: 1,
-      package: "Name",
-      basic: "ax",
-      standard: "",
-      premium: "",
-    },
-    {
-      id: 2,
-      package: "Detail",
-      basic: "",
-      standard: "",
-      premium: "",
-    },
-    {
-      id: 3,
-      package: "Delivery",
-      basic: "",
-      standard: "",
-      premium: "",
-    },
+  const [requiredInformation, setRequiredInformation] = useState<RowData[]>(
+    () =>
+      JSON.parse(
+        localStorage.getItem(gig_requiredInformation) ||
+          JSON.stringify(initialRequiredInformation),
+      ),
+  );
 
-    {
-      id: 4,
-      package: "Price",
-      basic: "",
-      standard: "",
-      premium: "",
-    },
-  ]);
+  const [additionalInformation, setAdditionalInformation] = useState<RowData[]>(
+    () => JSON.parse(localStorage.getItem(gig_additionalInformation) || "[]"),
+  );
 
-  const [rows, setRows] = useState<RowData[]>([]);
   const [editId, setEditId] = useState<number | null>(null);
-  const [editData, setEditData] = useState<EditData>({
-    package: "",
-    basic: "",
-    standard: "",
-    premium: "",
-  });
-  const [newRowData, setNewRowData] = useState({
-    package: "",
-    basic: "",
-    standard: "",
-    premium: "",
-  });
+
+  const [editData, setEditData] = useState<EditData>(initialData);
+
+  const [newRowData, setNewRowData] = useState(initialData);
+
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem(
+      gig_requiredInformation,
+      JSON.stringify(requiredInformation),
+    );
+  }, [requiredInformation]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      gig_additionalInformation,
+      JSON.stringify(additionalInformation),
+    );
+  }, [additionalInformation]);
 
   const handleEditChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -114,7 +142,9 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
   };
 
   const handleEdit = (id: number) => {
-    const row = rows.find((r: RowData) => r.id === id) as unknown as RowData;
+    const row = additionalInformation.find(
+      (r: RowData) => r.id === id,
+    ) as unknown as RowData;
     if (row) {
       setEditData({
         package: row.package,
@@ -127,16 +157,22 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
   };
 
   const handleSave = (id: number) => {
-    setRows(rows.map((r) => (r.id === id ? { ...r, ...editData } : r)));
+    setAdditionalInformation(
+      additionalInformation.map((r) =>
+        r.id === id ? { ...r, ...editData } : r,
+      ),
+    );
     setEditId(null);
   };
 
   const handleDelete = (id: number) => {
-    setRows(rows.filter((r) => r.id !== id));
+    setAdditionalInformation(additionalInformation.filter((r) => r.id !== id));
   };
 
   const handleDeleteSelected = () => {
-    setRows(rows.filter((r) => !selectedRows.includes(r.id)));
+    setAdditionalInformation(
+      additionalInformation.filter((r) => !selectedRows.includes(r.id)),
+    );
     setSelectedRows([]);
   };
 
@@ -151,11 +187,15 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
       newRowData.package &&
       (newRowData.basic || newRowData.standard || newRowData.premium)
     ) {
-      setRows([...rows, { id: Date.now(), ...newRowData }]);
+      setAdditionalInformation([
+        ...additionalInformation,
+        { id: Date.now(), ...newRowData },
+      ]);
       setNewRowData({ package: "", basic: "", standard: "", premium: "" });
     }
     setTimeout(() => inputRef.current?.focus(), 0);
   };
+
   const transformValue = (value: any) => {
     if (value.toLowerCase() === "x") {
       return <Check size={16} className="text-green-500" />;
@@ -169,11 +209,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleAddRow();
   };
-  const [age, setAge] = useState("");
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
-  };
   return (
     <div className="flex w-full flex-col space-y-2 p-4">
       <button
@@ -314,6 +350,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 <Select
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
+                  sx={{ width: 100 }}
                   value={requiredInformation[2].basic}
                   onChange={(e) => {
                     setRequiredInformation(
@@ -352,6 +389,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 <Select
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
+                  sx={{ width: 100 }}
                   value={requiredInformation[2].standard}
                   onChange={(e) => {
                     setRequiredInformation(
@@ -390,6 +428,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 <Select
                   labelId="demo-simple-select-standard-label"
                   id="demo-simple-select-standard"
+                  sx={{ width: 100 }}
                   value={requiredInformation[2].premium}
                   onChange={(e) => {
                     setRequiredInformation(
@@ -452,7 +491,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 <input
                   type="number"
                   className="w-full rounded-sm border-2 p-1 pl-6 outline-none"
-                  placeholder="50"
+                  placeholder="100"
                   value={requiredInformation[3].basic}
                   onChange={(e) => {
                     setRequiredInformation(
@@ -472,7 +511,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 <input
                   type="number"
                   className="w-full rounded-sm border-2 p-1 pl-6 outline-none"
-                  placeholder="50"
+                  placeholder="150"
                   value={requiredInformation[3].premium}
                   onChange={(e) => {
                     setRequiredInformation(
@@ -487,7 +526,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
             <td className="border p-2 text-center">-</td>
           </tr>
 
-          {rows.map((row: RowData) => (
+          {additionalInformation.map((row: RowData) => (
             <tr key={row.id} className="border">
               <td className="border p-2 text-center">
                 <input
@@ -579,7 +618,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
                 ref={inputRef}
                 className="w-full border p-1"
                 type="text"
-                placeholder="Title"
+                placeholder="Package"
                 value={newRowData.package}
                 onChange={(e) =>
                   setNewRowData({ ...newRowData, package: e.target.value })

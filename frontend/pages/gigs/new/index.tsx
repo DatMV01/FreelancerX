@@ -1,19 +1,17 @@
+import {
+  CircularProgress,
+  Divider
+} from "@mui/material";
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import * as React from "react";
 import useSWR from "swr";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import {
-  Divider,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from "@mui/material";
-import { ChevronDown } from "lucide-react";
-import GigsManageTable from "@/components/gigs_manage_table";
-import Link from "next/link";
+import AddGigOverview from "@/components/gig_add_overview";
+import GigPricing from "@/components/gig_pricing";
+import GigDescriptionFaq from "@/components/gig_description_faq";
+import GigGallary from "@/components/gig_gallery";
+import GigPublish from "@/components/gig_publish";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
@@ -73,20 +71,7 @@ function a11yProps(label: string) {
   };
 }
 
-import { useState } from "react";
-import { TextField, Button, Typography } from "@mui/material";
-import { programmingTechSubCategoriesExploreSection } from "@/data/explore-section";
-import {
-  categories,
-  Category,
-  findCategoryBySlug,
-  programmingTechSubCategories,
-} from "@/data/data";
-import AddGigOverview from "@/components/gig_add_overview";
-import GigPricing from "@/components/gig_pricing";
- 
-import GigDescriptionFaq from "@/components/gig_description_faq";
-import GigGallary from "@/components/gig_gallery";
+
 
 const tabs = [
   { label: "1. Overview", table_label: "Overview", endpoint: "/api/overview" },
@@ -132,7 +117,7 @@ export default function CreateNewGig() {
   };
 
   return (
-    <div className="min-h-screen h-full">
+    <div className="h-full min-h-screen">
       <Box
         sx={{
           borderBottom: 1,
@@ -210,7 +195,6 @@ export default function CreateNewGig() {
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
         <GigDescriptionFaq switchToTab={switchToTab} tabs={tabs} />
-
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -230,7 +214,7 @@ export default function CreateNewGig() {
         loading={isLoading}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
- 
+
         <GigGallary />
       </CustomTabPanel>
 
@@ -241,7 +225,7 @@ export default function CreateNewGig() {
         loading={isLoading}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        {tabs[5].label}
+        <GigPublish />
       </CustomTabPanel>
     </div>
   );
