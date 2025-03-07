@@ -3,6 +3,7 @@
 import { CircularProgress } from "@mui/material";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 
 interface Props {
   localStorageKey?: string;
@@ -33,7 +34,7 @@ const UploadFile = forwardRef(
 
     useEffect(() => {
       const storedFile = localStorage.getItem(localStorageName);
-      const pathFile = storedFile && storedFile.split(seperator)[1]
+      const pathFile = storedFile && storedFile.split(seperator)[1];
 
       if (pathFile) setPreview(pathFile);
     }, []);
@@ -159,11 +160,34 @@ const UploadFile = forwardRef(
       }
     };
 
-    const handleRemoveImage = () => {
+    const handleRemoveImage = async () => {
       setFile(null);
       setPreview(null);
       setUploadedUrl(null);
+
+      const storedFile = localStorage.getItem(localStorageName);
+      const fileId = storedFile && storedFile.split(seperator)[0];
+      fileId && (await deleteFile(fileId));
+
       localStorage.removeItem(localStorageName);
+    };
+
+    const deleteFile = async (id: string) => {
+      try {
+        const response = await axios.delete(
+          `http://localhost:3000/api/v1/files`,
+          { params: { id } },
+        );
+
+        if (response.status === 200) {
+        }
+
+        if (response.status === 400) {
+          setError("File not found or cannot be deleted");
+        }
+      } catch (error) {
+        setError("File not found or cannot be deleted");
+      }
     };
 
     return (

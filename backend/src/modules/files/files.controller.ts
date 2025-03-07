@@ -8,13 +8,17 @@ import {
   UseInterceptors,
   Request,
   Req,
+  Query,
+  Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { FilesLocalService } from './files.service';
 import { FileResponseDto } from './uploader/local/dto/file-response.dto';
 import { join } from 'path';
-import {setTimeout} from 'timers/promises'
+import { setTimeout } from 'timers/promises';
 @Controller({
   path: 'files',
   version: '1',
@@ -28,8 +32,38 @@ export class FilesController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
   ): Promise<FileResponseDto> {
-    await setTimeout(2000)
+    await setTimeout(2000);
     return this.filesService.create(file);
+  }
+  @Delete()
+  async deleteFile(
+    @Query('filename') filename: string,
+    @Query('id') id: string,
+  ) {
+ 
+    if (id) {
+      const deleted = await this.filesService.deleteFileByID(id);
+      if (!deleted) {
+        throw new HttpException(
+          'File not found or cannot be deleted',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return { message: `File ${id} deleted successfully` };
+    }
+
+    if (filename) {
+      const deleted = await this.filesService.deleteFileByName(filename);
+      if (!deleted) {
+        throw new HttpException(
+          'File not found or cannot be deleted',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return { message: `File ${filename} deleted successfully` };
+    }
   }
 
   @Get('/*path')
