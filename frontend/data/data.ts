@@ -136,6 +136,7 @@ export const programmingTechSubCategories = [
   {
     id: "8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    slug: "website-maintenance",
     title: "Website Maintenance",
     subCategories: [
       {
@@ -167,6 +168,7 @@ export const programmingTechSubCategories = [
   {
     id: "b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
+    slug: "ai-development",
     title: "AI Development",
     subCategories: [
       {
@@ -211,6 +213,7 @@ export const programmingTechSubCategories = [
     id: "a2d98fc3-cb99-4655-9eaf-92cfb2134d84",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     title: "Chatbot Development",
+    slug: "chatbot-development",
     subCategories: [
       {
         id: "f97d0a92-30c1-4e7f-83c4-276acbce098e",
@@ -277,6 +280,7 @@ export const programmingTechSubCategories = [
     id: "ded4b34f-29a3-48f2-bbd5-101d42a6ecde",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     title: "Mobile App Development",
+    slug: "mobile-app-development",
     subCategories: [
       {
         id: "1a57b82b-019b-44e6-9e8b-89d5b703e4ea",
@@ -330,6 +334,7 @@ export const programmingTechSubCategories = [
     id: "76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     title: "Cloud & Cybersecurity",
+    slug: "cloud-cybersecurity",
     subCategories: [
       {
         id: "b4f3c59e-d319-4edb-a062-5f8c4d37f6e0",
@@ -355,6 +360,7 @@ export const programmingTechSubCategories = [
     id: "26b73c6d-6f68-4781-9c76-35d903c5b563",
     category_id: "3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f",
     title: "Data Science & ML",
+    slug: "datascience-ml",
     subCategories: [
       {
         id: "f82ff9b7-56be-4e27-8f6f-053d66e3dff9",
@@ -477,8 +483,6 @@ export function findCategoryBySlug(slug: String) {
     return null;
   }, null);
 }
-
- 
 
 export function findCategoriesBySlugs(slugs: string[]) {
   return programmingTechSubCategories.reduce(

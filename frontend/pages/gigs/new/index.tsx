@@ -1,7 +1,4 @@
-import {
-  CircularProgress,
-  Divider
-} from "@mui/material";
+import { CircularProgress, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
@@ -71,8 +68,6 @@ function a11yProps(label: string) {
   };
 }
 
-
-
 const tabs = [
   { label: "1. Overview", table_label: "Overview", endpoint: "/api/overview" },
   {
@@ -85,11 +80,11 @@ const tabs = [
     table_label: "Description & FAQ",
     endpoint: "/api/description_fAQ",
   },
-  {
-    label: "4. Requirements",
-    table_label: "Requirements",
-    endpoint: "/api/requirements",
-  },
+  // {
+  //   label: "4. Requirements2",
+  //   table_label: "Requirements",
+  //   endpoint: "/api/requirements",
+  // },
   { label: "5. Gallery", table_label: "Gallery", endpoint: "/api/denied" },
   { label: "6.Publish", table_label: "Paused Gigs", endpoint: "/api/paused" },
 ];
@@ -197,19 +192,19 @@ export default function CreateNewGig() {
         <GigDescriptionFaq switchToTab={switchToTab} tabs={tabs} />
       </CustomTabPanel>
 
-      <CustomTabPanel
+      {/* <CustomTabPanel
         key={tabs[3].label}
         index={tabs[3].label}
         value={value}
         loading={isLoading}
       >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+ 
         {tabs[3].label}
-      </CustomTabPanel>
+      </CustomTabPanel> */}
 
       <CustomTabPanel
-        key={tabs[4].label}
-        index={tabs[4].label}
+        key={tabs[3].label}
+        index={tabs[3].label}
         value={value}
         loading={isLoading}
       >
@@ -219,8 +214,8 @@ export default function CreateNewGig() {
       </CustomTabPanel>
 
       <CustomTabPanel
-        key={tabs[5].label}
-        index={tabs[5].label}
+        key={tabs[4].label}
+        index={tabs[4].label}
         value={value}
         loading={isLoading}
       >

@@ -1,11 +1,27 @@
-import { useState } from "react";
+import { Gig } from "@/dto/gig";
+import { useEffect, useState } from "react";
 
 const PositiveKeywords = () => {
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [gig, setGig] = useState<Gig>(() => {
+    const gigLocalStorage = localStorage.getItem("gig");
+    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
+  });
+
+  const [keywords, setKeywords] = useState<string[]>(gig.tags || []);
   const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    setGig((prev: any) => ({ ...prev, tags: keywords }));
+    console.log(keywords);
+  }, [keywords]);
+
+  useEffect(() => {
+    localStorage.setItem("gig", JSON.stringify(gig));
+  }, [gig]);
 
   const addKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === "Tab") && inputValue.trim() !== "") {
+      e.preventDefault();
       if (keywords.length < 5) {
         setKeywords([...keywords, inputValue.trim()]);
         setInputValue("");
@@ -50,7 +66,7 @@ const PositiveKeywords = () => {
       </div>
 
       <p className="text-xs text-gray-500">
-        5 tags maximum. Use letters and numbers only.
+        1 tag minmum.5 tags maximum. Use letters and numbers only.
       </p>
     </div>
   );
