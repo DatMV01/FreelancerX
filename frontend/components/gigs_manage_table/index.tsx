@@ -8,6 +8,7 @@ import Button from "@mui/material/Button";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
 
 const GigsManageTable = ({
   data,
@@ -112,24 +113,69 @@ const GigsManageTable = ({
           );
         },
       },
-      { field: "clicks", headerName: "Clicks", type: "number", width: 100 },
-      { field: "orders", headerName: "Orders", type: "number", width: 100 },
+      {
+        field: "clicks",
+        headerName: "Clicks",
+        type: "number",
+        width: 110,
+        renderCell: ({ row }) => (
+          <div className="flex h-full items-center justify-end">
+            {row.clicks}
+          </div>
+        ),
+      },
+      {
+        field: "orders",
+        headerName: "Orders",
+        type: "number",
+        width: 110,
+        renderCell: ({ row }) => (
+          <div className="flex h-full items-center justify-end">
+            {row.orders}
+          </div>
+        ),
+      },
       {
         field: "cancellations",
-        headerName: "Cancellations (%)",
+        headerName: "Cancellations",
         type: "number",
-        width: 150,
-        valueFormatter: (value) => (value != null ? `${value}%` : "N/A"),
+        width: 110,
+        renderCell: ({ row }) => (
+          <div className="flex h-full items-center justify-end">
+            {row.cancellations != null ? `${row.cancellations}%` : "0%"}
+          </div>
+        ),
       },
       {
         field: "actions",
         headerName: "Actions",
-        width: 120,
+        width: 200,
         sortable: false,
         renderCell: ({ row }) => (
-          <Stack spacing={1} sx={{ height: "100%", justifyContent: "center" }}>
-            <Button variant="contained" color="primary" size="small">
+          <div className="my-2 grid grid-cols-2 grid-rows-2 gap-2">
+            <Button
+              href="/gigs/edit"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="contained"
+              color="primary"
+              size="small"
+            >
               Edit
+            </Button>
+
+            <Button
+              href="/user/user_123/create-a-high-converting-shopify-dropshipping-website"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="contained"
+              color="success"
+              size="small"
+            >
+              Review
+            </Button>
+            <Button variant="contained" color="warning" size="small">
+              Paused
             </Button>
             <Button
               variant="contained"
@@ -138,9 +184,9 @@ const GigsManageTable = ({
               onClick={() => handleDeleteRow(row.id)}
               disabled={loadingRows.includes(row.id)}
             >
-              {loadingRows.includes(row.id) ? "Deleting..." : "Delete"}
+              {loadingRows.includes(row.id) ? "Deleting" : "Delete"}
             </Button>
-          </Stack>
+          </div>
         ),
       },
     ],
@@ -195,7 +241,7 @@ const GigsManageTable = ({
         pageSizeOptions={[10, 20, 30, 40, 50]}
         checkboxSelection
         onRowSelectionModelChange={(ids) => setSelectedRows(ids as number[])}
-        rowHeight={80}
+        getRowHeight={() => "auto"}
         disableRowSelectionOnClick
         sx={{
           "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {

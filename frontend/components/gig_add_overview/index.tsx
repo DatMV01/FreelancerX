@@ -7,7 +7,7 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import PositiveKeywords from "./positive_keyword";
+import SearchTags from "./search_tag";
 import { Gig } from "@/dto/gig";
 import { v4 as uuidv4 } from "uuid";
 
@@ -22,10 +22,6 @@ interface categoryType {
   title: string;
 }
 
-const SEPARATOR = "|";
-
-type GigClass = typeof Gig;
-
 const AddGigOverview: React.FC<AddGigOverviewProps> = ({
   switchToTab,
   tabs,
@@ -34,7 +30,7 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
     const gigLocalStorage = localStorage.getItem("gig");
     return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
   });
-  
+
   const [title, setGigTitle] = useState<string>(gig.title || "");
   const [category, setCategory] = useState<string>(gig.category || "");
   const [subCategory, setSubCategory] = useState<string>(gig.subCategory || "");
@@ -42,24 +38,22 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
     gig.nestedSubcategory || "",
   );
 
+  const [searchTags, setSearchTags] = useState<string[]>(gig.tags || []);
+
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, title }));
-
   }, [title]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, category }));
-
   }, [category]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, subCategory }));
-
   }, [subCategory]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, nestedSubcategory }));
-    
   }, [nestedSubcategory]);
 
   useEffect(() => {
@@ -182,7 +176,7 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
           </p>
         </div>
         <div className="basis-2/3">
-          <PositiveKeywords />
+          <SearchTags searchTags={searchTags} setSearchTags={setSearchTags} />
         </div>
       </div>
 
@@ -198,7 +192,17 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
-        onClick={() => switchToTab(tabs[1].label)}
+        onClick={() => {
+          if (
+            title !== "" &&
+            category !== "" &&
+            subCategory !== "" &&
+            nestedSubcategory !== "" &&
+            searchTags.length != 0
+          ) {
+            switchToTab(tabs[1].label);
+          }
+        }}
       >
         Save & Continue
       </Button>

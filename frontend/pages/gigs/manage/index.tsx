@@ -1,12 +1,12 @@
-import * as React from "react";
-import useSWR from "swr";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import { Divider, CircularProgress } from "@mui/material";
-import { ChevronDown } from "lucide-react";
 import GigsManageTable from "@/components/gigs_manage_table";
+import { CircularProgress, Divider } from "@mui/material";
+import Box from "@mui/material/Box";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
@@ -59,20 +59,44 @@ function a11yProps(label: string) {
 }
 
 const tabs = [
-  { label: "ACTIVE", table_label: "Active Gigs", endpoint: "/api/active" },
+  {
+    label: "ACTIVE",
+    table_label: "Active Gigs",
+    fe_endpoint: "/gigs/manage?tab=active",
+    be_endpoint: "/gig?status=active",
+  },
+
+  {
+    label: "DRAFT",
+    table_label: "Draft Gigs",
+    fe_endpoint: "/gigs/manage?tab=draft",
+    be_endpoint: "/gig?status=draft",
+  },
+  {
+    label: "PAUSED",
+    table_label: "Paused Gigs",
+    fe_endpoint: "/gigs/manage?tab=paused",
+    be_endpoint: "/gig?status=paused",
+  },
   {
     label: "PENDING APPROVAL",
     table_label: "Gigs pending approval",
-    endpoint: "/api/pending",
+    fe_endpoint: "/gigs/manage?tab=pending",
+    be_endpoint: "/gig?status=pending",
   },
   {
     label: "REQUIRES MODIFICATION",
     table_label: "Gigs that require modifications",
-    endpoint: "/api/modification",
+    fe_endpoint: "/gigs/manage?tab=modification",
+    be_endpoint: "/gig?status=modification",
   },
-  { label: "DRAFT", table_label: "Draft Gigs", endpoint: "/api/draft" },
-  { label: "DENIED", table_label: "Denied Gigs", endpoint: "/api/denied" },
-  { label: "PAUSED", table_label: "Paused Gigs", endpoint: "/api/paused" },
+
+  {
+    label: "DENIED",
+    table_label: "Denied Gigs",
+    fe_endpoint: "/gigs/manage?tab=denied",
+    be_endpoint: "/gig?status=denied",
+  },
 ];
 
 const fakeData = Array.from({ length: 50 }, (_, index) => ({
@@ -87,10 +111,21 @@ const fakeData = Array.from({ length: 50 }, (_, index) => ({
 }));
 
 export default function ManageGig() {
-  const [value, setValue] = React.useState<string>(tabs[0].label);
+  const searchParams = useSearchParams();
+
+  const [currentTab, setCurrentTab] = useState<string>(tabs[0].label);
+
+  const tab = searchParams.get("tab");
+
+  useEffect(() => {
+    if (tab) {
+      const isTabExisted = tabs.some((_) => _.fe_endpoint.endsWith(tab));
+      isTabExisted && setCurrentTab(tab.toUpperCase());
+    }
+  }, [tab]);
 
   const { data, error, isValidating, isLoading } = useSWR(
-    `/fake-api/${value}`,
+    `/fake-api/${currentTab}`,
     fetcher,
     {
       revalidateOnFocus: true, // Fetch lại khi quay lại tab
@@ -99,8 +134,8 @@ export default function ManageGig() {
     },
   );
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
+  const handleChange = (event: React.SyntheticEvent, newTab: string) => {
+    setCurrentTab(newTab);
   };
 
   return (
@@ -115,7 +150,7 @@ export default function ManageGig() {
         }}
       >
         <Tabs
-          value={value}
+          value={currentTab}
           onChange={handleChange}
           aria-label="gig management tabs"
           sx={{ width: "fit-content" }}
@@ -143,17 +178,65 @@ export default function ManageGig() {
 
       <Divider className="py-1" />
 
-      {tabs.map((tab) => (
-        <CustomTabPanel
-          key={tab.label}
-          value={value}
-          index={tab.label}
-          loading={isLoading}
-        >
-          {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-          <GigsManageTable data={fakeData} gigStatus={tab} />
-        </CustomTabPanel>
-      ))}
+      <CustomTabPanel
+        key={tabs[0].label}
+        index={tabs[0].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={fakeData} gigStatus={tab} />
+      </CustomTabPanel>
+
+      <CustomTabPanel
+        key={tabs[1].label}
+        index={tabs[1].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={fakeData} gigStatus={tab} />
+      </CustomTabPanel>
+
+      <CustomTabPanel
+        key={tabs[2].label}
+        index={tabs[2].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={fakeData} gigStatus={tab} />
+      </CustomTabPanel>
+
+      <CustomTabPanel
+        key={tabs[3].label}
+        index={tabs[3].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={null} gigStatus={tab} />
+      </CustomTabPanel>
+
+      <CustomTabPanel
+        key={tabs[4].label}
+        index={tabs[4].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={null} gigStatus={tab} />
+      </CustomTabPanel>
+
+      <CustomTabPanel
+        key={tabs[5].label}
+        index={tabs[5].label}
+        value={currentTab}
+        loading={isValidating}
+      >
+        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <GigsManageTable data={null} gigStatus={tab} />
+      </CustomTabPanel>
     </div>
   );
 }

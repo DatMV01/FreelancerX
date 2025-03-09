@@ -1,7 +1,12 @@
 import { Gig } from "@/dto/gig";
 import { useEffect, useState } from "react";
 
-const PositiveKeywords = () => {
+interface Props {
+  searchTags: any;
+  setSearchTags: any;
+}
+
+const SearchTags = ({ searchTags, setSearchTags }: Props) => {
   const [gig, setGig] = useState<Gig>(() => {
     const gigLocalStorage = localStorage.getItem("gig");
     return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
@@ -12,7 +17,7 @@ const PositiveKeywords = () => {
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, tags: keywords }));
-    console.log(keywords);
+    setSearchTags(keywords)
   }, [keywords]);
 
   useEffect(() => {
@@ -72,4 +77,4 @@ const PositiveKeywords = () => {
   );
 };
 
-export default PositiveKeywords;
+export default SearchTags;

@@ -9,6 +9,7 @@ import GigPricing from "@/components/gig_pricing";
 import GigDescriptionFaq from "@/components/gig_description_faq";
 import GigGallary from "@/components/gig_gallery";
 import GigPublish from "@/components/gig_publish";
+import GigAddEdit from "@/components/gig_add_edit";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
@@ -85,11 +86,15 @@ const tabs = [
   //   table_label: "Requirements",
   //   endpoint: "/api/requirements",
   // },
-  { label: "5. Gallery", table_label: "Gallery", endpoint: "/api/denied" },
-  { label: "6.Publish", table_label: "Paused Gigs", endpoint: "/api/paused" },
+  { label: "4. Gallery", table_label: "Gallery", endpoint: "/api/denied" },
+  { label: "5.Publish", table_label: "Paused Gigs", endpoint: "/api/paused" },
 ];
 
-export default function CreateNewGig() {
+interface Props {
+  isEditGig?: boolean;
+}
+
+export default function CreateNewGig({ isEditGig = false }: Props) {
   const [value, setValue] = React.useState<string>(tabs[0].label);
 
   const switchToTab = (label: string) => {
@@ -111,117 +116,5 @@ export default function CreateNewGig() {
     setValue(newValue);
   };
 
-  return (
-    <div className="h-full min-h-screen">
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "transparent",
-          fontSize: "14px",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="gig management tabs"
-          sx={{ width: "fit-content" }}
-        >
-          {tabs.map((tab) => (
-            <Tab
-              key={tab.label}
-              label={tab.label}
-              value={tab.label}
-              sx={{ fontSize: "14px" }}
-              {...a11yProps(tab.label)}
-            />
-          ))}
-        </Tabs>
-
-        <button
-          className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
-          onClick={() => alert("Save")}
-        >
-          Save
-        </button>
-
-        <button
-          className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
-          onClick={() => alert("Save & Previews")}
-        >
-          Save & <br /> Previews
-        </button>
-      </Box>
-
-      <Divider className="py-1" />
-
-      <CustomTabPanel
-        key={tabs[0].label}
-        index={tabs[0].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-
-        {error ? (
-          "Lỗi khi tải dữ liệu"
-        ) : (
-          <AddGigOverview switchToTab={switchToTab} tabs={tabs} />
-        )}
-      </CustomTabPanel>
-
-      <CustomTabPanel
-        key={tabs[1].label}
-        index={tabs[1].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-
-        <GigPricing switchToTab={switchToTab} tabs={tabs} />
-      </CustomTabPanel>
-
-      <CustomTabPanel
-        key={tabs[2].label}
-        index={tabs[2].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigDescriptionFaq switchToTab={switchToTab} tabs={tabs} />
-      </CustomTabPanel>
-
-      {/* <CustomTabPanel
-        key={tabs[3].label}
-        index={tabs[3].label}
-        value={value}
-        loading={isLoading}
-      >
- 
-        {tabs[3].label}
-      </CustomTabPanel> */}
-
-      <CustomTabPanel
-        key={tabs[3].label}
-        index={tabs[3].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-
-        <GigGallary />
-      </CustomTabPanel>
-
-      <CustomTabPanel
-        key={tabs[4].label}
-        index={tabs[4].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigPublish />
-      </CustomTabPanel>
-    </div>
-  );
+  return <GigAddEdit />;
 }

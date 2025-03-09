@@ -7,11 +7,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
 } from "@mui/material";
 import { Check, Pencil, PlusCircle, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useEffect, useRef, useState } from "react";
 
 interface RowData {
   id: number | string;
@@ -1037,7 +1035,14 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
-        onClick={() => switchToTab(tabs[2].label)}
+        onClick={() => {
+          if (true) {
+            const isRequiredInformationEmpty = requiredInformation.some(
+              (_) => _.basic === "" || _.standard === "" || _.premium === "",
+            );
+            if (!isRequiredInformationEmpty) switchToTab(tabs[2].label);
+          }
+        }}
       >
         Save & Continue
       </Button>
