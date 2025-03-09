@@ -1,0 +1,57 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  SerializeOptions,
+} from '@nestjs/common';
+import { BaseController } from '../base/base.controller';
+import { RatingService } from './rating.service';
+import { RatingDto } from './dto/rating.dto';
+
+import { UpdateRatingDto } from './dto/update-rating.dto';
+import { RatingEntity } from './entities/rating.entity';
+import { CreateRatingDto } from './dto/create-rating.dto';
+import { CREATE_GROUP } from 'src/common/constant/serialize.group';
+import { PageDto } from '../base/dto/pagination';
+import { QueryDto } from '../base/dto/query.dto';
+
+@Controller('rating')
+export class RatingController extends BaseController<
+  RatingEntity,
+  RatingDto,
+  CreateRatingDto,
+  UpdateRatingDto
+> {
+  constructor(protected readonly _service: RatingService) {
+    super(_service, RatingDto, RatingEntity);
+  }
+
+  @Post()
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  async create(@Body() data: CreateRatingDto): Promise<RatingDto> {
+    return this._service.addRating(
+      data.gigId,
+      data.userId,
+      data.rating,
+      data.review,
+    );
+  }
+
+  @Post(':ratingId/reply')
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  async replyToRating(
+    @Param('ratingId') ratingId: string,
+    @Body('ownerId') ownerId: string,
+    @Body('reply') reply: string,
+  ) {
+    return this._service.replyToRating(ratingId, ownerId, reply);
+  }
+
+  @Get('average')
+  async getGigAverageRating(@Param('gigId') gigId: string) {
+    return this._service.getGigAverageRating(gigId);
+  }
+}

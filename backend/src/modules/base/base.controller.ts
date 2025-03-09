@@ -23,6 +23,7 @@ import {
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { QueryDto } from './dto/query.dto';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -87,6 +88,41 @@ export abstract class BaseController<
   }
 
   @Get('/findexact')
+  @ApiOperation({
+    summary: 'Exact search',
+    description:
+      'This API allows searching for entities based on filters and sorting.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Number of results per page (default: 10, max: 50)',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    description: 'Sorting format: field:ASC|DESC,field2:ASC|DESC',
+  })
+  @ApiQuery({
+    name: 'filters',
+    required: false,
+    type: String,
+    description: 'Filtering format: field:value,field2:value',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of results returned successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid parameters.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   async findExact(@Query() query: QueryDto<Entity>) {
     // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
 
