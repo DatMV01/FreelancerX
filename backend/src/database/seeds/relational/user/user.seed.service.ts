@@ -15,6 +15,10 @@ export class UserSeedService {
   ) {}
 
   async run() {
+    await this.repository.query('SET FOREIGN_KEY_CHECKS=0;');
+    await this.repository.clear();
+    await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
+    
     const users: Partial<UserEntity>[] = [
       {
         firstName: 'Super',
@@ -30,7 +34,7 @@ export class UserSeedService {
       },
     ];
 
-    for (let index = 1; index <= 500; index++) {
+    for (let index = 1; index <= 100; index++) {
       users.push({
         email: faker.internet.email().toLowerCase(),
         firstName: faker.person.firstName(),

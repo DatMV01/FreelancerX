@@ -13,6 +13,10 @@ export class StatusSeedService {
   ) {}
 
   async run() {
+    await this.repository.query('SET FOREIGN_KEY_CHECKS=0;');
+    await this.repository.clear();
+    await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
+    
     const status: Partial<StatusEntity>[] = [
       {
         id: StatusEnum.ACTIVE,

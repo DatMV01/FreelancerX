@@ -13,6 +13,28 @@ import {
 } from 'typeorm';
 import { GigStatus } from '../enum/gig.status';
 
+interface PricingPackage {
+  name: string;
+  description: string;
+  price: number;
+  deliveryTime: number;
+  revisions: number;
+  extras?: { package: string; value: string }[];
+}
+
+interface Media {
+  thumbnail: string;
+  gallery: string[];
+  video?: string;
+}
+
+interface Requirement {
+  type: 'text' | 'file' | 'multiple_choice';
+  question: string;
+  options?: string[];
+  required: boolean;
+}
+
 @Entity({ name: 'gig' })
 export class GigEntity extends BaseEntity {
   @AutoMap()
@@ -24,12 +46,18 @@ export class GigEntity extends BaseEntity {
   title: string;
 
   @AutoMap()
-  @Column({ type: 'text' })
-  description: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ type: 'simple-array', nullable: true })
+  tags: string[];
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  language?: string;
 
   @AutoMap()
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
+  @Column({ type: 'enum', enum: GigStatus, default: GigStatus.DRAFT })
+  status: GigStatus;
 
   @AutoMap()
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -40,16 +68,47 @@ export class GigEntity extends BaseEntity {
   images: string[];
 
   @AutoMap()
-  @Column({ type: 'enum', enum: GigStatus, default: GigStatus.PENDING })
-  status: GigStatus;
+  @Column({ type: 'float', default: 0 })
+  basicPrice: number;
 
   @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  ordersCompleted: number;
+  @Column({ type: 'float', default: 0 })
+  standardPrice: number;
 
   @AutoMap()
+  @Column({ type: 'float', default: 0 })
+  premiumPrice: number;
+
+  @Column({ type: 'json', nullable: true })
+  pricing: {
+    basic: PricingPackage;
+    standard?: PricingPackage;
+    premium?: PricingPackage;
+  };
+
+  @Column({ type: 'json', nullable: true })
+  media?: Media;
+
+  @Column({ type: 'json', nullable: true })
+  requirements: Requirement[];
+
+  @Column({ type: 'float', default: 0 })
+  ratingAverage: number = 0;
+
   @Column({ type: 'int', default: 0 })
-  ordersInProgress: number;
+  ratingCount: number = 0;
+
+  @Column({ type: 'int', default: 0 })
+  popularity: number = 0;
+
+  @Column({ type: 'simple-array', nullable: true })
+  searchKeywords: string[];
+
+  @Column({ type: 'boolean', default: false })
+  isPromoted: boolean = false;
+
+  @Column({ type: 'int', default: 0 })
+  views: number = 0;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -63,17 +122,37 @@ export class GigEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.gigs)
   seller: UserEntity;
 
-  @Column({ type: 'uuid', nullable: true })
-  categoryId: string;
-
+  /* === */
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs)
   category: CategoryEntity;
 
+  /* === */
+
+  /* === */
+
+  @AutoMap()
+  @ManyToOne(() => CategoryEntity, (category) => category.gigs)
+  subCategory: CategoryEntity;
+  /* === */
+
+  /* === */
+
+  @AutoMap()
+  @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
+    nullable: true,
+  })
+  nestedSubcategory: CategoryEntity;
+  /* === */
+
+  /* === */
+
   @AutoMap()
   @OneToMany(() => OrderEntity, (order) => order.gig)
   orders: OrderEntity[];
+  /* === */
 
+  /* === */
   @AutoMap()
   @OneToMany(() => ReviewEntity, (review) => review.buyer)
   reviews: ReviewEntity[];

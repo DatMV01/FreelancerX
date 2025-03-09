@@ -2,6 +2,6 @@ export enum GigStatus {
   ACTIVE = 'ACTIVE',
   PENDING = 'PENDING',
   DRAFT = 'DRAFT',
-  SUSPENDED = 'SUSPENDED',
-  DELETED = 'DELETED',
+  PAUSED = 'PAUSED',
+  REJECTED = 'REJECTED',
 }
