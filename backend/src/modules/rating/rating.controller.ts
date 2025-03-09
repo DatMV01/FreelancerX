@@ -32,12 +32,14 @@ export class RatingController extends BaseController<
   @Post()
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateRatingDto): Promise<RatingDto> {
-    return this._service.addRating(
+    const rating = await this._service.addRating(
       data.gigId,
       data.userId,
-      data.rating,
-      data.review,
+      data.rateNumber,
+      data.message,
     );
+
+    return super.toDtoDefault(rating);
   }
 
   @Post(':ratingId/reply')

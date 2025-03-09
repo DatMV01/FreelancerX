@@ -21,6 +21,10 @@ import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { ReviewDto } from 'src/modules/review/dto/review.dto';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
+import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { RatingReplyEntity } from 'src/modules/rating/entities/rating-reply.entity';
+import { RatingReplyDto } from 'src/modules/rating/dto/rating-reply.dto';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -59,6 +63,12 @@ export class AutoMapper extends AutomapperProfile {
 
       createMap(mapper, NotificationEntity, NotificationDto);
       createMap(mapper, NotificationDto, NotificationEntity);
+
+      createMap(mapper, RatingEntity, RatingDto);
+      createMap(mapper, RatingDto, RatingEntity);
+
+      createMap(mapper, RatingReplyEntity, RatingReplyDto);
+      createMap(mapper, RatingReplyDto, RatingReplyEntity);
     };
   }
 }

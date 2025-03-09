@@ -5,21 +5,26 @@ import {
   Entity,
   ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RatingEntity } from './rating.entity';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('rating_replies')
 export class RatingReplyEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
+  @AutoMap()
   id: string;
 
   @OneToOne(() => RatingEntity)
+  @AutoMap()
   rating: RatingEntity;
 
   @ManyToOne(() => UserEntity)
+  @AutoMap()
   owner: UserEntity;
 
   @Column({ type: 'text' })
-  reply: string;
+  @AutoMap()
+  message: string;
 }

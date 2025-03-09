@@ -1,32 +1,116 @@
+import { AutoMap } from '@automapper/classes';
+import { Type } from 'class-transformer';
+import {
+     IsArray,
+     IsEnum,
+     IsNumber,
+     IsOptional,
+     IsString,
+     Max,
+     Min,
+     ValidateNested,
+} from 'class-validator';
+import { FAQ, PricingPackage, Requirement } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { Media, PricingPackage, Requirement } from './gig.dto';
 
 export class CreateGigDto {
-  id: string;
+  @AutoMap()
+  @IsString()
   title: string;
-  description: string;
-  category: string;
-  subCategory: string;
-  nestedSubcategory: string;
-  tags: Set<string>;
-  language?: string;
-  sellerId: string;
-  status: GigStatus = GigStatus.DRAFT;
 
-  pricing?: {
+  @AutoMap()
+  @IsString()
+  categoryId: string;
+
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  subCategoryId?: string;
+
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  nestedSubcategoryId?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  searchTags?: string[];
+
+  @AutoMap()
+  @IsNumber()
+  @Min(0)
+  basicPrice: number;
+
+  @AutoMap()
+  @IsNumber()
+  @Min(0)
+  standardPrice: number;
+
+  @AutoMap()
+  @IsNumber()
+  @Min(0)
+  premiumPrice: number;
+
+  @AutoMap()
+  @ValidateNested()
+  @Type(() => PricingPackage)
+  pricing: {
     basic: PricingPackage;
     standard?: PricingPackage;
     premium?: PricingPackage;
   };
 
-  media: Media;
+  @AutoMap()
+  @IsString()
+  description: string;
+
+  @AutoMap()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => FAQ)
+  faqs: FAQ[];
+
+  @AutoMap()
+  @IsArray()
+  @IsString({ each: true })
+  images: string[];
+
+  @AutoMap()
+  @IsString()
+  video: string;
+
+  @AutoMap()
+  @IsArray()
+  @IsString({ each: true })
+  documents: string[];
+
+  @AutoMap()
+  @IsEnum(GigStatus)
+  status: GigStatus;
+
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
+
+  @AutoMap()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => Requirement)
   requirements: Requirement[];
 
-  rating = { average: 0, count: 0 };
-  popularity = 0;
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  avgRating?: number;
 
-  isFeatured = false;
-  isPromoted = false;
-  views = 0;
-  ordersCompleted = 0;
+  @IsOptional()
+  @IsNumber()
+  totalReviews?: number;
+
+  @AutoMap()
+  @IsString()
+  sellerId: string;
 }

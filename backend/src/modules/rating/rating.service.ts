@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { RatingEntity } from './entities/rating.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { RatingReplyEntity } from './entities/rating-owner-reply.entity';
+import { RatingReplyEntity } from './entities/rating-reply.entity';
 import { QueryDto } from '../base/dto/query.dto';
 
 @Injectable()
@@ -36,8 +36,8 @@ export class RatingService extends BaseService<RatingEntity> {
     const newRating = this._repository.create({
       gig,
       user: { id: userId },
-      rating,
-      review,
+      rateNumber: rating,
+      message: review,
     });
     await this._repository.save(newRating);
 
@@ -76,7 +76,7 @@ export class RatingService extends BaseService<RatingEntity> {
     };
   }
 
-  async replyToRating(ratingId: string, ownerId: string, reply: string) {
+  async replyToRating(ratingId: string, ownerId: string, message: string) {
     const rating = await this._repository.findOne({
       where: { id: ratingId },
       //   relations: ['gig', 'user'],
@@ -92,7 +92,7 @@ export class RatingService extends BaseService<RatingEntity> {
     const ownerReply = this.ratingReplyRepo.create({
       rating,
       owner: { id: ownerId },
-      reply,
+      message,
     });
 
     return this.ratingReplyRepo.save(ownerReply);

@@ -1,8 +1,10 @@
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { GigStatus } from '../enum/gig.status';
 import { UserDto } from 'src/modules/users/dto/user.dto';
+import { AutoMap } from '@automapper/classes';
+import { CategoryDto } from 'src/modules/category/dto/category.dto';
 
-export interface PricingPackage {
+export class PricingPackage {
   name: string;
   description: string;
   price: number;
@@ -11,58 +13,97 @@ export interface PricingPackage {
   extras?: { package: string; value: string }[];
 }
 
-export interface Media {
+export class Media {
   thumbnail: string;
   gallery: string[];
   video?: string;
 }
 
-export interface Requirement {
+export class Requirement {
   type: 'text' | 'file' | 'multiple_choice';
   question: string;
   options?: string[];
   required: boolean;
 }
 
-export interface FAQ {
+export class FAQ {
   question: string;
   aswer: string;
 }
 
 export class GigDto extends BaseDto<GigDto> {
-  constructor(partial: Partial<GigDto>) {
-    super(partial);
-    this.title = partial.title ?? '';
-    this.category = partial.category ?? '';
-    this.subCategory = partial.subCategory ?? '';
-    this.nestedSubcategory = partial.nestedSubcategory ?? '';
-    this.requirements = partial.requirements ?? [];
-    this.tags = new Set(partial.tags ?? []);
-  }
-
+  @AutoMap()
   id: string;
-  title: string;
-  description: string;
-  category: string;
-  subCategory: string;
-  nestedSubcategory: string;
-  tags: Set<string>;
-  language?: string;
-  seller: UserDto;
-  status: GigStatus = GigStatus.DRAFT;
 
-  pricing?: {
+  @AutoMap()
+  title: string;
+
+  @AutoMap()
+  category: CategoryDto;
+
+  @AutoMap()
+  subCategory: CategoryDto;
+
+  @AutoMap()
+  nestedSubcategory?: CategoryDto;
+
+  searchTags?: string[];
+
+  /* Pricing */
+  @AutoMap()
+  basicPrice: number;
+
+  @AutoMap()
+  standardPrice: number;
+
+  @AutoMap()
+  premiumPrice: number;
+
+  @AutoMap()
+  pricing: {
     basic: PricingPackage;
     standard?: PricingPackage;
     premium?: PricingPackage;
   };
+  /* Pricing */
 
-  media: Media;
-  requirements: Requirement[];
-  rating = { average: 0, count: 0 };
-  popularity = 0;
-  isFeatured = false;
-  isPromoted = false;
-  views = 0;
-  ordersCompleted = 0;
+  /* Description & FAQ */
+  @AutoMap()
+  description: string;
+
+  @AutoMap()
+  faqs: FAQ[];
+  /* Description & FAQ */
+
+  /* Gallery */
+  @AutoMap()
+  images: string[];
+
+  @AutoMap()
+  video: string;
+
+  @AutoMap()
+  documents: string[];
+  /* Gallery */
+
+  @AutoMap()
+  status: GigStatus;
+
+  @AutoMap()
+  thumbnail?: string;
+
+  @AutoMap()
+  requirements?: Requirement[];
+
+  @AutoMap()
+  avgRating: number;
+
+  @AutoMap()
+  totalReviews: number;
+
+  @AutoMap()
+  views: number;
+
+  @AutoMap()
+  seller: UserDto;
 }

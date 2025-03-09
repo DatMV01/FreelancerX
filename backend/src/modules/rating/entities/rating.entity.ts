@@ -1,3 +1,4 @@
+import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
@@ -9,33 +10,32 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { RatingReplyEntity } from './rating-owner-reply.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { RatingReplyEntity } from './rating-reply.entity';
 
 @Entity('rating')
 export class RatingEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  @ApiProperty()
+  @AutoMap()
   id: string;
 
   @ManyToOne(() => GigEntity, (gig) => gig.ratings, { onDelete: 'CASCADE' })
-  @ApiProperty()
+  @AutoMap()
   gig: GigEntity;
 
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
-  @ApiProperty()
+  @AutoMap()
   user: UserEntity;
 
   @Column({ type: 'int' })
-  @ApiProperty()
-  rating: number;
+  @AutoMap()
+  rateNumber: number;
 
   @Column({ type: 'text', nullable: true })
-  @ApiProperty()
-  review: string;
-  
-  @ApiProperty()
+  @AutoMap()
+  message: string;
+
   @OneToOne(() => RatingReplyEntity)
   @JoinColumn({ name: 'rating_reply' })
+  @AutoMap()
   ratingReply: RatingReplyEntity;
 }

@@ -1,3 +1,4 @@
+import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import {
@@ -7,24 +8,27 @@ import {
   JoinColumn,
   Column,
 } from 'typeorm';
-import { NotificationStatus } from '../enum/notification.status';
 
 @Entity('notifications')
 export class NotificationEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
+  @AutoMap()
   id: string;
 
   @ManyToOne(() => UserEntity, (user) => user.notifications)
   @JoinColumn({ name: 'user_id' })
+  @AutoMap()
   user: UserEntity;
 
   @Column()
+  @AutoMap()
+  title: string;
+
+  @Column()
+  @AutoMap()
   message: string;
 
-  @Column({
-    type: 'enum',
-    enum: NotificationStatus,
-    default: NotificationStatus.UNREAD,
-  })
-  status: NotificationStatus;
+  @Column({ default: false })
+  @AutoMap()
+  isRead: boolean;
 }

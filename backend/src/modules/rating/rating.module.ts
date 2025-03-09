@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AutoMapper } from 'src/common/mapper/mapper';
 import { RatingEntity } from './entities/rating.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { RatingReplyEntity } from './entities/rating-owner-reply.entity';
+import { RatingReplyEntity } from './entities/rating-reply.entity';
 
 @Module({
   imports: [
