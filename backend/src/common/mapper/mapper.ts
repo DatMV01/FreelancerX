@@ -1,4 +1,4 @@
-import { Mapper, createMap } from '@automapper/core';
+import { Mapper, createMap, forMember, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
 import { RoleDto } from '../../modules/roles/dto/role.dto';
@@ -10,7 +10,7 @@ import { SessionDto } from 'src/modules/session/dto/session.dto';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { GigDto } from 'src/modules/gig/dto/gig.dto';
+import { GigDto, PricingPackage } from 'src/modules/gig/dto/gig.dto';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { OrderDetailEntity } from 'src/modules/orderdetail/entities/orderdetail.entity';
@@ -25,6 +25,10 @@ import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { RatingReplyEntity } from 'src/modules/rating/entities/rating-reply.entity';
 import { RatingReplyDto } from 'src/modules/rating/dto/rating-reply.dto';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserDto } from 'src/modules/users/dto/user.dto';
+import { BaseEntity } from 'typeorm';
+import { BaseDto } from 'src/modules/base/dto/base.dto';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -69,6 +73,32 @@ export class AutoMapper extends AutomapperProfile {
 
       createMap(mapper, RatingReplyEntity, RatingReplyDto);
       createMap(mapper, RatingReplyDto, RatingReplyEntity);
+
+      createMap(mapper, UserEntity, UserDto);
+      createMap(mapper, UserDto, UserEntity);
+
+      createMap(mapper, BaseEntity, BaseDto);
+      createMap(mapper, BaseDto, BaseEntity);
+
+      createMap(
+        mapper,
+        GigEntity,
+        GigDto,
+        forMember(
+          (destination) => destination.tags,
+          mapFrom((source) => source.tags || []),
+        ),
+      );
+
+      createMap(
+        mapper,
+        GigDto,
+        GigEntity,
+        forMember(
+          (destination) => destination.tags,
+          mapFrom((source) => source.tags || []),
+        ),
+      );
     };
   }
 }

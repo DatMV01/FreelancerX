@@ -1,20 +1,21 @@
 import { AutoMap } from '@automapper/classes';
+import { Max, Min } from 'class-validator';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { FAQ, Pricing, Requirement } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { FAQ, Media, PricingPackage, Requirement } from '../dto/gig.dto';
-import { Max, Min } from 'class-validator';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 
 @Entity({ name: 'gig' })
 export class GigEntity extends BaseEntity {
@@ -29,20 +30,24 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs)
+  @JoinColumn({ referencedColumnName: 'slug' })
   category: CategoryEntity;
 
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs)
+  @JoinColumn({ referencedColumnName: 'slug' })
   subCategory: CategoryEntity;
 
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
   })
+  @JoinColumn({ referencedColumnName: 'slug' })
   nestedSubcategory: CategoryEntity;
 
+  @AutoMap(() => String)
   @Column({ type: 'simple-array', nullable: true })
-  searchTags: string[];
+  tags: string[];
   /* Overview */
 
   /* Pricing */
@@ -58,37 +63,33 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'float', default: 0 })
   premiumPrice: number;
 
-  @AutoMap()
-  @Column({ type: 'json' })
-  pricing: {
-    basic: PricingPackage;
-    standard?: PricingPackage;
-    premium?: PricingPackage;
-  };
+  @AutoMap(() => Pricing)
+  @Column({ type: 'json', nullable: true })
+  pricing: Pricing;
   /* Pricing */
 
   /* Description & FAQ */
   @AutoMap()
-  @Column({ type: 'text' })
+  @Column({ type: 'longtext', nullable: true })
   description: string;
 
-  @AutoMap()
-  @Column({ type: 'json' })
-  faqs: FAQ[];
+  @AutoMap(() => FAQ)
+  @Column({ type: 'json', nullable: true })
+  faqs?: FAQ[];
   /* Description & FAQ */
 
   /* Gallery */
-  @AutoMap()
-  @Column({ type: 'simple-array' })
-  images: string[];
+  @AutoMap(() => String)
+  @Column({ type: 'simple-array', nullable: true })
+  images?: string[];
 
   @AutoMap()
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   video: string;
 
-  @AutoMap()
-  @Column({ type: 'simple-array' })
-  documents: string[];
+  @AutoMap(() => String)
+  @Column({ type: 'simple-array', nullable: true })
+  documents?: string[];
   /* Gallery */
 
   @AutoMap()
@@ -97,10 +98,11 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'varchar', length: 255, nullable: true })
-  thumbnail: string;
+  thumbnail?: string;
 
+  @AutoMap(() => Requirement)
   @Column({ type: 'json', nullable: true })
-  requirements: Requirement[];
+  requirements?: Requirement[];
 
   @Column({ type: 'float', default: 0 })
   @Min(0)
@@ -123,7 +125,7 @@ export class GigEntity extends BaseEntity {
   @Min(0)
   views: number = 0;
 
-  @AutoMap()
+  @AutoMap(() => UserEntity)
   @ManyToOne(() => UserEntity, (user) => user.gigs)
   seller: UserEntity;
 
@@ -134,4 +136,8 @@ export class GigEntity extends BaseEntity {
   @AutoMap()
   @OneToMany(() => ReviewEntity, (review) => review.buyer)
   reviews: ReviewEntity[];
+
+  @AutoMap()
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  slug: string;
 }

@@ -1,116 +1,128 @@
-import { AutoMap } from '@automapper/classes';
 import { Type } from 'class-transformer';
 import {
-     IsArray,
-     IsEnum,
-     IsNumber,
-     IsOptional,
-     IsString,
-     Max,
-     Min,
-     ValidateNested,
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  ValidateNested,
 } from 'class-validator';
 import { FAQ, PricingPackage, Requirement } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
+import { ApiProperty } from '@nestjs/swagger';
+import { UserDto } from 'src/modules/users/dto/user.dto';
 
 export class CreateGigDto {
-  @AutoMap()
   @IsString()
+  @IsOptional()
+  @ApiProperty()
+  id?: string;
+
+  @IsString()
+  @ApiProperty()
   title: string;
 
-  @AutoMap()
   @IsString()
-  categoryId: string;
+  category: string;
 
-  @AutoMap()
   @IsOptional()
   @IsString()
-  subCategoryId?: string;
+  subCategory: string;
 
-  @AutoMap()
   @IsOptional()
   @IsString()
-  nestedSubcategoryId?: string;
+  nestedSubcategory?: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  searchTags?: string[];
+  tags?: string[];
 
-  @AutoMap()
   @IsNumber()
   @Min(0)
+  @IsOptional()
   basicPrice: number;
 
-  @AutoMap()
   @IsNumber()
   @Min(0)
+  @IsOptional()
   standardPrice: number;
 
-  @AutoMap()
   @IsNumber()
   @Min(0)
+  @IsOptional()
   premiumPrice: number;
 
-  @AutoMap()
-  @ValidateNested()
-  @Type(() => PricingPackage)
-  pricing: {
-    basic: PricingPackage;
+  @IsOptional()
+  pricing?: {
+    basic?: PricingPackage;
     standard?: PricingPackage;
     premium?: PricingPackage;
   };
 
-  @AutoMap()
   @IsString()
+  @IsOptional()
   description: string;
 
-  @AutoMap()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => FAQ)
-  faqs: FAQ[];
+  @IsOptional()
+  faqs?: FAQ[];
 
-  @AutoMap()
   @IsArray()
-  @IsString({ each: true })
+  @IsOptional()
+  @ArrayMinSize(0)
+  @ArrayMaxSize(3)
   images: string[];
 
-  @AutoMap()
   @IsString()
+  @IsOptional()
   video: string;
 
-  @AutoMap()
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(2)
   documents: string[];
 
-  @AutoMap()
   @IsEnum(GigStatus)
-  status: GigStatus;
+  @IsOptional()
+  status: GigStatus = GigStatus.DRAFT;
 
-  @AutoMap()
   @IsOptional()
   @IsString()
   thumbnail?: string;
 
-  @AutoMap()
   @IsArray()
   @ValidateNested({ each: true })
+  @IsOptional()
   @Type(() => Requirement)
   requirements: Requirement[];
 
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  avgRating?: number;
+  // @IsOptional()
+  // @IsNumber()
+  // @Min(0)
+  // @Max(5)
+  // @ApiProperty()
+  // avgRating?: number;
 
+  // @IsOptional()
+  // @IsNumber()
+  // @ApiProperty()
+  // totalReviews?: number;
   @IsOptional()
-  @IsNumber()
-  totalReviews?: number;
-
-  @AutoMap()
   @IsString()
+  @ApiProperty()
   sellerId: string;
+
+  @IsOptional()
+  @ApiProperty()
+  seller: UserDto;
+  
+  @IsOptional()
+  slug: string;
 }

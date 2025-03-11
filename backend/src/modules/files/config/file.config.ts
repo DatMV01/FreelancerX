@@ -69,6 +69,6 @@ export default registerAs<FileConfig>(FILE_CONFIG_REGISTER, () => {
     awsS3Region: process.env.AWS_S3_REGION,
     maxFileSize: process.env.MAX_FILE_SIZE
       ? parseInt(process.env.MAX_FILE_SIZE)
-      : 5242880,
+      : 52428800, //50MB
   };
 });

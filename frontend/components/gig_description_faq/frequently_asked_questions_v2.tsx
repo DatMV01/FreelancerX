@@ -1,22 +1,36 @@
 import { useState, useEffect } from "react";
 import { Trash, Edit, Check } from "lucide-react";
+import { GigDto } from "@/dto/gig.dto";
 
-interface QA {
+interface FAQ {
   id: string;
   question: string;
   answer: string;
 }
 
-const _faq = "faqList";
+const _faq = "gig_faqs";
 
-export default function FrequentlyAskedQuestionsV2() {
+export default function FrequentlyAskedQuestionsV2({
+  setGig,
+}: {
+  setGig: any;
+}) {
+  // const [gig, setGig] = useState<GigDto>(() => {
+  //   const gigLocalStorage = localStorage.getItem("gig");
+  //   return gigLocalStorage ? JSON.parse(gigLocalStorage) : new GigDto({});
+  // });
+
+  // useEffect(() => {
+  //   localStorage.setItem("gig", JSON.stringify(gig));
+  // }, [gig]);
+
   const [inputQuestion, setInputQuestion] = useState("");
 
   const [inputAnswer, setInputAnswer] = useState("");
 
   const [charCount, setCharCount] = useState(0);
 
-  const [faqList, setQaList] = useState<QA[]>(() =>
+  const [faqList, setQaList] = useState<FAQ[]>(() =>
     JSON.parse(localStorage.getItem(_faq) || "[]"),
   );
 
@@ -29,7 +43,10 @@ export default function FrequentlyAskedQuestionsV2() {
   const [editCharCount, setEditCharCount] = useState(0);
 
   useEffect(() => {
-    localStorage.setItem(_faq, JSON.stringify(faqList));
+    if (faqList.length > 0) {
+      localStorage.setItem(_faq, JSON.stringify(faqList));
+      setGig((prev: any) => ({ ...prev, faqs: faqList }));
+    }
   }, [faqList]);
 
   const handleChange =

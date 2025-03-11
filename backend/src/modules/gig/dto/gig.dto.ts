@@ -3,13 +3,25 @@ import { GigStatus } from '../enum/gig.status';
 import { UserDto } from 'src/modules/users/dto/user.dto';
 import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PricingPackage {
+  @AutoMap()
   name: string;
+
+  @AutoMap()
   description: string;
+
+  @AutoMap()
   price: number;
+
+  @AutoMap()
   deliveryTime: number;
+
+  @AutoMap()
   revisions: number;
+
+  @AutoMap()
   extras?: { package: string; value: string }[];
 }
 
@@ -20,15 +32,42 @@ export class Media {
 }
 
 export class Requirement {
+  @IsString()
+  @AutoMap()
+  id: string;
+
+  @IsString()
+  @AutoMap()
   type: 'text' | 'file' | 'multiple_choice';
+
+  @IsString()
+  @AutoMap()
   question: string;
+
+  @IsOptional()
+  @AutoMap()
   options?: string[];
+
+  @IsBoolean()
+  @AutoMap()
   required: boolean;
 }
 
 export class FAQ {
+  @AutoMap()
+  id: string;
+
+  @AutoMap()
   question: string;
-  aswer: string;
+
+  @AutoMap()
+  answer: string;
+}
+
+export class Pricing {
+  basic: PricingPackage;
+  standard?: PricingPackage;
+  premium?: PricingPackage;
 }
 
 export class GigDto extends BaseDto<GigDto> {
@@ -47,7 +86,8 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   nestedSubcategory?: CategoryDto;
 
-  searchTags?: string[];
+  @AutoMap(() => String)
+  tags: string[];
 
   /* Pricing */
   @AutoMap()
@@ -59,30 +99,26 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   premiumPrice: number;
 
-  @AutoMap()
-  pricing: {
-    basic: PricingPackage;
-    standard?: PricingPackage;
-    premium?: PricingPackage;
-  };
+  @AutoMap(() => Pricing)
+  pricing: Pricing;
   /* Pricing */
 
   /* Description & FAQ */
   @AutoMap()
   description: string;
 
-  @AutoMap()
+  @AutoMap(() => FAQ)
   faqs: FAQ[];
   /* Description & FAQ */
 
   /* Gallery */
-  @AutoMap()
+  @AutoMap(() => String)
   images: string[];
 
   @AutoMap()
   video: string;
 
-  @AutoMap()
+  @AutoMap(() => String)
   documents: string[];
   /* Gallery */
 
@@ -92,7 +128,7 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   thumbnail?: string;
 
-  @AutoMap()
+  @AutoMap(() => Requirement)
   requirements?: Requirement[];
 
   @AutoMap()
@@ -104,6 +140,9 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   views: number;
 
-  @AutoMap()
+  @AutoMap(() => UserDto)
   seller: UserDto;
+
+  @AutoMap()
+  slug: string;
 }

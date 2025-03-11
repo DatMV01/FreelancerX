@@ -11,16 +11,16 @@ export class BaseDto<T> {
   @AutoMap()
   id: string;
 
-  @AutoMap()
+  @AutoMap(() => Date)
   @Transform(({ value }) => formatDate(value))
   createdAt: Date;
-
-  @AutoMap()
+  
+  @AutoMap(() => Date)
   @Transform(({ value }) => formatDate(value))
   //  @Expose({ groups: [UPDATE_GROUP, GET_GROUP] })
   updatedAt: Date;
 
-  @AutoMap()
+  @AutoMap(() => Date)
   @Transform(({ value }) => formatDate(value))
   deletedAt: Date;
 }

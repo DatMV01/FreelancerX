@@ -2,15 +2,15 @@ import { AutoMap } from '@automapper/classes';
 import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
 
 export class BaseEntity {
-  @AutoMap()
+  @AutoMap(() => Date)
   @CreateDateColumn()
   createdAt: Date;
 
-  @AutoMap()
+  @AutoMap(() => Date)
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @AutoMap()
+  @AutoMap(() => Date)
   @DeleteDateColumn()
   deletedAt: Date;
 }

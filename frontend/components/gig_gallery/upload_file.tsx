@@ -4,20 +4,31 @@ import { CircularProgress } from "@mui/material";
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
+import { GigDto } from "@/dto/gig.dto";
+import { documentsUpload, imagesUpload, videoUpload } from ".";
 
 interface Props {
   localStorageKey?: string;
   fileType: "image" | "video" | "document";
   className?: string;
   autoUpload?: boolean;
+  updateGigCb?: any;
 }
 const seperator = "|";
 
 const UploadFile = forwardRef(
   (
-    { localStorageKey, fileType, className, autoUpload = false }: Props,
+    {
+      localStorageKey,
+      fileType,
+      className,
+      autoUpload = false,
+      updateGigCb,
+    }: Props,
     ref,
   ) => {
+    const localStorageName = `${localStorageKey}`;
+
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
@@ -25,8 +36,6 @@ const UploadFile = forwardRef(
     const [dragOver, setDragOver] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [error, setError] = useState("");
-
-    const localStorageName = `uploaded_${localStorageKey}`;
 
     useImperativeHandle(ref, () => ({
       handleUpload,
@@ -88,12 +97,18 @@ const UploadFile = forwardRef(
             } else {
               resolve(true);
             }
+            return false;
           };
           video.src = URL.createObjectURL(file);
         });
       } else if (fileType === "document") {
         if (!["application/pdf"].includes(file.type)) {
           setError("Please upload a valid document file (PDF).");
+          return false;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          setError("Document file must be smaller than 5MB.");
           return false;
         }
       }
@@ -130,49 +145,90 @@ const UploadFile = forwardRef(
       }
     };
 
-    const handleUpload = async () => {
-      if (!file) return;
+    const handleUpload = async (): Promise<boolean> => {
+      if (!file) return false;
       setUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
+
+      const storedFile = localStorage.getItem(localStorageName);
+      if (storedFile && (await deleteFile(storedFile))) {
+        localStorage.removeItem(localStorageName);
+      }
 
       try {
-        const response = await fetch(
+        const { data, status } = await axios.post(
           "http://localhost:3000/api/v1/files/upload",
           {
-            method: "POST",
-            body: formData,
+            file: file,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           },
         );
-        const data = await response.json();
 
-        if (data.path) {
-          setUploadedUrl(data.path);
-          localStorage.setItem(
-            localStorageName,
-            data.id + seperator + data.path,
-          );
+        if (status === 201) {
+          const { id, path } = data;
+          if (path) {
+            setUploadedUrl(path);
+            localStorage.setItem(localStorageName, id + seperator + path);
+
+            // Update set state gig callback
+            if (imagesUpload.includes(localStorageName)) {
+              updateGigCb((prev: any) => ({
+                ...prev,
+                images: [...(prev.images || []), path],
+              }));
+            } else if (documentsUpload.includes(localStorageName)) {
+              updateGigCb((prev: any) => ({
+                ...prev,
+                documents: [...(prev.documents || []), path],
+              }));
+            } else if (videoUpload.includes(localStorageName)) {
+              updateGigCb((prev: any) => ({
+                ...prev,
+                video: path,
+              }));
+            }
+          }
+
+          return true;
+        } else {
+          setPreview(null);
+          return false;
         }
-      } catch (error) {
-        setError("Upload failed");
+      } catch (error: any) {
+        setPreview(null);
+
+        if (error.response) {
+          if (error.response.status === 400) {
+            setError(error.response.data.message);
+          }
+        } else {
+          setError("Request Error:" + error.message);
+        }
+
+        return false;
       } finally {
         setUploading(false);
       }
+
+      return false;
     };
 
-    const handleRemoveImage = async () => {
+    const handleRemoveFile = async () => {
       setFile(null);
       setPreview(null);
       setUploadedUrl(null);
 
       const storedFile = localStorage.getItem(localStorageName);
-      const fileId = storedFile && storedFile.split(seperator)[0];
-      fileId && (await deleteFile(fileId));
-
-      localStorage.removeItem(localStorageName);
+      if (storedFile && (await deleteFile(storedFile))) {
+        localStorage.removeItem(localStorageName);
+      }
     };
 
-    const deleteFile = async (id: string) => {
+    const deleteFile = async (storedFile: string): Promise<boolean> => {
+      const [id, path] = storedFile.split(seperator);
       try {
         const response = await axios.delete(
           `http://localhost:3000/api/v1/files`,
@@ -180,13 +236,40 @@ const UploadFile = forwardRef(
         );
 
         if (response.status === 200) {
+          // Update set state gig callback
+          if (imagesUpload.includes(localStorageName)) {
+            updateGigCb((prev: any) => ({
+              ...prev,
+              images: [
+                ...(prev.images || []).filter((_: string) => _ !== path),
+              ],
+            }));
+          } else if (documentsUpload.includes(localStorageName)) {
+            updateGigCb((prev: any) => ({
+              ...prev,
+              documents: [
+                ...(prev.documents || []).filter((_: string) => _ !== path),
+              ],
+            }));
+          } else if (videoUpload.includes(localStorageName)) {
+            updateGigCb((prev: any) => ({
+              ...prev,
+              video: null,
+            }));
+          }
+
+          return true;
         }
 
         if (response.status === 400) {
           setError("File not found or cannot be deleted");
+          return false;
         }
+
+        return false;
       } catch (error) {
         setError("File not found or cannot be deleted");
+        return false;
       }
     };
 
@@ -221,7 +304,7 @@ const UploadFile = forwardRef(
                 <video
                   src={preview}
                   controls
-                  className={`w-full object-cover ${uploading ? "opacity-50" : ""}`}
+                  className={`absolute left-0 top-0 h-full w-full ${uploading ? "opacity-50" : ""}`}
                 />
               )}
 
@@ -236,7 +319,7 @@ const UploadFile = forwardRef(
               )}
               {hovered && !uploading && (
                 <button
-                  onClick={handleRemoveImage}
+                  onClick={handleRemoveFile}
                   className="absolute right-2 top-2 rounded-full bg-red-500 px-2 py-1 text-white hover:bg-red-700"
                 >
                   ✕

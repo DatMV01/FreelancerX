@@ -1,13 +1,15 @@
 "use client";
 
-import { Gig } from "@/dto/gig";
+import { GigDto } from "@/dto/gig.dto";
 import {
   Button,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
 } from "@mui/material";
+import axios from "axios";
 import { Check, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,11 +52,6 @@ const deliveryOptions = [
   { id: "550e8400-e29b-41d4-a716-446655440014", day: 75, title: "75 days" },
   { id: "550e8400-e29b-41d4-a716-446655440015", day: 90, title: "90 days" },
 ];
-
-interface Props {
-  switchToTab: (tab: string) => void;
-  tabs: { label: string }[];
-}
 
 const initialRequiredInformation = [
   {
@@ -522,7 +519,7 @@ const PriceRow = ({
             </span>
             <input
               type="number"
-              className="w-full rounded-sm border-2 p-1 pl-6 outline-none"
+              className="w-full rounded-sm border p-1 pl-6 outline-none"
               placeholder="50"
               value={requiredInformation[4].basic}
               onChange={(e) => {
@@ -542,7 +539,7 @@ const PriceRow = ({
             </span>
             <input
               type="number"
-              className="w-full rounded-sm border-2 p-1 pl-6 outline-none"
+              className="w-full rounded-sm border p-1 pl-6 outline-none"
               placeholder="100"
               value={requiredInformation[4].standard}
               onChange={(e) => {
@@ -562,7 +559,7 @@ const PriceRow = ({
             </span>
             <input
               type="number"
-              className="w-full rounded-sm border-2 p-1 pl-6 outline-none"
+              className="w-full rounded-sm border p-1 pl-6 outline-none"
               placeholder="150"
               value={requiredInformation[4].premium}
               onChange={(e) => {
@@ -743,12 +740,20 @@ const AddtionalRow = ({
   );
 };
 
-export default function GigPricing({ switchToTab, tabs }: Props) {
-  const [gig, setGig] = useState<Gig>(() => {
-    const gigLocalStorage = localStorage.getItem("gig");
-    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
-  });
+interface Props {
+  switchToTab: (tab: string) => void;
+  tabs: { label: string }[];
+  gig: any;
+  setGig: any;
+  hanleOnSaveAndCountinue: any;
+}
 
+export default function GigPricing({
+  switchToTab,
+  tabs,
+  setGig,
+  hanleOnSaveAndCountinue,
+}: Props) {
   const [requiredInformation, setRequiredInformation] = useState<RowData[]>(
     () => {
       const gig_requiredInformationLs = localStorage.getItem(
@@ -773,10 +778,6 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    localStorage.setItem("gig", JSON.stringify(gig));
-  }, [gig]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -814,8 +815,11 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
       premium: premiumPrice,
     } = requiredInformation[4];
 
-    setGig((prev) => ({
+    setGig((prev: any) => ({
       ...prev,
+      basicPrice: Number(basicPrice),
+      standardPrice: Number(standardPrice),
+      premiumPrice: Number(premiumPrice),
       pricing: {
         basic: {
           name: basicName,
@@ -869,7 +873,7 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
       };
     });
 
-    setGig((prev) => ({
+    setGig((prev: any) => ({
       ...prev,
       pricing: {
         basic: {
@@ -913,8 +917,15 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
     if (e.key === "Enter") handleAddRow();
   };
 
+  const [uploading, setUploading] = useState(false);
+
   return (
-    <div className="flex w-full flex-col space-y-2 p-4">
+    <div className="relative flex w-full flex-col space-y-2 p-4">
+      {uploading && (
+        <div className="absolute inset-0 z-50 m-0 flex items-center justify-center bg-black bg-opacity-50">
+          <CircularProgress />
+        </div>
+      )}
       <button
         className="mb-2 w-fit cursor-pointer border-[1px] border-red-500 bg-white p-2 text-red-500 hover:text-red-700"
         onClick={handleDeleteSelected}
@@ -1035,12 +1046,17 @@ export default function GigPricing({ switchToTab, tabs }: Props) {
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
-        onClick={() => {
+        onClick={async () => {
           if (true) {
             const isRequiredInformationEmpty = requiredInformation.some(
               (_) => _.basic === "" || _.standard === "" || _.premium === "",
             );
-            if (!isRequiredInformationEmpty) switchToTab(tabs[2].label);
+            if (!isRequiredInformationEmpty) {
+              setUploading(true);
+              const isUploadOk = await hanleOnSaveAndCountinue();
+              setUploading(false);
+              isUploadOk && switchToTab(tabs[2].label);
+            }
           }
         }}
       >

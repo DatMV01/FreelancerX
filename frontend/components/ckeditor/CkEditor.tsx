@@ -46,9 +46,9 @@ const CkEditor: FC<CkEditorProps> = ({
   editorData,
   handleOnUpdate,
 }) => {
-  useEffect(() => {
-    console.log("what is editorData: ", editorData);
-  }, [editorData]);
+  // useEffect(() => {
+  //   console.log("what is editorData: ", editorData);
+  // }, [editorData]);
   return (
     <CKEditor
       editor={ClassicEditor}

@@ -1,8 +1,10 @@
+"use client";
+
 import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 import AddGigOverview from "@/components/gig_add_overview";
 import GigPricing from "@/components/gig_pricing";
@@ -10,10 +12,13 @@ import GigDescriptionFaq from "@/components/gig_description_faq";
 import GigGallary from "@/components/gig_gallery";
 import GigPublish from "@/components/gig_publish";
 import { useRouter } from "next/navigation";
+import { GigDto } from "@/dto/gig.dto";
+import { useSession } from "next-auth/react";
+import axiosInstance from "@/lib/apiClient";
 
 const fetcher = (url: string) =>
   new Promise<string>((resolve) =>
-    setTimeout(() => resolve(`Dữ liệu từ API: ${url}`), 100),
+    setTimeout(() => resolve(`Dữ liệu từ API: ${url}`), 10),
   );
 
 // const fetcher = async (url: string) => {
@@ -47,16 +52,15 @@ function CustomTabPanel({
       {...other}
     >
       {value === index && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-
-            minHeight: "80vh",
-          }}
-        >
-          {loading ? <CircularProgress /> : children}
-        </Box>
+        <div className="relative flex min-h-[80vh] justify-center">
+          {loading ? (
+            <div className="absolute inset-0 z-50 m-0 flex items-center justify-center bg-black bg-opacity-10">
+              <CircularProgress />
+            </div>
+          ) : (
+            children
+          )}
+        </div>
       )}
     </div>
   );
@@ -96,7 +100,11 @@ interface Props {
 
 export default function GigAddEdit({ isEditGig = false }: Props) {
   const router = useRouter();
+
+  const { data: session, status } = useSession();
+
   const [showSaveAndReview, setShowSaveAndReview] = useState(isEditGig);
+
   const [value, setValue] = useState<string>(tabs[0].label);
 
   const switchToTab = (label: string) => {
@@ -118,28 +126,96 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
     setValue(newValue);
   };
 
+  const [gig, setGig] = useState<GigDto | null>(null);
+
+  useEffect(() => {
+    const gigLocalStorage = localStorage.getItem("gig");
+
+    setGig(
+      gigLocalStorage
+        ? new GigDto(JSON.parse(gigLocalStorage))
+        : new GigDto({}),
+    );
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("gig", JSON.stringify(gig));
+  }, [gig]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      setGig((prev: any) => ({ ...prev, seller: { id: session?.user.id } }));
+    }
+  }, [status]);
+
+  const uploadGig = async (): Promise<boolean> => {
+    const gigLocalStorage = localStorage.getItem("gig");
+    if (!gigLocalStorage) return false;
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    try {
+      const { data, status } = await axiosInstance.post(
+        "/gig",
+        JSON.parse(gigLocalStorage),
+      );
+
+      if (status === 201) {
+        return true;
+      }
+
+      if (status === 400) {
+        alert("Upload failed");
+        return false;
+      }
+    } catch (error: any) {
+      if (error.response) {
+        if (error.response.status === 400) {
+          alert(error.response.data.message);
+        }
+      } else {
+        alert("Request Error:" + error.message);
+      }
+
+      return false;
+    }
+
+    return false;
+  };
+
   return (
-    <div className="h-full min-h-screen">
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "transparent",
-          fontSize: "14px",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="gig management tabs"
-          sx={{ width: "fit-content" }}
+    gig && (
+      <div className="h-full min-h-screen">
+        <Box
+          sx={{
+            borderColor: "transparent",
+            fontSize: "14px",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
         >
-          {tabs.map((tab, index) => {
-            if (isEditGig) {
-              if (tab.label !== "5.Publish") {
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            aria-label="gig management tabs"
+            sx={{ width: "fit-content" }}
+          >
+            {tabs.map((tab, index) => {
+              if (isEditGig) {
+                if (tab.label !== "5.Publish") {
+                  return (
+                    <Tab
+                      key={tab.label}
+                      label={tab.label}
+                      value={tab.label}
+                      sx={{ fontSize: "14px" }}
+                      {...a11yProps(tab.label)}
+                    />
+                  );
+                }
+              } else {
                 return (
-                  <Tab 
+                  <Tab
                     key={tab.label}
                     label={tab.label}
                     value={tab.label}
@@ -148,87 +224,89 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
                   />
                 );
               }
-            } else {
-              return (
-                <Tab  
-                  key={tab.label}
-                  label={tab.label}
-                  value={tab.label}
-                  sx={{ fontSize: "14px" }}
-                  {...a11yProps(tab.label)}
-                />
-              );
-            }
-          })}
-        </Tabs>
+            })}
+          </Tabs>
 
-        <div className="flex space-x-2">
-          <Tooltip title="Save gig as draft status and back to gig managament page.">
-            <button
-              className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
-              onClick={() => {
-                alert("Save & Preview");
-                router.push("/gigs/manage?tab=draft");
-              }}
-            >
-              Save as Draft & <br /> Back to manage
-            </button>
-          </Tooltip>
-
-          {showSaveAndReview && (
-            <Tooltip title="Save gig as paused status and open review gig pagge">
+          <div className="flex space-x-2">
+            <Tooltip title="Save gig as draft status and back to gig managament page.">
               <button
                 className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
                 onClick={() => {
                   alert("Save & Preview");
+                  router.push("/gigs/manage?tab=draft");
                 }}
               >
-                Save & <br /> Preview
+                Save as Draft & <br /> Back to manage
               </button>
             </Tooltip>
-          )}
-        </div>
-      </Box>
 
-      <Divider className="py-1" />
+            {showSaveAndReview && (
+              <Tooltip title="Save gig as paused status and open review gig pagge">
+                <button
+                  className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
+                  onClick={() => {
+                    alert("Save & Preview");
+                  }}
+                >
+                  Save & <br /> Preview
+                </button>
+              </Tooltip>
+            )}
+          </div>
+        </Box>
 
-      <CustomTabPanel
-        key={tabs[0].label}
-        index={tabs[0].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <Divider className="py-1" />
 
-        {error ? (
-          "Lỗi khi tải dữ liệu"
-        ) : (
-          <AddGigOverview switchToTab={switchToTab} tabs={tabs} />
-        )}
-      </CustomTabPanel>
+        <CustomTabPanel
+          key={tabs[0].label}
+          index={tabs[0].label}
+          value={value}
+          loading={isLoading}
+        >
+          {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+          <AddGigOverview
+            switchToTab={switchToTab}
+            tabs={tabs}
+            gig={gig}
+            setGig={setGig}
+            hanleOnSaveAndCountinue={uploadGig}
+          />
+        </CustomTabPanel>
 
-      <CustomTabPanel
-        key={tabs[1].label}
-        index={tabs[1].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+        <CustomTabPanel
+          key={tabs[1].label}
+          index={tabs[1].label}
+          value={value}
+          loading={isLoading}
+        >
+          {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
 
-        <GigPricing switchToTab={switchToTab} tabs={tabs} />
-      </CustomTabPanel>
+          <GigPricing
+            switchToTab={switchToTab}
+            tabs={tabs}
+            gig={gig}
+            setGig={setGig}
+            hanleOnSaveAndCountinue={uploadGig}
+          />
+        </CustomTabPanel>
 
-      <CustomTabPanel
-        key={tabs[2].label}
-        index={tabs[2].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigDescriptionFaq switchToTab={switchToTab} tabs={tabs} />
-      </CustomTabPanel>
+        <CustomTabPanel
+          key={tabs[2].label}
+          index={tabs[2].label}
+          value={value}
+          loading={isLoading}
+        >
+          {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+          <GigDescriptionFaq
+            switchToTab={switchToTab}
+            tabs={tabs}
+            gig={gig}
+            setGig={setGig}
+            hanleOnSaveAndCountinue={uploadGig}
+          />
+        </CustomTabPanel>
 
-      {/* <CustomTabPanel
+        {/* <CustomTabPanel
         key={tabs[3].label}
         index={tabs[3].label}
         value={value}
@@ -238,28 +316,29 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
         {tabs[3].label}
       </CustomTabPanel> */}
 
-      <CustomTabPanel
-        key={tabs[3].label}
-        index={tabs[3].label}
-        value={value}
-        loading={isLoading}
-      >
-        {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-
-        <GigGallary />
-      </CustomTabPanel>
-
-      {!isEditGig && (
         <CustomTabPanel
-          key={tabs[4].label}
-          index={tabs[4].label}
+          key={tabs[3].label}
+          index={tabs[3].label}
           value={value}
           loading={isLoading}
         >
           {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-          <GigPublish />
+
+          <GigGallary switchToTab={switchToTab} tabs={tabs} />
         </CustomTabPanel>
-      )}
-    </div>
+
+        {!isEditGig && (
+          <CustomTabPanel
+            key={tabs[4].label}
+            index={tabs[4].label}
+            value={value}
+            loading={isLoading}
+          >
+            {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
+            <GigPublish />
+          </CustomTabPanel>
+        )}
+      </div>
+    )
   );
 }

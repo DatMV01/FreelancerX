@@ -185,7 +185,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={fakeData} gigStatus={tab} />
+        <GigsManageTable data={fakeData} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -195,7 +195,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={fakeData} gigStatus={tab} />
+        <GigsManageTable data={fakeData} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -205,7 +205,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={fakeData} gigStatus={tab} />
+        <GigsManageTable data={fakeData} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -215,7 +215,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={null} gigStatus={tab} />
+        <GigsManageTable data={null} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -225,7 +225,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={null} gigStatus={tab} />
+        <GigsManageTable data={null} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
@@ -235,7 +235,7 @@ export default function ManageGig() {
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-        <GigsManageTable data={null} gigStatus={tab} />
+        <GigsManageTable data={null} gigStatus={currentTab} />
       </CustomTabPanel>
     </div>
   );

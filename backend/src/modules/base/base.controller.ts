@@ -195,18 +195,16 @@ export abstract class BaseController<
     }
 
     if (entity) {
-      return this.createInstance(
-        this.mapper.map(entity, this.dtoType, this.entityType),
-      );
+      const _mapperObj = this.mapper.map(entity, this.dtoType, this.entityType);
+      const ___mapperObj = this.additionalMapping(_mapperObj, entity as any);
+      return this.createInstance(___mapperObj);
     }
 
     return undefined as any;
   }
 
-  toDtoChildImpl(entity: Entity): Dto;
-  toDtoChildImpl(entity: Entity[]): Dto[];
-  toDtoChildImpl(entity: unknown): Dto | Dto[] {
-    throw new Error('Child do not implement yet !!!');
+  protected additionalMapping(dto: Dto, entity: Entity): Dto {
+    return dto;
   }
 
   private parseFiltersParam(filters: string): FindOptionsWhere<Entity> {

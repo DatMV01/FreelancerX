@@ -6,15 +6,16 @@
 
 "use client";
 
+import { GigDto } from "@/dto/gig.dto";
 import dynamic from "next/dynamic";
 
 const CkEditorWithNoSSR = dynamic(import("./CkEditor"), { ssr: false });
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const gig_description = "gig_description";
 
-const MyCkEditorWithNoSSR: React.FC = () => {
+const MyCkEditorWithNoSSR = ({ setGig }: { setGig: any }) => {
   const [editorData, setEditorData] = useState<string>(() => {
     const savedData = localStorage.getItem(gig_description);
 
@@ -26,11 +27,14 @@ const MyCkEditorWithNoSSR: React.FC = () => {
 
   const handleOnUpdate = (editor: string, field: string): void => {
     if (field === "description") {
-      console.log("Editor data field:", editor);
       setEditorData(editor);
       localStorage.setItem(gig_description, editor);
     }
   };
+
+  useEffect(() => {
+    setGig((prev: any) => ({ ...prev, description: editorData }));
+  }, [editorData]);
 
   return (
     <div className="mx-auto w-full">

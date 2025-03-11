@@ -1,4 +1,4 @@
-import { Gig } from "@/dto/gig";
+import { GigDto } from "@/dto/gig.dto";
 import { useEffect, useState } from "react";
 
 interface Props {
@@ -7,17 +7,20 @@ interface Props {
 }
 
 const SearchTags = ({ searchTags, setSearchTags }: Props) => {
-  const [gig, setGig] = useState<Gig>(() => {
+  const [gig, setGig] = useState<GigDto>(() => {
     const gigLocalStorage = localStorage.getItem("gig");
-    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
+    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new GigDto({});
   });
 
   const [keywords, setKeywords] = useState<string[]>(gig.tags || []);
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
+    setSearchTags(keywords);
+  }, [keywords]);
+
+  useEffect(() => {
     setGig((prev: any) => ({ ...prev, tags: keywords }));
-    setSearchTags(keywords)
   }, [keywords]);
 
   useEffect(() => {

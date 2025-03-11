@@ -19,13 +19,17 @@ export class FilesLocalService {
     private readonly configService: ConfigService<AllConfigType>,
   ) {}
 
+  bytesToMB = (bytes) => (bytes / (1024 * 1024)).toFixed(2); // Convert to MB and round to 2 decimal places
+
   async create(file: Express.Multer.File): Promise<FileType> {
     const fileConfig = this.configService.get(FILE_CONFIG_REGISTER as any, {
       infer: true,
     }) as FileConfig;
 
     if (file.size > fileConfig.maxFileSize) {
-      throw new BadRequestException('file is too large!');
+      throw new BadRequestException(
+        `File is larger than ${this.bytesToMB(fileConfig.maxFileSize)} MB`,
+      );
     }
 
     const data: any = {
@@ -82,7 +86,7 @@ export class FilesLocalService {
 
   async deleteFileByName(name: string): Promise<boolean> {
     const entity = await this.fileRepository.findOne({
-      where: { path : Like(`%${name}%`)},
+      where: { path: Like(`%${name}%`) },
     });
 
     if (!entity) return false;

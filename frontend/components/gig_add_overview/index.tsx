@@ -1,20 +1,14 @@
 import { categories } from "@/data/data";
-import React, { useState, useMemo, useEffect } from "react";
 import {
+  Button,
+  CircularProgress,
   FormControl,
   InputLabel,
-  Select,
   MenuItem,
-  Button,
+  Select,
 } from "@mui/material";
+import { useEffect, useMemo, useState } from "react";
 import SearchTags from "./search_tag";
-import { Gig } from "@/dto/gig";
-import { v4 as uuidv4 } from "uuid";
-
-interface AddGigOverviewProps {
-  switchToTab: (tab: string) => void;
-  tabs: { label: string }[];
-}
 
 interface categoryType {
   id: string;
@@ -22,23 +16,34 @@ interface categoryType {
   title: string;
 }
 
-const AddGigOverview: React.FC<AddGigOverviewProps> = ({
+interface Props {
+  switchToTab: (tab: string) => void;
+  tabs: { label: string }[];
+  gig: any;
+  setGig: any;
+  hanleOnSaveAndCountinue: any;
+}
+
+const AddGigOverview = ({
   switchToTab,
   tabs,
-}) => {
-  const [gig, setGig] = useState<Gig>(() => {
-    const gigLocalStorage = localStorage.getItem("gig");
-    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new Gig({});
-  });
-
-  const [title, setGigTitle] = useState<string>(gig.title || "");
-  const [category, setCategory] = useState<string>(gig.category || "");
-  const [subCategory, setSubCategory] = useState<string>(gig.subCategory || "");
-  const [nestedSubcategory, setNestedSubcategory] = useState<string>(
-    gig.nestedSubcategory || "",
+  gig,
+  setGig,
+  hanleOnSaveAndCountinue,
+}: Props) => {
+  const [title, setGigTitle] = useState(gig.title || "");
+  const [category, setCategory] = useState(gig?.category || "");
+  const [subCategory, setSubCategory] = useState(gig?.subCategory || "");
+  const [tags, setSearchTags] = useState<string[]>(gig?.tags || []);
+  const [nestedSubcategory, setNestedSubcategory] = useState(
+    gig?.nestedSubcategory || "",
   );
 
-  const [searchTags, setSearchTags] = useState<string[]>(gig.tags || []);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    setGig((prev: any) => ({ ...prev, tags }));
+  }, [tags]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, title }));
@@ -72,9 +77,15 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
   }, [subCategory, filteredSubCategoryData]);
 
   return (
-    <div className="flex w-full flex-col space-y-8 rounded-sm border p-6">
+    <div className="relative flex w-full flex-col space-y-8 rounded-sm p-6">
+      {uploading && (
+        <div className="absolute inset-0 z-50 m-0 flex items-center justify-center bg-black bg-opacity-50">
+          <CircularProgress />
+        </div>
+      )}
+
       {/* Gig Title */}
-      <div className="flex flex-row space-x-4">
+      <div className="flex flex-row space-x-4" style={{ marginTop: 0 }}>
         <div className="basis-1/3">
           <label className="font-semibold text-gray-700">Gig title</label>
           <p className="text-sm text-gray-500">
@@ -176,7 +187,7 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
           </p>
         </div>
         <div className="basis-2/3">
-          <SearchTags searchTags={searchTags} setSearchTags={setSearchTags} />
+          <SearchTags searchTags={tags} setSearchTags={setSearchTags} />
         </div>
       </div>
 
@@ -192,15 +203,18 @@ const AddGigOverview: React.FC<AddGigOverviewProps> = ({
       <Button
         variant="contained"
         sx={{ alignSelf: "end" }}
-        onClick={() => {
+        onClick={async () => {
           if (
             title !== "" &&
             category !== "" &&
             subCategory !== "" &&
             nestedSubcategory !== "" &&
-            searchTags.length != 0
+            tags.length != 0
           ) {
-            switchToTab(tabs[1].label);
+            setUploading(true);
+            const isUploadOk = await hanleOnSaveAndCountinue();
+            setUploading(false);
+            isUploadOk && switchToTab(tabs[1].label);
           }
         }}
       >
