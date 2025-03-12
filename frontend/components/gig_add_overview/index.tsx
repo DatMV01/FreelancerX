@@ -21,49 +21,53 @@ interface Props {
   tabs: { label: string }[];
   gig: any;
   setGig: any;
-  hanleOnSaveAndCountinue: any;
 }
 
-const AddGigOverview = ({
-  switchToTab,
-  tabs,
-  gig,
-  setGig,
-  hanleOnSaveAndCountinue,
-}: Props) => {
-  const [title, setGigTitle] = useState(gig.title || "");
-  const [category, setCategory] = useState(gig?.category || "");
-  const [subCategory, setSubCategory] = useState(gig?.subCategory || "");
-  const [tags, setSearchTags] = useState<string[]>(gig?.tags || []);
-  const [nestedSubcategory, setNestedSubcategory] = useState(
-    gig?.nestedSubcategory || "",
-  );
-
+const AddGigOverview = ({ switchToTab, tabs, gig, setGig }: Props) => {
   const [uploading, setUploading] = useState(false);
+
+  const [gigOverview, setGigOverview] = useState(() => {
+    return {
+      title: gig.title || "",
+      category: gig.category || "",
+      subCategory: gig.subCategory || "",
+      tags: gig.tags || "",
+      nestedSubcategory: gig.nestedSubcategory || "",
+    };
+  });
+
+  const [title, setGigTitle] = useState(gigOverview.title || "");
+  const [category, setCategory] = useState(gigOverview.category || "");
+  const [subCategory, setSubCategory] = useState(gigOverview.subCategory || "");
+  const [tags, setTags] = useState<string[]>(gigOverview.tags || []);
+  const [nestedSubcategory, setNestedSubcategory] = useState(
+    gigOverview.nestedSubcategory || "",
+  );
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, tags }));
+    setGigOverview((prev: any) => ({ ...prev, tags }));
   }, [tags]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, title }));
+    setGigOverview((prev: any) => ({ ...prev, title }));
   }, [title]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, category }));
+    setGigOverview((prev: any) => ({ ...prev, category }));
   }, [category]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, subCategory }));
+    setGigOverview((prev: any) => ({ ...prev, subCategory }));
   }, [subCategory]);
 
   useEffect(() => {
     setGig((prev: any) => ({ ...prev, nestedSubcategory }));
+    setGigOverview((prev: any) => ({ ...prev, nestedSubcategory }));
   }, [nestedSubcategory]);
-
-  useEffect(() => {
-    localStorage.setItem("gig", JSON.stringify(gig));
-  }, [gig]);
 
   const filteredSubCategoryData = useMemo(() => {
     return categories.find((_) => _.slug === category)?.subCategories || [];
@@ -187,7 +191,7 @@ const AddGigOverview = ({
           </p>
         </div>
         <div className="basis-2/3">
-          <SearchTags searchTags={tags} setSearchTags={setSearchTags} />
+          <SearchTags tags={tags} setTags={setTags} setGig={setGig} />
         </div>
       </div>
 
@@ -211,14 +215,15 @@ const AddGigOverview = ({
             nestedSubcategory !== "" &&
             tags.length != 0
           ) {
-            setUploading(true);
-            const isUploadOk = await hanleOnSaveAndCountinue();
-            setUploading(false);
-            isUploadOk && switchToTab(tabs[1].label);
+            // setUploading(true);
+            // const isUploadOk = await hanleOnSaveAndCountinue();
+            // setUploading(false);
+            // isUploadOk &&
+            switchToTab(tabs[1].label);
           }
         }}
       >
-        Save & Continue
+        Continue
       </Button>
     </div>
   );

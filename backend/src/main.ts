@@ -10,6 +10,7 @@ import { AppConfig } from './config/app.config';
 import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as express from 'express';
 
 declare const module: any;
 
@@ -51,6 +52,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   app.enableCors();
+
+  app.use(express.json({ limit: "10mb" })); // Handle large JSON bodies
+  app.use(express.urlencoded({ limit: "10mb", extended: true })); // Handle large form data
 
   await app.listen(process.env.PORT ?? 3000);
   if (module.hot) {

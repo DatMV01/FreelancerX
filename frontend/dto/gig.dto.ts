@@ -2,18 +2,27 @@ import { BaseDto } from "./base/base.dto";
 import { v4 as uuidv4 } from "uuid";
 
 export interface PricingPackage {
-  name: string;
-  description: string;
-  price: number;
-  deliveryTime: number;
-  revisions: number;
-  extras?: { package: string; value: string }[];
+  id: string;
+  package: string;
+  basic: string;
+  standard: string;
+  premium: string;
 }
 
-export interface Media {
-  thumbnail: string;
-  gallery: string[];
-  video?: string;
+export interface GigFileInfo {
+  id: string;
+  url: string;
+}
+
+export interface GigImages {
+  image1: GigFileInfo | null;
+  image2: GigFileInfo | null;
+  image3: GigFileInfo | null;
+}
+
+export interface GigDocuments {
+  document1: GigFileInfo | null;
+  document2: GigFileInfo | null;
 }
 
 export interface Requirement {
@@ -81,11 +90,7 @@ export class GigDto extends BaseDto<GigDto> {
 
   tags?: string[] = [];
 
-  pricing?: {
-    basic: PricingPackage;
-    standard?: PricingPackage;
-    premium?: PricingPackage;
-  };
+  pricing?: PricingPackage[];
   /* Pricing */
 
   /* Description & FAQ */
@@ -97,11 +102,18 @@ export class GigDto extends BaseDto<GigDto> {
 
   /* Gallery */
 
-  images?: string[];
+  images?: GigImages = {
+    image1: null,
+    image2: null,
+    image3: null,
+  };
+
+  documents?: GigDocuments = {
+    document1: null,
+    document2: null,
+  };
 
   video?: string;
-
-  documents?: string[];
   /* Gallery */
 
   status: GigStatus = GigStatus.DRAFT;

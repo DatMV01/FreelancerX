@@ -1,11 +1,11 @@
 import { Controller, Post, SerializeOptions } from '@nestjs/common';
-import { BaseController } from '../base/base.controller';
-import { GigEntity } from './entities/gig.entity';
-import { GigDto } from './dto/gig.dto';
-import { CreateGigDto } from './dto/create-gig.dto';
-import { UpdateGigDto } from './dto/update-gig.dto';
-import { GigService } from './gig.service';
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
+import { BaseController } from '../base/base.controller';
+import { CreateGigDto } from './dto/create-gig.dto';
+import { GigDto, PricingPackage } from './dto/gig.dto';
+import { UpdateGigDto } from './dto/update-gig.dto';
+import { GigEntity } from './entities/gig.entity';
+import { GigService } from './gig.service';
 
 @Controller('gig')
 export class GigController extends BaseController<
@@ -21,26 +21,16 @@ export class GigController extends BaseController<
   @Post()
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(data: CreateGigDto): Promise<GigDto> {
-    if (data.pricing?.basic?.price) {
-      data.basicPrice = data.pricing.basic.price;
-    }
+    if (data.pricing) {
+      const pricePackage = Array.from(data.pricing).find(
+        (_: PricingPackage) => _.package === 'Price',
+      );
 
-    if (data.pricing?.standard?.price) {
-      data.standardPrice = data.pricing.standard.price;
-    }
+      data.basicPrice = Number(pricePackage?.basic || 0);
 
-    if (data.pricing?.premium?.price) {
-      data.premiumPrice = data.pricing.premium.price;
-    }
+      data.standardPrice = Number(pricePackage?.standard || 0);
 
-    if (data.sellerId) {
-      data.seller = {
-        id: data.sellerId,
-      } as any;
-    }
-
-    if (data.title) {
-      data.slug = `${data.title.trim().replaceAll(' ', '-')}-${Date.now()}`;
+      data.premiumPrice = Number(pricePackage?.premium || 0);
     }
 
     return super.create(data);

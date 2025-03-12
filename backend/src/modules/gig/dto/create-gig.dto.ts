@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -11,7 +12,14 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { FAQ, PricingPackage, Requirement } from '../dto/gig.dto';
+import {
+  FAQ,
+  GigDocuments,
+  GigFileInfo,
+  GigImages,
+  PricingPackage,
+  Requirement,
+} from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserDto } from 'src/modules/users/dto/user.dto';
@@ -23,9 +31,11 @@ export class CreateGigDto {
   id?: string;
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty()
   title: string;
 
+  @IsOptional()
   @IsString()
   category: string;
 
@@ -58,11 +68,7 @@ export class CreateGigDto {
   premiumPrice: number;
 
   @IsOptional()
-  pricing?: {
-    basic?: PricingPackage;
-    standard?: PricingPackage;
-    premium?: PricingPackage;
-  };
+  pricing: PricingPackage[];
 
   @IsString()
   @IsOptional()
@@ -72,22 +78,14 @@ export class CreateGigDto {
   @IsOptional()
   faqs?: FAQ[];
 
-  @IsArray()
   @IsOptional()
-  @ArrayMinSize(0)
-  @ArrayMaxSize(3)
-  images: string[];
-
-  @IsString()
-  @IsOptional()
-  video: string;
+  images: GigImages;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayMinSize(0)
-  @ArrayMaxSize(2)
-  documents: string[];
+  documents: GigDocuments;
+
+  @IsOptional()
+  video: GigFileInfo;
 
   @IsEnum(GigStatus)
   @IsOptional()
@@ -122,7 +120,7 @@ export class CreateGigDto {
   @IsOptional()
   @ApiProperty()
   seller: UserDto;
-  
+
   @IsOptional()
   slug: string;
 }

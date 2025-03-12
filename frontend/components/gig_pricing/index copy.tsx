@@ -70,9 +70,9 @@ const initialRequiredInformation = [
   {
     id: 3,
     package: "Delivery",
-    basic: 1,
-    standard: 1,
-    premium: 1,
+    basic: "",
+    standard: "",
+    premium: "",
   },
   {
     id: 4,
@@ -741,37 +741,118 @@ interface Props {
   tabs: { label: string }[];
   gig: any;
   setGig: any;
+  hanleOnSaveAndCountinue: any;
 }
 
-export default function GigPricing({ switchToTab, tabs, setGig, gig }: Props) {
-  let parsedRequiredInformation: RowData[] = [];
-  let parsedAdditionalInformation: RowData[] = [];
-  if (gig.pricing) {
-    for (let index = 0; index < gig.pricing.length; index++) {
-      const element: RowData = gig.pricing[index];
-      if (
-        element.package === "Name" ||
-        element.package === "Description" ||
-        element.package === "Delivery" ||
-        element.package === "Revision" ||
-        element.package === "Price"
-      ) {
-        parsedRequiredInformation.push(element);
-      } else {
-        parsedAdditionalInformation.push(element);
-      }
-    }
-  }
-
+export default function GigPricing({
+  switchToTab,
+  tabs,
+  setGig,
+  gig,
+  hanleOnSaveAndCountinue,
+}: Props) {
   const [requiredInformation, setRequiredInformation] = useState<RowData[]>(
-    gig.pricing
-      ? parsedRequiredInformation
-      : (initialRequiredInformation as any),
+    () => {
+      if (gig.pricing) {
+        const { basic, standard, premium } = gig.pricing;
+
+        const {
+          name: basicName,
+          description: basicDescription,
+          deliveryTime: basicDelivery,
+          price: basicPrice,
+          revisions: basicRevision,
+        } = basic;
+
+        const {
+          name: standardName,
+          description: standardDescription,
+          deliveryTime: standardDelivery,
+          price: standardPrice,
+          revisions: standardRevision,
+        } = standard;
+
+        const {
+          name: premiumName,
+          description: premiumDescription,
+          deliveryTime: premiumDelivery,
+          price: premiumPrice,
+          revisions: premiumRevision,
+        } = premium;
+
+        const parsedRequiredInformation = [
+          {
+            id: 1,
+            package: "Name",
+            basic: basicName,
+            standard: standardName,
+            premium: premiumName,
+          },
+          {
+            id: 2,
+            package: "Description",
+            basic: basicDescription,
+            standard: standardDescription,
+            premium: premiumDescription,
+          },
+          {
+            id: 3,
+            package: "Delivery",
+            basic: basicDelivery,
+            standard: standardDelivery,
+            premium: premiumDelivery,
+          },
+          {
+            id: 4,
+            package: "Revision",
+            basic: basicRevision,
+            standard: standardRevision,
+            premium: premiumRevision,
+          },
+          {
+            id: 5,
+            package: "Price",
+            basic: basicPrice,
+            standard: standardPrice,
+            premium: premiumPrice,
+          },
+        ];
+
+        return parsedRequiredInformation;
+      }
+
+      return initialRequiredInformation as any;
+    },
   );
 
   const [additionalInformation, setAdditionalInformation] = useState<RowData[]>(
-    gig.pricing ? parsedAdditionalInformation : [],
+    [],
   );
+
+  useEffect(() => {
+    if (gig?.pricing?.extras) {
+      const { basic, standard, premium } = gig.pricing;
+
+      const { extras: basicExtra } = basic;
+      const { extras: standardExtra } = standard;
+      const { extras: premiumExtra } = premium;
+
+      let parsedAdditionalInformation: RowData[] = [];
+
+      for (let index = 0; index < basicExtra.length; index++) {
+        parsedAdditionalInformation.push({
+          id: basicExtra[index].id || Date.now(),
+          package: basicExtra[index].package,
+          basic: basicExtra[index].value,
+          standard: standardExtra[index].value,
+          premium: premiumExtra[index].value,
+        });
+      }
+      console.log(parsedAdditionalInformation);
+
+      setAdditionalInformation(parsedAdditionalInformation);
+    }
+  }, []);
 
   const [editId, setEditId] = useState<number | null>(null);
 
@@ -783,15 +864,31 @@ export default function GigPricing({ switchToTab, tabs, setGig, gig }: Props) {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const firstRender = useRef(true);
-
   useEffect(() => {
-    if (firstRender.current) {
-      console.log("isFirstRender");
-      firstRender.current = false;
-      return;
-    }
-    console.log("!!!isFirstRender");
+    const {
+      basic: basicName,
+      standard: standardName,
+      premium: premiumName,
+    } = requiredInformation[0];
+
+    const {
+      basic: basicDescription,
+      standard: standardDescription,
+      premium: premiumDescription,
+    } = requiredInformation[1];
+
+    const {
+      basic: basicDelivery,
+      standard: standardDelivery,
+      premium: premiumDelivery,
+    } = requiredInformation[2];
+
+    const {
+      basic: basicRevision,
+      standard: standardRevision,
+      premium: premiumRevision,
+    } = requiredInformation[3];
+
     const {
       basic: basicPrice,
       standard: standardPrice,
@@ -803,9 +900,72 @@ export default function GigPricing({ switchToTab, tabs, setGig, gig }: Props) {
       basicPrice: Number(basicPrice),
       standardPrice: Number(standardPrice),
       premiumPrice: Number(premiumPrice),
-      pricing: [...requiredInformation, ...additionalInformation],
+      pricing: {
+        basic: {
+          name: basicName,
+          description: basicDescription,
+          deliveryTime: Number(basicDelivery),
+          price: Number(basicPrice),
+          revisions: Number(basicRevision),
+        },
+        standard: {
+          name: standardName,
+          description: standardDescription,
+          deliveryTime: Number(standardDelivery),
+          price: Number(standardPrice),
+          revisions: Number(standardRevision),
+        },
+        premium: {
+          name: premiumName,
+          description: premiumDescription,
+          deliveryTime: Number(premiumDelivery),
+          price: Number(premiumPrice),
+          revisions: Number(premiumRevision),
+        },
+      },
     }));
-  }, [requiredInformation, additionalInformation]);
+  }, [requiredInformation]);
+
+  useEffect(() => {
+    const basicExtra = additionalInformation.map((_) => {
+      return {
+        package: _.package,
+        value: _.basic,
+      };
+    });
+
+    const standardExtra = additionalInformation.map((_) => {
+      return {
+        package: _.package,
+        value: _.standard,
+      };
+    });
+
+    const premiumExtra = additionalInformation.map((_) => {
+      return {
+        package: _.package,
+        value: _.premium,
+      };
+    });
+
+    setGig((prev: any) => ({
+      ...prev,
+      pricing: {
+        basic: {
+          ...prev.pricing?.basic,
+          extras: basicExtra,
+        },
+        standard: {
+          ...prev.pricing?.standard,
+          extras: standardExtra,
+        },
+        premium: {
+          ...prev.pricing?.premium,
+          extras: premiumExtra,
+        },
+      } as any,
+    }));
+  }, [additionalInformation]);
 
   const handleDeleteSelected = () => {
     setAdditionalInformation(

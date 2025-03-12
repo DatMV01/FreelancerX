@@ -9,36 +9,28 @@ import {
   gig_imagesUpload,
   gig_videoUpload,
 } from "../gig_add_edit";
-import axiosInstance from "@/lib/apiClient";
-
-export interface FileInfomation {
-  id: string;
-  url: string;
-}
 
 interface Props {
-  keyFile?: string;
+  localStorageKey?: string;
   fileType: "image" | "video" | "document";
   className?: string;
   autoUpload?: boolean;
   updateGigCb?: any;
-  fileInfomation?: FileInfomation;
 }
 const seperator = "|";
 
 const UploadFile = forwardRef(
   (
     {
-      keyFile,
+      localStorageKey,
       fileType,
       className,
       autoUpload = false,
       updateGigCb,
-      fileInfomation,
     }: Props,
     ref,
   ) => {
-    const _keyFile = keyFile || `file-${Date.now()}`;
+    const localStorageName = localStorageKey || `file-${Date.now()}`;
 
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -47,17 +39,16 @@ const UploadFile = forwardRef(
     const [dragOver, setDragOver] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [error, setError] = useState("");
-    const [fileInfo, setFileInfo] = useState<{
-      id: string;
-      url: string;
-    } | null>();
 
     useImperativeHandle(ref, () => ({
       handleUpload,
     }));
 
     useEffect(() => {
-      if (fileInfomation) setPreview(fileInfomation.url);
+      const storedFile = localStorage.getItem(localStorageName);
+      const pathFile = storedFile && storedFile.split(seperator)[1];
+
+      if (pathFile) setPreview(pathFile);
     }, []);
 
     useEffect(() => {
@@ -161,9 +152,14 @@ const UploadFile = forwardRef(
       if (!file) return false;
       setUploading(true);
 
+      const storedFile = localStorage.getItem(localStorageName);
+      if (storedFile && (await deleteFile(storedFile))) {
+        localStorage.removeItem(localStorageName);
+      }
+
       try {
-        const { data, status } = await axiosInstance.post(
-          "/files/upload",
+        const { data, status } = await axios.post(
+          "http://localhost:3000/api/v1/files/upload",
           {
             file: file,
           },
@@ -175,32 +171,32 @@ const UploadFile = forwardRef(
         );
 
         if (status === 201) {
-          const { id, url } = data;
-          if (url) {
-            setUploadedUrl(url);
+          const { id, path } = data;
+          if (path) {
+            setUploadedUrl(path);
+            localStorage.setItem(localStorageName, id + seperator + path);
 
-            setFileInfo(data);
             // Update set state gig callback
-            if (gig_imagesUpload.includes(_keyFile)) {
+            if (gig_imagesUpload.includes(localStorageName)) {
               updateGigCb((prev: any) => ({
                 ...prev,
                 images: {
                   ...prev.images,
-                  [_keyFile]: data,
+                  [localStorageName]: path,
                 },
               }));
-            } else if (gig_documentsUpload.includes(_keyFile)) {
+            } else if (gig_documentsUpload.includes(localStorageName)) {
               updateGigCb((prev: any) => ({
                 ...prev,
                 documents: {
                   ...prev.documents,
-                  [_keyFile]: data,
+                  [localStorageName]: path,
                 },
               }));
-            } else if (gig_videoUpload.includes(_keyFile)) {
+            } else if (gig_videoUpload.includes(localStorageName)) {
               updateGigCb((prev: any) => ({
                 ...prev,
-                video: data,
+                video: path,
               }));
             }
           }
@@ -234,37 +230,41 @@ const UploadFile = forwardRef(
       setPreview(null);
       setUploadedUrl(null);
 
-      await deleteFile();
-      setFileInfo(null);
+      const storedFile = localStorage.getItem(localStorageName);
+      if (storedFile && (await deleteFile(storedFile))) {
+        localStorage.removeItem(localStorageName);
+      }
     };
 
-    const deleteFile = async (): Promise<boolean> => {
-      if (!fileInfo || !fileInfo.id) return false;
-
+    const deleteFile = async (storedFile: string): Promise<boolean> => {
+      const [id, path] = storedFile.split(seperator);
       try {
-        const response = await axiosInstance.delete(`/files`, {
-          params: { id: fileInfo.id },
-        });
+        const response = await axios.delete(
+          `http://localhost:3000/api/v1/files`,
+          { params: { id } },
+        );
 
         if (response.status === 200) {
+          const fileKey = localStorageName.replace("gig_", "");
+
           // Update set state gig callback
-          if (gig_imagesUpload.includes(_keyFile)) {
+          if (gig_imagesUpload.includes(localStorageName)) {
             updateGigCb((prev: any) => ({
               ...prev,
               images: {
                 ...prev.images,
-                [_keyFile]: null,
+                [fileKey]: null,
               },
             }));
-          } else if (gig_documentsUpload.includes(_keyFile)) {
+          } else if (gig_documentsUpload.includes(localStorageName)) {
             updateGigCb((prev: any) => ({
               ...prev,
               documents: {
                 ...prev.documents,
-                [_keyFile]: null,
+                [fileKey]: null,
               },
             }));
-          } else if (gig_videoUpload.includes(_keyFile)) {
+          } else if (gig_videoUpload.includes(localStorageName)) {
             updateGigCb((prev: any) => ({
               ...prev,
               video: null,
@@ -351,11 +351,11 @@ const UploadFile = forwardRef(
                 <input
                   type="file"
                   name="uploadfile"
-                  id={_keyFile}
+                  id={localStorageName}
                   style={{ display: "none" }}
                   onChange={handleFileChange}
                 />
-                <label htmlFor={_keyFile} className="cursor-pointer">
+                <label htmlFor={localStorageName} className="cursor-pointer">
                   <span className="font-semibold text-blue-900">Browse</span>
                   &nbsp;{fileType}
                 </label>

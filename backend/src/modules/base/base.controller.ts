@@ -41,7 +41,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
-  @SerializeOptions({ groups: [CREATE_GROUP] })
+  // @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
       throw new BadRequestException('Body is empty');
@@ -154,7 +154,7 @@ export abstract class BaseController<
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    const entity = await this.baseService.findOne(+id);
+    const entity = await this.baseService.findOne(id);
 
     if (!entity) {
       throw new NotFoundException(`ID ${id} not found`);

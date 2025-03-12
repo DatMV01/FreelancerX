@@ -7,6 +7,8 @@ import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -14,7 +16,14 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FAQ, Pricing, Requirement } from '../dto/gig.dto';
+import {
+  FAQ,
+  GigDocuments,
+  GigFileInfo,
+  GigImages,
+  PricingPackage,
+  Requirement,
+} from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 
 @Entity({ name: 'gig' })
@@ -29,21 +38,24 @@ export class GigEntity extends BaseEntity {
   title: string;
 
   @AutoMap()
-  @ManyToOne(() => CategoryEntity, (category) => category.gigs)
+  @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
+    nullable: true,
+  })
   @JoinColumn({ referencedColumnName: 'slug' })
-  category: CategoryEntity;
-
-  @AutoMap()
-  @ManyToOne(() => CategoryEntity, (category) => category.gigs)
-  @JoinColumn({ referencedColumnName: 'slug' })
-  subCategory: CategoryEntity;
+  category: CategoryEntity | null;
 
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
   })
   @JoinColumn({ referencedColumnName: 'slug' })
-  nestedSubcategory: CategoryEntity;
+  subCategory: CategoryEntity | null;
+  @AutoMap()
+  @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
+    nullable: true,
+  })
+  @JoinColumn({ referencedColumnName: 'slug' })
+  nestedSubcategory: CategoryEntity | null;
 
   @AutoMap(() => String)
   @Column({ type: 'simple-array', nullable: true })
@@ -63,14 +75,14 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'float', default: 0 })
   premiumPrice: number;
 
-  @AutoMap(() => Pricing)
+  @AutoMap(() => PricingPackage)
   @Column({ type: 'json', nullable: true })
-  pricing: Pricing;
+  pricing: PricingPackage[];
   /* Pricing */
 
   /* Description & FAQ */
   @AutoMap()
-  @Column({ type: 'longtext', nullable: true })
+  @Column({ type: 'mediumtext', nullable: true })
   description: string;
 
   @AutoMap(() => FAQ)
@@ -79,17 +91,18 @@ export class GigEntity extends BaseEntity {
   /* Description & FAQ */
 
   /* Gallery */
-  @AutoMap(() => String)
-  @Column({ type: 'simple-array', nullable: true })
-  images?: string[];
+  @AutoMap(() => GigImages)
+  @Column({ type: 'json', nullable: true })
+  images?: GigImages | null;
 
-  @AutoMap()
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  video: string;
+  @AutoMap(() => GigDocuments)
+  @Column({ type: 'json', nullable: true })
+  documents?: GigDocuments | null;
 
-  @AutoMap(() => String)
-  @Column({ type: 'simple-array', nullable: true })
-  documents?: string[];
+  @AutoMap(() => GigFileInfo)
+  @Column({ type: 'json', nullable: true })
+  video?: GigFileInfo;
+
   /* Gallery */
 
   @AutoMap()
@@ -127,6 +140,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap(() => UserEntity)
   @ManyToOne(() => UserEntity, (user) => user.gigs)
+  @JoinColumn({ name: 'seller' })
   seller: UserEntity;
 
   @AutoMap()
@@ -140,4 +154,21 @@ export class GigEntity extends BaseEntity {
   @AutoMap()
   @Column({ type: 'varchar', length: 255, nullable: false })
   slug: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  updateSlug() {
+    this.slug = `${this.title.trim().replaceAll(' ', '-')}-${Date.now()}`;
+    this.category = (this.category as any) === '' ? null : this.category;
+    this.subCategory =
+      (this.subCategory as any) === '' ? null : this.subCategory;
+    this.nestedSubcategory =
+      (this.nestedSubcategory as any) === '' ? null : this.nestedSubcategory;
+    if (!this.images?.image1 && !this.images?.image2 && !this.images?.image3) {
+      this.images = null;
+    }
+    if (!this.documents?.document1 && !this.documents?.document2) {
+      this.documents = null;
+    }
+  }
 }

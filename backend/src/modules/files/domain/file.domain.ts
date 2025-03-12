@@ -43,5 +43,5 @@ export class FileType {
       toPlainOnly: true,
     },
   )
-  path: string;
+  url: string;
 }

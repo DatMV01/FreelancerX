@@ -1,219 +1,197 @@
-"use client";
+import { GigDto } from "@/dto/gig.dto";
+import { Check, Edit, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
 
-import { Check, Pencil, PlusCircle, Trash2 } from "lucide-react";
-import { useRef, useState, useEffect, useCallback } from "react";
-
-interface RowData {
-  id: number;
+interface FAQ {
+  id: string;
   question: string;
   answer: string;
 }
 
-export default function FrequentlyAskedQuestions() {
-  const [rows, setRows] = useState<RowData[]>(() => {
-    if (typeof window !== "undefined") {
-      const savedRows = localStorage.getItem("faq_rows");
-      return savedRows ? JSON.parse(savedRows) : [];
-    }
-    return [];
-  });
+export default function FrequentlyAskedQuestions({
+  setGig,
+  gig,
+}: {
+  setGig: any;
+  gig: any;
+}) {
+  const [inputQuestion, setInputQuestion] = useState("");
 
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editData, setEditData] = useState<RowData>({
-    id: 0,
-    question: "",
-    answer: "",
-  });
-  const [newRowData, setNewRowData] = useState<Omit<RowData, "id">>({
-    question: "",
-    answer: "",
-  });
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [inputAnswer, setInputAnswer] = useState("");
 
-  // Lưu vào localStorage với debounce (giảm số lần lưu)
+  const [charCount, setCharCount] = useState(0);
+
+  const [faqList, setQaList] = useState<FAQ[]>(gig?.faqs || []);
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const [editingQuestion, setEditingQuestion] = useState("");
+
+  const [editingAnswer, setEditingAnswer] = useState("");
+
+  const [editCharCount, setEditCharCount] = useState(0);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      localStorage.setItem("faq_rows", JSON.stringify(rows));
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [rows]);
+    setGig((prev: GigDto) => ({ ...prev, faqs: faqList }));
+  }, [faqList]);
 
-  const handleEdit = (id: number) => {
-    const row = rows.find((r) => r.id === id);
-    if (row) {
-      setEditData(row);
-      setEditId(id);
-    }
-  };
+  const handleChange =
+    (
+      setter: React.Dispatch<React.SetStateAction<string>>,
+      setCount?: React.Dispatch<React.SetStateAction<number>>,
+    ) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (e.target.value.length <= 300) {
+        setter(e.target.value);
+        setCount?.(e.target.value.length);
+      }
+    };
 
-  const handleSave = (id: number) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? editData : r)));
-    setEditId(null);
-  };
+  const handleAddOrUpdate = () => {
+    if (!inputQuestion.trim() || !inputAnswer.trim()) return;
 
-  const handleDelete = (id: number) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa?")) {
-      setRows((prev) => prev.filter((r) => r.id !== id));
-    }
-  };
-
-  const handleDeleteSelected = () => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa các mục đã chọn?")) {
-      setRows((prev) => prev.filter((r) => !selectedRows.includes(r.id)));
-      setSelectedRows([]);
-    }
-  };
-
-  const handleRowSelection = (id: number) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
-    );
-  };
-
-  const handleAddRow = () => {
-    if (newRowData.question.trim() && newRowData.answer.trim()) {
-      setRows((prev) => [...prev, { id: Date.now(), ...newRowData }]);
-      setNewRowData({ question: "", answer: "" });
-      setTimeout(() => inputRef.current?.focus(), 0);
-    }
-  };
-
-  // Xử lý chung cho input (edit và new)
-  const handleChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>,
-    type: "question" | "answer",
-    mode: "edit" | "new",
-  ) => {
-    if (mode === "edit") {
-      setEditData((prev) => ({ ...prev, [type]: e.target.value }));
+    if (editingId) {
+      setQaList((prev) =>
+        prev.map((qa) =>
+          qa.id === editingId
+            ? { ...qa, question: inputQuestion, answer: inputAnswer }
+            : qa,
+        ),
+      );
+      setEditingId(null);
     } else {
-      setNewRowData((prev) => ({ ...prev, [type]: e.target.value }));
+      setQaList((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          question: inputQuestion,
+          answer: inputAnswer,
+        },
+      ]);
+    }
+
+    setInputQuestion("");
+    setInputAnswer("");
+    setCharCount(0);
+  };
+
+  const handleEdit = (id: string) => {
+    const qa = faqList.find((q) => q.id === id);
+    if (qa) {
+      setEditingId(id);
+      setEditingQuestion(qa.question);
+      setEditingAnswer(qa.answer);
+      setEditCharCount(qa.answer.length);
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-    action: () => void,
-  ) => {
-    if (e.key === "Enter") action();
+  const handleSaveEdit = () => {
+    if (!editingQuestion.trim() || !editingAnswer.trim()) return;
+
+    setQaList((prev) =>
+      prev.map((qa) =>
+        qa.id === editingId
+          ? { ...qa, question: editingQuestion, answer: editingAnswer }
+          : qa,
+      ),
+    );
+    setEditingId(null);
+    setEditingQuestion("");
+    setEditingAnswer("");
+    setEditCharCount(0);
+  };
+
+  const handleDelete = (id: string) => {
+    setQaList((prev) => prev.filter((qa) => qa.id !== id));
   };
 
   return (
-    <div className="flex w-full flex-col space-y-2 py-2">
-      <button
-        className="mb-2 w-fit border border-red-500 bg-white p-2 text-red-500 hover:text-red-700"
-        onClick={handleDeleteSelected}
-        disabled={selectedRows.length === 0}
-      >
-        <Trash2 size={16} />
-      </button>
+    <div className="w-full bg-gray-50 p-4">
+      <input
+        type="text"
+        value={inputQuestion}
+        onChange={handleChange(setInputQuestion)}
+        placeholder="Add a Question"
+        maxLength={300}
+        className="mb-2 w-full rounded-md border p-2 focus:outline-none focus:ring focus:ring-gray-300"
+      />
 
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Select</th>
-            <th className="border p-2">Questions</th>
-            <th className="border p-2">Answers</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id} className="border">
-              <td className="border p-2 text-center">
+      <textarea
+        value={inputAnswer}
+        onChange={handleChange(setInputAnswer, setCharCount)}
+        placeholder="Add an Answer"
+        maxLength={300}
+        className="mb-2 h-36 w-full resize-none rounded-md border p-2 focus:outline-none focus:ring focus:ring-gray-300"
+      ></textarea>
+
+      <div className="mb-2 text-right text-xs text-gray-500">
+        {charCount}/300 characters
+      </div>
+      <div className="flex justify-end">
+        <button
+          className="rounded-md border bg-black px-4 py-1 text-white disabled:opacity-50"
+          onClick={handleAddOrUpdate}
+          disabled={!inputQuestion.trim() || !inputAnswer.trim()}
+        >
+          Add
+        </button>
+      </div>
+      <div className="mt-4">
+        {faqList.map((qa) => (
+          <div
+            key={qa.id}
+            className="mb-2 flex items-center justify-between rounded-lg border bg-white p-3 shadow-sm"
+          >
+            {editingId === qa.id ? (
+              <div className="w-full">
                 <input
-                  type="checkbox"
-                  checked={selectedRows.includes(row.id)}
-                  onChange={() => handleRowSelection(row.id)}
+                  type="text"
+                  value={editingQuestion}
+                  onChange={handleChange(setEditingQuestion)}
+                  className="mb-1 w-full rounded-md border p-1"
                 />
-              </td>
-              {editId === row.id ? (
-                <>
-                  <td className="border p-2">
-                    <textarea
-                      className="w-full border p-1"
-                      rows={5}
-                      value={editData.question}
-                      onChange={(e) => handleChange(e, "question", "edit")}
-                    //   onKeyDown={(e) =>
-                    //     handleKeyDown(e, () => handleSave(row.id))
-                    //   }
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <textarea
-                      className="w-full border p-1"
-                      rows={5}
-                      value={editData.answer}
-                      onChange={(e) => handleChange(e, "answer", "edit")}
-                    //   onKeyDown={(e) =>
-                    //     handleKeyDown(e, () => handleSave(row.id))
-                    //   }
-                    />
-                  </td>
-                  <td className="border p-2">
-                    <button
-                      className="mr-2 text-green-500"
-                      onClick={() => handleSave(row.id)}
-                    >
-                      <Check size={16} />
-                    </button>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td className="border p-2 ">{row.question}</td>
-                  <td className="border p-2">{row.answer || "-"}</td>
-                  <td className="border p-2">
-                    <button
-                      className="mr-2 text-blue-500"
-                      onClick={() => handleEdit(row.id)}
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      className="text-red-500"
-                      onClick={() => handleDelete(row.id)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </>
+                <textarea
+                  value={editingAnswer}
+                  onChange={handleChange(setEditingAnswer, setEditCharCount)}
+                  maxLength={300}
+                  className="h-36 w-full resize-none rounded-md border p-1"
+                ></textarea>
+                <div className="mb-1 text-right text-xs text-gray-500">
+                  {editCharCount}/300 characters
+                </div>
+                <button
+                  className="mt-1 text-green-500"
+                  onClick={handleSaveEdit}
+                >
+                  <Check size={16} />
+                </button>
+              </div>
+            ) : (
+              <div>
+                <p className="font-semibold">Question: {qa.question}</p>
+                <p className="font-semibold">Answer:</p>
+                <p>{qa.answer}</p>
+              </div>
+            )}
+            <div className="flex gap-2">
+              {editingId !== qa.id && (
+                <button
+                  onClick={() => handleEdit(qa.id)}
+                  className="text-blue-500"
+                >
+                  <Edit size={16} />
+                </button>
               )}
-            </tr>
-          ))}
-          <tr>
-            <td className="border p-2 text-center">-</td>
-            <td className="border p-2">
-              <textarea
-                ref={inputRef}
-                className="w-full border p-1"
-                rows={5}
-                placeholder="Title"
-                value={newRowData.question}
-                onChange={(e) => handleChange(e, "question", "new")}
-              //  onKeyDown={(e) => handleKeyDown(e, handleAddRow)}
-              />
-            </td>
-            <td className="border p-2">
-              <textarea
-                className="w-full border p-1"
-                rows={5}
-                placeholder="Answer"
-                value={newRowData.answer}
-                onChange={(e) => handleChange(e, "answer", "new")}
-               // onKeyDown={(e) => handleKeyDown(e, handleAddRow)}
-              />
-            </td>
-            <td className="border p-2">
-              <button className="text-blue-500" onClick={handleAddRow}>
-                <PlusCircle size={16} />
+              <button
+                onClick={() => handleDelete(qa.id)}
+                className="text-red-500"
+              >
+                <Trash size={16} />
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

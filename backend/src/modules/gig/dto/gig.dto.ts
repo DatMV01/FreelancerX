@@ -7,28 +7,19 @@ import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class PricingPackage {
   @AutoMap()
-  name: string;
+  id: string;
 
   @AutoMap()
-  description: string;
+  package: string;
 
   @AutoMap()
-  price: number;
+  basic: string;
 
   @AutoMap()
-  deliveryTime: number;
+  standard: string;
 
   @AutoMap()
-  revisions: number;
-
-  @AutoMap()
-  extras?: { package: string; value: string }[];
-}
-
-export class Media {
-  thumbnail: string;
-  gallery: string[];
-  video?: string;
+  premium: string;
 }
 
 export class Requirement {
@@ -64,10 +55,20 @@ export class FAQ {
   answer: string;
 }
 
-export class Pricing {
-  basic: PricingPackage;
-  standard?: PricingPackage;
-  premium?: PricingPackage;
+export class GigFileInfo {
+  id: string;
+  url: string;
+}
+
+export class GigImages {
+  image1: GigFileInfo | null;
+  image2: GigFileInfo | null;
+  image3: GigFileInfo | null;
+}
+
+export class GigDocuments {
+  document1: GigFileInfo | null;
+  document2: GigFileInfo | null;
 }
 
 export class GigDto extends BaseDto<GigDto> {
@@ -99,8 +100,8 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   premiumPrice: number;
 
-  @AutoMap(() => Pricing)
-  pricing: Pricing;
+  @AutoMap(() => PricingPackage)
+  pricing: PricingPackage[];
   /* Pricing */
 
   /* Description & FAQ */
@@ -112,14 +113,16 @@ export class GigDto extends BaseDto<GigDto> {
   /* Description & FAQ */
 
   /* Gallery */
-  @AutoMap(() => String)
-  images: string[];
 
-  @AutoMap()
-  video: string;
+  @AutoMap(() => GigImages)
+  images: GigImages;
 
-  @AutoMap(() => String)
-  documents: string[];
+  @AutoMap(() => GigDocuments)
+  documents: GigDocuments;
+
+  @AutoMap(() => GigFileInfo)
+  video: GigFileInfo;
+
   /* Gallery */
 
   @AutoMap()

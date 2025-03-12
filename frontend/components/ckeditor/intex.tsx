@@ -13,22 +13,12 @@ const CkEditorWithNoSSR = dynamic(import("./CkEditor"), { ssr: false });
 
 import React, { useEffect, useState } from "react";
 
-const gig_description = "gig_description";
-
-const MyCkEditorWithNoSSR = ({ setGig }: { setGig: any }) => {
-  const [editorData, setEditorData] = useState<string>(() => {
-    const savedData = localStorage.getItem(gig_description);
-
-    if (savedData) {
-      return savedData;
-    }
-    return "";
-  });
+const MyCkEditorWithNoSSR = ({ gig, setGig }: { gig: any; setGig: any }) => {
+  const [editorData, setEditorData] = useState<string>(gig?.description || "");
 
   const handleOnUpdate = (editor: string, field: string): void => {
     if (field === "description") {
       setEditorData(editor);
-      localStorage.setItem(gig_description, editor);
     }
   };
 

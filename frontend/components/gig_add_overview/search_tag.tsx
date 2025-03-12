@@ -1,31 +1,19 @@
-import { GigDto } from "@/dto/gig.dto";
 import { useEffect, useState } from "react";
 
 interface Props {
-  searchTags: any;
-  setSearchTags: any;
+  tags: any;
+  setTags: any;
+  setGig: any;
 }
 
-const SearchTags = ({ searchTags, setSearchTags }: Props) => {
-  const [gig, setGig] = useState<GigDto>(() => {
-    const gigLocalStorage = localStorage.getItem("gig");
-    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new GigDto({});
-  });
-
-  const [keywords, setKeywords] = useState<string[]>(gig.tags || []);
+const SearchTags = ({ tags, setTags, setGig }: Props) => {
+  const [keywords, setKeywords] = useState<string[]>(tags || []);
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-    setSearchTags(keywords);
-  }, [keywords]);
-
-  useEffect(() => {
+    setTags(keywords);
     setGig((prev: any) => ({ ...prev, tags: keywords }));
   }, [keywords]);
-
-  useEffect(() => {
-    localStorage.setItem("gig", JSON.stringify(gig));
-  }, [gig]);
 
   const addKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === "Tab") && inputValue.trim() !== "") {

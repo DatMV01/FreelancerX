@@ -1,19 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
-import UploadFile from "./upload_file";
 import { Button, CircularProgress, Divider } from "@mui/material";
-import axios from "axios";
-import { GigDto } from "@/dto/gig.dto";
+import { useRef, useState } from "react";
+import UploadFile from "./upload_file";
+import {
+  gig_documentsUpload,
+  gig_imagesUpload,
+  gig_videoUpload,
+} from "../gig_add_edit";
 
 interface Props {
   switchToTab: (tab: string) => void;
   tabs: { label: string }[];
+  gig: any;
+  setGig: any;
 }
 
-export const imagesUpload = ["image1", "image2", "image3"];
-export const videoUpload = ["video1"];
-export const documentsUpload = ["document1", "document2"];
-
-const GigGallary = ({ switchToTab, tabs }: Props) => {
+const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
   const uploadRefs = {
     image1: useRef<any>(null),
     image2: useRef<any>(null),
@@ -29,48 +30,7 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
     });
   };
 
-  const [gig, setGig] = useState<GigDto>(() => {
-    const gigLocalStorage = localStorage.getItem("gig");
-    return gigLocalStorage ? JSON.parse(gigLocalStorage) : new GigDto({});
-  });
-
-  useEffect(() => {
-    localStorage.setItem("gig", JSON.stringify(gig));
-  }, [gig]);
-
   const [uploading, setUploading] = useState(false);
-
-  const uploadGig = async () => {
-    const gigLocalStorage = localStorage.getItem("gig");
-    if (!gigLocalStorage) return;
-
-    setUploading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    try {
-      const response = await axios.post(
-        `http://localhost:3000/api/v1/gig`,
-        JSON.parse(gigLocalStorage),
-      );
-
-      console.log("Response:", response.data);
-
-      // const data = await response.json();
-
-      if (response.status === 200) {
-        alert("Upload OK");
-      }
-
-      if (response.status === 400) {
-        alert("Upload failed");
-      }
-    } catch (error) {
-      alert("Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
 
   return (
     <div className="relative my-6 flex w-full flex-col space-y-10">
@@ -89,21 +49,21 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
         <div className="flex space-x-2">
           <UploadFile
             ref={uploadRefs.image1}
-            localStorageKey={imagesUpload[0]}
+            keyFile={gig_imagesUpload[0]}
             fileType="image"
             updateGigCb={setGig}
             autoUpload
           />
           <UploadFile
             ref={uploadRefs.image2}
-            localStorageKey={imagesUpload[1]}
+            keyFile={gig_imagesUpload[1]}
             fileType="image"
             updateGigCb={setGig}
             autoUpload
           />
           <UploadFile
             ref={uploadRefs.image3}
-            localStorageKey={imagesUpload[2]}
+            keyFile={gig_imagesUpload[2]}
             autoUpload
             updateGigCb={setGig}
             fileType="image"
@@ -123,7 +83,7 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
 
         <UploadFile
           ref={uploadRefs.video}
-          localStorageKey={videoUpload[0]}
+          keyFile={gig_videoUpload[0]}
           fileType="video"
           updateGigCb={setGig}
           className="h-[400px] w-full"
@@ -139,7 +99,7 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
         <div className="flex space-x-2">
           <UploadFile
             ref={uploadRefs.document1}
-            localStorageKey={documentsUpload[0]}
+            keyFile={gig_documentsUpload[0]}
             fileType="document"
             className="h-[400px] w-full"
             updateGigCb={setGig}
@@ -147,7 +107,7 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
           />
           <UploadFile
             ref={uploadRefs.document2}
-            localStorageKey={documentsUpload[1]}
+            keyFile={gig_documentsUpload[1]}
             fileType="document"
             className="h-[400px] w-full"
             updateGigCb={setGig}
@@ -167,11 +127,14 @@ const GigGallary = ({ switchToTab, tabs }: Props) => {
         variant="contained"
         sx={{ alignSelf: "end" }}
         onClick={async () => {
-          await uploadGig();
+          // setUploading(true);
+          // const isUploadOk = await hanleOnSaveAndCountinue();
+          // setUploading(false);
+          // isUploadOk &&
           switchToTab(tabs[4].label);
         }}
       >
-        Save & Continue
+        Continue
       </Button>
     </div>
   );

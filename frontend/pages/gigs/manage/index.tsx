@@ -119,7 +119,9 @@ export default function ManageGig() {
 
   useEffect(() => {
     if (tab) {
-      const isTabExisted = tabs.some((_) => _.fe_endpoint.endsWith(tab));
+      const isTabExisted = tabs.some((_) =>
+        _.fe_endpoint.endsWith(tab.toLocaleLowerCase()),
+      );
       isTabExisted && setCurrentTab(tab.toUpperCase());
     }
   }, [tab]);
