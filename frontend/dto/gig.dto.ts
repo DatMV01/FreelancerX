@@ -44,6 +44,7 @@ export enum GigStatus {
   DRAFT = "DRAFT",
   PAUSED = "PAUSED",
   REJECTED = "REJECTED",
+  MODIFICATION = "MODIFICATION",
 }
 
 export class GigDto extends BaseDto<GigDto> {
@@ -122,11 +123,11 @@ export class GigDto extends BaseDto<GigDto> {
 
   requirements?: Requirement[];
 
-  avgRating: number = 0;
+  avgRating?: number;
 
-  totalReviews: number = 0;
+  totalReviews?: number;
 
-  views: number = 0;
+  views?: number;
 
   seller: any;
 }

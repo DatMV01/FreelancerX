@@ -92,8 +92,7 @@ export class CreateGigDto {
   status: GigStatus = GigStatus.DRAFT;
 
   @IsOptional()
-  @IsString()
-  thumbnail?: string;
+  thumbnail?: GigFileInfo | null;
 
   @IsArray()
   @ValidateNested({ each: true })

@@ -119,17 +119,24 @@ export default function ManageGig() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const tabStatus = searchParams.get("tab") || tabs[0].status;
+  const tabLabel = searchParams.get("tab") || tabs[0].label;
 
-  const [currentTab, setCurrentTab] = useState(tabs[0].status);
+  const [currentTab, setCurrentTab] = useState(tabs[0].label);
+  const [beEndpoint, setBeEndpoint] = useState(tabs[0].be_endpoint);
 
   useEffect(() => {
-    const tab =
-      tabs.find((_) => _.fe_endpoint.endsWith(tabStatus.toLocaleLowerCase())) ||
+    const tab: {
+      label: string;
+      table_label: string;
+      fe_endpoint: string;
+      be_endpoint: string;
+    } =
+      tabs.find((_) => _.fe_endpoint.endsWith(tabLabel.toLocaleLowerCase())) ||
       tabs[0];
 
-    setCurrentTab(tab.status);
-  }, [tabStatus]);
+    setCurrentTab(tab.label);
+    setBeEndpoint(tab.be_endpoint);
+  }, [tabLabel]);
 
   // const { data, error, isValidating, isLoading } = useSWR(beEndpoint, fetcher, {
   // //  revalidateOnFocus: true,
@@ -140,14 +147,11 @@ export default function ManageGig() {
   const isValidating = false;
 
   const data = null;
-
+  
   const handleChange = (event: React.SyntheticEvent, newTab: string) => {
-    console.log("newTab", newTab);
-
     router.push(`/gigs/manage?tab=${newTab.toLocaleLowerCase()}`);
   };
 
-  console.log("currentTab", currentTab);
   return (
     <div className="min-h-screen">
       <Box
@@ -165,17 +169,15 @@ export default function ManageGig() {
           aria-label="gig management tabs"
           sx={{ width: "fit-content" }}
         >
-          {tabs.map((tab) => {
-            return (
-              <Tab
-                key={tab.label}
-                label={tab.label}
-                value={tab.status}
-                sx={{ fontSize: "14px" }}
-                {...a11yProps(tab.label)}
-              />
-            );
-          })}
+          {tabs.map((tab) => (
+            <Tab
+              key={tab.label}
+              label={tab.label}
+              value={tab.label}
+              sx={{ fontSize: "14px" }}
+              {...a11yProps(tab.label)}
+            />
+          ))}
         </Tabs>
 
         <Link
@@ -192,7 +194,7 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[0].label}
-        index={tabs[0].status}
+        index={tabs[0].label}
         value={currentTab}
         loading={isValidating}
       >
@@ -202,7 +204,7 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[1].label}
-        index={tabs[1].status}
+        index={tabs[1].label}
         value={currentTab}
         loading={isValidating}
       >
@@ -212,7 +214,7 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[2].label}
-        index={tabs[2].status}
+        index={tabs[2].label}
         value={currentTab}
         loading={isValidating}
       >
@@ -222,18 +224,17 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[3].label}
-        index={tabs[3].status}
+        index={tabs[3].label}
         value={currentTab}
         loading={isValidating}
       >
         {/* {error ? "Lỗi khi tải dữ liệu" : data || "Chưa có dữ liệu"} */}
-
         <GigsManageTable data={null} gigStatus={currentTab} />
       </CustomTabPanel>
 
       <CustomTabPanel
         key={tabs[4].label}
-        index={tabs[4].status}
+        index={tabs[4].label}
         value={currentTab}
         loading={isValidating}
       >
@@ -243,7 +244,7 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[5].label}
-        index={tabs[5].status}
+        index={tabs[5].label}
         value={currentTab}
         loading={isValidating}
       >

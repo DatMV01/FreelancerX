@@ -224,7 +224,7 @@ export class AuthService {
   }
 
   async logout(sessionId: number): Promise<boolean> {
-    return await this.sessionService.remove(Number(sessionId));
+    return await this.sessionService.remove(sessionId);
   }
 
   async delete(user: string): Promise<boolean> {

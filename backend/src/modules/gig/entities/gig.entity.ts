@@ -50,6 +50,7 @@ export class GigEntity extends BaseEntity {
   })
   @JoinColumn({ referencedColumnName: 'slug' })
   subCategory: CategoryEntity | null;
+
   @AutoMap()
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
@@ -109,22 +110,23 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'enum', enum: GigStatus, default: GigStatus.DRAFT })
   status: GigStatus;
 
-  @AutoMap()
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  thumbnail?: string;
+  @AutoMap(() => GigFileInfo)
+  @Column({ type: 'json', nullable: true })
+  thumbnail?: GigFileInfo | null;
 
   @AutoMap(() => Requirement)
   @Column({ type: 'json', nullable: true })
   requirements?: Requirement[];
 
+  @AutoMap()
   @Column({ type: 'float', default: 0 })
-  @Min(0)
-  @Max(5)
   avgRating: number;
 
+  @AutoMap()
   @Column({ type: 'int', default: 0 })
   totalReviews: number;
 
+  @AutoMap(() => RatingEntity)
   @OneToMany(() => RatingEntity, (rating) => rating.gig, { cascade: true })
   ratings: RatingEntity[];
 
@@ -134,14 +136,18 @@ export class GigEntity extends BaseEntity {
   // @Column({ type: 'boolean', default: false })
   // isPromoted: boolean = false;
 
+  @AutoMap()
   @Column({ type: 'int', default: 0 })
-  @Min(0)
-  views: number = 0;
+  views: number;
 
   @AutoMap(() => UserEntity)
   @ManyToOne(() => UserEntity, (user) => user.gigs)
   @JoinColumn({ name: 'seller' })
   seller: UserEntity;
+
+  @AutoMap()
+  @Column({ type: 'int', default: 0 })
+  ordersCount: number;
 
   @AutoMap()
   @OneToMany(() => OrderEntity, (order) => order.gig)
@@ -159,14 +165,23 @@ export class GigEntity extends BaseEntity {
   @BeforeUpdate()
   updateSlug() {
     this.slug = `${this.title.trim().replaceAll(' ', '-')}-${Date.now()}`;
+
     this.category = (this.category as any) === '' ? null : this.category;
+
     this.subCategory =
       (this.subCategory as any) === '' ? null : this.subCategory;
+
     this.nestedSubcategory =
       (this.nestedSubcategory as any) === '' ? null : this.nestedSubcategory;
+
     if (!this.images?.image1 && !this.images?.image2 && !this.images?.image3) {
       this.images = null;
     }
+
+    if (this.images?.image1) {
+      this.thumbnail = this.images?.image1;
+    }
+
     if (!this.documents?.document1 && !this.documents?.document2) {
       this.documents = null;
     }

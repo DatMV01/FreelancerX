@@ -28,11 +28,11 @@ const AddGigOverview = ({ switchToTab, tabs, gig, setGig }: Props) => {
 
   const [gigOverview, setGigOverview] = useState(() => {
     return {
-      title: gig.title || "",
-      category: gig.category || "",
-      subCategory: gig.subCategory || "",
-      tags: gig.tags || "",
-      nestedSubcategory: gig.nestedSubcategory || "",
+      title: gig?.title || "",
+      category: gig?.category || "",
+      subCategory: gig?.subCategory || "",
+      tags: gig?.tags || "",
+      nestedSubcategory: gig?.nestedSubcategory || "",
     };
   });
 
@@ -45,29 +45,42 @@ const AddGigOverview = ({ switchToTab, tabs, gig, setGig }: Props) => {
   );
 
   useEffect(() => {
-    setGig((prev: any) => ({ ...prev, tags }));
-    setGigOverview((prev: any) => ({ ...prev, tags }));
-  }, [tags]);
+    setGig((prev: any) => {
+      if (
+        prev.title === title &&
+        prev.category === category &&
+        prev.subCategory === subCategory &&
+        prev.tags === tags &&
+        prev.nestedSubcategory === nestedSubcategory
+      ) {
+        return prev;
+      }
 
-  useEffect(() => {
-    setGig((prev: any) => ({ ...prev, title }));
-    setGigOverview((prev: any) => ({ ...prev, title }));
-  }, [title]);
+      const newGig = {
+        ...prev,
+        title,
+        category,
+        subCategory,
+        tags,
+        nestedSubcategory,
+      };
 
-  useEffect(() => {
-    setGig((prev: any) => ({ ...prev, category }));
-    setGigOverview((prev: any) => ({ ...prev, category }));
-  }, [category]);
+      return newGig;
+    });
 
-  useEffect(() => {
-    setGig((prev: any) => ({ ...prev, subCategory }));
-    setGigOverview((prev: any) => ({ ...prev, subCategory }));
-  }, [subCategory]);
+    // setGigOverview((prev: any) => {
+    //   const newOverview = {
+    //     ...prev,
+    //     title,
+    //     category,
+    //     subCategory,
+    //     tags,
+    //     nestedSubcategory,
+    //   };
 
-  useEffect(() => {
-    setGig((prev: any) => ({ ...prev, nestedSubcategory }));
-    setGigOverview((prev: any) => ({ ...prev, nestedSubcategory }));
-  }, [nestedSubcategory]);
+    //   return newOverview;
+    // });
+  }, [title, category, subCategory, tags, nestedSubcategory, setGig]);
 
   const filteredSubCategoryData = useMemo(() => {
     return categories.find((_) => _.slug === category)?.subCategories || [];

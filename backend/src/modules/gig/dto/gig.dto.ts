@@ -4,6 +4,8 @@ import { UserDto } from 'src/modules/users/dto/user.dto';
 import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 
 export class PricingPackage {
   @AutoMap()
@@ -128,11 +130,14 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   status: GigStatus;
 
-  @AutoMap()
-  thumbnail?: string;
+  @AutoMap(() => GigFileInfo)
+  thumbnail?: GigFileInfo | null;
 
   @AutoMap(() => Requirement)
   requirements?: Requirement[];
+
+  @AutoMap()
+  ordersCount: number;
 
   @AutoMap()
   avgRating: number;

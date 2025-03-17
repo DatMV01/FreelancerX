@@ -1,14 +1,164 @@
-import * as React from "react";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import Paper from "@mui/material/Paper";
-import Avatar from "@mui/material/Avatar";
-import Typography from "@mui/material/Typography";
-import Stack from "@mui/material/Stack";
+"use client";
+
+import { GigDto, GigStatus } from "@/dto/gig.dto";
+import axiosInstance from "@/lib/apiClient";
+import {
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TablePagination,
+  TextField,
+} from "@mui/material";
 import Button from "@mui/material/Button";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import axios from "axios";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Image from "next/image";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { uploadGig } from "../gig_add_edit";
+import {
+  gridPageCountSelector,
+  gridPageSelector,
+  gridPageSizeSelector,
+  useGridApiContext,
+  useGridSelector,
+} from "@mui/x-data-grid";
+import {
+  ChevronFirst,
+  ChevronLast,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions";
+
+function TablePaginationActions(props: TablePaginationActionsProps) {
+  const { count, page, rowsPerPage, onPageChange } = props;
+
+  const handleFirstPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    onPageChange(event, 0);
+  };
+
+  const handleBackButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    onPageChange(event, page - 1);
+  };
+
+  const handleNextButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    onPageChange(event, page + 1);
+  };
+
+  const handleLastPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+  };
+
+  return (
+    <div className="flex">
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        <ChevronFirst />
+      </IconButton>
+
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        <ChevronLeft />
+      </IconButton>
+
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        <ChevronRight />
+      </IconButton>
+
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        <ChevronLast />
+      </IconButton>
+    </div>
+  );
+}
+
+const CustomPagination = (
+  props: TablePaginationActionsProps & { pageSizeOptions?: number[] },
+) => {
+  const { pageSizeOptions = [10, 20, 30, 40, 50] } = props;
+  const apiRef = useGridApiContext();
+
+  const page = useGridSelector(apiRef, gridPageSelector);
+
+  const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
+
+  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+
+  const currentPage = page + 1;
+
+  const [inputPage, setInputPage] = useState(currentPage);
+
+  useEffect(() => {
+    setInputPage(currentPage);
+  }, [page]);
+
+  const handlePageChange = () => {
+    const targetPage = Math.max(1, Math.min(inputPage, pageCount));
+    if (targetPage !== currentPage) {
+      setInputPage(targetPage);
+    }
+    apiRef.current.setPage(targetPage - 1);
+  };
+
+  return (
+    <div className="flex w-full items-center justify-center">
+      <TablePagination
+        component="div"
+        count={apiRef.current.state.pagination.rowCount ?? 0}
+        page={page}
+        rowsPerPage={pageSize}
+        onPageChange={(event, newPage) => apiRef.current.setPage(newPage)}
+        onRowsPerPageChange={(event) =>
+          apiRef.current.setPageSize(parseInt(event.target.value, 10))
+        }
+        ActionsComponent={TablePaginationActions}
+        rowsPerPageOptions={pageSizeOptions}
+        labelDisplayedRows={({ from, to, count }) =>
+          `Page ${currentPage} of ${pageCount}`
+        }
+      />
+
+      <TextField
+        size="small"
+        type="number"
+        label="Go to page"
+        value={inputPage}
+        onChange={(e) => setInputPage(Number(e.target.value))}
+        style={{ width: 90, marginRight: 10 }}
+      />
+      <Button variant="contained" size="small" onClick={handlePageChange}>
+        Go
+      </Button>
+    </div>
+  );
+};
 
 const GigsManageTable = ({
   data,
@@ -18,80 +168,123 @@ const GigsManageTable = ({
   data: any;
   gigStatus: any;
 }) => {
-  const [rows, setRows] = React.useState(data);
+  const [rows, setRows] = useState<GigDto[]>([]);
 
-  const [selectedRows, setSelectedRows] = React.useState<number[]>([]);
-  const [paginationModel, setPaginationModel] = React.useState({
+  const [loadingRows, setLoadingRows] = useState<string[]>([]);
+
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+
+  const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 20,
   });
-  const [timeRange, setTimeRange] = React.useState(7);
-  const [loading, setLoading] = React.useState(false);
-  const [loadingRows, setLoadingRows] = React.useState<number[]>([]);
 
-  const deleteGigsAPI = async (gigIds: number[]) => {
+  const [dayRange, setDayRange] = useState(7);
+
+  const [isDeleting, setDeleting] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
+  const deleteAllGigs = async (gigIds: string[]) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      return true;
+
+      const results = await Promise.all(gigIds.map(deleteGig));
+      return results.every((res) => res === true);
     } catch (error) {
-      console.error("Error deleting gigs:", error);
+      alert("Error deleting gigs:" + error);
+
       return false;
     }
   };
 
-  const handleDeleteAll = React.useCallback(async () => {
+  const handleDeleteAll = useCallback(async () => {
     if (selectedRows.length === 0) return;
-
-    setLoading(true);
-    const success = await deleteGigsAPI(selectedRows);
+    setLoadingRows(selectedRows);
+    setDeleting(true);
+    const success = await deleteAllGigs(selectedRows);
 
     if (success) {
       setRows((prevRows) =>
         prevRows.filter((row) => !selectedRows.includes(row.id)),
       );
       setSelectedRows([]);
+    } else {
+      alert("Failed to delete some gigs. Please try again.");
     }
-    setLoading(false);
-  }, [selectedRows, deleteGigsAPI]);
 
-  const deleteGigAPI = async (gigId: number) => {
+    setDeleting(false);
+  }, [selectedRows]);
+
+  const deleteGig = async (gigId: string) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      // await axios.delete(/api/gigs/${gigId});
-
-      return true;
+      const response = await axiosInstance.delete(`gig/${gigId}`);
+      return response.status === 200;
     } catch (error) {
-      console.error(`Error deleting gig ${gigId}:`, error);
+      alert(`Error deleting gig ${gigId}: ${error}`);
+
       return false;
     }
   };
 
-  const handleDeleteRow = React.useCallback(
-    async (gigId: number) => {
+  const handleDeleteRow = useCallback(
+    async (gigId: string) => {
       setLoadingRows((prev) => [...prev, gigId]);
 
-      const success = await deleteGigAPI(gigId);
+      const success = await deleteGig(gigId);
       if (success) {
         setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
+      } else {
+        alert(`Failed to delete gig with ID: ${gigId}`);
       }
 
       setLoadingRows((prev) => prev.filter((id) => id !== gigId));
     },
-    [deleteGigAPI],
+    [deleteGig],
   );
 
-  const columns: GridColDef[] = React.useMemo(
+  const handlePauseRow = useCallback(
+    async (row: any) => {
+      const gigId = row.id;
+      setLoadingRows((prev) => [...prev, gigId]);
+
+      const success = await uploadGig(row, GigStatus.PAUSED);
+      if (success) {
+        setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
+      } else {
+        alert(`Failed to pausing gig with ID: ${gigId}`);
+      }
+
+      setLoadingRows((prev) => prev.filter((id) => id !== gigId));
+    },
+    [deleteGig],
+  );
+
+  const columns: GridColDef[] = useMemo(
     () => [
+      {
+        field: "rowNumber",
+        headerName: "#",
+        width: 60,
+        sortable: false,
+        renderCell: (params) => {
+          const index = rows.findIndex((row) => row.id === params.row.id);
+          return (
+            <div className="flex h-full items-center">
+              {index + 1 + paginationModel.page * paginationModel.pageSize}
+            </div>
+          );
+        },
+      },
       {
         field: "gigInfo",
         headerName: "Gig",
         flex: 1,
         sortable: false,
         renderCell: (params) => {
-          const { title, image } = params.value as {
-            title: string;
-            image: string;
-          };
+          const { row } = params;
+          const { title, thumbnail } = row;
           return (
             <Stack
               direction="row"
@@ -101,7 +294,7 @@ const GigsManageTable = ({
             >
               <div className="relative h-14 w-14 flex-shrink-0">
                 <Image
-                  src={image}
+                  src={thumbnail.url}
                   alt="Gig Thumbnail"
                   layout="fill"
                   className="rounded-sm"
@@ -114,13 +307,13 @@ const GigsManageTable = ({
         },
       },
       {
-        field: "clicks",
-        headerName: "Clicks",
+        field: "views",
+        headerName: "Views",
         type: "number",
         width: 110,
         renderCell: ({ row }) => (
           <div className="flex h-full items-center justify-end">
-            {row.clicks}
+            {row.views}
           </div>
         ),
       },
@@ -131,7 +324,7 @@ const GigsManageTable = ({
         width: 110,
         renderCell: ({ row }) => (
           <div className="flex h-full items-center justify-end">
-            {row.orders}
+            {row.ordersCount}
           </div>
         ),
       },
@@ -140,58 +333,108 @@ const GigsManageTable = ({
         headerName: "Cancellations",
         type: "number",
         width: 110,
-        renderCell: ({ row }) => (
-          <div className="flex h-full items-center justify-end">
-            {row.cancellations != null ? `${row.cancellations}%` : "0%"}
-          </div>
-        ),
+        renderCell: ({ row }) => {
+          const percent = (row.ordersCount * 100) / row.views;
+
+          return (
+            <div className="flex h-full items-center justify-end">
+              {row.cancellations != null ? `${percent}%` : "0%"}
+            </div>
+          );
+        },
       },
       {
         field: "actions",
         headerName: "Actions",
-        width: 200,
+        width: 100,
         sortable: false,
-        renderCell: ({ row }) => (
-          <div className="my-2 grid grid-cols-2 grid-rows-2 gap-2">
-            <Button
-              href="/gigs/edit"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              Edit
-            </Button>
+        renderCell: (params) => {
+          const { row } = params;
+          const { slug } = row;
+          const editUrl = `/gigs/edit/${slug}`;
+          const reviewUrl = `/gig/${slug}`;
+          return (
+            <div className="my-2 flex flex-col space-y-2">
+              <Button
+                href={editUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="contained"
+                color="primary"
+                size="small"
+                disabled={loadingRows.includes(row.id)}
+              >
+                Edit
+              </Button>
 
-            <Button
-              href="/user/user_123/create-a-high-converting-shopify-dropshipping-website"
-              target="_blank"
-              rel="noopener noreferrer"
-              variant="contained"
-              color="success"
-              size="small"
-            >
-              Review
-            </Button>
-            <Button variant="contained" color="warning" size="small">
-              Paused
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              size="small"
-              onClick={() => handleDeleteRow(row.id)}
-              disabled={loadingRows.includes(row.id)}
-            >
-              {loadingRows.includes(row.id) ? "Deleting" : "Delete"}
-            </Button>
-          </div>
-        ),
+              <Button
+                href={reviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="contained"
+                color="success"
+                size="small"
+                disabled={loadingRows.includes(row.id)}
+              >
+                Review
+              </Button>
+
+              {gigStatus === GigStatus.ACTIVE && (
+                <Button
+                  variant="contained"
+                  color="warning"
+                  size="small"
+                  onClick={() => handlePauseRow(row)}
+                  disabled={loadingRows.includes(row.id)}
+                >
+                  Paused
+                </Button>
+              )}
+
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => handleDeleteRow(row.id)}
+                disabled={loadingRows.includes(row.id)}
+              >
+                {loadingRows.includes(row.id) ? "Deleting" : "Delete"}
+              </Button>
+            </div>
+          );
+        },
       },
     ],
     [handleDeleteRow, loadingRows],
   );
+
+  const [rowCount, setRowCount] = useState(50);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      try {
+        const response = await axiosInstance.get(`/gig`, {
+          params: {
+            page: paginationModel.page + 1,
+            limit: paginationModel.pageSize,
+            filters: `status:${gigStatus},` + `day_range:${dayRange}`,
+          },
+        });
+        const { data, meta } = response.data;
+        setRows(data);
+        setRowCount(meta.itemCount);
+      } catch (error) {
+        alert("Error fetching data:" + error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [paginationModel, dayRange]);
 
   return (
     <Paper
@@ -208,19 +451,21 @@ const GigsManageTable = ({
               variant="contained"
               color="error"
               onClick={handleDeleteAll}
-              disabled={loading}
+              disabled={isDeleting}
             >
-              {loading ? "Deleting..." : `Delete All (${selectedRows.length})`}
+              {isDeleting
+                ? "Deleting..."
+                : `Delete All (${selectedRows.length})`}
             </Button>
           )}
 
           <FormControl size="small" sx={{ m: 1, minWidth: 150 }}>
-            <InputLabel id="time-range-label">Time Range</InputLabel>
+            <InputLabel id="time-range-label">Day Range</InputLabel>
             <Select
               labelId="time-range-label"
               id="time-range"
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value as number)}
+              value={dayRange}
+              onChange={(e) => setDayRange(e.target.value as number)}
               label="Time Range"
             >
               <MenuItem value={7}>Last 7 Days</MenuItem>
@@ -228,27 +473,40 @@ const GigsManageTable = ({
               <MenuItem value={30}>Last 30 Days</MenuItem>
               <MenuItem value={60}>Last 2 Months</MenuItem>
               <MenuItem value={90}>Last 3 Months</MenuItem>
+              <MenuItem value="All">All</MenuItem>
             </Select>
           </FormControl>
         </div>
       </Stack>
 
       <DataGrid
+        loading={loading}
         rows={rows}
         columns={columns}
+        rowCount={rowCount}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         pageSizeOptions={[10, 20, 30, 40, 50]}
         checkboxSelection
-        onRowSelectionModelChange={(ids) => setSelectedRows(ids as number[])}
+        paginationMode="server"
+        onRowSelectionModelChange={(ids) => {
+          setSelectedRows(ids as string[]);
+        }}
         getRowHeight={() => "auto"}
         disableRowSelectionOnClick
+        slots={{ pagination: CustomPagination as any }}
         sx={{
           "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
             outline: "none !important",
           },
           "& .Mui-selected": {
             border: "none !important",
+          },
+          "& .MuiDataGrid-footerContainer": {
+            minHeight: "70px",
+          },
+          "& .MuiTablePagination-select": {
+            margin: "0 2px",
           },
         }}
       />

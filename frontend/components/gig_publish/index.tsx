@@ -11,12 +11,15 @@ interface Props {
   switchToTab: (tab: string) => void;
   tabs: { label: string }[];
   hanleOnSaveCb: any;
+  gig: any;
+  setGig: any;
 }
 
 export default function GigPublish({
   switchToTab,
   tabs,
   hanleOnSaveCb,
+  gig,
 }: Props) {
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -25,7 +28,7 @@ export default function GigPublish({
     setUploading(true);
 
     try {
-      const response = await hanleOnSaveCb(gigStatus);
+      const response = await hanleOnSaveCb(gig, gigStatus);
 
       const { data, status } = response;
 
@@ -45,6 +48,7 @@ export default function GigPublish({
     } catch (error: any) {
       alert(error.message);
     }
+    
     setUploading(false);
   };
 

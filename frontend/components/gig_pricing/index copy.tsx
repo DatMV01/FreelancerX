@@ -132,12 +132,8 @@ const RevisonRow = ({
         <td className="border p-2">Revision</td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Revision</InputLabel>
             <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
               sx={{ width: 100 }}
               value={basic}
               onChange={(e) => {
@@ -166,9 +162,7 @@ const RevisonRow = ({
         </td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Revision</InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"
               id="demo-simple-select-standard"
@@ -200,9 +194,7 @@ const RevisonRow = ({
         </td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Revision</InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"
               id="demo-simple-select-standard"
@@ -378,9 +370,7 @@ const DeliveryRow = ({
         <td className="border p-2">Delivery</td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Delivery</InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"
               id="demo-simple-select-standard"
@@ -416,9 +406,7 @@ const DeliveryRow = ({
         </td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Delivery</InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"
               id="demo-simple-select-standard"
@@ -454,9 +442,7 @@ const DeliveryRow = ({
         </td>
         <td className="border p-2">
           <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
+            <InputLabel sx={{ p: 1 }}>Delivery</InputLabel>
             <Select
               labelId="demo-simple-select-standard-label"
               id="demo-simple-select-standard"

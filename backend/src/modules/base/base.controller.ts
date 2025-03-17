@@ -41,7 +41,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
-  // @SerializeOptions({ groups: [CREATE_GROUP] })
+  @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
       throw new BadRequestException('Body is empty');
@@ -52,46 +52,10 @@ export abstract class BaseController<
   }
 
   @Get()
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
-    @Query('filters') filters: any,
-  ) {
-    // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
-    const _limit = Math.min(limit || 10, 50);
-
-    const sortParams = this.parseSortParam(sort);
-    const filterParams = this.parseFiltersParam(filters);
-    // return this.baseService.findAll(page, limit, filterParams, sortParams);
-    const [results, count] = await this.baseService.findWithFilters(
-      page,
-      _limit,
-      filterParams,
-      sortParams,
-    );
-
-    const pageDto = new PageDto<Dto>(
-      this.toDtoDefault(results),
-      new PageMetaDto({
-        itemCount: count,
-        pageOptionsDto: {
-          limit: _limit,
-          page,
-          filters: filterParams,
-          sort: sortParams,
-        },
-      }),
-    );
-
-    return pageDto;
-  }
-
-  @Get('/findexact')
   @ApiOperation({
-    summary: 'Exact search',
     description:
-      'This API allows searching for entities based on filters and sorting.',
+      'This API allows searching for entities based on filters and sorting. <br/> <br/> ' +
+      'GET  {{base_url}}/gig?limit=10&filters=status:ACTIVE&filters=day_range:14&sort=updatedAt:desc&page=2',
   })
   @ApiQuery({
     name: 'page',
@@ -123,17 +87,23 @@ export abstract class BaseController<
   })
   @ApiResponse({ status: 400, description: 'Invalid parameters.' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
-  async findExact(@Query() query: QueryDto<Entity>) {
+  async findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
+    @Query('filters') filters: string,
+  ) {
     // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
+    const _limit = Math.min(limit || 10, 50);
 
-    const { page, _limit: limit, sort, filters } = query;
-
+    const sortParams = this.parseSortParam(sort);
+    const filterParams = this.parseFiltersParam(filters);
     // return this.baseService.findAll(page, limit, filterParams, sortParams);
-    const [results, count] = await this.baseService.findExact(
+    const [results, count] = await this.baseService.findAll(
       page,
-      limit,
-      filters,
-      sort,
+      _limit,
+      filterParams,
+      sortParams,
     );
 
     const pageDto = new PageDto<Dto>(
@@ -141,10 +111,10 @@ export abstract class BaseController<
       new PageMetaDto({
         itemCount: count,
         pageOptionsDto: {
-          limit,
+          limit: _limit,
           page,
-          filters,
-          sort,
+          filters: filterParams,
+          sort: sortParams,
         },
       }),
     );
@@ -180,18 +150,19 @@ export abstract class BaseController<
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.baseService.remove(+id);
+    return this.baseService.remove(id);
   }
 
   toDtoDefault(entity: Entity): Dto;
   toDtoDefault(entity: Entity[]): Dto[];
   toDtoDefault(entity: unknown): Dto | Dto[] {
     if (Array.isArray(entity)) {
-      return entity.map((item) =>
-        this.createInstance(
-          this.mapper.map(item, this.dtoType, this.entityType),
-        ),
-      );
+      return entity.map((item) => {
+        const _mapperObj = this.mapper.map(item, this.dtoType, this.entityType);
+        const ___mapperObj = this.additionalMapping(_mapperObj, entity as any);
+
+        return this.createInstance(___mapperObj);
+      });
     }
 
     if (entity) {
@@ -212,7 +183,11 @@ export abstract class BaseController<
     if (filters) {
       const filterFields = filters.split(',');
       filterFields.forEach((field) => {
-        const [key, value] = field.split(':');
+        let [key, value] = field.split(':');
+        if (value.startsWith('[') && value.endsWith(']')) {
+          value = value.replace(/[\[\]]/g, '').split(';') as any;
+        }
+
         (filtersObj as any)[key] = value;
       });
     }

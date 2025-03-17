@@ -84,20 +84,20 @@ export class AutoMapper extends AutomapperProfile {
         mapper,
         GigEntity,
         GigDto,
-        forMember(
-          (destination) => destination.tags,
-          mapFrom((source) => source.tags || []),
-        ),
+        // forMember(
+        //   (destination) => destination.tags,
+        //   mapFrom((source) => source.tags || []),
+        // ),
       );
 
       createMap(
         mapper,
         GigDto,
         GigEntity,
-        forMember(
-          (destination) => destination.tags,
-          mapFrom((source) => source.tags || []),
-        ),
+        // forMember(
+        //   (destination) => destination.tags,
+        //   mapFrom((source) => source.tags || []),
+        // ),
       );
     };
   }

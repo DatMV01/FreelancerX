@@ -222,7 +222,7 @@ export default function ManageGig() {
 
       <CustomTabPanel
         key={tabs[3].label}
-        index={tabs[3].status}
+        index={tabs[3].label}
         value={currentTab}
         loading={isValidating}
       >

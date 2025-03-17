@@ -43,7 +43,7 @@ export class QueryDto<Entity> {
       // This means the transformation is happening when sending a response
     }
   })
-  sort?: FindOptionsOrder<Entity>;
+  sort?: FindOptionsOrder<Entity> = 'updatedAt:desc,createdAt:desc' as any;
 
   @IsOptional()
   // @IsString()

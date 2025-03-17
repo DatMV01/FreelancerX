@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 @Injectable()
-export class BaseService<T extends ObjectLiteral> {
+export abstract class BaseService<T extends ObjectLiteral> {
   constructor(private readonly repository: Repository<T>) {}
 
   async create(createDto: DeepPartial<T>): Promise<T> {
@@ -28,7 +28,7 @@ export class BaseService<T extends ObjectLiteral> {
     return this.findOne(id);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: string | number): Promise<boolean> {
     const result = await this.repository.softDelete(id);
     return (result.affected || 0) > 0;
   }
@@ -38,57 +38,105 @@ export class BaseService<T extends ObjectLiteral> {
     return (result.affected ?? 0) > 0;
   }
 
-  async findExact(
+  async findAll(
     page: number = 1,
     limit: number = 10,
-    filters: FindOptionsWhere<T> = {},
-    sort: FindOptionsOrder<T> = {},
+    filters: any,
+    sort: any,
   ): Promise<[T[], number]> {
-    const skip = (page - 1) * limit;
-    return this.repository.findAndCount({
-      where: filters,
-      skip,
-      take: limit,
-      order: sort,
-    });
-  }
-
-  async findWithFilters(
-    page: number = 1,
-    limit: number = 10,
-    filters: any = {},
-    sort: any = {},
-  ): Promise<[T[], number]> {
-    const queryBuilder: SelectQueryBuilder<T> =
+    const _queryBuilder: SelectQueryBuilder<T> =
       this.repository.createQueryBuilder();
 
+    const appliedFilters = new Set<string>();
+
+    const queryBuilder = this.additionalQuery(
+      _queryBuilder,
+      appliedFilters,
+      filters,
+      sort,
+    );
+
     Object.keys(filters).forEach((key) => {
-      if (filters[key]) {
-        queryBuilder.andWhere(`${key} LIKE :${key}`, {
-          [key]: `%${filters[key]}%`,
+      if (appliedFilters.has(key)) return;
+
+      const _value = filters[key];
+
+      if (!_value) return;
+
+      if (Array.isArray(_value)) {
+        queryBuilder.andWhere(`${key} IN (:...${key})`, {
+          [key]: _value,
         });
+      } else if (typeof _value === 'string') {
+        const value = String(_value).trim().toLowerCase();
+
+        if (value.startsWith('like_')) {
+          queryBuilder.andWhere(`${key} LIKE ${key}`, {
+            [key]: `%${value.replace('like_', '').trim()}%`,
+          });
+        }
+        // larger than
+        else if (value.startsWith('>_')) {
+          queryBuilder.andWhere(`${key} > ${key}`, {
+            [key]: value.replace('>_', '').trim(),
+          });
+        }
+        // larger than or equal
+        else if (value.startsWith('>=_')) {
+          queryBuilder.andWhere(`${key} >= ${key}`, {
+            [key]: value.replace('>=_', '').trim(),
+          });
+        }
+        // smaller than
+        else if (value.startsWith('<_')) {
+          queryBuilder.andWhere(`${key} < ${key}`, {
+            [key]: value.replace('<_', '').trim(),
+          });
+        }
+        // smaller than or equal
+        else if (value.startsWith('<=_')) {
+          queryBuilder.andWhere(`${key} <= ${key}`, {
+            [key]: value.replace('<=_', '').trim(),
+          });
+        }
+        // equal
+        else if (value.startsWith('=_')) {
+          queryBuilder.andWhere(`${key} = ${key}`, {
+            [key]: value.replace('=_', '').trim(),
+          });
+        } else {
+          queryBuilder.andWhere(`${key} = :${key}`, {
+            [key]: value,
+          });
+        }
+      } else {
+        queryBuilder.andWhere(`${key} IS NULL`);
       }
+
+      console.log(queryBuilder.getQuery());
+
+      appliedFilters.add(key);
     });
 
-    // // Trong findWithFilters
-    // if (filters.price_min) {
-    //   queryBuilder.andWhere('product.price >= :price_min', {
-    //     price_min: filters.price_min,
-    //   });
-    // }
-
-    // if (filters.price_max) {
-    //   queryBuilder.andWhere('product.price <= :price_max', {
-    //     price_max: filters.price_max,
-    //   });
-    // }
-
     Object.keys(sort).forEach((key) => {
+      if (appliedFilters.has(key)) return;
+
       queryBuilder.addOrderBy(key, sort[key].toUpperCase());
+
+      appliedFilters.add(key);
     });
 
     queryBuilder.skip((page - 1) * limit).take(limit);
 
     return queryBuilder.getManyAndCount();
+  }
+
+  protected additionalQuery(
+    queryBuilder: SelectQueryBuilder<T>,
+    appliedFilters: Set<string>,
+    filters: any,
+    sort: any,
+  ): SelectQueryBuilder<T> {
+    return queryBuilder;
   }
 }
