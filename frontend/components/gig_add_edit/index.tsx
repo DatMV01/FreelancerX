@@ -16,6 +16,7 @@ import { GigDto, GigStatus } from "@/dto/gig.dto";
 import { useSession } from "next-auth/react";
 import axiosInstance from "@/lib/apiClient";
 import { AxiosResponse } from "axios";
+import { set } from "react-hook-form";
 
 const tabs = [
   { label: "1. Overview", endpoint: "/api/overview" },
@@ -81,47 +82,33 @@ export const uploadGig = async (
 
 interface Props {
   isEditGig?: boolean;
+  gigData?: GigDto;
 }
 
-export default function GigAddEdit({ isEditGig = false }: Props) {
+export default function GigAddEdit({ gigData }: Props) {
   const router = useRouter();
 
   const { data: session, status } = useSession();
 
-  const [showSaveAndReview, setShowSaveAndReview] = useState(isEditGig);
-
-  const [showSaveAsDraft, setShowSaveAsDraft] = useState(false);
+  const [showIfEdit, setShowIfEdit] = useState(false);
 
   const [tab, setTab] = useState<string>(tabs[0].label);
 
   const [uploading, setUploading] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [gig, setGig] = useState<GigDto | null>(
-    isEditGig ? null : new GigDto({}),
-  );
-
-  const { data, error, isValidating, isLoading } = useSWR(
-    tabs.find((_) => _.label === tab)?.endpoint || null,
-
-    fetcher,
-    {
-      revalidateOnFocus: true, // Fetch lại khi quay lại tab
-      revalidateOnReconnect: true, // Fetch lại khi có kết nối mạng
-      dedupingInterval: 0, // Luôn fetch khi chuyển tab
-    },
+    gigData ? gigData : new GigDto({}),
   );
 
   const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
 
-  // useEffect(() => {
-  //   if (!isEditGig) setGig(new GigDto({}));
-  // }, []);
-
   useEffect(() => {
-    localStorage.setItem("gig", JSON.stringify(gig));
-  }, [gig]);
+    if (gigData) setShowIfEdit(true);
+  }, [gigData]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user.id) {
@@ -132,7 +119,13 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
   }, [status, session]);
 
   return (
-    <div className="h-full min-h-screen">
+    <div className="relative h-full min-h-screen">
+      {uploading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-20">
+          <CircularProgress />
+        </div>
+      )}
+
       <Box
         sx={{
           borderColor: "transparent",
@@ -148,45 +141,64 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
           sx={{ width: "fit-content" }}
         >
           {tabs.map((tab, index) => {
-            if (isEditGig) {
-              if (tab.label !== "5.Publish") {
-                return (
-                  <Tab
-                    key={tab.label}
-                    label={tab.label}
-                    value={tab.label}
-                    sx={{ fontSize: "14px" }}
-                  />
-                );
-              }
-            } else {
-              return (
-                <Tab
-                  key={tab.label}
-                  label={tab.label}
-                  value={tab.label}
-                  sx={{ fontSize: "14px" }}
-                />
-              );
-            }
+            // if (showIfEdit) {
+            //   if (tab.label !== "5.Publish") {
+            //     return (
+            //       <Tab
+            //         key={tab.label}
+            //         label={tab.label}
+            //         value={tab.label}
+            //         sx={{ fontSize: "14px" }}
+            //       />
+            //     );
+            //   }
+            // } else {
+            //   return (
+            //     <Tab
+            //       key={tab.label}
+            //       label={tab.label}
+            //       value={tab.label}
+            //       sx={{ fontSize: "14px" }}
+            //     />
+            //   );
+            // }
+
+            return (
+              <Tab
+                key={tab.label}
+                label={tab.label}
+                value={tab.label}
+                sx={{ fontSize: "14px" }}
+              />
+            );
           })}
         </Tabs>
 
         <div className="flex space-x-2">
-          {showSaveAsDraft && (
-            <Tooltip title="Save gig as draft status and back to gig managament page.">
+          {showIfEdit && false && (
+            <Tooltip title="Save gig">
               <button
                 className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
                 onClick={async () => {
                   setUploading(true);
 
                   try {
-                    const response = await uploadGig(gig, GigStatus.DRAFT);
+                    const response = await uploadGig(
+                      gig,
+                      gig?.status || GigStatus.DRAFT,
+                    );
 
                     const { data, status } = response;
 
                     if (status === 201) {
-                      router.push("/gigs/manage?tab=" + GigStatus.DRAFT);
+                      // router.replace("/gigs/edit/" + data?.slug);
+                      alert("Gig updated successfully");
+
+                      window.history.replaceState(
+                        {},
+                        "",
+                        ` /gigs/edit/${data?.slug}`,
+                      );
                     }
                   } catch (error: any) {
                     alert(error.message);
@@ -194,24 +206,13 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
                   setUploading(false);
                 }}
               >
-                Save as Draft & <br /> Back to manage
+                Update
               </button>
             </Tooltip>
           )}
 
-          <Tooltip title="Save gig as draft status and back to gig managament page.">
-            <button
-              className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
-              onClick={async () => {
-                router.push("/gigs/manage?tab=" + GigStatus.ACTIVE);
-              }}
-            >
-              Back to manage
-            </button>
-          </Tooltip>
-
-          {showSaveAndReview && (
-            <Tooltip title="Save gig as paused status and open review gig pagge">
+          {showIfEdit && false && (
+            <Tooltip title="Save gig and open review gig pagge">
               <button
                 className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
                 onClick={async () => {
@@ -231,7 +232,7 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
                         "noopener,noreferrer",
                       );
 
-                      router.push("/gigs/manage?tab=" + GigStatus.DRAFT);
+                      //   router.push("/gigs/manage?tab=" + GigStatus.DRAFT);
                     }
                   } catch (error: any) {
                     alert(error.message);
@@ -239,10 +240,22 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
                   setUploading(false);
                 }}
               >
-                Save & <br /> Preview
+                Update & <br /> Preview
               </button>
             </Tooltip>
           )}
+
+          <Tooltip title="Save gig as and back to gig managament page.">
+            <button
+              className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
+              onClick={async () => {
+                router.push("/gigs/manage?tab=" + GigStatus.ACTIVE);
+              }}
+            >
+              Back <br />
+              to manage
+            </button>
+          </Tooltip>
         </div>
       </Box>
 
@@ -291,7 +304,7 @@ export default function GigAddEdit({ isEditGig = false }: Props) {
           />
         )}
 
-        {tab === tabs[4].label && !isEditGig && (
+        {tab === tabs[4].label && (
           <GigPublish
             switchToTab={setTab}
             tabs={tabs}

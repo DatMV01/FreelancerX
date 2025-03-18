@@ -57,7 +57,10 @@ const UploadFile = forwardRef(
     }));
 
     useEffect(() => {
-      if (fileInfomation) setPreview(fileInfomation.url);
+      if (fileInfomation) {
+        setPreview(fileInfomation.url);
+        setFileInfo(fileInfomation);
+      }
     }, []);
 
     useEffect(() => {

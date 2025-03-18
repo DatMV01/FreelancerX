@@ -37,23 +37,26 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @AutoMap()
+  @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
+    eager: true,
   })
   @JoinColumn({ referencedColumnName: 'slug' })
   category: CategoryEntity | null;
 
-  @AutoMap()
+  @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
+    eager: true,
   })
   @JoinColumn({ referencedColumnName: 'slug' })
   subCategory: CategoryEntity | null;
 
-  @AutoMap()
+  @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
     nullable: true,
+    eager: true,
   })
   @JoinColumn({ referencedColumnName: 'slug' })
   nestedSubcategory: CategoryEntity | null;
@@ -141,7 +144,9 @@ export class GigEntity extends BaseEntity {
   views: number;
 
   @AutoMap(() => UserEntity)
-  @ManyToOne(() => UserEntity, (user) => user.gigs)
+  @ManyToOne(() => UserEntity, (user) => user.gigs, {
+    eager: true,
+  })
   @JoinColumn({ name: 'seller' })
   seller: UserEntity;
 

@@ -14,7 +14,7 @@ interface Props {
   setGig: any;
 }
 
-const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
+const GigGallary = ({ switchToTab, tabs, gig, setGig }: Props) => {
   const uploadRefs = {
     image1: useRef<any>(null),
     image2: useRef<any>(null),
@@ -53,6 +53,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
             fileType="image"
             updateGigCb={setGig}
             autoUpload
+            fileInfomation={gig?.images?.image1}
           />
           <UploadFile
             ref={uploadRefs.image2}
@@ -60,6 +61,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
             fileType="image"
             updateGigCb={setGig}
             autoUpload
+            fileInfomation={gig?.images?.image2}
           />
           <UploadFile
             ref={uploadRefs.image3}
@@ -67,6 +69,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
             autoUpload
             updateGigCb={setGig}
             fileType="image"
+            fileInfomation={gig?.images?.image3}
           />
         </div>
       </div>
@@ -88,6 +91,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
           updateGigCb={setGig}
           className="h-[400px] w-full"
           autoUpload
+          fileInfomation={gig?.video}
         />
       </div>
       <Divider />
@@ -104,6 +108,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
             className="h-[400px] w-full"
             updateGigCb={setGig}
             autoUpload
+            fileInfomation={gig?.documents?.document1}
           />
           <UploadFile
             ref={uploadRefs.document2}
@@ -112,6 +117,7 @@ const GigGallary = ({ switchToTab, tabs, setGig }: Props) => {
             className="h-[400px] w-full"
             updateGigCb={setGig}
             autoUpload
+            fileInfomation={gig?.documents?.document2}
           />
         </div>
       </div>

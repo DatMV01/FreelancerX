@@ -23,6 +23,12 @@ export abstract class BaseService<T extends ObjectLiteral> {
     });
   }
 
+  async findOneBySlug(slug: string): Promise<T | null> {
+    return await this.repository.findOne({
+      where: { slug } as unknown as FindOptionsWhere<T>,
+    });
+  }
+
   async update(id: any, data: DeepPartial<T>): Promise<T | null> {
     await this.repository.update(id, data as any);
     return this.findOne(id);
@@ -64,65 +70,64 @@ export abstract class BaseService<T extends ObjectLiteral> {
       if (!_value) return;
 
       if (Array.isArray(_value)) {
-        queryBuilder.andWhere(`${key} IN (:...${key})`, {
+        queryBuilder.andWhere(`${queryBuilder.alias}.${key} IN (:...${key})`, {
           [key]: _value,
         });
       } else if (typeof _value === 'string') {
         const value = String(_value).trim().toLowerCase();
 
         if (value.startsWith('like_')) {
-          queryBuilder.andWhere(`${key} LIKE ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key} LIKE ${key}`, {
             [key]: `%${value.replace('like_', '').trim()}%`,
           });
         }
         // larger than
         else if (value.startsWith('>_')) {
-          queryBuilder.andWhere(`${key} > ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key}  > ${key}`, {
             [key]: value.replace('>_', '').trim(),
           });
         }
         // larger than or equal
         else if (value.startsWith('>=_')) {
-          queryBuilder.andWhere(`${key} >= ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key} >= ${key}`, {
             [key]: value.replace('>=_', '').trim(),
           });
         }
         // smaller than
         else if (value.startsWith('<_')) {
-          queryBuilder.andWhere(`${key} < ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key}  < ${key}`, {
             [key]: value.replace('<_', '').trim(),
           });
         }
         // smaller than or equal
         else if (value.startsWith('<=_')) {
-          queryBuilder.andWhere(`${key} <= ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key} <= ${key}`, {
             [key]: value.replace('<=_', '').trim(),
           });
         }
         // equal
         else if (value.startsWith('=_')) {
-          queryBuilder.andWhere(`${key} = ${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key} = ${key}`, {
             [key]: value.replace('=_', '').trim(),
           });
         } else {
-          queryBuilder.andWhere(`${key} = :${key}`, {
+          queryBuilder.andWhere(`${queryBuilder.alias}.${key} =:${key}`, {
             [key]: value,
           });
         }
-      } else {
-        queryBuilder.andWhere(`${key} IS NULL`);
+      } else if (!_value) {
+        queryBuilder.andWhere(`${queryBuilder.alias}.${key} IS NULL`);
       }
-
-      console.log(queryBuilder.getQuery());
-
       appliedFilters.add(key);
     });
 
     Object.keys(sort).forEach((key) => {
       if (appliedFilters.has(key)) return;
 
-      queryBuilder.addOrderBy(key, sort[key].toUpperCase());
-
+      queryBuilder.addOrderBy(
+        `${queryBuilder.alias}.${key}`,
+        sort[key].toUpperCase(),
+      );
       appliedFilters.add(key);
     });
 

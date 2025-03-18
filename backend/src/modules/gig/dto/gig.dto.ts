@@ -6,6 +6,7 @@ import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { Transform, TransformationType } from 'class-transformer';
 
 export class PricingPackage {
   @AutoMap()
@@ -80,13 +81,31 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   title: string;
 
-  @AutoMap()
+  @AutoMap(() => CategoryDto)
+  @Transform(({ value, key, obj, type, options }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS) {
+    } else if (type === TransformationType.CLASS_TO_PLAIN) {
+      return value?.slug || null;
+    }
+  })
   category: CategoryDto;
 
-  @AutoMap()
+  @AutoMap(() => CategoryDto)
+  @Transform(({ value, key, obj, type, options }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS) {
+    } else if (type === TransformationType.CLASS_TO_PLAIN) {
+      return value?.slug || null;
+    }
+  })
   subCategory: CategoryDto;
 
-  @AutoMap()
+  @AutoMap(() => CategoryDto)
+  @Transform(({ value, key, obj, type, options }) => {
+    if (type === TransformationType.PLAIN_TO_CLASS) {
+    } else if (type === TransformationType.CLASS_TO_PLAIN) {
+      return value?.slug || null;
+    }
+  })
   nestedSubcategory?: CategoryDto;
 
   @AutoMap(() => String)

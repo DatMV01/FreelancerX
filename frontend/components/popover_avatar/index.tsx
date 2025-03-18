@@ -1,17 +1,16 @@
-import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, CircleDollarSign } from "lucide-react";
-import { Badge, Divider, Avatar, CircularProgress } from "@mui/material";
-import { ScrollArea } from "../ui/scroll-area";
-import AvatarOnline from "../avatar_online";
-import Link from "next/link";
+import { Avatar, Divider } from "@mui/material";
+import { CircleDollarSign } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { Button } from "../ui/button";
+import { useState } from "react";
+import AvatarOnline from "../avatar_online";
+import { ScrollArea } from "../ui/scroll-area";
 
 const PopoverAvatar = () => {
   const router = useRouter();
@@ -58,7 +57,7 @@ const PopoverAvatar = () => {
               >
                 Buyer Profile
               </Link>
-              
+
               <Link
                 href={`/seller/${username}/profile`}
                 className="p-4 text-center hover:bg-green-50 hover:text-green-500"

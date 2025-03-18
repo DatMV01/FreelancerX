@@ -133,6 +133,17 @@ export abstract class BaseController<
     return this.toDtoDefault(entity);
   }
 
+  @Get('/slug/:slug')
+  async findOneBySlug(@Param('slug') slug: string) {
+    const entity = await this.baseService.findOneBySlug(slug);
+
+    if (!entity) {
+      throw new NotFoundException(`Gig with slug: ${slug} not found`);
+    }
+
+    return this.toDtoDefault(entity);
+  }
+
   @Patch(':id')
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   async update(

@@ -17,21 +17,48 @@ export class GigService extends BaseService<GigEntity> {
   protected additionalQuery(
     queryBuilder: SelectQueryBuilder<GigEntity>,
     appliedFilters: Set<string>,
-    filters: any,
+    filters: Record<string, any>,
     sort: any,
   ): SelectQueryBuilder<GigEntity> {
-    Object.keys(filters).forEach((key) => {
-      if (appliedFilters.has(key)) return;
+    if (!filters || Object.keys(filters).length === 0) {
+      console.warn('No filters provided or empty object:', filters);
+      return queryBuilder;
+    }
 
-      const value = String(filters[key]).trim();
-      if (String(key).trim().toLowerCase() === 'day_range') {
-        const isNumber = isNumberParse(value.replaceAll(`'`, ``));
-        if (isNumber) {
+    queryBuilder
+      .leftJoin(`${queryBuilder.alias}.category`, 'category')
+      .addSelect(['category.id', 'category.slug']);
+
+    queryBuilder.leftJoinAndSelect(
+      `${queryBuilder.alias}.subCategory`,
+      'subCategory',
+    );
+
+    queryBuilder.leftJoinAndSelect(
+      `${queryBuilder.alias}.nestedSubcategory`,
+      'nestedSubcategory',
+    );
+
+    Object.entries(filters).forEach(([key, value]) => {
+      const filterKey = key.trim().toLowerCase();
+      const filterValue = String(value).trim();
+
+      if (appliedFilters.has(filterKey)) return;
+
+      if (filterKey === 'day_range') {
+        const isNumber = isNumberParse(filterValue.replaceAll(`'`, ``));
+        const dayRange = Number(filterValue);
+
+        if (isNumber && dayRange > 0) {
           queryBuilder.andWhere(
-            `${queryBuilder.alias}.updatedAt >= DATE_SUB(NOW(), INTERVAL ${value} DAY)`,
+            `${queryBuilder.alias}.updatedAt >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL :dayRange DAY)`,
+            { dayRange },
           );
+        } else {
+          console.error(`Invalid "day_range" filter value:`, filterValue);
         }
-        appliedFilters.add(key);
+
+        appliedFilters.add(filterKey);
       }
     });
 

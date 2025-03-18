@@ -1,4 +1,8 @@
-import { Controller, Post, SerializeOptions } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  SerializeOptions
+} from '@nestjs/common';
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { BaseController } from '../base/base.controller';
 import { CreateGigDto } from './dto/create-gig.dto';
