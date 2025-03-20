@@ -132,7 +132,7 @@ const GigLitstingSection = () => {
         "lg:grid-cols-3",
       )}
     >
-      {Array.from({ length: 30 }, (_, i) => (
+      {Array.from({ length: 9 }, (_, i) => (
         <GigCard key={i} />
       ))}
     </div>

@@ -623,42 +623,42 @@ export const categoriesMenuData = [
   {
     id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     title: "Programming & Tech",
-    href: "/categories/programming-tech?source=category_tree",
+    href: "/categories/programming-tech",
   },
   {
     id: "9a1d2c3e-456b-4d0c-8235-8d59a3fbbbcf",
     title: "Graphics & Design",
-    href: "/categories/graphics-design?source=category_tree",
+    href: "/categories/graphics-design",
   },
   {
     id: "2e8b6f9d-8d5a-4c0b-b43c-5f8e0b6d5c21",
     title: "Digital Marketing",
-    href: "/categories/online-marketing?source=category_tree",
+    href: "/categories/online-marketing",
   },
   {
     id: "7f5d6a4b-3c2e-1d0f-89ab-4e3d7c6f5a8b",
     title: "Video & Animation",
-    href: "/categories/video-animation?source=category_tree",
+    href: "/categories/video-animation",
   },
   {
     id: "3b9e5c2d-7a6f-4d1b-82c3-6f0a5e8d7b2c",
     title: "Writing & Translation",
-    href: "/categories/writing-translation?source=category_tree",
+    href: "/categories/writing-translation",
   },
   {
     id: "1c7d5a9b-8f6e-4d3b-92a1-5b8e0c6d3f2e",
     title: "Music & Audio",
-    href: "/categories/music-audio?source=category_tree",
+    href: "/categories/music-audio",
   },
   {
     id: "5f8a2c3d-6b4e-7d1f-89c0-2e3d7b6a5f9d",
     title: "Business",
-    href: "/categories/business?source=category_tree",
+    href: "/categories/business",
   },
   {
     id: "4e7d1f6a-3b5c-9d2e-0a8b-6f5d7c2e3d1f",
     title: "Finance",
-    href: "/categories/finance?source=category_tree",
+    href: "/categories/finance",
   },
   {
     id: "6a9d2b3e-5c7f-1d4e-80a3-7f5d6c2e3b1f",
@@ -668,7 +668,7 @@ export const categoriesMenuData = [
   {
     id: "2d7f5b6a-4c3e-1d9f-80a2-6b5d7c3e1f9d",
     title: "Personal Growth",
-    href: "/categories/lifestyle?source=category_tree",
+    href: "/categories/lifestyle",
   },
   {
     id: "3c7d5b6a-9f2e-4d1f-80a5-6f5d7c3e2b9d",
@@ -678,11 +678,11 @@ export const categoriesMenuData = [
   {
     id: "7b5d6a9f-3c2e-1d4f-80a7-5f6d7c3e2b9d",
     title: "Data",
-    href: "/categories/data?source=category_tree",
+    href: "/categories/data",
   },
   {
     id: "5c7d6a9f-3b2e-1d4f-80a6-7f5d7c3e2b9d",
     title: "Photography",
-    href: "/categories/photography?source=category_tree",
+    href: "/categories/photography",
   },
 ];

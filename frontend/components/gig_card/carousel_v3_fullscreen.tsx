@@ -80,8 +80,8 @@ const CarouselV2Fullscreen = () => {
   return (
     <>
       {fullscreenImage ? (
-        <div className="fixed inset-0 left-0 top-0 z-50 flex h-full w-full bg-black bg-opacity-90 p-16">
-          {/* <div className="flex h-full w-full justify-center">
+        <div className="fixed inset-0 z-50 flex h-full w-full bg-black bg-opacity-90 p-16">
+          <div className="flex h-full w-full justify-center">
             <Swiper
               loop
               //navigation={true}
@@ -133,7 +133,7 @@ const CarouselV2Fullscreen = () => {
                 }
               })}
             </Swiper>
-          </div> */}
+          </div>
 
           <Button
             variant="ghost"

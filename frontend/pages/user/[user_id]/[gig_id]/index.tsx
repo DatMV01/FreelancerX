@@ -23,6 +23,8 @@ import { LoremIpsum } from "lorem-ipsum";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import SearchBar from "@/components/searchbar";
+import { GigDto } from "@/dto/gig.dto";
+import axiosInstance from "@/lib/apiClient";
 
 const TabPanel = ({
   children,
@@ -845,7 +847,7 @@ const CommentsSection = () => {
   });
 
   useEffect(() => {
-    const initialReviews = Array.from({ length: 10 }, () => comment());
+    const initialReviews = Array.from({ length: 2 }, () => comment());
     setReviews(initialReviews as any);
   }, []);
 
@@ -901,6 +903,33 @@ const BrowsingHistory = () => {
 };
 
 const GigDetail = () => {
+   const router = useRouter();
+    const { slug } = router.query;
+  
+    const [isLoading, setLoading] = useState(false);
+    const [gig, setGig] = useState<GigDto | null>(null);
+  
+    useEffect(() => {
+      setLoading(true);
+      const fetchData = async () => {
+        setLoading(true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+  
+        try {
+          const response = await axiosInstance.get(`/gig/slug/${slug}`);
+          const { data, meta } = response.data;
+          setGig(data);
+        } catch (error) {
+          alert("Error fetching data:" + error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      if (slug) fetchData();
+    }, [slug]);
+  
+
   return (
     <>
       <BreadcumSection />

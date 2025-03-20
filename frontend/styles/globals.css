@@ -7,7 +7,7 @@
 }
 
 .custom-pagination .swiper-pagination-bullet-active {
-  @apply scale-125 bg-gray-500 opacity-100;
+  @apply scale-125 bg-black opacity-100;
 }
 
 .ck-editor__editable {

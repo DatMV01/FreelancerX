@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useRouter } from "next/router";
 
-const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
+const BreadcrumbCategory = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
   const router = useRouter();
 
   const { category, subcategory, subsubcategory } =
@@ -76,4 +76,4 @@ const BreadcrumbCpn = ({ categoryInfo, ...props }: { categoryInfo?: any }) => {
   );
 };
 
-export default BreadcrumbCpn;
+export default BreadcrumbCategory;

@@ -34,8 +34,9 @@ export interface Requirement {
 }
 
 export interface FAQ {
+  id:string,
   question: string;
-  aswer: string;
+  answer: string;
 }
 
 export enum GigStatus {
