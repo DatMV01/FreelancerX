@@ -36,18 +36,18 @@ export class RoleSeedService {
         description:
           'A person who buys services from freelancers, can view gigs, place orders, and make payments.',
       },
-      {
-        id: RoleEnum.GUEST,
-        name: RoleEnum[RoleEnum.GUEST],
-        description:
-          'A user who has not registered or logged into the system and can only search for services and view gigs.',
-      },
-      {
-        id: RoleEnum.REGISTERED,
-        name: RoleEnum[RoleEnum.REGISTERED],
-        description:
-          'A user who has created an account and can perform actions such as searching for gigs, registering for gigs, submitting requests, or purchasing services.',
-      },
+      // {
+      //   id: RoleEnum.GUEST,
+      //   name: RoleEnum[RoleEnum.GUEST],
+      //   description:
+      //     'A user who has not registered or logged into the system and can only search for services and view gigs.',
+      // },
+      // {
+      //   id: RoleEnum.REGISTERED,
+      //   name: RoleEnum[RoleEnum.REGISTERED],
+      //   description:
+      //     'A user who has created an account and can perform actions such as searching for gigs, registering for gigs, submitting requests, or purchasing services.',
+      // },
     ];
 
     await this.repository.save(roles);

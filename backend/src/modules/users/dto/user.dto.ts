@@ -4,11 +4,12 @@ import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { AuthProvidersEnum } from 'src/modules/auth/enum/auth-providers.enum';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { RoleDto } from 'src/modules/roles/dto/role.dto';
+import { SellerDto } from 'src/modules/seller/dto/seller.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
-  email: string | null;
+  identifier: string;
 
   @Expose({ groups: [ADMIN_GROUP, ME_GROUP], toPlainOnly: true })
   @AutoMap()
@@ -21,19 +22,22 @@ export class UserDto extends BaseDto<UserDto> {
   socialId?: string | null;
 
   @AutoMap()
-  firstName: string | null;
+  fullName: string;
 
   @AutoMap()
-  lastName: string | null;
+  sellerProfile: SellerDto;
 
   @AutoMap()
-  photo?: string | null;
+  avatar?: string | null;
 
   @AutoMap()
+  phoneNumber?: string;
+
+  @AutoMap(() => RoleDto)
   @Transform(({ value }) => value.name)
-  role?: RoleDto | null;
+  role: RoleDto;
 
-  @AutoMap()
+  @AutoMap(() => StatusDto)
   @Transform(({ value }) => value.name)
   status?: StatusDto;
 }

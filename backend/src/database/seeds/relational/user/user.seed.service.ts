@@ -18,11 +18,10 @@ export class UserSeedService {
     await this.repository.query('SET FOREIGN_KEY_CHECKS=0;');
     await this.repository.clear();
     await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
-    
+
     const users: Partial<UserEntity>[] = [
       {
-        firstName: 'Super',
-        lastName: 'Admin',
+        fullName: 'Super Admin',
         email: 'admin@example.com',
         password: bcrypt.hashSync('admin123', 10),
         role: {
@@ -34,14 +33,25 @@ export class UserSeedService {
       },
     ];
 
-    for (let index = 1; index <= 100; index++) {
+    users.push({
+      email: 'amina_bogan@yahoo.com',
+      fullName: faker.person.lastName() + faker.person.firstName(),
+      password: bcrypt.hashSync('user123', 10),
+      role: {
+        id: Math.floor(Math.random() * 3 + 1),
+      } as any,
+      status: {
+        id: Math.floor(Math.random() * 4 + 1),
+      } as any,
+    });
+
+    for (let index = 1; index <= 50; index++) {
       users.push({
         email: faker.internet.email().toLowerCase(),
-        firstName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
+        fullName: faker.person.lastName() + faker.person.firstName(),
         password: bcrypt.hashSync('user123', 10),
         role: {
-          id: Math.floor(Math.random() * 4 + 2),
+          id: Math.floor(Math.random() * 3 + 1),
         } as any,
         status: {
           id: Math.floor(Math.random() * 4 + 1),

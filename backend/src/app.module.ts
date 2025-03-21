@@ -25,6 +25,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import authConfig from './modules/auth/config/auth.config';
 import { RatingModule } from './modules/rating/rating.module';
+import { SellerModule } from './modules/seller/seller.module';
 
 @Module({
   imports: [
@@ -54,7 +55,8 @@ import { RatingModule } from './modules/rating/rating.module';
     ReviewModule,
     CategoryModule,
     NotificationModule,
-    RatingModule
+    RatingModule,
+    SellerModule
   ],
   controllers: [AppController],
   providers: [AppService],

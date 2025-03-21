@@ -1,6 +1,14 @@
-import { HttpStatus, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpStatus,
+  UnprocessableEntityException
+} from '@nestjs/common';
 import { Transform, TransformationType, Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength
+} from 'class-validator';
 import { AuthProvidersEnum } from 'src/modules/auth/enum/auth-providers.enum';
 import { RoleDto } from 'src/modules/roles/dto/role.dto';
 import { RoleEnum } from 'src/modules/roles/roles.enum';
@@ -8,25 +16,24 @@ import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 
 export class CreateUserDto {
+  @IsString()
   @IsNotEmpty()
-  @IsEmail()
-  email: string | null;
+  identifier: string; // Can be email or username
 
   @MinLength(6)
   password?: string;
 
+  @IsOptional()
   provider?: string = AuthProvidersEnum.email;
 
+  @IsOptional()
   socialId?: string | null;
 
   @IsNotEmpty()
-  firstName: string | null;
-
-  @IsNotEmpty()
-  lastName: string | null;
+  fullName: string;
 
   @IsOptional()
-  photo?: string | null;
+  avatar?: string | null;
 
   @IsOptional()
   @Type(() => RoleDto)

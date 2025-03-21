@@ -12,17 +12,18 @@ import {
 import { OrderStatus } from '../enum/order.status';
 import { OrderDetailEntity } from 'src/modules/orderdetail/entities/orderdetail.entity';
 import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
+import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.orders)
+  @ManyToOne(() => UserEntity, (user) => user.buyerorders)
   @JoinColumn({ name: 'buyer_id' })
   buyer: UserEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.sellerOrders)
+  @ManyToOne(() => SellerEntity, (user) => user.sellerOrders)
   @JoinColumn({ name: 'seller_id' })
   seller: UserEntity;
 

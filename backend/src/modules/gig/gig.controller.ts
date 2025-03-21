@@ -1,8 +1,4 @@
-import {
-  Controller,
-  Post,
-  SerializeOptions
-} from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Post, SerializeOptions } from '@nestjs/common';
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { BaseController } from '../base/base.controller';
 import { CreateGigDto } from './dto/create-gig.dto';
@@ -38,6 +34,17 @@ export class GigController extends BaseController<
     }
 
     return super.create(data);
+  }
+
+  @Get('/slug/:slug')
+  async findOneBySlug(@Param('slug') slug: string) {
+    const entity = await this.baseService.findOneBySlug(slug);
+
+    if (!entity) {
+      throw new NotFoundException(`Gig with slug: ${slug} not found`);
+    }
+
+    return this.toDtoDefault(entity);
   }
 
   protected additionalMapping(dto: GigDto, entity: GigEntity): GigDto {

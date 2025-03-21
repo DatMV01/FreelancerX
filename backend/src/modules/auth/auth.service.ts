@@ -38,7 +38,7 @@ export class AuthService {
   ) {}
 
   async validateUser(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
-    const user = await this.usersService.findByEmail(loginDto.email);
+    const user = await this.usersService.findByEmailOrUsername(loginDto.identifier);
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -161,9 +161,12 @@ export class AuthService {
   async register(createUserDto: AuthRegisterLoginDto): Promise<UserDto> {
     const createUser = await this.usersService.create({
       ...createUserDto,
-      email: createUserDto.email,
+      identifier: createUserDto.identifier,
+      fullName: createUserDto.fullName,
+      // firstName: createUserDto.firstName,
+      // lastName: createUserDto.lastName,
       role: {
-        id: RoleEnum.REGISTERED,
+        id: RoleEnum.BUYER,
       } as any,
       status: {
         id: StatusEnum.PENDING_VERIFICATION,

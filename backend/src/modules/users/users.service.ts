@@ -13,8 +13,8 @@ import {
   Repository,
   SortDirection,
 } from 'typeorm';
+import validator from 'validator';
 import { AuthProvidersEnum } from '../auth/enum/auth-providers.enum';
-import { FileType } from '../files/domain/file.domain';
 import { FilesLocalService } from '../files/files.service';
 import { RoleEntity } from '../roles/entities/role.entity';
 import { RoleEnum } from '../roles/roles.enum';
@@ -38,25 +38,19 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDto> {
-    const {
-      email,
-      role,
-      status,
-      password,
-      firstName,
-      lastName,
-      provider,
-      socialId,
-    } = createUserDto;
+    const { identifier, role, status, password, fullName, provider } =
+      createUserDto;
 
     // Validate email
-    if (email) {
-      const userObject = await this.findByEmail(createUserDto.email);
+    if (identifier) {
+      const userObject = await this.findByEmailOrUsername(
+        createUserDto.identifier,
+      );
       if (userObject) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
-            email: 'emailAlreadyExists',
+            identifier: 'EmailOrUsernameAlreadyExists',
           },
         });
       }
@@ -91,33 +85,20 @@ export class UsersService {
       ? await bcrypt.hash(password, UsersService.SALT)
       : undefined;
 
-    let photo: string | undefined | null = createUserDto.photo;
-    // if (createUserDto.photo?.id) {
-    //   const fileObject = await this.filesService.findById(
-    //     createUserDto.photo.id,
-    //   );
+    let avatar: string | undefined | null = createUserDto.avatar;
 
-    //   if (!fileObject) {
-    //     throw new UnprocessableEntityException({
-    //       status: HttpStatus.UNPROCESSABLE_ENTITY,
-    //       errors: {
-    //         photo: 'imageNotExists',
-    //       },
-    //     });
-    //   }
-    //   photo = fileObject;
-    // }
+    const isEmail = validator.isEmail(identifier || '');
 
     const entity: DeepPartial<UserEntity> = {
-      firstName,
-      lastName,
-      email: email || null,
+      fullName,
+      email: isEmail ? identifier : undefined,
+      username: !isEmail ? identifier : undefined,
       password: hashedPassword,
-      photo,
+      avatar,
       role: validatedRole,
       status: validatedStatus,
       provider: provider ?? AuthProvidersEnum.email,
-      socialId,
+      // socialId,
     };
 
     // Create user entity
@@ -127,11 +108,13 @@ export class UsersService {
     return UserMapper.toDomain(createdUser as any);
   }
 
-  async findByEmail(email: UserDto['email']): Promise<NullableType<UserDto>> {
-    if (!email) return null;
+  async findByEmailOrUsername(
+    identifier: UserDto['identifier'],
+  ): Promise<NullableType<UserDto>> {
+    if (!identifier) return null;
 
     const entity = await this.usersRepository.findOne({
-      where: { email },
+      where: [{ email: identifier }, { username: identifier }],
     });
 
     return entity ? UserMapper.toDomain(entity) : null;
@@ -208,17 +191,31 @@ export class UsersService {
       updateUserDto.password,
     );
 
-    const email = await this.validateAndResolveEmail(id, updateUserDto.email);
+    const identifier = await this.validateAndResolveEmailOrUsername(
+      id,
+      updateUserDto.identifier,
+    );
 
-    const { firstName, lastName, status, provider, socialId, role } =
-      updateUserDto;
+    const {
+      // firstName,
+      // lastName,
+      fullName,
+      status,
+      provider,
+      socialId,
+      role,
+    } = updateUserDto;
+
+    const isEmail = validator.isEmail(identifier || '');
 
     const updateResult = this.usersRepository.update(id, {
-      firstName,
-      lastName,
-      email,
-      password,
-      photo: updateUserDto.photo,
+      // firstName,
+      // lastName,
+      fullName,
+      email: isEmail ? identifier : undefined,
+      username: !isEmail ? identifier : undefined,
+      password: password,
+      avatar: updateUserDto.avatar,
       role: {
         id: role?.id,
       } as any,
@@ -226,7 +223,7 @@ export class UsersService {
         id: status?.id,
       } as any,
       provider,
-      socialId,
+      // socialId,
     });
 
     return updateResult as any;
@@ -247,24 +244,24 @@ export class UsersService {
     return undefined;
   }
 
-  private async validateAndResolveEmail(
+  private async validateAndResolveEmailOrUsername(
     userId: UserDto['id'],
-    email?: string | null,
-  ): Promise<string | null | undefined> {
-    if (email === undefined) return undefined;
+    identifier?: string | null,
+  ): Promise<string | undefined> {
+    if (identifier === undefined || identifier === null) return undefined;
 
-    if (email === null) return null;
+    // if (email === null) return null;
 
-    const existingUser = await this.findByEmail(email);
+    const existingUser = await this.findByEmailOrUsername(identifier);
 
     if (existingUser && existingUser.id !== userId) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: { email: 'emailAlreadyExists' },
+        errors: { identifier: 'has already existed' },
       });
     }
 
-    return email;
+    return identifier;
   }
 
   async delete(userId: string): Promise<boolean> {

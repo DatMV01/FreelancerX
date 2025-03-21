@@ -1,34 +1,36 @@
-import { Mapper, createMap, forMember, mapFrom } from '@automapper/core';
+import { Mapper, createMap } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
-import { RoleDto } from '../../modules/roles/dto/role.dto';
-import { RoleEntity } from '../../modules/roles/entities/role.entity';
-import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { StatusDto } from 'src/modules/status/dto/status.dto';
-import { SessionEntity } from 'src/modules/session/entities/session.entity';
-import { SessionDto } from 'src/modules/session/dto/session.dto';
+import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
+import { GigDto } from 'src/modules/gig/dto/gig.dto';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { GigDto, PricingPackage } from 'src/modules/gig/dto/gig.dto';
-import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { OrderDto } from 'src/modules/order/dto/order.dto';
-import { OrderDetailEntity } from 'src/modules/orderdetail/entities/orderdetail.entity';
-import { OrderDetailDto } from 'src/modules/orderdetail/dto/orderdetail.dto';
-import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
-import { PaymentDto } from 'src/modules/payment/dto/payment.dto';
-import { ReviewEntity } from 'src/modules/review/entities/review.entity';
-import { ReviewDto } from 'src/modules/review/dto/review.dto';
-import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
-import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
-import { RatingReplyEntity } from 'src/modules/rating/entities/rating-reply.entity';
+import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
+import { OrderDto } from 'src/modules/order/dto/order.dto';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { OrderDetailDto } from 'src/modules/orderdetail/dto/orderdetail.dto';
+import { OrderDetailEntity } from 'src/modules/orderdetail/entities/orderdetail.entity';
+import { PaymentDto } from 'src/modules/payment/dto/payment.dto';
+import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
 import { RatingReplyDto } from 'src/modules/rating/dto/rating-reply.dto';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+import { RatingReplyEntity } from 'src/modules/rating/entities/rating-reply.entity';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewDto } from 'src/modules/review/dto/review.dto';
+import { ReviewEntity } from 'src/modules/review/entities/review.entity';
+import { SellerDto } from 'src/modules/seller/dto/seller.dto';
+import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
+import { SessionDto } from 'src/modules/session/dto/session.dto';
+import { SessionEntity } from 'src/modules/session/entities/session.entity';
+import { StatusDto } from 'src/modules/status/dto/status.dto';
+import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { UserDto } from 'src/modules/users/dto/user.dto';
+import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { BaseEntity } from 'typeorm';
-import { BaseDto } from 'src/modules/base/dto/base.dto';
+import { RoleDto } from '../../modules/roles/dto/role.dto';
+import { RoleEntity } from '../../modules/roles/entities/role.entity';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -99,6 +101,9 @@ export class AutoMapper extends AutomapperProfile {
         //   mapFrom((source) => source.tags || []),
         // ),
       );
+
+      createMap(mapper, SellerEntity, SellerDto);
+      createMap(mapper, SellerDto, SellerEntity);
     };
   }
 }

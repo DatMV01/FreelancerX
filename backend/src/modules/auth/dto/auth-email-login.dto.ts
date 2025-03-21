@@ -4,9 +4,8 @@ import { lowerCaseTransformer } from 'src/utils/transformers/lower-case.transfor
 
 export class AuthEmailLoginDto {
   @Transform(lowerCaseTransformer)
-  @IsEmail()
   @IsNotEmpty()
-  email: string;
+  identifier: string;
 
   @IsNotEmpty()
   password: string;

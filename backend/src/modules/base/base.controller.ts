@@ -13,6 +13,7 @@ import {
   Query,
   SerializeOptions,
   Type,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FindOptionsOrder, FindOptionsWhere, ObjectLiteral } from 'typeorm';
@@ -24,6 +25,7 @@ import {
 } from 'src/common/constant/serialize.group';
 import { QueryDto } from './dto/query.dto';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -41,6 +43,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
+  //  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
@@ -123,6 +126,7 @@ export abstract class BaseController<
   }
 
   @Get(':id')
+  // @UseGuards(AuthGuard('jwt'))
   async findOne(@Param('id') id: string) {
     const entity = await this.baseService.findOne(id);
 
@@ -133,18 +137,8 @@ export abstract class BaseController<
     return this.toDtoDefault(entity);
   }
 
-  @Get('/slug/:slug')
-  async findOneBySlug(@Param('slug') slug: string) {
-    const entity = await this.baseService.findOneBySlug(slug);
-
-    if (!entity) {
-      throw new NotFoundException(`Gig with slug: ${slug} not found`);
-    }
-
-    return this.toDtoDefault(entity);
-  }
-
   @Patch(':id')
+  //@UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   async update(
     @Param('id') id: string,
@@ -160,6 +154,7 @@ export abstract class BaseController<
   }
 
   @Delete(':id')
+  // @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
     return this.baseService.remove(id);
   }

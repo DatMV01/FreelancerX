@@ -25,6 +25,7 @@ import {
   Requirement,
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
+import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
 
 @Entity({ name: 'gig' })
 export class GigEntity extends BaseEntity {
@@ -143,12 +144,12 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'int', default: 0 })
   views: number;
 
-  @AutoMap(() => UserEntity)
-  @ManyToOne(() => UserEntity, (user) => user.gigs, {
+  @AutoMap(() => SellerEntity)
+  @ManyToOne(() => SellerEntity, (user) => user.gigs, {
     eager: true,
   })
   @JoinColumn({ name: 'seller' })
-  seller: UserEntity;
+  seller: SellerEntity;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })

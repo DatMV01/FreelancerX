@@ -1,17 +1,19 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { RoleEntity } from 'src/modules/roles/entities/role.entity';
+import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import {
   Column,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -24,8 +26,13 @@ export class UserEntity extends BaseEntity {
   id: string;
 
   @AutoMap()
+  @Index()
   @Column({ type: String, unique: true, nullable: true })
-  email: string | null;
+  email: string;
+
+  @Column({ type: String, unique: true, nullable: true })
+  @Index()
+  username?: string;
 
   @AutoMap()
   @Column({ nullable: true })
@@ -35,49 +42,53 @@ export class UserEntity extends BaseEntity {
   @Column({ default: 'email' })
   provider: string;
 
-  @AutoMap()
-  @Index()
-  @Column({ type: String, nullable: true })
-  socialId?: string | null;
+  // @AutoMap()
+  // @Column({ type: String, nullable: true })
+  // socialId?: string | null;
 
   @AutoMap()
-  @Index()
-  @Column({ type: String, nullable: true })
-  firstName: string | null;
-
-  @AutoMap()
-  @Index()
-  @Column({ type: String, nullable: true })
-  lastName: string | null;
+  @Column({ nullable: false })
+  fullName: string;
 
   @AutoMap()
   @Column({ type: String, nullable: true })
-  photo?: string | null;
+  avatar?: string | null;
 
-  @AutoMap()
-  @ManyToOne(() => RoleEntity, {
+  @Column({ nullable: true })
+  phoneNumber?: string;
+
+  @AutoMap(() => RoleEntity)
+  @ManyToOne(() => RoleEntity, (role) => role.users, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'role_id' })
+  role: RoleEntity;
+
+  @AutoMap(() => StatusEntity)
+  @ManyToOne(() => StatusEntity, (status) => status.users, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'status_id' })
+  status: StatusEntity;
+
+  @AutoMap(() => SellerEntity)
+  @OneToOne(() => SellerEntity, (seller) => seller.user, {
+    cascade: true,
     eager: true,
   })
-  role?: RoleEntity;
+  sellerProfile: SellerEntity;
 
-  @AutoMap()
-  @ManyToOne(() => StatusEntity, {
-    eager: true,
-  })
-  status?: StatusEntity;
-
-  @OneToMany(() => GigEntity, (gig) => gig.seller)
-  gigs: GigEntity[];
-
+  @AutoMap(() => [OrderEntity])
   @OneToMany(() => OrderEntity, (order) => order.buyer)
-  orders: OrderEntity[];
+  buyerorders: OrderEntity[];
 
-  @OneToMany(() => OrderEntity, (order) => order.seller)
-  sellerOrders: OrderEntity[];
-
+  @AutoMap(() => [ReviewEntity])
   @OneToMany(() => ReviewEntity, (review) => review.buyer)
   reviews: ReviewEntity[];
 
+  @AutoMap(() => [NotificationEntity])
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: NotificationEntity[];
 }
