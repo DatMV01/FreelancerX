@@ -26,12 +26,10 @@ export class UserEntity extends BaseEntity {
   id: string;
 
   @AutoMap()
-  @Index()
-  @Column({ type: String, unique: true, nullable: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   email: string;
 
-  @Column({ type: String, unique: true, nullable: true })
-  @Index()
+  @Column({ type: 'varchar', unique: true, nullable: true })
   username?: string;
 
   @AutoMap()

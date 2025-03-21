@@ -1,9 +1,11 @@
 import {
+  BeforeInsert,
   Column,
   Entity,
   JoinColumn,
   OneToMany,
   OneToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -13,17 +15,17 @@ import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 
-@Entity('sellers')
+@Entity('seller')
 export class SellerEntity extends BaseEntity {
   @AutoMap()
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid') // ID sẽ là FK từ UserEntity và là PK của SellerEntity
   id: string;
 
   @AutoMap(() => UserEntity)
   @OneToOne(() => UserEntity, (user) => user.sellerProfile, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'id' })
   user: UserEntity;
 
   @AutoMap()
@@ -81,4 +83,11 @@ export class SellerEntity extends BaseEntity {
   @AutoMap(() => [OrderEntity])
   @OneToMany(() => OrderEntity, (order) => order.seller)
   sellerOrders: OrderEntity[];
+
+  @BeforeInsert()
+  beforeInsert() {
+    if (this.user && typeof  this.user === "string") {
+      this.id = this.user as any;
+    }
+  }
 }

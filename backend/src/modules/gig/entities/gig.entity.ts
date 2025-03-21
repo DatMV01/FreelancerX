@@ -145,10 +145,10 @@ export class GigEntity extends BaseEntity {
   views: number;
 
   @AutoMap(() => SellerEntity)
-  @ManyToOne(() => SellerEntity, (user) => user.gigs, {
+  @ManyToOne(() => SellerEntity, (seller) => seller.gigs, {
     eager: true,
   })
-  @JoinColumn({ name: 'seller' })
+  @JoinColumn({ name: 'seller_id' })
   seller: SellerEntity;
 
   @AutoMap()

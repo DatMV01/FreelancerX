@@ -6,12 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -29,11 +24,11 @@ import CircularProgressCenter from "../CircularProgressCenter";
 
 // Improved schema with additional validation rules
 const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  emailOrUsername: z.string().min(6, { message: "Invalid email or username" }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters long" })
-    .regex(/[a-zA-Z0-9]/, { message: "Password must be alphanumeric" }),
+  //  .regex(/[a-zA-Z0-9]/, { message: "Password must be alphanumeric" }),
 });
 
 export default function SignInForm({
@@ -48,7 +43,7 @@ export default function SignInForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "amina_bogan@yahoo.com",
+      emailOrUsername: "amina_bogan@yahoo.com",
       password: "user123",
     },
   });
@@ -58,7 +53,7 @@ export default function SignInForm({
       setLoading(true);
 
       const res = await signIn("credentials", {
-        email: values.email,
+        identifier: values.emailOrUsername,
         password: values.password,
         redirect: false,
       });
@@ -67,7 +62,7 @@ export default function SignInForm({
 
       if (res?.error) {
         console.log(error);
-        setError("Invalid email or password");
+        setError("Invalid email or username");
       } else {
         setShowLoginForm(false);
         router.push("/");
@@ -90,15 +85,15 @@ export default function SignInForm({
               <div className="grid gap-4">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="emailOrUsername"
                   render={({ field }) => (
                     <FormItem className="grid gap-2">
-                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormLabel htmlFor="emailOrUsername">Email or username</FormLabel>
                       <FormControl>
                         <Input
-                          id="email"
+                          id="emailOrUsername"
                           placeholder="johndoe@mail.com"
-                          type="email"
+                          type="text"
                           autoComplete="email"
                           {...field}
                         />

@@ -64,16 +64,19 @@ export const authOptions: AuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email", required: true },
+        identifier: { label: "EmailOrUsername", type: "text", required: true },
         password: { label: "Password", type: "password", required: true },
       },
+      
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        debugger
+        if (!credentials?.identifier || !credentials?.password) {
           throw new Error("Missing credentials");
         }
 
         await setTimeout(1000);
         try {
+         
           const response = await fetch(
             `http://localhost:3000/api/v1/auth/email/login`,
             {
