@@ -1,4 +1,3 @@
-import SignInForm from "@/components/form/signin";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +20,7 @@ import { Scrollbar } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/scrollbar";
 import clsx from "clsx";
-import SearchBar from "@/components/searchbar";
+import SignInForm from "@/features/auth/components/LoginForm";
 
 const CategoriesSection = () => {
   return (

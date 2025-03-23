@@ -9,44 +9,37 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import AvatarOnline from "../avatar_online";
+import AvatarOnline from "../avatar_online/AvatarOnline";
 import { ScrollArea } from "../ui/scroll-area";
+import useGetUserInfo from "@/hooks/useGetUserInfo";
+import { stringAvatar } from "@/lib/utils";
 
 const PopoverAvatar = () => {
   const router = useRouter();
 
-  const [visibleCount, setVisibleCount] = useState(10);
+  const { isAuthenticated, user, session } = useGetUserInfo();
 
-  const [loading, setLoading] = useState(false);
-  const { data: session, status } = useSession();
-
-  console.log(session);
-
-  const username = session?.user.username || "fake_user_name";
+  const username = user?.username;
+  const fullName = user?.fullName;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <AvatarOnline />
+        <AvatarOnline showBadge />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <Divider />
         <ScrollArea className="max-h-[600px] w-full">
           <div className="flex flex-col">
             <div className="flex items-center gap-3 p-4">
-              <Avatar
-                src={`https://i.pravatar.cc/40?img=10`}
-                alt="Avatar"
-                sx={{ width: 50, height: 50 }}
-              />
+              <AvatarOnline height={50} width={50} />
+
               <div className="flex-1">
-                <p className="text-xl font-bold text-gray-700">usename</p>
-                <span className="text-md text-gray-500">
-                  useremail@gmail.com
-                </span>
-                <button className="flex text-green-500">
+                <p className="text-xl font-bold text-gray-700">{fullName}</p>
+                <span className="text-md text-gray-500">{user?.email}</span>
+                <div className="flex text-green-500">
                   <CircleDollarSign size={20} color="#22C55E " /> 100
-                </button>
+                </div>
               </div>
             </div>
 

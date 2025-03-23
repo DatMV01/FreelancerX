@@ -20,8 +20,9 @@ import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
 import axiosInstance from "@/lib/apiClient";
-import BreadcrumbCategory from "@/shared/components/BreadcrumbCategory";
 import { useRouter } from "next/router";
+import BreadcrumbCategory from "@/components/BreadcrumbCategory";
+import GigPrototype from "@/features/gig/components/GigPrototype";
 
 const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
@@ -261,12 +262,12 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
   const { title, seller } = gig;
 
   return (
-    <div className="min-w-0 flex-1 flex-col">
+    <div className="min-w-0">
       <p className="min-h-8 text-xl font-semibold">{title}</p>
 
       <GigSellerRank gig={gig} />
 
-      <GigCarousel />
+      <GigCarousel className="h-[600px]" />
 
       <GigDescription gig={gig} />
 
@@ -284,7 +285,9 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigComments gig={gig} />
 
-      <GigMessagePopover seller={seller} />
+      <div className="sticky bottom-10 z-10">
+        <GigMessagePopover sellerName="abc" />
+      </div>
     </div>
   );
 };
@@ -292,6 +295,10 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 const GigDetail = () => {
   const router = useRouter();
   const { slug } = router.query;
+
+  if (slug === "demo-1234566789") {
+    return <GigPrototype />;
+  }
 
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);

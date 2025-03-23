@@ -10,14 +10,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import LeftArrow from "../left-arrow";
-import RightArrow from "../right-arrow";
+
+import { ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { VisuallyHidden } from "radix-ui";
+import { useState } from "react";
 const side = "left";
 
-export function CategoriesNav({
+export function BrowseCategoryNav({
   category,
   setOpen: setOpenParent,
 }: {
@@ -36,7 +36,7 @@ export function CategoriesNav({
       <SheetTrigger asChild>
         <div className="flex w-full cursor-pointer flex-row items-center justify-between p-2 hover:bg-green-50 hover:text-green-500">
           <span>{title}</span>
-          <RightArrow />
+          <ArrowRight size={16} />
         </div>
       </SheetTrigger>
       <SheetContent side={side} className="w-[300px] bg-white p-4">
@@ -44,8 +44,8 @@ export function CategoriesNav({
           <SheetTitle>
             <div className="grid h-[40px] grid-cols-3 items-center">
               <SheetClose asChild>
-                <button className="w-full h-full">
-                  <LeftArrow />
+                <button className="h-full w-full">
+                  <ChevronLeft />
                 </button>
               </SheetClose>
               <span className="absolute left-1/2 w-max -translate-x-1/2 transform">
@@ -90,7 +90,6 @@ export function CategoriesNav({
                     subCategory.subCategories.map((subCategory: any) => (
                       <li
                         key={subCategory.id}
-                
                         className="flex w-full cursor-pointer flex-row items-center justify-between p-2 hover:bg-green-50 hover:text-green-500"
                       >
                         <Link

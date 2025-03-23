@@ -33,12 +33,12 @@ declare module "next-auth" {
     user: {
       id: string;
       role?: string;
-      firstName?: string;
-      lastName?: string;
+      fullName?: string;
       avatar?: string,
       accessToken: string;
       refreshToken: string;
       username: string;
+      sellerProfile:any;
     } & DefaultSession["user"];
   }
 }
@@ -94,6 +94,7 @@ export const authOptions: AuthOptions = {
 
           if (response.ok && response.status === 200) {
             const data = await response.json();
+            console.log(data)
             return data;
           }
 

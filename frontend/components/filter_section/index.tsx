@@ -124,7 +124,7 @@ export const FilterSection = () => {
 
   return (
     <div
-      className={`${isFixed ? "z-[999] fixed left-0 top-0 w-full bg-white px-14" : "relative"}`}
+      className={`${isFixed ? "z-20 fixed left-0 top-0 w-full bg-white px-14" : "relative"}`}
     >
       <div className="flex w-full flex-wrap">
         <Popover>

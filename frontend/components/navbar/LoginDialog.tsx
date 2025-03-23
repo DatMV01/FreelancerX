@@ -6,17 +6,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
-import SignInForm from "../form/signin";
+import SignInForm from "@/features/auth/components/LoginForm";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "radix-ui";
+import { useEffect, useState } from "react";
 
 const LoginDialog = () => {
   const [isShowLoginForn, setShowLoginForm] = useState(false);
-  const [isShowJoinButton, setShowJoinButton] = useState(false);
+  const [isShowSignInButton, setShowJoinButton] = useState(false);
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -25,14 +24,14 @@ const LoginDialog = () => {
     if (status === "authenticated") {
       setShowJoinButton(false);
     }
-    if (status === "unauthenticated") {
+    if (status === "unauthenticated" || status === "loading") {
       setShowJoinButton(true);
     }
   }, [status, router]);
 
   return (
     <Dialog open={isShowLoginForn} onOpenChange={setShowLoginForm}>
-      {isShowJoinButton && (
+      {isShowSignInButton && (
         <DialogTrigger
           asChild
           className="justify-self-end text-base font-bold md:block"

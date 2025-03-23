@@ -1,7 +1,7 @@
 "use client";
 
 import Tiktok from "@/components/footer/tiktok";
-import Logo from "@/components/logo";
+import LogoImage from "@/components/LogoImage";
 import {
   Accordion,
   AccordionContent,
@@ -329,7 +329,7 @@ const Footer = () => {
           )}
         >
           <Link href="/" className="justify-self-center">
-            <Logo />
+            <LogoImage />
           </Link>
           <p className={clsx("pl-5")}>
             <span className="copyright">© FC International Ltd. 2025</span>

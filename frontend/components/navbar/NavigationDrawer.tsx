@@ -16,36 +16,23 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { categories } from "@/data/data";
-import { stringAvatar } from "@/lib/utils";
-import { Avatar, Button, Divider } from "@mui/material";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { signOut, useSession } from "next-auth/react";
+import UserAvatar from "@/features/user/components/UserAvatar";
+import useGetUserInfo from "@/hooks/useGetUserInfo";
+import { Divider } from "@mui/material";
+import clsx from "clsx";
+import { AlignJustify } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { CategoriesNav } from "./sub-categories-nav";
-import { AlignJustify } from "lucide-react";
-import LoginDialog from "./login-dialog";
 import { VisuallyHidden } from "radix-ui";
-import clsx from "clsx";
+import { useState } from "react";
+import { BrowseCategoryNav } from "./BrowseCategoryNav";
+import LoginDialog from "./LoginDialog";
 
 const NavigationDrawer = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { data: session, status } = useSession();
-  const [isShowJoinButton, setShowJoinButton] = useState(false);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      setShowJoinButton(false);
-    }
-    if (status === "unauthenticated") {
-      setShowJoinButton(true);
-    }
-  }, [status, router]);
-
-  const user = session?.user;
-  const fullName = `${user?.firstName} ${user?.lastName}`;
+  const { isAuthenticated, user, session } = useGetUserInfo();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -58,13 +45,12 @@ const NavigationDrawer = () => {
       <SheetContent side="left" className="w-[300px] bg-white p-4">
         <SheetHeader>
           <SheetTitle>
-            {isShowJoinButton && <LoginDialog />}
+            {!isAuthenticated && <LoginDialog />}
 
-            {!isShowJoinButton && (
+            {isAuthenticated && (
               <div className="flex items-center space-x-2">
-                {user?.avatar && <Avatar src={user?.avatar}></Avatar>}
-                {!user?.avatar && <Avatar {...stringAvatar(fullName || "")} />}
-                <div>{fullName}</div>
+                <UserAvatar />
+                <div>{user?.fullName}</div>
               </div>
             )}
             <Divider className="py-2" />
@@ -130,7 +116,7 @@ const NavigationDrawer = () => {
                     className="flex h-[40px] items-center pb-0 pl-4 text-base"
                     key={category.id}
                   >
-                    <CategoriesNav category={category} setOpen={setOpen} />
+                    <BrowseCategoryNav category={category} setOpen={setOpen} />
                   </AccordionContent>
                 ))}
             </AccordionItem>

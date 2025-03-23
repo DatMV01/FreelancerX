@@ -14,17 +14,15 @@ import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 
-import AvatarOnline from "@/components/avatar_online";
 import CommentBox from "@/components/comment";
-import GigPricing from "@/components/gig_pricing";
 import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
+import { GigDto } from "@/dto/gig.dto";
+import UserAvatar from "@/features/user/components/UserAvatar";
+import axiosInstance from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { LoremIpsum } from "lorem-ipsum";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import SearchBar from "@/components/searchbar";
-import { GigDto } from "@/dto/gig.dto";
-import axiosInstance from "@/lib/apiClient";
 
 const TabPanel = ({
   children,
@@ -111,7 +109,7 @@ const MainContent = () => {
         onClick={() => console.log("abc")}
       >
         <div className="flex items-center justify-center space-x-2">
-          <AvatarOnline />
+          <UserAvatar />
           <p className="font-semibold">Mesage {user_id} </p>
         </div>
       </button>
@@ -902,33 +900,32 @@ const BrowsingHistory = () => {
   );
 };
 
-const GigDetail = () => {
-   const router = useRouter();
-    const { slug } = router.query;
-  
-    const [isLoading, setLoading] = useState(false);
-    const [gig, setGig] = useState<GigDto | null>(null);
-  
-    useEffect(() => {
+const GigPrototype = () => {
+  const router = useRouter();
+  const { slug } = router.query;
+
+  const [isLoading, setLoading] = useState(false);
+  const [gig, setGig] = useState<GigDto | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    const fetchData = async () => {
       setLoading(true);
-      const fetchData = async () => {
-        setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-  
-        try {
-          const response = await axiosInstance.get(`/gig/slug/${slug}`);
-          const { data, meta } = response.data;
-          setGig(data);
-        } catch (error) {
-          alert("Error fetching data:" + error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      if (slug) fetchData();
-    }, [slug]);
-  
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      try {
+        const response = await axiosInstance.get(`/gig/slug/${slug}`);
+        const { data, meta } = response.data;
+        setGig(data);
+      } catch (error) {
+        alert("Error fetching data:" + error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (slug) fetchData();
+  }, [slug]);
 
   return (
     <>
@@ -943,4 +940,4 @@ const GigDetail = () => {
   );
 };
 
-export default GigDetail;
+export default GigPrototype;

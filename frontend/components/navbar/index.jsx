@@ -2,35 +2,37 @@
 
 import clsx from "clsx";
 import Link from "next/link";
-import AvatarOnline from "../avatar_online";
-import Logo from "../logo";
+import useGetUserInfo from "@/hooks/useGetUserInfo";
+import LogoImage from "../LogoImage";
+import PopoverAvatar from "../popover_avatar";
 import PopoverFavoriteListing from "../popover_favorite_listing";
 import PopoverMessages from "../popover_messages";
 import PopoverNotifications from "../popover_notification";
 import PopoverOrders from "../popover_orders";
 import SearchBar from "../searchbar";
-import CategoriesMenu from "./categories-menu";
-import LoginDialog from "./login-dialog";
-import NavigationDrawer from "./navigation-drawer";
+import CategoryMenu from "./CategoryMenu";
+import LoginDialog from "./LoginDialog";
+import NavigationDrawer from "./NavigationDrawer";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import PopoverAvatar from "../popover_avatar";
+import { useRouter } from "next/router";
 
 const Navbar = () => {
-  const [isShowJoinButton, setShowJoinButton] = useState(false);
+  // const [isAuthenticated, user, session] = useGetUserInfo();
+  const {isAuthenticated, user, session} = useGetUserInfo();
 
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  // const [isAuthenticated, setAuthenticated] = useState(false);
+  // const { data: session, status } = useSession();
+  // const router = useRouter();
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      setShowJoinButton(false);
-    }
-    if (status === "unauthenticated") {
-      setShowJoinButton(true);
-    }
-  }, [status, router]);
+  // useEffect(() => {
+  //   if (status === "authenticated") {
+  //     setAuthenticated(true);
+  //   }
+  //   if (status === "unauthenticated" || status === "loading") {
+  //     setAuthenticated(false);
+  //   }
+  // }, [status, router]);
 
   return (
     <div>
@@ -38,7 +40,7 @@ const Navbar = () => {
         <NavigationDrawer />
 
         <Link href="/" className="justify-self-center">
-          <Logo />
+          <LogoImage />
         </Link>
 
         <div className="hidden w-full md:block">
@@ -54,25 +56,30 @@ const Navbar = () => {
         <NavigationDrawer />
 
         <Link href="/" className="justify-self-center">
-          <Logo />
+          <LogoImage />
         </Link>
 
         <div className="hidden w-full md:block">
           <SearchBar />
         </div>
 
-        <PopoverMessages />
-        <PopoverNotifications />
-        <PopoverOrders />
-        <PopoverFavoriteListing />
+        {isAuthenticated && (
+          <>
+            <PopoverMessages />
+            <PopoverNotifications />
+            <PopoverOrders />
+            <PopoverFavoriteListing />
+            <PopoverAvatar />
+          </>
+        )}
 
-        {isShowJoinButton ? <LoginDialog /> : <PopoverAvatar />}
+        <LoginDialog />
       </nav>
       <div className="my-2 md:hidden">
         <SearchBar />
       </div>
 
-      <CategoriesMenu />
+      <CategoryMenu />
     </div>
   );
 };

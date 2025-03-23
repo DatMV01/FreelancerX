@@ -39,8 +39,8 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
           )}
         </Link>
 
-        <div className=" ">
-          <p className="flex items-center justify-between space-x-2">
+        <div>
+          <div className="flex items-center justify-between space-x-2">
             <Link
               href={`/seller/$${seller.id}`}
               target="_blank"
@@ -49,14 +49,15 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
             >
               {username || "username"}
             </Link>
-            <span className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
+
+            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
               <span>Top Rated &nbsp;</span>
               {[...Array(3)].map((_, i) => (
                 <Diamond key={i} size={10} fill="black" stroke="none" />
               ))}
-            </span>
+            </p>
 
-            <span className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
+            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
               <span>Level &nbsp;2</span>
               {[...Array(2)].map((_, i) => (
                 <Diamond key={i} size={10} fill="black" stroke="none" />
@@ -66,9 +67,9 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
                 fill="oklch(0.707 0.022 261.325)"
                 stroke="none"
               />
-            </span>
+            </p>
 
-            <span className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
+            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
               <span>Level &nbsp;1</span>
               <Diamond size={10} fill="black" stroke="none" />
               {[...Array(2)].map((_, i) => (
@@ -79,8 +80,8 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
                   stroke="none"
                 />
               ))}
-            </span>
-          </p>
+            </p>
+          </div>
 
           <div className="flex items-center text-yellow-500">
             {[...Array(5)].map((_, i) => (

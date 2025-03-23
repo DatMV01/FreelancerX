@@ -24,11 +24,30 @@ export const stringToColor = (string: string) => {
   return color;
 };
 
-export const stringAvatar = (name: string) => {
+export const stringAvatar = (name: string = "Avatar") => {
+  const _name = name.toUpperCase();
+  const nameArr = _name.split(" ");
+  if (nameArr.length === 0) {
+    return {
+      sx: {
+        bgcolor: stringToColor(_name),
+      },
+      children: `${_name}`,
+    };
+  }
+
+  if (nameArr.length === 1) {
+    return {
+      sx: {
+        bgcolor: stringToColor(_name),
+      },
+      children: `${_name.split(" ")[0][0]}`,
+    };
+  }
   return {
     sx: {
-      bgcolor: stringToColor(name),
+      bgcolor: stringToColor(_name),
     },
-    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
+    children: `${_name.split(" ")[0][0]}${_name.split(" ")[1][0]}`,
   };
 };

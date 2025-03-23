@@ -1,19 +1,18 @@
-import React from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import AvatarOnline from "@/components/avatar_online";
+import UserAvatar from "@/features/user/components/UserAvatar";
 
-const GigMessagePopover = ({ seller }: { seller: any }) => {
+const GigMessagePopover = ({ sellerName }: { sellerName: string }) => {
   return (
     <Popover>
-      <PopoverTrigger className="sticky bottom-10 rounded-full border-[1px] bg-white p-2">
+      <PopoverTrigger className="rounded-full bg-white p-2">
         <div className="flex items-center justify-center space-x-2">
-          <AvatarOnline />
-          <p className="font-semibold">Mesage username</p>
+          <UserAvatar />
+          <p className="font-semibold">Mesage {sellerName}</p>
         </div>
       </PopoverTrigger>
       <PopoverContent
@@ -23,7 +22,7 @@ const GigMessagePopover = ({ seller }: { seller: any }) => {
       >
         <div className="flex flex-col space-y-2">
           <button
-            className="sticky bottom-10 rounded-full border-[1px] bg-white p-2"
+            className="rounded-full bg-white p-2"
             onClick={() => console.log("abc")}
           >
             <div className="flex items-center justify-center space-x-2">
@@ -36,7 +35,7 @@ const GigMessagePopover = ({ seller }: { seller: any }) => {
           </button>
 
           <button
-            className="sticky bottom-10 rounded-full border-[1px] bg-white p-2"
+            className="rounded-full bg-white p-2"
             onClick={() => console.log("abc")}
           >
             <div className="flex items-center justify-center space-x-2">

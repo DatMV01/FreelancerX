@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import ScrollableDiv from "../scrollable-div";
 
-const CategoriesMenu = () => {
+const CategoryMenu = () => {
   const router = useRouter();
   const { category, subcategory, subsubcategory } = router.query;
 
@@ -35,4 +35,4 @@ const CategoriesMenu = () => {
   );
 };
 
-export default CategoriesMenu;
+export default CategoryMenu;

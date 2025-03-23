@@ -20,14 +20,14 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import CircularProgressCenter from "../CircularProgressCenter";
+import CircularProgressCenter from "@/components/CircularProgressCenter";
 
 // Improved schema with additional validation rules
 const formSchema = z.object({
   emailOrUsername: z.string().min(6, { message: "Invalid email or username" }),
   password: z
     .string()
-    .min(6, { message: "Password must be at least 6 characters long" })
+    .min(6, { message: "Password must be at least 6 characters long" }),
   //  .regex(/[a-zA-Z0-9]/, { message: "Password must be alphanumeric" }),
 });
 
@@ -88,7 +88,9 @@ export default function SignInForm({
                   name="emailOrUsername"
                   render={({ field }) => (
                     <FormItem className="grid gap-2">
-                      <FormLabel htmlFor="emailOrUsername">Email or username</FormLabel>
+                      <FormLabel htmlFor="emailOrUsername">
+                        Email or username
+                      </FormLabel>
                       <FormControl>
                         <Input
                           id="emailOrUsername"
