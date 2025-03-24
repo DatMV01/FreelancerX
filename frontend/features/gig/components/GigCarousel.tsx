@@ -1,5 +1,6 @@
 "use client";
 
+import { GigDto } from "@/dto/gig.dto";
 import { faker } from "@faker-js/faker";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
@@ -52,8 +53,10 @@ const data = [
 ];
 
 const GigCarousel = ({
+  gig,
   className = "",
 }: {
+  gig?: GigDto;
   showFullScreen?: boolean;
   className?: string;
 }) => {
@@ -68,6 +71,38 @@ const GigCarousel = ({
   const [isLastSlide, setIsLastSlide] = useState(false);
 
   const [videoTimes, setVideoTimes] = useState<{ [key: number]: number }>({});
+
+  const { documents, video, images } = gig || {};
+  const dataArr = (
+    gig
+      ? [
+          images?.image1 && {
+            type: "image",
+            ...images?.image1,
+          },
+          images?.image2 && {
+            type: "image",
+            ...images?.image2,
+          },
+          images?.image3 && {
+            type: "image",
+            ...images?.image3,
+          },
+          documents?.document1 && {
+            type: "document",
+            ...documents?.document1,
+          },
+          documents?.document2 && {
+            type: "document",
+            ...documents?.document2,
+          },
+          video && {
+            type: "video",
+            ...video,
+          },
+        ]
+      : data
+  ).filter(Boolean);
 
   useEffect(() => {
     document.body.classList.toggle("overflow-hidden", isFullScreen);
@@ -120,7 +155,27 @@ const GigCarousel = ({
             setIsHovered(true);
           }
         }}
+        onTouchStart={() => {
+          if (!isFullScreen) {
+            setIsHovered(true);
+          }
+        }}
         onMouseLeave={() => {
+          if (!isFullScreen) {
+            setIsHovered(false);
+
+            videoRefs.current.forEach((video, index) => {
+              if (video) {
+                setVideoTimes((prev) => ({
+                  ...prev,
+                  [index]: video.currentTime,
+                }));
+                video.pause();
+              }
+            });
+          }
+        }}
+        onTouchEnd={() => {
           if (!isFullScreen) {
             setIsHovered(false);
 
@@ -138,8 +193,7 @@ const GigCarousel = ({
         className={clsx(
           isFullScreen
             ? "fixed inset-0 z-50 flex h-full items-center justify-between bg-black bg-opacity-80 p-10 pt-16"
-            : "relative flex items-center justify-center",
-          className,
+            : "relative flex items-center justify-center " + className,
         )}
       >
         {isFullScreen && (
@@ -219,44 +273,47 @@ const GigCarousel = ({
           loop={false}
           style={{ height: "100%", width: "100%", paddingBottom: "10px" }}
         >
-          {data.map(({ id, url, type, alt }, index) => (
-            <SwiperSlide
-              key={id}
-              className={clsx({
-                "p-2": isFullScreen,
-                "p-1": !isFullScreen,
-              })}
-            >
-              <div className="flex h-full w-full items-center justify-center">
-                {type === "image" && (
-                  <img
-                    src={url}
-                    alt={alt}
-                    className="h-full w-full object-contain"
-                  />
-                )}
-                {type === "video" && (
-                  <video
-                    ref={(el) => {
-                      if (el) videoRefs.current[index] = el;
-                    }}
-                    controls
-                    className="h-fit"
-                  >
-                    <source src={url} type="video/mp4" />
-                  </video>
-                )}
-                {type === "document" && (
-                  <iframe
-                    ref={documentRef}
-                    src={url}
-                    width="100%"
-                    height="100%"
-                  />
-                )}
-              </div>
-            </SwiperSlide>
-          ))}
+          {dataArr.map(
+            (item, index) =>
+              item && (
+                <SwiperSlide
+                  key={item.id}
+                  className={clsx({
+                    "p-2": isFullScreen,
+                    "p-1": !isFullScreen,
+                  })}
+                >
+                  <div className="flex h-full w-full items-center justify-center">
+                    {item.type === "image" && (
+                      <img
+                        src={item.url}
+                        alt={"alt" in item ? (item.alt as string) : "Image"}
+                        className="h-full w-full object-contain"
+                      />
+                    )}
+                    {item.type === "video" && (
+                      <video
+                        ref={(el) => {
+                          if (el) videoRefs.current[index] = el;
+                        }}
+                        controls
+                        className="h-fit"
+                      >
+                        <source src={item.url} type="video/mp4" />
+                      </video>
+                    )}
+                    {item.type === "document" && (
+                      <iframe
+                        ref={documentRef}
+                        src={item.url}
+                        width="100%"
+                        height="100%"
+                      />
+                    )}
+                  </div>
+                </SwiperSlide>
+              ),
+          )}
 
           <div className="custom-pagination flex items-center justify-center space-x-2"></div>
         </Swiper>

@@ -1,71 +1,58 @@
 import { GigDto } from "@/dto/gig.dto";
 import { Divider } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import GigSellerRank from "./GigSellerRank";
 
 const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
+  const [country, setCountry] = useState("");
+
+  const [memberSince, setMemberSince] = useState("");
+
+  const [languages, setLanguages] = useState();
+
+  const [about, setAbout] = useState("");
+
+  useEffect(() => {
+    const { seller } = gig;
+
+    const date = new Date(seller.createdAt);
+    setMemberSince(
+      `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`,
+    );
+
+    setLanguages(seller?.languages.join(","));
+
+    setAbout(seller.about);
+
+    setCountry(seller.country);
+  }, []);
+
   return (
-    <div className="  rounded-lg border p-4">
+    <div className="rounded-lg border p-4">
       <GigSellerRank gig={gig} />
 
       <div className="space-y-2">
         <p>
-          <strong>From:</strong> <span>Pakistan</span>
+          <strong>From:</strong> <span>{country}</span>
         </p>
         <p>
-          <strong>Member since:</strong> <span>Dec 2022</span>
+          <strong>Member since:</strong> <span>{memberSince}</span>
         </p>
-        <p>
+        {/* <p>
           <strong>Avg. response time:</strong> <span>1 hour</span>
-        </p>
-        <p>
+        </p> */}
+        {/* <p>
           <strong>Last delivery:</strong> <span>2 days</span>
-        </p>
+        </p> */}
         <p>
-          <strong>Languages:</strong> <span>Urdu, English, French, German</span>
+          <strong>Languages:</strong> <span>{languages}</span>
         </p>
         <Divider />
       </div>
 
-      <article className="mt-4 hidden md:flex">
-        <div className="text-gray-700">
-          <p>
-            Hello! I'm Mujtaba, an experienced Engineer and Certified Web
-            Developer with a proven track record spanning over 5 years in Web
-            Design and Development. I am also a Cyber Security specialist with
-            more than 3 years of experience in the field.
-          </p>
-          <p className="mt-2">
-            Specializing in WordPress, I craft responsive and captivating
-            websites that empower my clients to outshine their competitors. My
-            expertise lies in creating dynamic and user-friendly WordPress
-            websites that seamlessly adapt across all devices. Let's collaborate
-            to bring your web vision to life and elevate your online presence.
-          </p>
-        </div>
-      </article>
-
-      <article className="mt-4">
-        <div className="text-gray-700">
-          <p>
-            Hello! I'm Mujtaba, an experienced Engineer and Certified Web
-            Developer with a proven track record spanning over 5 years in Web
-            Design and Development.
-          </p>
-
-          <div>
-            <p className="mt-2">
-              I am also a Cyber Security specialist with more than 3 years of
-              experience in the field. Specializing in WordPress, I craft
-              responsive and captivating websites that empower my clients to
-              outshine their competitors. My expertise lies in creating dynamic
-              and user-friendly WordPress websites that seamlessly adapt across
-              all devices. Let's collaborate to bring your web vision to life
-              and elevate your online presence.
-            </p>
-          </div>
-        </div>
-      </article>
+      <div className="mt-4 hidden md:flex">
+        <div className="text-gray-700">{about}</div>
+      </div>
     </div>
   );
 };

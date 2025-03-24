@@ -1,4 +1,6 @@
 import { AutoMap } from '@automapper/classes';
+import { Exclude, Expose } from 'class-transformer';
+import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
@@ -34,6 +36,7 @@ export class UserEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ nullable: true })
+  @Exclude({ toPlainOnly: true })
   password?: string;
 
   @AutoMap()
@@ -46,12 +49,17 @@ export class UserEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ nullable: false })
+  country: string;
+
+  @AutoMap()
+  @Column({ nullable: false })
   fullName: string;
 
   @AutoMap()
   @Column({ type: String, nullable: true })
   avatar?: string | null;
 
+  @AutoMap()
   @Column({ nullable: true })
   phoneNumber?: string;
 
@@ -59,6 +67,7 @@ export class UserEntity extends BaseEntity {
   @ManyToOne(() => RoleEntity, (role) => role.users, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
   @JoinColumn({ name: 'role_id' })
   role: RoleEntity;

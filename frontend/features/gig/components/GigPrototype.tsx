@@ -15,7 +15,6 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 
 import CommentBox from "@/components/comment";
-import CarouselV2Fullscreen from "@/components/gig_card/carousel_v2_fullscreen";
 import { GigDto } from "@/dto/gig.dto";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import axiosInstance from "@/lib/apiClient";
@@ -23,6 +22,7 @@ import { faker } from "@faker-js/faker";
 import { LoremIpsum } from "lorem-ipsum";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import GigCarousel from "./GigCarousel";
 
 const TabPanel = ({
   children,
@@ -94,7 +94,9 @@ const MainContent = () => {
   return (
     <div className="w-2/3">
       <SellerOverviewSection />
-      <CarouselV2Fullscreen />
+
+      <GigCarousel className="h-[300px] lg:h-[400px] xl:h-[600px]" />
+
       <AboutThisGig />
       <GigMetaData />
       <AboutSeller />

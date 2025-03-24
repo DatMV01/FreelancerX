@@ -9,6 +9,7 @@ import * as bcrypt from 'bcryptjs';
 import { NullableType } from 'src/utils/types/nullable.type';
 import {
   DeepPartial,
+  FindOneOptions,
   FindOptionsWhere,
   Repository,
   SortDirection,
@@ -162,14 +163,16 @@ export class UsersService {
     return [domains, count];
   }
 
-  async findOne(id: UserDto['id']): Promise<NullableType<UserEntity>> {
-    return this.usersRepository.findOne({
-      where: { id: String(id) },
-    });
+  async findOne(
+    options: FindOneOptions<UserEntity>,
+  ): Promise<NullableType<UserEntity>> {
+    return this.usersRepository.findOne(options);
   }
 
+  // haz i can understant all of what u say. but i can not speak fluentcy like u
+
   async findById(id: UserDto['id']): Promise<NullableType<UserDto>> {
-    const entity = await this.findOne(id);
+    const entity = await this.usersRepository.findOneBy({ id });
 
     return entity ? UserMapper.toDomain(entity) : null;
   }

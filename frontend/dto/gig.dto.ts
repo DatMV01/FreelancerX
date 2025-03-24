@@ -34,7 +34,7 @@ export interface Requirement {
 }
 
 export interface FAQ {
-  id:string,
+  id: string;
   question: string;
   answer: string;
 }
@@ -115,7 +115,7 @@ export class GigDto extends BaseDto<GigDto> {
     document2: null,
   };
 
-  video?: string;
+  video?: GigFileInfo;
   /* Gallery */
 
   status: GigStatus = GigStatus.DRAFT;

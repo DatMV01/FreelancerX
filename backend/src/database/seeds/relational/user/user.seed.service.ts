@@ -23,7 +23,7 @@ export class UserSeedService {
       {
         fullName: 'Super Admin',
         email: 'admin@example.com',
-        password: bcrypt.hashSync('admin123', 10),
+        password: bcrypt.hashSync('user123', 10),
         role: {
           id: RoleEnum.ADMIN,
         } as any,

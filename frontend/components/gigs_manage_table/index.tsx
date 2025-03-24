@@ -324,7 +324,7 @@ const GigsManageTable = ({
         width: 110,
         renderCell: ({ row }) => (
           <div className="flex h-full items-center justify-end">
-            {row.ordersCount}
+            {row.orderCount}
           </div>
         ),
       },
@@ -334,7 +334,7 @@ const GigsManageTable = ({
         type: "number",
         width: 110,
         renderCell: ({ row }) => {
-          const percent = (row.ordersCount * 100) / row.views;
+          const percent = (row.orderCount * 100) / row.views;
 
           return (
             <div className="flex h-full items-center justify-end">

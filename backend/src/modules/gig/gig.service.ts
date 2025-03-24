@@ -4,6 +4,7 @@ import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { GigEntity } from './entities/gig.entity';
 import { isNumberParse } from 'src/utils/common';
+import { RoleEnum } from '../roles/roles.enum';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -19,10 +20,16 @@ export class GigService extends BaseService<GigEntity> {
     appliedFilters: Set<string>,
     filters: Record<string, any>,
     sort: any,
+    currentUser: any,
   ): SelectQueryBuilder<GigEntity> {
-    if (!filters || Object.keys(filters).length === 0) {
-      console.warn('No filters provided or empty object:', filters);
-      return queryBuilder;
+    if (Number(currentUser.role.id) === RoleEnum.ADMIN) {
+      queryBuilder.leftJoinAndSelect(`${queryBuilder.alias}.seller`, 'seller');
+    } else {
+      queryBuilder
+        .leftJoinAndSelect(`${queryBuilder.alias}.seller`, 'seller')
+        .where('seller.id = :sellerId', {
+          sellerId: currentUser.id,
+        });
     }
 
     queryBuilder
@@ -38,6 +45,11 @@ export class GigService extends BaseService<GigEntity> {
       `${queryBuilder.alias}.nestedSubcategory`,
       'nestedSubcategory',
     );
+
+    if (!filters || Object.keys(filters).length === 0) {
+      console.log('No filters provided or empty object:', filters);
+      return queryBuilder;
+    }
 
     Object.entries(filters).forEach(([key, value]) => {
       const filterKey = key.trim().toLowerCase();

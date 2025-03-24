@@ -26,7 +26,7 @@ import GigPrototype from "@/features/gig/components/GigPrototype";
 
 const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
-
+ 
   return (
     <div className="flex justify-between">
       <BreadcrumbCategory
@@ -108,6 +108,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
 
   const [value, setValue] = useState(0);
+  const [isFavorite, setFavorite] = useState(false);
 
   const [
     packageName,
@@ -146,32 +147,36 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
     setValue(newValue);
   };
 
-  const saveToListHandle = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    e.preventDefault();
+  const addFavoriteGig = () => {
+    setFavorite(true);
+  };
+
+  const removeFavoriteGig = () => {
+    setFavorite(false);
   };
 
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
       <div className="flex h-8 justify-end">
-        <Tooltip title="Save to list" placement="top">
-          <button
-            className="flex items-center justify-center rounded-full bg-transparent"
-            onClick={(e) => saveToListHandle(e)}
-          >
-            <Heart className="fill-[#b5b6ba] stroke-none" />
-          </button>
-        </Tooltip>
-
-        <Tooltip title="Save to list" placement="top">
-          <button
-            className="flex items-center justify-center rounded-full bg-transparent"
-            onClick={(e) => saveToListHandle(e)}
-          >
-            <Heart className="fill-red-500 stroke-none" />
-          </button>
-        </Tooltip>
+        {isFavorite ? (
+          <Tooltip title="Remove" placement="top">
+            <button
+              className="flex items-center justify-center rounded-full bg-transparent"
+              onClick={removeFavoriteGig}
+            >
+              <Heart className="fill-red-500 stroke-none" />
+            </button>
+          </Tooltip>
+        ) : (
+          <Tooltip title="Save to list" placement="top">
+            <button
+              className="flex items-center justify-center rounded-full bg-transparent"
+              onClick={addFavoriteGig}
+            >
+              <Heart className="fill-[#b5b6ba] stroke-none" />
+            </button>
+          </Tooltip>
+        )}
       </div>
 
       <div className="rounded-sm border border-gray-500">
@@ -261,13 +266,14 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
   const { user_id, gig_id } = router.query;
   const { title, seller } = gig;
 
+  console.log(gig);
   return (
     <div className="min-w-0">
       <p className="min-h-8 text-xl font-semibold">{title}</p>
 
       <GigSellerRank gig={gig} />
 
-      <GigCarousel className="h-[600px]" />
+      <GigCarousel gig={gig} className="h-[300px] lg:h-[400px] xl:h-[600px]" />
 
       <GigDescription gig={gig} />
 
@@ -317,7 +323,7 @@ const GigDetail = () => {
 
         setGig(data);
       } catch (error) {
-        alert("Error fetching data:" + error);
+        //  alert("Error fetching data:" + error);
       } finally {
         setLoading(false);
       }
@@ -331,6 +337,12 @@ const GigDetail = () => {
       {isLoading && !gig && (
         <div className="absolute inset-0 z-50 flex items-center justify-center">
           <CircularProgress />
+        </div>
+      )}
+
+      {!isLoading && !gig && (
+        <div className="flex items-center justify-center">
+          Gig does not exitsted
         </div>
       )}
 

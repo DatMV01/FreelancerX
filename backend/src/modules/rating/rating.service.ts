@@ -49,7 +49,7 @@ export class RatingService extends BaseService<RatingEntity> {
       .getRawOne();
 
     gig.avgRating = parseFloat(avg) || 0;
-    gig.totalReviews = parseInt(count) || 0;
+    gig.reviewCount = parseInt(count) || 0;
     await this.gigRepo.save(gig);
 
     return newRating;
@@ -72,7 +72,7 @@ export class RatingService extends BaseService<RatingEntity> {
 
     return {
       avgRating: gig.avgRating,
-      totalReviews: gig.totalReviews,
+      totalReviews: gig.reviewCount,
     };
   }
 

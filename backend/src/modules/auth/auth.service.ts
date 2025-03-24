@@ -179,7 +179,7 @@ export class AuthService {
   async refreshToken(
     data: Pick<JwtRefreshPayloadType, 'sessionId' | 'hash'>,
   ): Promise<Omit<LoginResponseDto, 'user'>> {
-    const session = await this.sessionService.findOne(data.sessionId);
+    const session = await this.sessionService.findOneById(data.sessionId);
 
     if (!session) {
       throw new UnauthorizedException();

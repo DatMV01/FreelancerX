@@ -116,7 +116,7 @@ const AddGigOverview = ({ switchToTab, tabs, gig, setGig }: Props) => {
             value={title}
             onChange={(e) => setGigTitle(e.target.value)}
             placeholder="I will do something I'm really good at"
-            maxLength={80}
+            maxLength={200}
             className="mt-2 h-full w-full rounded border p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>

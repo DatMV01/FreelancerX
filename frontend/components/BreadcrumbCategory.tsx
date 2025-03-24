@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { House } from "lucide-react";
 import { useRouter } from "next/router";
-import { Label } from "radix-ui";
 import { useMemo } from "react";
 
 const BreadcrumbCategory = ({
@@ -30,6 +29,10 @@ const BreadcrumbCategory = ({
           label: decodeURIComponent(category),
           href: `/categories/${category}`,
         },
+        subcategory && {
+          label: decodeURIComponent(subcategory),
+          href: `/categories/${category}/${subcategory}`,
+        },
         subsubcategory && {
           label: decodeURIComponent(subsubcategory),
           href: `/categories/${category}/${subcategory}/${subsubcategory}`,
@@ -43,15 +46,21 @@ const BreadcrumbCategory = ({
     <Breadcrumb className="my-4">
       <BreadcrumbList>
         {breadcrumbs.map((item, index) => (
-          <BreadcrumbItem key={item.href}>
-            <BreadcrumbLink
-              href={item.href}
-              className="capitalize hover:underline"
-            >
-              {item.isHome ? <House color="currentColor"  size={14} /> : item.label}
-            </BreadcrumbLink>
+          <div key={item.href} className="inline-flex items-center">
+            <BreadcrumbItem>
+              <BreadcrumbLink
+                href={item.href}
+                className="capitalize hover:underline"
+              >
+                {item.isHome ? (
+                  <House color="currentColor" size={14} />
+                ) : (
+                  item.label
+                )}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
             {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-          </BreadcrumbItem>
+          </div>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

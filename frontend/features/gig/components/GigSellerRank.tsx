@@ -1,12 +1,57 @@
 import { GigDto } from "@/dto/gig.dto";
-import { stringAvatar } from "@/lib/utils";
-import { Avatar } from "@mui/material";
-import { Diamond, Star } from "lucide-react";
+import { SellerRankStatus } from "@/features/seller/seller.rank.enum";
+import UserAvatar from "@/features/user/components/UserAvatar";
+import UserRank from "@/features/user/components/UserRank";
+import { Rating } from "@mui/material";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const GigSellerRank = ({ gig }: { gig: GigDto }) => {
-  const { title, seller } = gig;
-  const { firstName, lastName, email, username, avatar } = seller;
+  const [avatarUrl, setAvatarUrl] = useState();
+  const [rankLevel, setRankLevel] = useState(SellerRankStatus.new);
+
+  const [userName, setUserName] = useState("mock-up-user-name");
+  const [fullName, setFullName] = useState("Mockup Name");
+
+  const [reviewRating, setReviewRating] = useState();
+  const [reviewCount, setReviewCount] = useState(0);
+
+  useEffect(() => {
+    const { seller } = gig;
+
+    setRankLevel(seller?.sellerLevel);
+    setFullName(seller?.fullName);
+    setReviewRating(seller?.rating);
+    setUserName(seller?.email);
+  }, []);
+
+  // "createdAt": "Fri, 21 Mar 2025 23:17:08 GMT",
+  // "updatedAt": "Sun, 23 Mar 2025 13:17:23 GMT",
+  // "id": "67970bfa-44ea-48fd-b41d-46c6b0132067",
+  // "sellerLevel": "new",
+  // "about": "csdcds a a c xcszcsacascsacxs aasddas",
+  // "skills": [
+  //     "WordPress"
+  // ],
+  // "languages": [
+  //     "Urdu",
+  //     " English",
+  //     " French",
+  //     " German"
+  // ],
+  // "rating": "0.00",
+  // "completedOrders": 0,
+  // "responseTime": 0,
+  // "availability": "available",
+  // "email": "datmv1111@gmail.com",
+  // "username": null,
+  // "fullName": "mai dat",
+  // "avatar": null,
+  // "phoneNumber": null,
+  // "status": {
+  //     "id": 2,
+  //     "name": "PENDING_VERIFICATION"
+  // }
 
   const handleScroll = () => {
     document
@@ -15,91 +60,46 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
   };
 
   return (
-    <div>
-      <div className="my-2 flex items-center space-x-2">
-        <Link
-          href={`/seller/$${seller.id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {avatar ? (
-            <Avatar
-              alt="Remy Sharp"
-              src={avatar}
-              className="aspect-square"
-              sx={{ height: 50, width: 50 }}
-            >
-              username
-            </Avatar>
-          ) : (
-            <Avatar
-              className="h-6 w-6 text-[12px]"
-              {...stringAvatar("Mai Dat")}
-            />
+    <div className="my-2 flex items-center space-x-2">
+      <Link
+        href={`/seller/profile/${userName}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <UserAvatar avatarUrl={avatarUrl} fullName={fullName} />
+      </Link>
+
+      <div>
+        <div className="flex items-center justify-between space-x-2">
+          <Link
+            href={`/seller/profile/${userName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-base font-bold hover:underline"
+          >
+            {fullName}
+          </Link>
+
+          <UserRank rankLevel={rankLevel} />
+        </div>
+
+        <div className="flex items-center text-yellow-500">
+          {reviewRating && (
+            <>
+              <Rating defaultValue={reviewRating} precision={0.5} readOnly />
+
+              <span className="ml-2 text-sm font-semibold text-black">
+                {reviewRating}
+              </span>
+            </>
           )}
-        </Link>
 
-        <div>
-          <div className="flex items-center justify-between space-x-2">
-            <Link
-              href={`/seller/$${seller.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-base font-bold hover:underline"
-            >
-              {username || "username"}
-            </Link>
-
-            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
-              <span>Top Rated &nbsp;</span>
-              {[...Array(3)].map((_, i) => (
-                <Diamond key={i} size={10} fill="black" stroke="none" />
-              ))}
-            </p>
-
-            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
-              <span>Level &nbsp;2</span>
-              {[...Array(2)].map((_, i) => (
-                <Diamond key={i} size={10} fill="black" stroke="none" />
-              ))}
-              <Diamond
-                size={10}
-                fill="oklch(0.707 0.022 261.325)"
-                stroke="none"
-              />
-            </p>
-
-            <p className="flex h-[20px] w-fit flex-row items-center rounded-sm bg-yellow-300 px-2 text-xs font-bold">
-              <span>Level &nbsp;1</span>
-              <Diamond size={10} fill="black" stroke="none" />
-              {[...Array(2)].map((_, i) => (
-                <Diamond
-                  key={i}
-                  size={10}
-                  fill="oklch(0.707 0.022 261.325)"
-                  stroke="none"
-                />
-              ))}
-            </p>
-          </div>
-
-          <div className="flex items-center text-yellow-500">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                fill="oklch(0.795 0.184 86.047)"
-                stroke="none"
-              />
-            ))}
-            <span className="ml-2 text-sm font-semibold text-black">5.0</span>
-            <button
-              onClick={handleScroll}
-              className="ml-1 text-sm text-gray-500 underline"
-            >
-              (221 reviews)
-            </button>
-          </div>
+          <button
+            onClick={handleScroll}
+            className="ml-1 text-sm text-gray-500 underline"
+          >
+            ({reviewCount} reviews)
+          </button>
         </div>
       </div>
     </div>

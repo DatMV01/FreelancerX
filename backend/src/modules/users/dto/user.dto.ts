@@ -1,5 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { Expose, Transform } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { AuthProvidersEnum } from 'src/modules/auth/enum/auth-providers.enum';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
@@ -14,6 +14,12 @@ export class UserDto extends BaseDto<UserDto> {
   @Expose({ groups: [ADMIN_GROUP, ME_GROUP], toPlainOnly: true })
   @AutoMap()
   password?: string;
+
+  @AutoMap()
+  email: string;
+
+  @AutoMap()
+  country: string;
 
   @AutoMap()
   provider: string = AuthProvidersEnum.email;
@@ -34,10 +40,10 @@ export class UserDto extends BaseDto<UserDto> {
   phoneNumber?: string;
 
   @AutoMap(() => RoleDto)
-  @Transform(({ value }) => value.name)
+  @Transform(({ value }) => value?.name || undefined)
   role: RoleDto;
 
   @AutoMap(() => StatusDto)
-  @Transform(({ value }) => value.name)
+  @Transform(({ value }) => value?.name || undefined)
   status?: StatusDto;
 }

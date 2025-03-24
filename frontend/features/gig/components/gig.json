@@ -1,124 +1,160 @@
 {
-    "createdAt": "Mon, 17 Mar 2025 02:30:01 GMT",
-    "updatedAt": "Tue, 18 Mar 2025 02:45:07 GMT",
-    "id": "7aa9b88a-7c34-434a-8ee9-c587a010765c",
-    "title": "ok but i can not do 123",
+    "id": "fd6f04b4-ce33-4510-a8c8-f01d942d868f",
+    "createdAt": "Sun, 23 Mar 2025 02:35:21 GMT",
+    "updatedAt": "Mon, 24 Mar 2025 09:33:09 GMT",
+    "title": "I will be full stack web developer software developer PHP laravel html react nod",
     "category": "programming-tech",
-    "subCategory": "ai-development",
-    "nestedSubcategory": "ai-mobile-apps",
+    "subCategory": "website-platform",
+    "nestedSubcategory": "shopify",
     "tags": [
-        "acv",
-        "cs",
-        "ok1",
-        "ok2",
-        "ok3"
+        "abc",
+        "xyz"
     ],
-    "basicPrice": 50,
-    "standardPrice": 100,
-    "premiumPrice": 150,
+    "reviewCount": 0,
+    "basicPrice": 100,
+    "standardPrice": 150,
+    "premiumPrice": 200,
     "pricing": [
         {
             "id": 1,
-            "basic": "test basic",
+            "basic": "Pro Landing Page\n",
             "package": "Name",
-            "premium": "cc1",
-            "standard": "bb1"
+            "premium": "Premium Package\n",
+            "standard": "Business Website\n"
         },
         {
             "id": 2,
-            "basic": "aaax",
+            "basic": "Design & Development Basic SAAS App or Website With React Js/ Laravel/ Node Js + Upto 1 Homepage",
             "package": "Description",
-            "premium": "qbbx",
-            "standard": "qbbbxg"
+            "premium": "Development Pro Web App/Software With React Js/ Laravel/ Node Js + Upto 8 Pages + API Integration\n\n",
+            "standard": "Design & Development Medium Scale Web App/Software With React Js/ Laravel/ Node Js + Upto 5 Pages\n\n"
         },
         {
             "id": 3,
-            "basic": 6,
+            "basic": 3,
             "package": "Delivery",
-            "premium": 3,
+            "premium": 1,
             "standard": 2
         },
         {
             "id": 4,
-            "basic": 2,
+            "basic": 1,
             "package": "Revision",
-            "premium": 6,
-            "standard": 4
+            "premium": 5,
+            "standard": 3
         },
         {
             "id": 5,
-            "basic": "50",
+            "basic": "100",
             "package": "Price",
-            "premium": "150",
-            "standard": "100"
+            "premium": "200",
+            "standard": "150"
         },
         {
-            "id": 1742260012454,
+            "id": 1742663179220,
             "basic": "x",
-            "package": "p1",
-            "premium": "",
-            "standard": ""
+            "package": "Functional website",
+            "premium": "x",
+            "standard": "x"
         },
         {
-            "id": 1742260019333,
-            "basic": "ok",
-            "package": "p2",
-            "premium": "",
+            "id": 1742717382372,
+            "basic": "1",
+            "package": "Page",
+            "premium": "10",
+            "standard": "5"
+        },
+        {
+            "id": 1742717394646,
+            "basic": "x",
+            "package": "Content upload",
+            "premium": "x",
+            "standard": "x"
+        },
+        {
+            "id": 1742717402519,
+            "basic": "x",
+            "package": "E-commerce functionality",
+            "premium": "x",
+            "standard": "x"
+        },
+        {
+            "id": 1742717446197,
+            "basic": "",
+            "package": "Speed optimization",
+            "premium": "x",
+            "standard": "x"
+        },
+        {
+            "id": 1742717453991,
+            "basic": "x",
+            "package": "Hosting setup",
+            "premium": "x",
+            "standard": "x"
+        },
+        {
+            "id": 1742717462640,
+            "basic": "",
+            "package": "Social media icons",
+            "premium": "x",
             "standard": "x"
         }
     ],
-    "description": "<p><u>cdsc</u></p><p>&nbsp;</p>",
+    "description": "<h6 style=\"margin-left:0px;\">Vetted by Fiverr Pro</h6><p style=\"margin-left:0px;\">Akibur Rahman was selected by the Fiverr Pro team for their expertise.</p><h2 style=\"margin-left:0px;\"><strong>About this gig</strong></h2><p style=\"margin-left:0px;\">Welcome to my full-stack web and software development gig. I will be your trusted full-stack developer, offering top-notch services in both backend and front-end development to fulfill your needs.</p><p style=\"margin-left:0px;\">&nbsp;</p><p style=\"margin-left:0px;\">With a rich background in various frameworks, including PHP, Laravel, Vue, React, and Node JS, I can provide fresh project development, bringing your innovative ideas to life. I can design the structure of a project with an MVC model and the ability to type any code from model to controller and view. I am solid in backend development which requires high skills.</p><p style=\"margin-left:0px;\">&nbsp;</p><p style=\"margin-left:0px;\">I offer complete support and maintenance services to keep your systems running smoothly without any interruptions.</p><p style=\"margin-left:0px;\">&nbsp;</p><p style=\"margin-left:0px;\"><strong>What I Offer:</strong></p><p style=\"margin-left:0px;\">&nbsp;</p><ol><li><p style=\"margin-left:0px;\">Full Stack Development From Scratch</p></li><li><p style=\"margin-left:0px;\">Software Development</p></li><li><p style=\"margin-left:0px;\">E-commerce App Development</p></li><li><p style=\"margin-left:0px;\">Cross-Browser Compatibility</p></li><li><p style=\"margin-left:0px;\">Integrating With External APIs</p></li><li><p style=\"margin-left:0px;\">SEO Friendly Optimization</p></li></ol><p style=\"margin-left:0px;\">&nbsp;</p><p style=\"margin-left:0px;\"><strong>Frontend Development:</strong></p><p style=\"margin-left:0px;\">&nbsp;</p><ol><li><p style=\"margin-left:0px;\">React js</p></li><li><p style=\"margin-left:0px;\">Nextjs</p></li><li><p style=\"margin-left:0px;\">Vue js</p></li><li><p style=\"margin-left:0px;\">CSS, HTML</p></li><li><p style=\"margin-left:0px;\">JavaScript, Jquery</p></li><li><p style=\"margin-left:0px;\">&nbsp;</p></li></ol><p style=\"margin-left:0px;\"><strong>️Backend Development:</strong></p><p style=\"margin-left:0px;\">&nbsp;</p><ul><li><p style=\"margin-left:0px;\">PHP - Laravel MVC</p></li><li><p style=\"margin-left:0px;\">Node js</p></li><li><p style=\"margin-left:0px;\">MYSQL, MongoDB</p></li></ul><p style=\"margin-left:0px;\">&nbsp;</p><p style=\"margin-left:0px;\"><strong>Why Me?</strong></p><p style=\"margin-left:0px;\">&nbsp;</p><ol><li><p style=\"margin-left:0px;\">Highly Experienced</p></li><li><p style=\"margin-left:0px;\">Excellent Communication</p></li><li><p style=\"margin-left:0px;\">24/7 Available</p></li><li><p style=\"margin-left:0px;\">Ongoing Support</p></li><li><p style=\"margin-left:0px;\">&nbsp;</p></li></ol><p style=\"margin-left:0px;\">Let's discuss your project requirements and unlock the full potential of website development.</p>",
     "faqs": [
         {
-            "id": "2a6a4b54-3105-41d1-872b-3a6ffdbf99e9",
-            "answer": "a1",
-            "question": "q1"
+            "id": "7d900c4c-69ee-4e9c-bba5-d07b5817c425",
+            "answer": "You need to provide me with the following details. Specifications, Your Requirements, Backgrounds, Features you want, Data and Text, and login credentials.",
+            "question": "What do I need to start the project??"
         },
         {
-            "id": "77121d94-5c76-4be8-b286-b2631d95e64c",
-            "answer": "a1",
-            "question": "q1"
+            "id": "3d99e284-2721-4305-ab5d-8d4b1b8933ad",
+            "answer": "Yes Ongoing Support is provided.",
+            "question": "Do you Provide Support?"
         },
         {
-            "id": "4016adc9-3498-4cde-8de6-03c620398ad5",
-            "answer": "a5",
-            "question": "q5"
+            "id": "5c16cc8b-8af3-4963-a2b7-394071a4a40d",
+            "answer": "Yes, performance will be improved along with database performance, website speed, security and enhancements.",
+            "question": "Can you Improve the performance of Website and Web Application?"
         },
         {
-            "id": "24c6442c-5333-4431-8462-f98062ba1105",
-            "answer": "a6",
-            "question": "q6"
+            "id": "b1da6d34-637d-4c72-85db-eb73a87a5202",
+            "answer": "Yes, all websites we design and develop are fully responsive. They are optimized to work seamlessly on various devices, ensuring a consistent and engaging user experience for desktop, tablet, and mobile users.",
+            "question": "Is the website responsive and mobile-friendly?"
         }
     ],
     "images": {
         "image1": {
-            "id": "5494f5a3-333f-45ee-9ea0-60ee1091e743",
-            "url": "http://localhost:3000/public/images/1-removebg-preview-1742265896905-0e80bfbb96129ae07ce12.png"
+            "id": "efbf0ad4-508c-4d38-b94b-188ed35ad20a",
+            "url": "http://localhost:3000/public/images/1_OP9PFkBi8rh0x3FCmzQx1g-1742697315265-63244aee98385caa0031a.webp"
         },
-        "image2": null,
+        "image2": {
+            "id": "a554de10-6cf3-49bb-8cc5-c1304bec85eb",
+            "url": "http://localhost:3000/public/images/face-swap-1742708522323-2d1d92f51177eeee31fb0.png"
+        },
         "image3": {
-            "id": "91d5d975-51df-4838-9018-a0bd87c96519",
-            "url": "http://localhost:3000/public/images/tepbaocao-1742258442271-04adb400d353d3eaec818.jpg"
+            "id": "ec869794-af3a-4289-aae6-4aad35206ef1",
+            "url": "http://localhost:3000/public/images/Screenshot 2025-02-04 222033-1742708526189-d1d92f51177eeee31fb0c.png"
         }
     },
     "documents": {
         "document1": {
-            "id": "e285a5b0-df0c-4b81-9b5a-ee134adbe7be",
-            "url": "http://localhost:3000/public/documents/Spring+Boot+with+Microservers+Repo+details-1742260129731-5c10e80bfbb96129ae07c.pdf"
+            "id": "46cb1d88-f95a-4c66-8557-1a3ef0aae89c",
+            "url": "http://localhost:3000/public/documents/IRJET-V6I9344-1742708550197-d92f51177eeee31fb0c24.pdf"
         },
         "document2": {
-            "id": "57d4be6c-a969-4695-9523-c8e720bdee8c",
-            "url": "http://localhost:3000/public/documents/WhatisApiFirst-1742260126197-a5c10e80bfbb96129ae07.pdf"
+            "id": "64f029a3-a61c-44ae-b364-9b9b4993daac",
+            "url": "http://localhost:3000/public/documents/Spring+Boot+with+Microservers+Repo+details-1742708562999-92f51177eeee31fb0c24c.pdf"
         }
     },
     "video": {
-        "id": "e7dc4fbc-ca6a-4fe8-a7a5-a580f67e8e64",
-        "url": "http://localhost:3000/public/videos/GO LOHP Banner-1742265854973-10e80bfbb96129ae07ce1.mp4"
+        "id": "f4544e7f-54f2-475c-87d6-09de749e63c5",
+        "url": "http://localhost:3000/public/videos/GO LOHP Banner-1742808781824-fda6dd75b83cbda9cb06b.mp4"
     },
     "status": "ACTIVE",
     "thumbnail": {
-        "id": "5494f5a3-333f-45ee-9ea0-60ee1091e743",
-        "url": "http://localhost:3000/public/images/1-removebg-preview-1742265896905-0e80bfbb96129ae07ce12.png"
+        "id": "efbf0ad4-508c-4d38-b94b-188ed35ad20a",
+        "url": "http://localhost:3000/public/images/1_OP9PFkBi8rh0x3FCmzQx1g-1742697315265-63244aee98385caa0031a.webp"
     },
     "requirements": [
         {
@@ -134,25 +170,39 @@
             "required": false
         }
     ],
+    "orderCount": 0,
     "avgRating": 0,
-    "totalReviews": 0,
     "views": 0,
+    "slug": "i-will-be-full-stack-web-developer-software-developer-php-laravel-html-react-nod-1742808789135",
     "seller": {
-        "createdAt": "2025-03-10T12:41:23.691Z",
-        "updatedAt": "2025-03-10T12:41:23.691Z",
-        "deletedAt": null,
-        "id": "4325f384-8e66-4a02-9608-c1becbd03c1a",
-        "password": "$2a$10$SVLXDlm2f.hULUYLWETBYuN/HRe9kMRXByslUYEr.q2QUuF5JtagG",
-        "provider": "email",
+        "createdAt": "Fri, 21 Mar 2025 23:17:08 GMT",
+        "updatedAt": "Mon, 24 Mar 2025 09:22:25 GMT",
+        "id": "67970bfa-44ea-48fd-b41d-46c6b0132067",
+        "sellerLevel": "level2",
+        "about": "I have over 4 years of experience in Deep Learning, Computer Vision, Machine Learning, AI, Chatbots, and Databases, supported by both academic and practical expertise. Holding a bachelor's and master's in Mechatronics Engineering, I am skilled in embedded systems and IoT. I've completed certified courses to enhance my knowledge and tackle challenges analytically. Now, with a team of expert developers, I provide full-stack solutions, ensuring high-quality, comprehensive outcomes for diverse projects.",
+        "skills": [
+            "WordPress"
+        ],
+        "languages": [
+            "Urdu",
+            " English",
+            " French",
+            " German"
+        ],
+        "rating": "3.50",
+        "reviewCount": 0,
+        "completedOrders": 0,
+        "responseTime": 0,
+        "availability": "available",
+        "email": "datmv1111@gmail.com",
+        "username": null,
+        "country": "",
+        "fullName": "mai dat",
+        "avatar": null,
+        "phoneNumber": null,
         "status": {
-            "createdAt": "2025-03-10T12:41:17.375Z",
-            "updatedAt": "2025-03-10T12:41:17.375Z",
-            "deletedAt": null,
-            "id": 1,
-            "name": "ACTIVE",
-            "description": "The user is using the platform normally.\n        Pending Verification – The user needs to verify their email or identity (for sellers)."
+            "id": 2,
+            "name": "PENDING_VERIFICATION"
         }
-    },
-    "ordersCount": 0,
-    "slug": "ok-but-i-can-not-do-123-1742265907044"
+    }
 }

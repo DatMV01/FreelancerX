@@ -11,12 +11,18 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   SerializeOptions,
   Type,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FindOptionsOrder, FindOptionsWhere, ObjectLiteral } from 'typeorm';
+import {
+  FindOptionsOrder,
+  FindOptionsWhere,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import {
@@ -26,6 +32,7 @@ import {
 import { QueryDto } from './dto/query.dto';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/common/decorators';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
@@ -43,7 +50,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
-  //  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
@@ -90,11 +97,13 @@ export abstract class BaseController<
   })
   @ApiResponse({ status: 400, description: 'Invalid parameters.' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @UseGuards(AuthGuard('jwt'))
   async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
     @Query('filters') filters: string,
+    @CurrentUser() currentUser: any,
   ) {
     // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
     const _limit = Math.min(limit || 10, 50);
@@ -107,6 +116,7 @@ export abstract class BaseController<
       _limit,
       filterParams,
       sortParams,
+      currentUser,
     );
 
     const pageDto = new PageDto<Dto>(
@@ -126,9 +136,9 @@ export abstract class BaseController<
   }
 
   @Get(':id')
-  // @UseGuards(AuthGuard('jwt'))
-  async findOne(@Param('id') id: string) {
-    const entity = await this.baseService.findOne(id);
+  @UseGuards(AuthGuard('jwt'))
+  async findOneById(@Param('id') id: string) {
+    const entity = await this.baseService.findOneById(id);
 
     if (!entity) {
       throw new NotFoundException(`ID ${id} not found`);
@@ -138,7 +148,7 @@ export abstract class BaseController<
   }
 
   @Patch(':id')
-  //@UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   async update(
     @Param('id') id: string,
@@ -154,7 +164,7 @@ export abstract class BaseController<
   }
 
   @Delete(':id')
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
     return this.baseService.remove(id);
   }
@@ -164,7 +174,7 @@ export abstract class BaseController<
   toDtoDefault(entity: unknown): Dto | Dto[] {
     if (Array.isArray(entity)) {
       return entity.map((item) => {
-        const _mapperObj = this.mapper.map(item, this.dtoType, this.entityType);
+        const _mapperObj = this.mapper.map(item, this.entityType, this.dtoType);
         const ___mapperObj = this.additionalMapping(_mapperObj, entity as any);
 
         return this.createInstance(___mapperObj);
@@ -172,7 +182,7 @@ export abstract class BaseController<
     }
 
     if (entity) {
-      const _mapperObj = this.mapper.map(entity, this.dtoType, this.entityType);
+      const _mapperObj = this.mapper.map(entity, this.entityType, this.dtoType);
       const ___mapperObj = this.additionalMapping(_mapperObj, entity as any);
       return this.createInstance(___mapperObj);
     }
@@ -214,5 +224,9 @@ export abstract class BaseController<
 
   createInstance(...args: any): Dto {
     return new this.dtoType(...args);
+  }
+
+  public getQueryBuilder(): SelectQueryBuilder<Entity> {
+    return this.baseService.getQueryBuilder();
   }
 }

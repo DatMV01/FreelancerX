@@ -128,7 +128,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
-  totalReviews: number;
+  reviewCount: number;
 
   @AutoMap(() => RatingEntity)
   @OneToMany(() => RatingEntity, (rating) => rating.gig, { cascade: true })
@@ -153,7 +153,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
-  ordersCount: number;
+  orderCount: number;
 
   @AutoMap()
   @OneToMany(() => OrderEntity, (order) => order.gig)
@@ -168,10 +168,18 @@ export class GigEntity extends BaseEntity {
   slug: string;
 
   @BeforeInsert()
-  @BeforeUpdate()
-  updateSlug() {
-    this.slug = `${this.title.trim().replaceAll(' ', '-')}-${Date.now()}`;
+  beforeInsert() {
+    this.slug = `${this.title.trim().toLowerCase().replaceAll(' ', '-')}-${Date.now()}`;
 
+    this.updateAllCategory();
+  }
+
+  @BeforeUpdate()
+  beforeUpdate() {
+    this.updateAllCategory();
+  }
+
+  updateAllCategory() {
     this.category = (this.category as any) === '' ? null : this.category;
 
     this.subCategory =

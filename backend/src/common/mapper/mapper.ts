@@ -1,4 +1,4 @@
-import { Mapper, createMap } from '@automapper/core';
+import { Mapper, createMap, forMember, mapFrom } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
@@ -49,7 +49,26 @@ export class AutoMapper extends AutomapperProfile {
       createMap(mapper, SessionEntity, SessionDto);
       createMap(mapper, SessionDto, SessionEntity);
 
-      createMap(mapper, GigEntity, GigDto);
+      createMap(
+        mapper,
+        GigEntity,
+        GigDto,
+        forMember(
+          (destination) => destination.seller,
+          mapFrom((source) => {
+            // return {
+            //   ...source.seller,
+            //   ...source.seller.user,
+            //   user: undefined,
+            // }  ;
+            return new SellerDto({
+              ...source.seller,
+              ...source.seller.user,
+              user: undefined,
+            } as any);
+          }),
+        ),
+      );
       createMap(mapper, GigDto, GigEntity);
 
       createMap(mapper, OrderEntity, OrderDto);
@@ -102,7 +121,16 @@ export class AutoMapper extends AutomapperProfile {
         // ),
       );
 
-      createMap(mapper, SellerEntity, SellerDto);
+      createMap(
+        mapper,
+        SellerEntity,
+        SellerDto,
+
+        // forMember(
+        //   (destination) => destination.user,
+        //   mapFrom((source: any) => new UserDto({ ...source.user })),
+        // ),
+      );
       createMap(mapper, SellerDto, SellerEntity);
     };
   }

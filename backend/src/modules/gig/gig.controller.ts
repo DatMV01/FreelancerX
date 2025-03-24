@@ -1,4 +1,11 @@
-import { Controller, Get, NotFoundException, Param, Post, SerializeOptions } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  SerializeOptions,
+} from '@nestjs/common';
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { BaseController } from '../base/base.controller';
 import { CreateGigDto } from './dto/create-gig.dto';
@@ -38,7 +45,43 @@ export class GigController extends BaseController<
 
   @Get('/slug/:slug')
   async findOneBySlug(@Param('slug') slug: string) {
-    const entity = await this.baseService.findOneBySlug(slug);
+    //const entity = await this.baseService.findOneBySlug(slug);
+    // const entity = await this.baseService.findOne({
+    //   where: { slug },
+    //   relations: {
+    //     seller: true,
+    //   },
+    // });
+
+    const queryBuilder = this.getQueryBuilder();
+    const entity = await queryBuilder
+      .leftJoinAndSelect(`${queryBuilder.alias}.category`, 'category')
+      .leftJoinAndSelect(`${queryBuilder.alias}.subCategory`, 'subCategory')
+      .leftJoinAndSelect(
+        `${queryBuilder.alias}.nestedSubcategory`,
+        'nestedSubcategory',
+      )
+      .leftJoinAndSelect(`${queryBuilder.alias}.orders`, 'orders')
+      .leftJoinAndSelect(`${queryBuilder.alias}.reviews`, 'reviews')
+      .leftJoinAndSelect(`${queryBuilder.alias}.seller`, 'seller')
+
+      .leftJoin('seller.user', 'user')
+      .addSelect([
+        'user.email',
+        'user.username',
+        'user.fullName',
+        'user.avatar',
+        'user.phoneNumber',
+        'user.country',
+      ])
+
+      .leftJoin('user.status', 'status')
+      .addSelect(['status.id', 'status.name'])
+
+      .where(`${queryBuilder.alias}.slug  =:slug`, {
+        slug,
+      })
+      .getOne();
 
     if (!entity) {
       throw new NotFoundException(`Gig with slug: ${slug} not found`);
@@ -48,6 +91,6 @@ export class GigController extends BaseController<
   }
 
   protected additionalMapping(dto: GigDto, entity: GigEntity): GigDto {
-    return dto;
+    return { ...dto };
   }
 }

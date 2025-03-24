@@ -112,6 +112,9 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap(() => String)
   tags: string[];
 
+  @AutoMap()
+  reviewCount: number;
+
   /* Pricing */
   @AutoMap()
   basicPrice: number;
@@ -157,7 +160,7 @@ export class GigDto extends BaseDto<GigDto> {
   requirements?: Requirement[];
 
   @AutoMap()
-  ordersCount: number;
+  orderCount: number;
 
   @AutoMap()
   avgRating: number;
@@ -169,7 +172,7 @@ export class GigDto extends BaseDto<GigDto> {
   views: number;
 
   @AutoMap(() => SellerDto)
-  seller: SellerDto;
+  seller?: SellerDto | undefined;
 
   @AutoMap()
   slug: string;

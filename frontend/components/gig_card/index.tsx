@@ -2,19 +2,19 @@
 
 import { Heart, Star } from "lucide-react";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
+import GigCarousel from "@/features/gig/components/GigCarousel";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import UserRank from "@/features/user/components/UserRank";
 import { faker } from "@faker-js/faker";
 import { Tooltip } from "@mui/material";
-import Link from "next/link";
-import CarouselV2 from "./carousel_v2";
-import GigCarousel from "@/features/gig/components/GigCarousel";
 import clsx from "clsx";
+import Link from "next/link";
+import { SellerRankStatus } from "@/features/seller/seller.rank.enum";
 
 export const GigCard = () => {
   const [level, setLevel] = useState<number>(0);
@@ -23,7 +23,7 @@ export const GigCard = () => {
   const [ratingCount, setRatingCount] = useState<number>(0);
   const [reviewCount, setReviewCount] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isFavorite, setFavorite] = useState(false);
 
   useEffect(() => {
     setLevel(faker.number.int({ min: 0, max: 3 }));
@@ -32,25 +32,15 @@ export const GigCard = () => {
     setRatingCount(faker.number.float({ multipleOf: 0.25, min: 0, max: 5 }));
     setReviewCount(faker.number.int({ min: 100, max: 1000 }));
     setPrice(faker.number.int({ min: 0, max: 1500 }));
-    setIsSaved(faker.datatype.boolean());
+    setFavorite(faker.datatype.boolean());
   }, []);
 
-  const addFavoriteGig = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    e.preventDefault();
-    console.log("====================================");
-    console.log("addFavoriteGig");
-    console.log("====================================");
+  const addFavoriteGig = () => {
+    setFavorite(true);
   };
 
-  const removeFavoriteGig = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-  ) => {
-    e.preventDefault();
-    console.log("====================================");
-    console.log("removeFavoriteGig");
-    console.log("====================================");
+  const removeFavoriteGig = () => {
+    setFavorite(false);
   };
 
   return (
@@ -84,7 +74,7 @@ export const GigCard = () => {
               </Link>
             </div>
 
-            <UserRank rankLevel={level} />
+            <UserRank rankLevel={SellerRankStatus.level3} />
           </div>
 
           <Link
@@ -109,27 +99,27 @@ export const GigCard = () => {
       </div>
 
       <div className="absolute right-4 top-4 z-10">
-        {!isSaved && (
+        {!isFavorite && (
           <Tooltip title="Save to list" placement="top">
             <button
               className={clsx(
                 "flex h-9 w-9 items-center justify-center rounded-full",
                 "bg-gray-100 hover:bg-gray-200",
               )}
-              onClick={(e) => addFavoriteGig(e)}
+              onClick={addFavoriteGig}
             >
               <Heart size={16} className="stroke-gray-500" />
             </button>
           </Tooltip>
         )}
-        {isSaved && (
+        {isFavorite && (
           <Tooltip title="Remove" placement="top">
             <button
               className={clsx(
                 "flex h-9 w-9 items-center justify-center rounded-full",
                 "bg-red-200 hover:bg-red-100",
               )}
-              onClick={(e) => removeFavoriteGig(e)}
+              onClick={removeFavoriteGig}
             >
               <Heart size={16} className="stroke-red-500" />
             </button>

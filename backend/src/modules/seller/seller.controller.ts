@@ -1,4 +1,4 @@
-import { BadRequestException, Controller } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { BaseController } from '../base/base.controller';
 import { CreateSellerDto } from './dto/create-seller.dto';
 import { SellerDto } from './dto/seller.dto';

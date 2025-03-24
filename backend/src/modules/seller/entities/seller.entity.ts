@@ -14,6 +14,7 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { SellerRankStatus } from '../enum/seller.rank.enum';
 
 @Entity('seller')
 export class SellerEntity extends BaseEntity {
@@ -31,8 +32,8 @@ export class SellerEntity extends BaseEntity {
   @AutoMap()
   @Column({
     type: 'enum',
-    enum: ['new', 'level1', 'level2', 'level3'],
-    default: 'new',
+    enum: SellerRankStatus,
+    default: SellerRankStatus.new,
   })
   sellerLevel: 'new' | 'level1' | 'level2' | 'level3';
 
@@ -40,17 +41,21 @@ export class SellerEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   about?: string;
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @Column({ type: 'simple-array', nullable: true })
   skills?: string[];
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @Column({ type: 'simple-array', nullable: true })
   languages?: string[];
 
   @AutoMap()
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.0 })
   rating: number;
+
+  @AutoMap()
+  @Column({ type: 'int', default: 0 })
+  reviewCount: number;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -86,7 +91,7 @@ export class SellerEntity extends BaseEntity {
 
   @BeforeInsert()
   beforeInsert() {
-    if (this.user && typeof  this.user === "string") {
+    if (this.user && typeof this.user === 'string') {
       this.id = this.user as any;
     }
   }

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { CurrentUser } from 'src/common/decorators';
 import {
   DeepPartial,
-  FindOptionsOrder,
+  FindOneOptions,
   FindOptionsWhere,
   ObjectLiteral,
   Repository,
@@ -17,10 +18,12 @@ export abstract class BaseService<T extends ObjectLiteral> {
     return this.repository.save(entity);
   }
 
-  async findOne(id: any): Promise<T | null> {
-    return await this.repository.findOne({
-      where: { id } as unknown as FindOptionsWhere<T>,
-    });
+  async findOneById(id: any): Promise<T | null> {
+    return await this.repository.findOneBy({ id });
+  }
+
+  async findOne(options: FindOneOptions<T>): Promise<T | null> {
+    return await this.repository.findOne(options);
   }
 
   async findOneBySlug(slug: string): Promise<T | null> {
@@ -31,7 +34,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
 
   async update(id: any, data: DeepPartial<T>): Promise<T | null> {
     await this.repository.update(id, data as any);
-    return this.findOne(id);
+    return this.findOneById(id);
   }
 
   async remove(id: string | number): Promise<boolean> {
@@ -49,6 +52,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
     limit: number = 10,
     filters: any,
     sort: any,
+    @CurrentUser() currentUser: any,
   ): Promise<[T[], number]> {
     const _queryBuilder: SelectQueryBuilder<T> =
       this.repository.createQueryBuilder();
@@ -60,6 +64,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
       appliedFilters,
       filters,
       sort,
+      currentUser,
     );
 
     Object.keys(filters).forEach((key) => {
@@ -141,7 +146,12 @@ export abstract class BaseService<T extends ObjectLiteral> {
     appliedFilters: Set<string>,
     filters: any,
     sort: any,
+    currentUser: any,
   ): SelectQueryBuilder<T> {
     return queryBuilder;
+  }
+
+  public getQueryBuilder(): SelectQueryBuilder<T> {
+    return this.repository.createQueryBuilder();
   }
 }
