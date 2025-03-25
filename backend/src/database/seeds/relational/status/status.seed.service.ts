@@ -16,7 +16,7 @@ export class StatusSeedService {
     await this.repository.query('SET FOREIGN_KEY_CHECKS=0;');
     await this.repository.clear();
     await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
-    
+
     const status: Partial<StatusEntity>[] = [
       {
         id: StatusEnum.ACTIVE,
@@ -24,6 +24,12 @@ export class StatusSeedService {
         description: `The user is using the platform normally.
         Pending Verification – The user needs to verify their email or identity (for sellers).`,
       },
+      {
+        id: StatusEnum.UNDEACTIVATED,
+        name: StatusEnum[StatusEnum.UNDEACTIVATED],
+        description: `The account was registered but has not been activated via email.`,
+      },
+
       {
         id: StatusEnum.PENDING_VERIFICATION,
         name: StatusEnum[StatusEnum.PENDING_VERIFICATION],
@@ -37,15 +43,9 @@ export class StatusSeedService {
       },
 
       {
-        id: StatusEnum.BANNED,
-        name: StatusEnum[StatusEnum.BANNED],
+        id: StatusEnum.LOCKED,
+        name: StatusEnum[StatusEnum.LOCKED],
         description: `The account is permanently locked due to serious violations.`,
-      },
-
-      {
-        id: StatusEnum.DEACTIVATED,
-        name: StatusEnum[StatusEnum.DEACTIVATED],
-        description: `The user has deleted the account themselves or the system has locked it.`,
       },
     ];
 

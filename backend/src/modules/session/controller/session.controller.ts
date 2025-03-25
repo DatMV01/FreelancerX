@@ -1,6 +1,6 @@
 import { Controller, Delete, Param, Patch, Post } from '@nestjs/common';
 import { BaseController } from 'src/modules/base/base.controller';
-import { UserDto } from 'src/modules/users/dto/user.dto';
+import { UserDto } from 'src/modules/user/dto/user.dto';
 import { Not } from 'typeorm';
 import { CreateSessionDto } from '../dto/create-session.dto';
 import { SessionDto } from '../dto/session.dto';

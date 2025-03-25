@@ -15,7 +15,7 @@ import { FileModule } from './modules/files/file.module';
 import { AuthModule } from './modules/auth/auth.module';
 import fileConfig from './modules/files/config/file.config';
 import { SessionModule } from './modules/session/session.module';
-import { UsersModule } from './modules/users/users.module';
+import { UserModule } from './modules/user/user.module';
 import { GigModule } from './modules/gig/gig.module';
 import { ReviewModule } from './modules/review/review.module';
 import { PaymentModule } from './modules/payment/payment.module';
@@ -46,7 +46,7 @@ import { SellerModule } from './modules/seller/seller.module';
     FileModule,
     AuthModule,
     SessionModule,
-    UsersModule,
+    UserModule,
     AuthModule,
     GigModule,
     OrderModule,

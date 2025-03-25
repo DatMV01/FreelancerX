@@ -1,6 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { Expose, Transform } from 'class-transformer';
-import { UPDATE_GROUP, GET_GROUP } from 'src/common/constant/serialize.group';
+import { Transform } from 'class-transformer';
 import { formatDate } from 'src/utils/transformers/format-date.transformer';
 
 export class BaseDto<T> {
@@ -9,12 +8,12 @@ export class BaseDto<T> {
   }
 
   @AutoMap()
-  id: string;
+  id: string | number;
 
   @AutoMap(() => Date)
   @Transform(({ value }) => formatDate(value))
   createdAt: Date;
-  
+
   @AutoMap(() => Date)
   @Transform(({ value }) => formatDate(value))
   //  @Expose({ groups: [UPDATE_GROUP, GET_GROUP] })

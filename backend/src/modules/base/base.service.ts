@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { CurrentUser } from 'src/common/decorators';
+import { MaybeUndefined } from 'src/utils/types/maybe.type';
 import {
   DeepPartial,
+  FindManyOptions,
   FindOneOptions,
   FindOptionsOrder,
   FindOptionsWhere,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 import { BaseEntity } from './entities/base.entity';
 
 @Injectable()
@@ -19,8 +22,8 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return this.repository.save(entity);
   }
 
-  async findOneById(id: any): Promise<Entity | null> {
-    return await this.repository.findOneBy({ id });
+  async findOneById(id: BaseEntity['id']): Promise<Entity | null> {
+    return await this.repository.findOneBy({ id } as any);
   }
 
   async findOne(options: FindOneOptions<Entity>): Promise<Entity | null> {
@@ -28,17 +31,26 @@ export abstract class BaseService<Entity extends BaseEntity> {
   }
 
   async findOneBySlug(slug: string): Promise<Entity | null> {
-    return await this.repository.findOne({
-      where: { slug } as unknown as FindOptionsWhere<Entity>,
+    return await this.repository.findOne({ where: { slug } } as any);
+  }
+
+  async update(
+    id: BaseEntity['id'],
+    data: DeepPartial<Entity>,
+  ): Promise<MaybeUndefined<Entity>> {
+    const updatedEntity = await this.repository.preload({
+      id,
+      ...data,
     });
+
+    if (updatedEntity) {
+      await this.repository.save(updatedEntity);
+    }
+
+    return updatedEntity;
   }
 
-  async update(id: any, data: DeepPartial<Entity>): Promise<Entity | null> {
-    await this.repository.update(id, data as any);
-    return this.findOneById(id);
-  }
-
-  async remove(id: string | number): Promise<boolean> {
+  async remove(id: BaseEntity['id']): Promise<boolean> {
     const result = await this.repository.softDelete(id);
     return (result.affected || 0) > 0;
   }
@@ -48,12 +60,16 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return (result.affected ?? 0) > 0;
   }
 
+  async exists(options?: FindManyOptions<Entity>): Promise<boolean> {
+    return await this.repository.exists(options);
+  }
+
   async findAll(
     page: number = 1,
     limit: number = 10,
     filters: FindOptionsWhere<Entity> | undefined,
     sorts: FindOptionsOrder<Entity> | undefined,
-    @CurrentUser() currentUser: any,
+    @CurrentUser() currentUser: JwtPayloadType,
   ): Promise<[Entity[], number]> {
     const _queryBuilder: SelectQueryBuilder<Entity> =
       this.repository.createQueryBuilder();

@@ -1,6 +1,5 @@
 import { AutoMap } from '@automapper/classes';
-import { Exclude, Expose } from 'class-transformer';
-import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
+import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
@@ -12,13 +11,13 @@ import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
+import { AuthProvidersEnum } from '../enum/user.provider';
 
 @Entity({
   name: 'user',
@@ -29,32 +28,33 @@ export class UserEntity extends BaseEntity {
   id: string;
 
   @AutoMap()
-  @Column({ type: 'varchar', unique: true, nullable: true })
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ type: 'varchar', unique: true, nullable: true })
-  username?: string;
-
   @AutoMap()
-  @Column({ nullable: true })
+  @Column()
   @Exclude({ toPlainOnly: true })
-  password?: string;
+  password: string;
 
   @AutoMap()
-  @Column({ default: 'email' })
-  provider: string;
+  @Column({
+    type: 'enum',
+    enum: AuthProvidersEnum,
+    default: AuthProvidersEnum.EMAIL,
+  })
+  provider: AuthProvidersEnum;
+
+  @AutoMap()
+  @Column()
+  fullName: string;
 
   @AutoMap()
   @Column({ nullable: true })
   country?: string;
 
   @AutoMap()
-  @Column({ nullable: false })
-  fullName: string;
-
-  @AutoMap()
-  @Column({ type: String, nullable: true })
-  avatar?: string | null;
+  @Column({ nullable: true })
+  avatar?: string;
 
   @AutoMap()
   @Column({ nullable: true })

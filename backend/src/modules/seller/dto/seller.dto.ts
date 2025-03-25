@@ -4,7 +4,7 @@ import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { GigDto } from 'src/modules/gig/dto/gig.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
-import { UserDto } from 'src/modules/users/dto/user.dto';
+import { UserDto } from 'src/modules/user/dto/user.dto';
 
 export class SellerDto extends BaseDto<SellerDto> {
   @AutoMap()

@@ -22,7 +22,7 @@ import {
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserDto } from 'src/modules/users/dto/user.dto';
+import { UserDto } from 'src/modules/user/dto/user.dto';
 
 export class CreateGigDto {
   @IsString()

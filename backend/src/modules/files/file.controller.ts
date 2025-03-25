@@ -19,6 +19,7 @@ import { CurrentUser } from 'src/common/decorators';
 import { setTimeout } from 'timers/promises';
 import { FileLocalService } from './file.service';
 import { FileResponseDto } from './uploader/local/dto/file-response.dto';
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 
 @Controller({
   path: 'file',
@@ -32,7 +33,7 @@ export class FileController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() currentUser: any,
+    @CurrentUser() currentUser: JwtPayloadType,
   ): Promise<FileResponseDto> {
     return this.filesService.create(file, currentUser);
   }
@@ -42,13 +43,10 @@ export class FileController {
   async deleteFile(
     @Query('filename') filename: string,
     @Query('id') id: string,
-    @CurrentUser() currentUser: any,
+    @CurrentUser() currentUser: JwtPayloadType,
   ) {
     if (id && currentUser) {
-      const deleted = await this.filesService.deleteFileByID(
-        id,
-        currentUser,
-      );
+      const deleted = await this.filesService.deleteFileByID(id, currentUser);
       if (!deleted) {
         throw new HttpException(
           'File not found or cannot be deleted',

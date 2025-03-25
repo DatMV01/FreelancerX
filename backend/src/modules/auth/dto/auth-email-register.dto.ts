@@ -1,39 +1,34 @@
-import {
-  HttpStatus,
-  UnprocessableEntityException
-} from '@nestjs/common';
 import { Transform, TransformationType, Type } from 'class-transformer';
 import {
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
-  MinLength
+  MinLength,
 } from 'class-validator';
-import { AuthProvidersEnum } from 'src/modules/auth/enum/auth-providers.enum';
+import { lowerCaseTransformer } from 'src/utils/transformers/lower-case.transformer';
+import { AuthProvidersEnum } from '../enum/auth-providers.enum';
 import { RoleDto } from 'src/modules/roles/dto/role.dto';
+import { HttpStatus, UnprocessableEntityException } from '@nestjs/common';
 import { RoleEnum } from 'src/modules/roles/roles.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 
-export class CreateUserDto {
+export class AuthRegisterLoginDto {
+  @Transform(lowerCaseTransformer)
   @IsString()
-  @IsNotEmpty()
-  identifier: string; // Can be email or username
+  @IsEmail()
+  email: string;
 
+  @IsString()
   @MinLength(6)
-  password?: string;
+  password: string;
 
   @IsOptional()
-  provider?: string = AuthProvidersEnum.email;
-
-  @IsOptional()
-  socialId?: string | null;
+  provider?: string = AuthProvidersEnum.EMAIL;
 
   @IsNotEmpty()
   fullName: string;
-
-  @IsOptional()
-  avatar?: string | null;
 
   @IsOptional()
   @Type(() => RoleDto)
@@ -51,12 +46,16 @@ export class CreateUserDto {
 
       return {
         id: RoleEnum[role],
+        name: RoleEnum[RoleEnum[role]],
       };
     } else if (type === TransformationType.CLASS_TO_PLAIN) {
       // This means the transformation is happening when sending a response
     }
   })
-  role?: RoleDto | null;
+  role: RoleDto = {
+    id: RoleEnum.BUYER,
+    name: RoleEnum[RoleEnum.BUYER],
+  } as any;
 
   @IsOptional()
   @Type(() => StatusDto)
@@ -72,10 +71,16 @@ export class CreateUserDto {
         });
       }
 
-      return { id: StatusEnum[status] };
+      return {
+        id: StatusEnum[status],
+        name: StatusEnum[StatusEnum[status]],
+      };
     } else if (type === TransformationType.CLASS_TO_PLAIN) {
       // This means the transformation is happening when sending a response
     }
   })
-  status?: StatusDto;
+  status: StatusDto = {
+    id: StatusEnum.UNDEACTIVATED,
+    name: StatusEnum[StatusEnum.UNDEACTIVATED],
+  } as any;
 }

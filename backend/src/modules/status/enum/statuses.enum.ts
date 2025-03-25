@@ -1,7 +1,7 @@
 export enum StatusEnum {
   ACTIVE = 1,
-  PENDING_VERIFICATION = 2,
-  SUSPENDED = 3,
-  BANNED = 4,
-  DEACTIVATED = 5,
+  UNDEACTIVATED = 2,
+  PENDING_VERIFICATION = 3,
+  SUSPENDED = 4,
+  LOCKED = 5,
 }

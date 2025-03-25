@@ -1,18 +1,14 @@
 import { AutoMap } from '@automapper/classes';
-import { OmitType } from '@nestjs/mapped-types';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   Entity,
   OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
-@Entity({
-  name: 'role',
-})
+@Entity({ name: 'role' })
 export class RoleEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('increment')
@@ -20,7 +16,7 @@ export class RoleEntity extends BaseEntity {
 
   @AutoMap()
   @Column()
-  name?: string;
+  name: string;
 
   @AutoMap()
   @Column({ nullable: true })

@@ -17,17 +17,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import {
   CREATE_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { CurrentUser } from 'src/common/decorators';
-import {
-  FindOptionsOrder,
-  FindOptionsWhere,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { SelectQueryBuilder } from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import { QueryDto } from './dto/query.dto';
@@ -61,41 +56,6 @@ export abstract class BaseController<
   }
 
   @Get()
-  @ApiOperation({
-    description:
-      'This API allows searching for entities based on filters and sorting. <br/> <br/> ' +
-      'GET  {{base_url}}/gig?limit=10&filters=status:ACTIVE&filters=day_range:14&sort=updatedAt:desc&page=2',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number (default: 1)',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of results per page (default: 10, max: 50)',
-  })
-  @ApiQuery({
-    name: 'sort',
-    required: false,
-    type: String,
-    description: 'Sorting format: field:ASC|DESC,field2:ASC|DESC',
-  })
-  @ApiQuery({
-    name: 'filters',
-    required: false,
-    type: String,
-    description: 'Filtering format: field:value,field2:value',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of results returned successfully.',
-  })
-  @ApiResponse({ status: 400, description: 'Invalid parameters.' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @UseGuards(AuthGuard('jwt'))
   async findAll(
     @Query() query: QueryDto<Entity>,
@@ -126,43 +86,6 @@ export abstract class BaseController<
 
     return pageDto;
   }
-
-  // async findAll(
-  //   @Query('page') page: number = 1,
-  //   @Query('limit') limit: number = 10,
-  //   @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
-  //   @Query('filters') filters: string,
-  //   @CurrentUser() currentUser: any,
-  // ) {
-  //   // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
-  //   const _limit = Math.min(limit || 10, 50);
-
-  //   const sortParams = this.parseSortParam(sort);
-  //   const filterParams = this.parseFiltersParam(filters);
-  //   // return this.baseService.findAll(page, limit, filterParams, sortParams);
-  //   const [results, count] = await this.baseService.findAll(
-  //     page,
-  //     _limit,
-  //     filterParams,
-  //     sortParams,
-  //     currentUser,
-  //   );
-
-  //   const pageDto = new PageDto<Dto>(
-  //     this.toDtoDefault(results),
-  //     new PageMetaDto({
-  //       itemCount: count,
-  //       pageOptionsDto: {
-  //         limit: _limit,
-  //         page,
-  //         filters: filterParams,
-  //         sort: sortParams,
-  //       },
-  //     }),
-  //   );
-
-  //   return pageDto;
-  // }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
@@ -221,34 +144,6 @@ export abstract class BaseController<
 
   protected additionalMapping(dto: Dto, entity: Entity): Dto {
     return dto;
-  }
-
-  private parseFiltersParam(filters: string): FindOptionsWhere<Entity> {
-    const filtersObj: FindOptionsWhere<Entity> = {};
-    if (filters) {
-      const filterFields = filters.split(',');
-      filterFields.forEach((field) => {
-        let [key, value] = field.split(':');
-        if (value.startsWith('[') && value.endsWith(']')) {
-          value = value.replace(/[\[\]]/g, '').split(';') as any;
-        }
-
-        (filtersObj as any)[key] = value;
-      });
-    }
-    return filtersObj;
-  }
-
-  private parseSortParam(sort: string): FindOptionsOrder<Entity> {
-    const sortObj: FindOptionsOrder<Entity> = {};
-    if (sort) {
-      const sortFields = sort.split(',');
-      sortFields.forEach((field) => {
-        const [key, order] = field.split(':');
-        (sortObj as any)[key] = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-      });
-    }
-    return sortObj;
   }
 
   createInstance(...args: any): Dto {

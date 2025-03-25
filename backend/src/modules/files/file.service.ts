@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AllConfigType, FILE_CONFIG_REGISTER } from 'src/config/config.type';
-import { NullableType } from 'src/utils/types/nullable.type';
+import { MaybeNull } from 'src/utils/types/nullable.type';
 import { In, Like, Repository } from 'typeorm';
 import { FileConfig } from './config/file.config';
 import { FileType } from './domain/file.domain';
@@ -11,6 +11,7 @@ import { FileMapper } from './mappers/file.mapper';
 import * as path from 'path';
 import * as fs from 'fs';
 import { RoleEnum } from '../roles/roles.enum';
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 
 @Injectable()
 export class FileLocalService {
@@ -47,7 +48,7 @@ export class FileLocalService {
     return domain;
   }
 
-  async findById(id: FileType['id']): Promise<NullableType<FileType>> {
+  async findById(id: FileType['id']): Promise<MaybeNull<FileType>> {
     const entity = await this.fileRepository.findOne({
       where: {
         id: id,
@@ -67,7 +68,10 @@ export class FileLocalService {
     return entities.map((entity) => FileMapper.toDomain(entity));
   }
 
-  async deleteFileByID(fileId: string, currentUser: any): Promise<boolean> {
+  async deleteFileByID(
+    fileId: string,
+    currentUser: JwtPayloadType,
+  ): Promise<boolean> {
     let entity;
 
     if (currentUser.role.id === RoleEnum.ADMIN) {

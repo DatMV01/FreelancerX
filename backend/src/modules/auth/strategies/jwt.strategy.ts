@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { OrNeverType } from 'src/utils/types/or-never.type';
+import { MaybeNever } from 'src/utils/types/or-never.type';
 import { AuthConfig } from '../config/auth.config';
 import { JwtPayloadType } from './types/jwt-payload.type';
 import { AUTH_CONFIG_REGISTER } from 'src/config/config.type';
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: authConfig.secret,
     });
   }
-  public validate(payload: JwtPayloadType): OrNeverType<JwtPayloadType> {
+  public validate(payload: JwtPayloadType): MaybeNever<JwtPayloadType> {
     if (!payload || !payload.id) {
       throw new UnauthorizedException();
     }

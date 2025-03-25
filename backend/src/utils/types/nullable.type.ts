@@ -1,1 +1,1 @@
-export type NullableType<T> = T | null;
+export type MaybeNull<T> = T | null;

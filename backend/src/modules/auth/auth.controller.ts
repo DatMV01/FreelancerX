@@ -1,24 +1,24 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Post,
-  UseGuards,
-  Res,
   Req,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { NullableType } from 'src/utils/types/nullable.type';
+import { Request, Response } from 'express';
+import { MaybeNull } from 'src/utils/types/nullable.type';
+import { UserDto } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
-import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
+import { AuthRegisterLoginDto } from './dto/auth-email-register.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
-import { UserDto } from '../users/dto/user.dto';
-import { Response, Request } from 'express';
+
 @Controller({
   path: 'auth',
   version: '1',
@@ -26,8 +26,13 @@ import { Response, Request } from 'express';
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  public me(@Req() request): Promise<MaybeNull<UserDto>> {
+    return this.service.me(request.user);
+  }
+
   @Post('email/login')
-  @HttpCode(HttpStatus.OK)
   public async login(
     @Body() loginDto: AuthEmailLoginDto,
     @Req() req: Request,
@@ -52,18 +57,6 @@ export class AuthController {
     });
 
     return loginResponse;
-  }
-
-  @Post('email/login-api')
-  @UseGuards(AuthGuard('local'))
-  public loginAPI(@Req() req, @Body() loginDto: AuthEmailLoginDto) {
-    return req.user;
-  }
-
-  @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  public me(@Req() request): Promise<NullableType<UserDto>> {
-    return this.service.me(request.user);
   }
 
   @Post('email/register')
@@ -91,11 +84,5 @@ export class AuthController {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
     return await this.service.logout(request.user.sessionId);
-  }
-
-  @Delete('me')
-  @UseGuards(AuthGuard('jwt'))
-  public async delete(@Req() request): Promise<boolean> {
-    return this.service.delete(request.user.id);
   }
 }

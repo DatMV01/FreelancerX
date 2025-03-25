@@ -4,10 +4,10 @@ import { GigController } from './gig.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GigEntity } from './entities/gig.entity';
 import { AutoMapper } from 'src/modules/base/mapper/mapper';
-import { UsersModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GigEntity]), UsersModule],
+  imports: [TypeOrmModule.forFeature([GigEntity]), UserModule],
   controllers: [GigController],
   providers: [GigService, AutoMapper],
 })

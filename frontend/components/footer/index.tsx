@@ -195,9 +195,9 @@ const Footer = () => {
                   "Customer Success Stories",
                   "Trust & Safety",
                   "Quality Guide",
-                  "Freelancer Connect Learn (Online Courses)",
-                  "Freelancer Connect Guides",
-                  "Freelancer Connect Answers",
+                  "FreelancerX Learn (Online Courses)",
+                  "FreelancerX Guides",
+                  "FreelancerX Answers",
                 ].map((link) => (
                   <Link
                     key={uuidv4()}
@@ -257,7 +257,7 @@ const Footer = () => {
 
               <AccordionContent className="flex flex-col pb-0 pl-4 text-base">
                 {[
-                  "About Freelancer Connect",
+                  "About FreelancerX",
                   "Help &amp; Support",
                   "Social Impact",
                   "Careers",

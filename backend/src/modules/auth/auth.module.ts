@@ -6,14 +6,15 @@ import { AuthService } from './auth.service';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { UsersModule } from '../users/users.module';
+import { UserModule } from '../user/user.module';
 import { SessionModule } from '../session/session.module';
 import { SessionService } from '../session/service/session.service';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../user/user.service';
+import { AutoMapper } from '../base/mapper/mapper';
 
 @Module({
   imports: [
-    UsersModule,
+    UserModule,
     SessionModule,
     PassportModule,
     //MailModule,
@@ -26,7 +27,8 @@ import { UsersService } from '../users/users.service';
     JwtRefreshStrategy,
     LocalStrategy,
     SessionService,
-    UsersService,
+    UserService,
+    AutoMapper,
   ],
   exports: [AuthService],
 })

@@ -1,6 +1,6 @@
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { GigStatus } from '../enum/gig.status';
-import { UserDto } from 'src/modules/users/dto/user.dto';
+import { UserDto } from 'src/modules/user/dto/user.dto';
 import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';

@@ -1,6 +1,6 @@
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   Entity,

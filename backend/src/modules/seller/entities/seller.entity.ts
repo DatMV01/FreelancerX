@@ -13,7 +13,7 @@ import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { SellerRankStatus } from '../enum/seller.rank.enum';
 
 @Entity('seller')

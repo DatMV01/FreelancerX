@@ -1,5 +1,6 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, TransformationType, Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 import { FindOptionsOrder, FindOptionsWhere } from 'typeorm';
 import { BaseEntity } from '../entities/base.entity';
 
@@ -8,12 +9,14 @@ export class QueryDto<Entity extends BaseEntity> {
   @IsInt()
   @Min(1)
   @IsOptional()
+  @ApiPropertyOptional({ default: 1 })
   page: number = 1;
 
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
+  @ApiPropertyOptional({ default: 10 })
   @Transform(({ value, key, obj, type, options }) => {
     if (type === TransformationType.PLAIN_TO_CLASS) {
       const num = parseInt(value, 10);
@@ -26,6 +29,7 @@ export class QueryDto<Entity extends BaseEntity> {
   limit: number = 10;
 
   @IsOptional()
+  @ApiPropertyOptional({ default: 'updatedAt:DESC,createdAt:DESC' })
   @Transform(({ value, key, obj, type, options }) => {
     if (type === TransformationType.PLAIN_TO_CLASS) {
       // This means the transformation is happening when receiving a request
@@ -58,6 +62,7 @@ export class QueryDto<Entity extends BaseEntity> {
   } as FindOptionsOrder<Entity>;
 
   @IsOptional()
+  @ApiPropertyOptional()
   @Transform(({ value, key, obj, type, options }) => {
     if (type === TransformationType.PLAIN_TO_CLASS) {
       // This means the transformation is happening when receiving a request

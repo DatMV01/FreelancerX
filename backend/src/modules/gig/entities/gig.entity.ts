@@ -5,7 +5,7 @@ import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
-import { UserEntity } from 'src/modules/users/entities/user.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
