@@ -14,7 +14,7 @@ import * as crypto from 'crypto';
 import * as ms from 'ms';
 import { AllConfigType, AUTH_CONFIG_REGISTER } from 'src/config/config.type';
 import { MaybeNull } from 'src/utils/types/nullable.type';
-import { RoleEnum } from '../roles/roles.enum';
+import { RoleEnum } from '../role/enum/role.enum';
 import { SessionService } from '../session/service/session.service';
 import { StatusEnum } from '../status/enum/statuses.enum';
 import { UserDto } from '../user/dto/user.dto';

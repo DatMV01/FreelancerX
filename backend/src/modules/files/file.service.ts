@@ -10,7 +10,7 @@ import { FileEntity } from './entities/file.entity';
 import { FileMapper } from './mappers/file.mapper';
 import * as path from 'path';
 import * as fs from 'fs';
-import { RoleEnum } from '../roles/roles.enum';
+import { RoleEnum } from '../role/enum/role.enum';
 import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 
 @Injectable()

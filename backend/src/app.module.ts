@@ -9,7 +9,7 @@ import { AppService } from './app.service';
 import appConfig from './config/app.config';
 import { DataBaseModule } from './database/database.module';
 import typeormConfig from './database/typeorm/typeorm.config';
-import { RolesModule } from './modules/roles/roles.module';
+import { RoleModule } from './modules/role/role.module';
 import { StatusModule } from './modules/status/status.module';
 import { FileModule } from './modules/files/file.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -41,7 +41,7 @@ import { SellerModule } from './modules/seller/seller.module';
       strategyInitializer: classes(),
     }),
     DataBaseModule,
-    RolesModule,
+    RoleModule,
     StatusModule,
     FileModule,
     AuthModule,

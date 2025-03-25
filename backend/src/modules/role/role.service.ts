@@ -5,11 +5,11 @@ import { BaseService } from '../base/base.service';
 import { RoleEntity } from './entities/role.entity';
 
 @Injectable()
-export class RolesService extends BaseService<RoleEntity> {
+export class RoleService extends BaseService<RoleEntity> {
   constructor(
     @InjectRepository(RoleEntity)
-    private readonly sessionRepository: Repository<RoleEntity>,
+    private readonly _repository: Repository<RoleEntity>,
   ) {
-    super(sessionRepository);
+    super(_repository);
   }
 }

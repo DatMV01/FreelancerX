@@ -7,8 +7,8 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { RoleDto } from 'src/modules/roles/dto/role.dto';
-import { RoleEnum } from 'src/modules/roles/roles.enum';
+import { RoleDto } from 'src/modules/role/dto/role.dto';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { AuthProvidersEnum } from '../enum/user.provider';

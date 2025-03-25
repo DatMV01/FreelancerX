@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { RoleEnum } from 'src/modules/roles/roles.enum';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { faker } from '@faker-js/faker';

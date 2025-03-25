@@ -8,9 +8,9 @@ import {
 } from 'class-validator';
 import { lowerCaseTransformer } from 'src/utils/transformers/lower-case.transformer';
 import { AuthProvidersEnum } from '../enum/auth-providers.enum';
-import { RoleDto } from 'src/modules/roles/dto/role.dto';
+import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { HttpStatus, UnprocessableEntityException } from '@nestjs/common';
-import { RoleEnum } from 'src/modules/roles/roles.enum';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 

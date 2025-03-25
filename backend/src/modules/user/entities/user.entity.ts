@@ -5,7 +5,7 @@ import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
-import { RoleEntity } from 'src/modules/roles/entities/role.entity';
+import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import {

@@ -4,7 +4,7 @@ import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { GigEntity } from './entities/gig.entity';
 import { isNumberParse } from 'src/utils/common';
-import { RoleEnum } from '../roles/roles.enum';
+import { RoleEnum } from '../role/enum/role.enum';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {

@@ -10,7 +10,7 @@ import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { ReviewDto } from 'src/modules/review/dto/review.dto';
-import { RoleDto } from 'src/modules/roles/dto/role.dto';
+import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { SellerDto } from 'src/modules/seller/dto/seller.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 

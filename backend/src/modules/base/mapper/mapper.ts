@@ -29,8 +29,8 @@ import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { UserDto } from 'src/modules/user/dto/user.dto';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { BaseEntity } from 'typeorm';
-import { RoleDto } from '../../roles/dto/role.dto';
-import { RoleEntity } from '../../roles/entities/role.entity';
+import { RoleDto } from '../../role/dto/role.dto';
+import { RoleEntity } from '../../role/entities/role.entity';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
