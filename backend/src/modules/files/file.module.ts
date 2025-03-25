@@ -13,8 +13,8 @@ import { diskStorage } from 'multer';
 import { basename, extname } from 'path';
 import { AllConfigType } from 'src/config/config.type';
 import { FileEntity } from './entities/file.entity';
-import { FilesController } from './files.controller';
-import { FilesLocalService } from './files.service';
+import { FileController } from './file.controller';
+import { FileLocalService } from './file.service';
 
 const videoMimeTypes: string[] = [
   'video/mp4',
@@ -192,8 +192,8 @@ const destination = (
       },
     }),
   ],
-  controllers: [FilesController],
-  providers: [FilesLocalService],
-  exports: [FilesLocalService, TypeOrmModule.forFeature([FileEntity])],
+  controllers: [FileController],
+  providers: [FileLocalService],
+  exports: [FileLocalService, TypeOrmModule.forFeature([FileEntity])],
 })
-export class FilesModule {}
+export class FileModule {}

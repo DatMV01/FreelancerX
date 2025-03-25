@@ -1,7 +1,15 @@
 import { AutoMap } from '@automapper/classes';
-import { CreateDateColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  DeleteDateColumn,
+  ObjectLiteral,
+  UpdateDateColumn
+} from 'typeorm';
 
-export class BaseEntity {
+export class BaseEntity implements ObjectLiteral {
+  @AutoMap()
+  id: string | number;
+
   @AutoMap(() => Date)
   @CreateDateColumn()
   createdAt: Date;

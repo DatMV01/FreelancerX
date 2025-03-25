@@ -3,7 +3,7 @@ import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
-import { AutoMapper } from 'src/common/mapper/mapper';
+import { AutoMapper } from 'src/modules/base/mapper/mapper';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CategoryEntity])],

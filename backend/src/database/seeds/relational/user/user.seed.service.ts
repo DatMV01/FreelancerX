@@ -24,6 +24,9 @@ export class UserSeedService {
         fullName: 'Super Admin',
         email: 'admin@example.com',
         password: bcrypt.hashSync('user123', 10),
+        avatar: faker.image.avatar(),
+        country: 'Vietnam',
+        phoneNumber: faker.phone.number(),
         role: {
           id: RoleEnum.ADMIN,
         } as any,
@@ -33,33 +36,23 @@ export class UserSeedService {
       },
     ];
 
-    users.push({
-      email: 'amina_bogan@yahoo.com',
-      fullName: faker.person.lastName() + faker.person.firstName(),
-      password: bcrypt.hashSync('user123', 10),
-      role: {
-        id: Math.floor(Math.random() * 3 + 1),
-      } as any,
-      status: {
-        id: Math.floor(Math.random() * 4 + 1),
-      } as any,
-    });
-
     for (let index = 1; index <= 50; index++) {
       users.push({
-        email: faker.internet.email().toLowerCase(),
-        fullName: faker.person.lastName() + faker.person.firstName(),
+        email: `user${index}@example.com`,
+        fullName: `${faker.person.lastName()} ${faker.person.firstName()}`,
         password: bcrypt.hashSync('user123', 10),
+        avatar: faker.image.avatar(),
+        country: faker.location.country(),
+        phoneNumber: faker.phone.number(),
         role: {
-          id: Math.floor(Math.random() * 3 + 1),
+          id: Math.floor(Math.random() * 4 + 1),
         } as any,
         status: {
-          id: Math.floor(Math.random() * 4 + 1),
+          id: Math.floor(Math.random() * 5 + 1),
         } as any,
       });
     }
 
-    //  await this.repository.clear();
     await this.repository.save(users);
   }
 }

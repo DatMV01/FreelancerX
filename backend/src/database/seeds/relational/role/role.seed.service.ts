@@ -16,7 +16,7 @@ export class RoleSeedService {
     await this.repository.query('SET FOREIGN_KEY_CHECKS=0;');
     await this.repository.clear();
     await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
-    
+
     const roles: Partial<RoleEntity>[] = [
       {
         id: RoleEnum.ADMIN,
@@ -36,12 +36,12 @@ export class RoleSeedService {
         description:
           'A person who buys services from freelancers, can view gigs, place orders, and make payments.',
       },
-      // {
-      //   id: RoleEnum.GUEST,
-      //   name: RoleEnum[RoleEnum.GUEST],
-      //   description:
-      //     'A user who has not registered or logged into the system and can only search for services and view gigs.',
-      // },
+      {
+        id: RoleEnum.GUEST,
+        name: RoleEnum[RoleEnum.GUEST],
+        description:
+          'A user who has not registered or logged into the system and can only search for services and view gigs.',
+      },
       // {
       //   id: RoleEnum.REGISTERED,
       //   name: RoleEnum[RoleEnum.REGISTERED],

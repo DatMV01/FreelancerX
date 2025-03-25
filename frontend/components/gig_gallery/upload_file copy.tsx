@@ -159,7 +159,7 @@ const UploadFile = forwardRef(
 
       try {
         const { data, status } = await axios.post(
-          "http://localhost:3000/api/v1/files/upload",
+          "http://localhost:3000/api/v1/file/upload",
           {
             file: file,
           },

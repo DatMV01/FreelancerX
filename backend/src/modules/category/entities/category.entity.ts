@@ -10,7 +10,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-@Entity('categories')
+@Entity('category')
 export class CategoryEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')

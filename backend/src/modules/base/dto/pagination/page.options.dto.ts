@@ -16,7 +16,7 @@ export class PageOptionsDto {
   readonly limit: number = 10;
 
   @IsOptional()
-  sort?: any;
+  sorts?: any;
 
   @IsOptional()
   filters?: any;

@@ -2,6 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { Exclude, Expose } from 'class-transformer';
 import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
@@ -43,13 +44,9 @@ export class UserEntity extends BaseEntity {
   @Column({ default: 'email' })
   provider: string;
 
-  // @AutoMap()
-  // @Column({ type: String, nullable: true })
-  // socialId?: string | null;
-
   @AutoMap()
-  @Column({ nullable: false })
-  country: string;
+  @Column({ nullable: true })
+  country?: string;
 
   @AutoMap()
   @Column({ nullable: false })
@@ -88,14 +85,30 @@ export class UserEntity extends BaseEntity {
   sellerProfile: SellerEntity;
 
   @AutoMap(() => [OrderEntity])
-  @OneToMany(() => OrderEntity, (order) => order.buyer)
+  @OneToMany(() => OrderEntity, (order) => order.buyer, {
+    eager: false,
+    cascade: true,
+  })
   buyerorders: OrderEntity[];
 
   @AutoMap(() => [ReviewEntity])
-  @OneToMany(() => ReviewEntity, (review) => review.buyer)
+  @OneToMany(() => ReviewEntity, (review) => review.buyer, {
+    eager: false,
+    cascade: true,
+  })
   reviews: ReviewEntity[];
 
   @AutoMap(() => [NotificationEntity])
-  @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  @OneToMany(() => NotificationEntity, (notification) => notification.user, {
+    eager: false,
+    cascade: true,
+  })
   notifications: NotificationEntity[];
+
+  @AutoMap(() => [FileEntity])
+  @OneToMany(() => FileEntity, (files) => files.user, {
+    eager: false,
+    cascade: true,
+  })
+  files: FileEntity[];
 }

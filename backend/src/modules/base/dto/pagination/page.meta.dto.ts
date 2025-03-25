@@ -13,14 +13,14 @@ export class PageMetaDto {
 
   readonly hasNextPage?: boolean;
 
-  readonly sort?: any;
+  readonly sorts?: any;
 
   readonly filter?: any;
 
   constructor({ pageOptionsDto, itemCount }: PageMetaDtoParameters) {
     this.page = pageOptionsDto.page;
     this.limit = pageOptionsDto.limit;
-    this.sort = pageOptionsDto.sort;
+    this.sorts = pageOptionsDto.sorts;
     this.filter = pageOptionsDto.filters;
     this.itemCount = itemCount;
     this.pageCount = Math.ceil(this.itemCount / this.limit);

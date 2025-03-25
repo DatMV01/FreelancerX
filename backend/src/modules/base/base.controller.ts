@@ -11,32 +11,31 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   SerializeOptions,
   Type,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import {
-  FindOptionsOrder,
-  FindOptionsWhere,
-  ObjectLiteral,
-  SelectQueryBuilder,
-} from 'typeorm';
-import { BaseService } from './base.service';
-import { PageDto, PageMetaDto } from './dto/pagination';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import {
   CREATE_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
-import { QueryDto } from './dto/query.dto';
-import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators';
+import {
+  FindOptionsOrder,
+  FindOptionsWhere,
+  SelectQueryBuilder,
+} from 'typeorm';
+import { BaseService } from './base.service';
+import { PageDto, PageMetaDto } from './dto/pagination';
+import { QueryDto } from './dto/query.dto';
+import { BaseEntity } from './entities/base.entity';
 
 @UseInterceptors(ClassSerializerInterceptor)
 export abstract class BaseController<
-  Entity extends ObjectLiteral,
+  Entity extends BaseEntity,
   Dto,
   CreateBaseDto,
   UpdateBaseDto,
@@ -99,23 +98,16 @@ export abstract class BaseController<
   @ApiResponse({ status: 500, description: 'Internal server error.' })
   @UseGuards(AuthGuard('jwt'))
   async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
-    @Query('filters') filters: string,
+    @Query() query: QueryDto<Entity>,
     @CurrentUser() currentUser: any,
   ) {
-    // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
-    const _limit = Math.min(limit || 10, 50);
+    const { page, limit, filters, sorts } = query;
 
-    const sortParams = this.parseSortParam(sort);
-    const filterParams = this.parseFiltersParam(filters);
-    // return this.baseService.findAll(page, limit, filterParams, sortParams);
     const [results, count] = await this.baseService.findAll(
       page,
-      _limit,
-      filterParams,
-      sortParams,
+      limit,
+      filters,
+      sorts,
       currentUser,
     );
 
@@ -124,16 +116,53 @@ export abstract class BaseController<
       new PageMetaDto({
         itemCount: count,
         pageOptionsDto: {
-          limit: _limit,
+          limit,
           page,
-          filters: filterParams,
-          sort: sortParams,
+          filters,
+          sorts,
         },
       }),
     );
 
     return pageDto;
   }
+
+  // async findAll(
+  //   @Query('page') page: number = 1,
+  //   @Query('limit') limit: number = 10,
+  //   @Query('sort') sort: string = 'updatedAt:desc,createdAt:desc',
+  //   @Query('filters') filters: string,
+  //   @CurrentUser() currentUser: any,
+  // ) {
+  //   // GET /roles?page=1&limit=2&filters=name:u&sort=name:desc,id:asc
+  //   const _limit = Math.min(limit || 10, 50);
+
+  //   const sortParams = this.parseSortParam(sort);
+  //   const filterParams = this.parseFiltersParam(filters);
+  //   // return this.baseService.findAll(page, limit, filterParams, sortParams);
+  //   const [results, count] = await this.baseService.findAll(
+  //     page,
+  //     _limit,
+  //     filterParams,
+  //     sortParams,
+  //     currentUser,
+  //   );
+
+  //   const pageDto = new PageDto<Dto>(
+  //     this.toDtoDefault(results),
+  //     new PageMetaDto({
+  //       itemCount: count,
+  //       pageOptionsDto: {
+  //         limit: _limit,
+  //         page,
+  //         filters: filterParams,
+  //         sort: sortParams,
+  //       },
+  //     }),
+  //   );
+
+  //   return pageDto;
+  // }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))

@@ -1,48 +1,54 @@
 import {
   Controller,
-  Get,
-  Param,
-  Post,
-  UploadedFile,
-  Response,
-  UseInterceptors,
-  Request,
-  Req,
-  Query,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
+  Param,
+  Post,
+  Query,
+  Response,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-
-import { FilesLocalService } from './files.service';
-import { FileResponseDto } from './uploader/local/dto/file-response.dto';
 import { join } from 'path';
+import { CurrentUser } from 'src/common/decorators';
 import { setTimeout } from 'timers/promises';
+import { FileLocalService } from './file.service';
+import { FileResponseDto } from './uploader/local/dto/file-response.dto';
+
 @Controller({
-  path: 'files',
+  path: 'file',
   version: '1',
 })
-export class FilesController {
-  constructor(private readonly filesService: FilesLocalService) {}
+export class FileController {
+  constructor(private readonly filesService: FileLocalService) {}
 
   @Post('upload')
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() currentUser: any,
   ): Promise<FileResponseDto> {
-    await setTimeout(2000);
-    return this.filesService.create(file);
+    return this.filesService.create(file, currentUser);
   }
+
   @Delete()
+  @UseGuards(AuthGuard('jwt'))
   async deleteFile(
     @Query('filename') filename: string,
     @Query('id') id: string,
+    @CurrentUser() currentUser: any,
   ) {
- 
-    if (id) {
-      const deleted = await this.filesService.deleteFileByID(id);
+    if (id && currentUser) {
+      const deleted = await this.filesService.deleteFileByID(
+        id,
+        currentUser,
+      );
       if (!deleted) {
         throw new HttpException(
           'File not found or cannot be deleted',

@@ -16,7 +16,7 @@ import {
 } from 'typeorm';
 import validator from 'validator';
 import { AuthProvidersEnum } from '../auth/enum/auth-providers.enum';
-import { FilesLocalService } from '../files/files.service';
+import { FileLocalService } from '../files/file.service';
 import { RoleEntity } from '../roles/entities/role.entity';
 import { RoleEnum } from '../roles/roles.enum';
 import { StatusEntity } from '../status/entities/status.entity';
@@ -35,7 +35,7 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
-    private readonly filesService: FilesLocalService,
+    private readonly filesService: FileLocalService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDto> {

@@ -46,33 +46,30 @@ export class GigService extends BaseService<GigEntity> {
       'nestedSubcategory',
     );
 
-    if (!filters || Object.keys(filters).length === 0) {
-      console.log('No filters provided or empty object:', filters);
-      return queryBuilder;
-    }
+    if (filters && Object.keys(filters).length > 0) {
+      Object.entries(filters).forEach(([key, value]) => {
+        const filterKey = key.trim().toLowerCase();
+        const filterValue = String(value).trim();
 
-    Object.entries(filters).forEach(([key, value]) => {
-      const filterKey = key.trim().toLowerCase();
-      const filterValue = String(value).trim();
+        if (appliedFilters.has(filterKey)) return;
 
-      if (appliedFilters.has(filterKey)) return;
+        if (filterKey === 'day_range') {
+          const isNumber = isNumberParse(filterValue.replaceAll(`'`, ``));
+          const dayRange = Number(filterValue);
 
-      if (filterKey === 'day_range') {
-        const isNumber = isNumberParse(filterValue.replaceAll(`'`, ``));
-        const dayRange = Number(filterValue);
+          if (isNumber && dayRange > 0) {
+            queryBuilder.andWhere(
+              `${queryBuilder.alias}.updatedAt >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL :dayRange DAY)`,
+              { dayRange },
+            );
+          } else {
+            console.error(`Invalid "day_range" filter value:`, filterValue);
+          }
 
-        if (isNumber && dayRange > 0) {
-          queryBuilder.andWhere(
-            `${queryBuilder.alias}.updatedAt >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL :dayRange DAY)`,
-            { dayRange },
-          );
-        } else {
-          console.error(`Invalid "day_range" filter value:`, filterValue);
+          appliedFilters.add(filterKey);
         }
-
-        appliedFilters.add(filterKey);
-      }
-    });
+      });
+    }
 
     return queryBuilder;
   }

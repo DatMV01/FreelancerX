@@ -10,9 +10,10 @@ import { FileEntity } from './entities/file.entity';
 import { FileMapper } from './mappers/file.mapper';
 import * as path from 'path';
 import * as fs from 'fs';
+import { RoleEnum } from '../roles/roles.enum';
 
 @Injectable()
-export class FilesLocalService {
+export class FileLocalService {
   constructor(
     @InjectRepository(FileEntity)
     private readonly fileRepository: Repository<FileEntity>,
@@ -21,7 +22,7 @@ export class FilesLocalService {
 
   bytesToMB = (bytes) => (bytes / (1024 * 1024)).toFixed(2); // Convert to MB and round to 2 decimal places
 
-  async create(file: Express.Multer.File): Promise<FileType> {
+  async create(file: Express.Multer.File, currentUser: any): Promise<FileType> {
     const fileConfig = this.configService.get(FILE_CONFIG_REGISTER as any, {
       infer: true,
     }) as FileConfig;
@@ -32,9 +33,12 @@ export class FilesLocalService {
       );
     }
 
-    const data: any = {
+    const data: FileEntity = {
       path: `${file.path}`,
-    };
+      user: {
+        id: currentUser.id,
+      } as any,
+    } as any;
 
     const persistence = await this.fileRepository.save(data);
 
@@ -63,9 +67,16 @@ export class FilesLocalService {
     return entities.map((entity) => FileMapper.toDomain(entity));
   }
 
-  async deleteFileByID(id: string): Promise<boolean> {
-    const entity = await this.fileRepository.findOne({
-      where: { id },
+  async deleteFileByID(fileId: string, currentUser: any): Promise<boolean> {
+    let entity;
+
+    if (currentUser.role.id === RoleEnum.ADMIN) {
+      entity = await this.fileRepository.findOne({
+        where: { id: fileId },
+      });
+    }
+    entity = await this.fileRepository.findOne({
+      where: { id: fileId, user: { id: currentUser.id } },
     });
 
     if (!entity) return false;

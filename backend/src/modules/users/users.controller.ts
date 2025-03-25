@@ -52,7 +52,7 @@ export class UsersController {
         pageOptionsDto: {
           limit: query.limit,
           page: query.page,
-          sort: query.sort,
+          sorts: query.sort,
         },
       }),
     );
@@ -77,8 +77,7 @@ export class UsersController {
         pageOptionsDto: {
           limit: query.limit,
           page: query.page,
-
-          sort: query.sort,
+          sorts: query.sort,
         },
       }),
     );
