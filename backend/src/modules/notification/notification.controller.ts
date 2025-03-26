@@ -14,6 +14,12 @@ export class NotificationController extends BaseController<
   UpdateNotificationDto
 > {
   constructor(protected readonly _service: NotificationService) {
-    super(_service, NotificationDto, NotificationEntity);
+    super(
+      _service,
+      NotificationEntity,
+      NotificationDto,
+      CreateNotificationDto,
+      UpdateNotificationDto,
+    );
   }
 }

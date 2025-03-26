@@ -10,7 +10,7 @@ import {
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
-import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { BaseEntity } from './entities/base.entity';
 
 @Injectable()
@@ -50,12 +50,12 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return updatedEntity;
   }
 
-  async remove(id: BaseEntity['id']): Promise<boolean> {
+  async removeOneById(id: BaseEntity['id']): Promise<boolean> {
     const result = await this.repository.softDelete(id);
     return (result.affected || 0) > 0;
   }
 
-  async removeByCondition(where: FindOptionsWhere<Entity>): Promise<boolean> {
+  async remove(where: FindOptionsWhere<Entity>): Promise<boolean> {
     const result = await this.repository.softDelete(where);
     return (result.affected ?? 0) > 0;
   }
@@ -69,7 +69,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
     limit: number = 10,
     filters: FindOptionsWhere<Entity> | undefined,
     sorts: FindOptionsOrder<Entity> | undefined,
-    @CurrentUser() currentUser: JwtPayloadType,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<[Entity[], number]> {
     const _queryBuilder: SelectQueryBuilder<Entity> =
       this.repository.createQueryBuilder();

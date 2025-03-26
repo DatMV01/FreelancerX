@@ -25,7 +25,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import authConfig from './modules/auth/config/auth.config';
 import { RatingModule } from './modules/rating/rating.module';
-import { SellerModule } from './modules/seller/seller.module';
+import { SellerModule } from './modules/freelancer/freelancer.module';
 
 @Module({
   imports: [

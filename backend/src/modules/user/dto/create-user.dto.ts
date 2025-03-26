@@ -77,8 +77,8 @@ export class CreateUserDto {
     }
   })
   status: StatusDto = {
-    id: StatusEnum.UNDEACTIVATED,
-    name: StatusEnum[StatusEnum.UNDEACTIVATED],
+    id: StatusEnum.UNACTIVATED,
+    name: StatusEnum[StatusEnum.UNACTIVATED],
   } as any;
 
   @IsOptional()

@@ -15,7 +15,7 @@ export class SessionService extends BaseService<SessionEntity> {
   }
 
   async deleteByUserId(userId: string): Promise<boolean> {
-    return super.removeByCondition({
+    return super.remove({
       user: {
         id: userId.toString(),
       },
@@ -26,7 +26,7 @@ export class SessionService extends BaseService<SessionEntity> {
     userId: string;
     excludeSessionId: SessionDto['id'];
   }): Promise<boolean> {
-    return super.removeByCondition({
+    return super.remove({
       user: {
         id: conditions.userId.toString(),
       },

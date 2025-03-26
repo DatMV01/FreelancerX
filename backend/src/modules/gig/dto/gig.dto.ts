@@ -7,7 +7,7 @@ import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { Transform, TransformationType } from 'class-transformer';
-import { SellerDto } from 'src/modules/seller/dto/seller.dto';
+import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 
 export class PricingPackage {
   @AutoMap()
@@ -171,8 +171,8 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   views: number;
 
-  @AutoMap(() => SellerDto)
-  seller?: SellerDto | undefined;
+  @AutoMap(() => FreelancerDto)
+  freelancer?: FreelancerDto | undefined;
 
   @AutoMap()
   slug: string;

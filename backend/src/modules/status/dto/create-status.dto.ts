@@ -1,10 +1,12 @@
-import { Allow, IsNotEmpty } from 'class-validator';
+import { AutoMap } from '@automapper/classes';
+import { Allow, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateStatusDto {
-  @Allow()
+  @AutoMap()
   @IsNotEmpty()
   name: string;
 
-  @Allow()
+  @AutoMap()
+  @IsOptional()
   description?: string;
 }

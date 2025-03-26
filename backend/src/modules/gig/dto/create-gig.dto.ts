@@ -1,14 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
   IsArray,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Max,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -21,79 +19,110 @@ import {
   Requirement,
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { ApiProperty } from '@nestjs/swagger';
-import { UserDto } from 'src/modules/user/dto/user.dto';
+import { AutoMap } from '@automapper/classes';
+
+export class GigFreelancerDto {
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  id?: string;
+
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  email?: string;
+}
 
 export class CreateGigDto {
+  @AutoMap()
   @IsString()
   @IsOptional()
   @ApiProperty()
   id?: string;
 
+  @AutoMap()
   @IsString()
   @IsNotEmpty()
   @ApiProperty()
   title: string;
 
+  @AutoMap()
   @IsOptional()
   @IsString()
   category: string;
 
+  @AutoMap()
   @IsOptional()
   @IsString()
   subCategory: string;
 
+  @AutoMap()
   @IsOptional()
   @IsString()
   nestedSubcategory?: string;
 
+  @AutoMap(() => [String])
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
 
+  @AutoMap()
   @IsNumber()
   @Min(0)
   @IsOptional()
-  basicPrice: number;
+  basicPrice?: number;
 
+  @AutoMap()
   @IsNumber()
   @Min(0)
   @IsOptional()
-  standardPrice: number;
+  standardPrice?: number;
 
+  @AutoMap()
   @IsNumber()
   @Min(0)
   @IsOptional()
-  premiumPrice: number;
+  premiumPrice?: number;
 
+  @AutoMap(() => [PricingPackage])
   @IsOptional()
   pricing: PricingPackage[];
 
+  @AutoMap()
   @IsString()
   @IsOptional()
   description: string;
 
+  @AutoMap(() => [FAQ])
   @IsArray()
   @IsOptional()
   faqs?: FAQ[];
 
+  @AutoMap(() => GigImages)
   @IsOptional()
   images: GigImages;
 
+  @AutoMap(() => GigDocuments)
   @IsOptional()
   documents: GigDocuments;
 
+  @AutoMap(() => GigFileInfo)
   @IsOptional()
   video: GigFileInfo;
 
+  @AutoMap()
   @IsEnum(GigStatus)
   @IsOptional()
   status: GigStatus = GigStatus.DRAFT;
 
+  @AutoMap(() => GigFileInfo)
   @IsOptional()
   thumbnail?: GigFileInfo | null;
 
+  @AutoMap(() => [Requirement])
   @IsArray()
   @ValidateNested({ each: true })
   @IsOptional()
@@ -111,15 +140,15 @@ export class CreateGigDto {
   // @IsNumber()
   // @ApiProperty()
   // totalReviews?: number;
-  @IsOptional()
-  @IsString()
-  @ApiProperty()
-  sellerId: string;
 
+  @AutoMap(() => GigFreelancerDto)
   @IsOptional()
-  @ApiProperty()
-  seller: UserDto;
+  @ValidateNested()
+  @Type(() => GigFreelancerDto)
+  @ApiProperty({ type: () => GigFreelancerDto, required: false })
+  freelancer?: GigFreelancerDto;
 
+  @AutoMap()
   @IsOptional()
   slug: string;
 }

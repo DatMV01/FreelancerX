@@ -5,7 +5,6 @@ import {
   JoinColumn,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -14,28 +13,33 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { SellerRankStatus } from '../enum/seller.rank.enum';
+import { FreelancerRankEnum } from '../enum/freelancerRank.enum';
 
-@Entity('seller')
-export class SellerEntity extends BaseEntity {
+@Entity('freelancer')
+export class FreelancerEntity extends BaseEntity {
   @AutoMap()
-  @PrimaryColumn('uuid') // ID sẽ là FK từ UserEntity và là PK của SellerEntity
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ unique: true })
+  @AutoMap()
+  email: string;
+
   @AutoMap(() => UserEntity)
-  @OneToOne(() => UserEntity, (user) => user.sellerProfile, {
-    onDelete: 'CASCADE',
+  @OneToOne(() => UserEntity, (user) => user.freelancerProfile, {
+    nullable: false,
+    onDelete: 'NO ACTION',
   })
-  @JoinColumn({ name: 'id' })
-  user: UserEntity;
+  @JoinColumn({ name: 'email', referencedColumnName: 'email' })
+  userProfile: UserEntity;
 
   @AutoMap()
   @Column({
     type: 'enum',
-    enum: SellerRankStatus,
-    default: SellerRankStatus.new,
+    enum: FreelancerRankEnum,
+    default: FreelancerRankEnum.NEW,
   })
-  sellerLevel: 'new' | 'level1' | 'level2' | 'level3';
+  level: FreelancerRankEnum;
 
   @AutoMap()
   @Column({ type: 'text', nullable: true })
@@ -59,19 +63,11 @@ export class SellerEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
-  completedOrders: number;
+  completedOrderCount: number;
 
   @AutoMap()
   @Column({ type: 'int', nullable: true })
   responseTime?: number;
-
-  @AutoMap()
-  @Column({
-    type: 'enum',
-    enum: ['available', 'busy', 'offline'],
-    default: 'available',
-  })
-  availability: 'available' | 'busy' | 'offline';
 
   @AutoMap()
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0.0 })
@@ -82,17 +78,16 @@ export class SellerEntity extends BaseEntity {
   withdrawnAmount: number;
 
   @AutoMap(() => [GigEntity])
-  @OneToMany(() => GigEntity, (gig) => gig.seller)
+  @OneToMany(() => GigEntity, (gig) => gig.freelancer, {
+    eager: false,
+    onDelete: 'NO ACTION',
+  })
   gigs: GigEntity[];
 
   @AutoMap(() => [OrderEntity])
-  @OneToMany(() => OrderEntity, (order) => order.seller)
-  sellerOrders: OrderEntity[];
-
-  @BeforeInsert()
-  beforeInsert() {
-    if (this.user && typeof this.user === 'string') {
-      this.id = this.user as any;
-    }
-  }
+  @OneToMany(() => OrderEntity, (order) => order.freelancer, {
+    eager: false,
+    onDelete: 'NO ACTION',
+  })
+  orders: OrderEntity[];
 }

@@ -2,17 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtRefreshPayloadType } from './types/jwt-refresh-payload.type';
-
-import { Request } from 'express';
-import { AUTH_CONFIG_REGISTER } from 'src/config/config.type';
+import { MaybeNever } from 'src/utils/types/or-never.type';
 import { AuthConfig } from '../config/auth.config';
+import { JwtAccessPayloadType } from './types/jwt-access-payload.type';
+import { AUTH_CONFIG_REGISTER } from 'src/config/config.type';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(
-  Strategy,
-  'jwt-refresh',
-) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(private readonly configService: ConfigService) {
     const authConfig = configService.get<AuthConfig>(AUTH_CONFIG_REGISTER, {
       infer: true,
@@ -21,31 +18,32 @@ export class JwtRefreshStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) => {
-          const refreshToken =
-            req?.cookies?.refresh_token ??
+          const accessToken =
+            req?.cookies?.access_token ??
             ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 
-          if (!refreshToken) {
+          if (!accessToken) {
             console.warn(
-              '⚠️ No refresh token found in cookies or Authorization header',
+              '⚠️ No access token found in cookies or Authorization header',
             );
           }
 
-          return refreshToken;
+          return accessToken;
         },
       ]),
+
       ignoreExpiration: false,
-      secretOrKey: authConfig.refreshSecret,
-      passReqToCallback: true, // Allows passing `req` to validate()
+      secretOrKey: authConfig.secret,
+      passReqToCallback: true, // Allow req access in validate()
     });
   }
 
   public validate(
     req: Request,
-    payload: JwtRefreshPayloadType,
-  ): JwtRefreshPayloadType {
+    payload: JwtAccessPayloadType,
+  ): MaybeNever<JwtAccessPayloadType> {
     if (!payload?.sessionId) {
-      console.error('❌ Invalid refresh token: missing sessionId');
+      console.error('❌ Invalid access token: missing sessionId');
       throw new UnauthorizedException('Invalid session');
     }
 

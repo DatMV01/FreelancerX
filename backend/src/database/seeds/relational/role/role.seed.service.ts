@@ -25,8 +25,8 @@ export class RoleSeedService {
           'The person who manages the entire system, moderates and manages users, and monitors activities on the website.',
       },
       {
-        id: RoleEnum.SELLER,
-        name: RoleEnum[RoleEnum.SELLER],
+        id: RoleEnum.FREELANCER,
+        name: RoleEnum[RoleEnum.FREELANCER],
         description:
           'A person who provides services, can post gigs, receive orders, and fulfill requests from customers.',
       },

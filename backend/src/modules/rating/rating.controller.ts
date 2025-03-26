@@ -26,7 +26,7 @@ export class RatingController extends BaseController<
   UpdateRatingDto
 > {
   constructor(protected readonly _service: RatingService) {
-    super(_service, RatingDto, RatingEntity);
+    super(_service, RatingEntity, RatingDto, CreateRatingDto, UpdateRatingDto);
   }
 
   @Post()
@@ -39,7 +39,7 @@ export class RatingController extends BaseController<
       data.message,
     );
 
-    return super.toDtoDefault(rating);
+    return super.mapFromEntityToDto(rating);
   }
 
   @Post(':ratingId/reply')

@@ -19,6 +19,12 @@ export class StatusController extends BaseController<
   UpdateStatusDto
 > {
   constructor(protected readonly roleSevice: StatusService) {
-    super(roleSevice, StatusDto, StatusEntity);
+    super(
+      roleSevice,
+      StatusEntity,
+      StatusDto,
+      CreateStatusDto,
+      UpdateStatusDto,
+    );
   }
 }

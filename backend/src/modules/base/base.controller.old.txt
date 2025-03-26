@@ -41,23 +41,28 @@ export abstract class BaseController<
 
   constructor(
     protected readonly baseService: BaseService<Entity>,
-    private entityType: Type<Entity>,
-    private dtoType: Type<Dto>,
-    private createDtoType: Type<CreateBaseDto>,
-    private updateDtoType: Type<UpdateBaseDto>,
+    private entityType: Type,
+    private dtoType: Type,
+    private createDtoType: Type,
+    private updateDtoType: Type,
   ) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
-    if (!Object.keys(data as Record<string, any>).length) {
+    if (Object.keys(data as any).length == 0) {
       throw new BadRequestException('Body is empty');
     }
 
-    const entity = this.mapper.map(data, this.createDtoType, this.entityType);
-    const savedEntity = await this.baseService.create(entity);
-    return this.mapFromEntityToDto(savedEntity);
+    const mapperEntity = this.mapper.map(
+      data,
+      this.createDtoType,
+      this.entityType,
+    );
+
+    const entity = await this.baseService.create(mapperEntity);
+    return this.mapFromEntitytoDtoDefault(entity);
   }
 
   @Get()
@@ -76,21 +81,32 @@ export abstract class BaseController<
       currentUser,
     );
 
-    return new PageDto<Dto>(
-      this.mapFromEntityToDto(results),
+    const pageDto = new PageDto<Dto>(
+      this.mapFromEntitytoDtoDefault(results),
       new PageMetaDto({
         itemCount: count,
-        pageOptionsDto: { limit, page, filters, sorts },
+        pageOptionsDto: {
+          limit,
+          page,
+          filters,
+          sorts,
+        },
       }),
     );
+
+    return pageDto;
   }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   async findOneById(@Param('id') id: string) {
     const entity = await this.baseService.findOneById(id);
-    if (!entity) throw new NotFoundException(`ID ${id} not found`);
-    return this.mapFromEntityToDto(entity);
+
+    if (!entity) {
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
+    return this.mapFromEntitytoDtoDefault(entity);
   }
 
   @Get('/me/:id')
@@ -106,33 +122,51 @@ export abstract class BaseController<
   async update(
     @Param('id') id: string,
     @Body() data: UpdateBaseDto,
-  ): Promise<Dto> {
-    const entity = this.mapper.map(data, this.updateDtoType, this.entityType);
-    const updatedEntity = await this.baseService.update(id, entity);
+  ): Promise<Dto | null> {
+    const mapperEntity = this.mapper.map(
+      data,
+      this.updateDtoType,
+      this.entityType,
+    );
 
-    if (!updatedEntity) throw new NotFoundException(`ID ${id} not found`);
-    return this.mapFromEntityToDto(updatedEntity);
+    const entity = await this.baseService.update(id, mapperEntity);
+
+    if (!entity) {
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
+    return this.mapFromEntitytoDtoDefault(entity);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
-    return this.baseService.removeOneById(id);
+    return this.baseService.remove(id);
   }
 
-  mapFromEntityToDto(entity: Entity): Dto;
-  mapFromEntityToDto(entity: Entity[]): Dto[];
-  mapFromEntityToDto(entity: Entity | Entity[]): Dto | Dto[] {
-    if (!entity) return {} as any;
+  mapFromEntitytoDtoDefault(entity: Entity): Dto;
+  mapFromEntitytoDtoDefault(entity: Entity[]): Dto[];
+  mapFromEntitytoDtoDefault(entity: unknown): Dto | Dto[] {
+    if (Array.isArray(entity)) {
+      return entity.map((item) => {
+        const _mapperDto = this.mapper.map(item, this.entityType, this.dtoType);
+        const __mapperDto = this.additionalMapping(_mapperDto, entity as any);
 
-    return Array.isArray(entity)
-      ? entity.map((item) => this.transformToDto(item))
-      : this.transformToDto(entity);
+        return this.createInstance(__mapperDto);
+      });
+    }
+
+    if (entity) {
+      const _mapperObj = this.mapper.map(entity, this.entityType, this.dtoType);
+      const ___mapperObj = this.additionalMapping(_mapperObj, entity as any);
+      return this.createInstance(___mapperObj);
+    }
+
+    return {} as any;
   }
 
-  private transformToDto(item: Entity): Dto {
-    const mappedDto = this.mapper.map(item, this.entityType, this.dtoType);
-    return this.additionalMapping(mappedDto, item);
+  protected createInstance(...args: any): Dto {
+    return new this.dtoType(...args);
   }
 
   protected additionalMapping(dto: Dto, entity: Entity): Dto {

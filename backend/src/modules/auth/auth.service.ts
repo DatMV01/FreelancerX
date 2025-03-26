@@ -14,9 +14,7 @@ import * as crypto from 'crypto';
 import * as ms from 'ms';
 import { AllConfigType, AUTH_CONFIG_REGISTER } from 'src/config/config.type';
 import { MaybeNull } from 'src/utils/types/nullable.type';
-import { RoleEnum } from '../role/enum/role.enum';
 import { SessionService } from '../session/service/session.service';
-import { StatusEnum } from '../status/enum/statuses.enum';
 import { UserDto } from '../user/dto/user.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
@@ -25,9 +23,8 @@ import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthRegisterLoginDto } from './dto/auth-email-register.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { AuthProvidersEnum } from './enum/auth-providers.enum';
-import { JwtPayloadType } from './strategies/types/jwt-payload.type';
+import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
-import { CreateUserDto } from '../user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -51,7 +48,7 @@ export class AuthService {
     return userDto;
   }
 
-  async me(userJwtPayload: JwtPayloadType): Promise<MaybeNull<UserDto>> {
+  async me(userJwtPayload: JwtAccessPayloadType): Promise<MaybeNull<UserDto>> {
     const entity = await this.usersService.findOneById(userJwtPayload.id);
 
     const userDto = this.mapper.map(entity, UserEntity, UserDto);
@@ -60,7 +57,7 @@ export class AuthService {
   }
 
   async logout(sessionId: number): Promise<boolean> {
-    return await this.sessionService.remove(sessionId);
+    return await this.sessionService.removeOneById(sessionId);
   }
 
   async validateUser(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
@@ -119,6 +116,7 @@ export class AuthService {
       await this.getTokensData({
         id: entity.id,
         role: entity.role.name,
+        email: entity.email,
         sessionId: session.id,
         hash,
       });
@@ -134,9 +132,57 @@ export class AuthService {
     };
   }
 
-  async getTokensData(data: {
+  async refreshToken(
+    jwtRefreshPayload: JwtRefreshPayloadType,
+  ): Promise<Omit<LoginResponseDto, 'user'>> {
+    const session = await this.sessionService.findOneById(
+      jwtRefreshPayload.sessionId,
+    );
+
+    if (!session || session.hash !== jwtRefreshPayload.hash) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.usersService.findOneById(session.user.id);
+
+    if (!user?.role) {
+      throw new UnauthorizedException();
+    }
+
+    const newHash = crypto
+      .createHash('sha256')
+      .update(randomStringGenerator())
+      .digest('hex');
+
+    await this.sessionService.update(session.id, { hash: newHash });
+
+    const { accessToken, refreshToken, accessExpires, refreshExpires } =
+      await this.getTokensData({
+        id: user.id,
+        role: user.role.name,
+        email: user.email,
+        sessionId: session.id,
+        hash: newHash,
+      });
+
+    return {
+      accessToken,
+      refreshToken,
+      accessExpires,
+      refreshExpires,
+    };
+  }
+
+  async getTokensData({
+    id,
+    role,
+    email,
+    sessionId,
+    hash,
+  }: {
     id: string;
     role: string;
+    email: string;
     sessionId: number;
     hash: string;
   }) {
@@ -150,67 +196,29 @@ export class AuthService {
     const accessExpires = Date.now() + ms(accessExpiresIn);
     const refreshExpires = Date.now() + ms(refreshExpiresIn);
 
-    const [accessToken, refreshToken] = await Promise.all([
-      await this.jwtService.signAsync(
-        {
-          id: data.id,
-          role: data.role,
-          sessionId: data.sessionId,
-        },
-        {
-          secret: authConfig.secret,
-          expiresIn: accessExpiresIn,
-        },
-      ),
-      await this.jwtService.signAsync(
-        {
-          sessionId: data.sessionId,
-          hash: data.hash,
-        },
-        {
-          secret: authConfig.refreshSecret,
-          expiresIn: refreshExpiresIn,
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-      accessExpires,
-      refreshExpires,
+    const accessPayload: Partial<JwtAccessPayloadType> = {
+      id,
+      email,
+      role,
+      sessionId,
     };
-  }
 
-  async refreshToken(
-    data: Pick<JwtRefreshPayloadType, 'sessionId' | 'hash'>,
-  ): Promise<Omit<LoginResponseDto, 'user'>> {
-    const session = await this.sessionService.findOneById(data.sessionId);
+    const refreshPayload: Partial<JwtRefreshPayloadType> = {
+      sessionId,
+      hash,
+    };
 
-    if (!session || session.hash !== data.hash) {
-      throw new UnauthorizedException();
-    }
+    const [accessToken, refreshToken] = await Promise.all([
+      await this.jwtService.signAsync(accessPayload, {
+        secret: authConfig.secret,
+        expiresIn: accessExpiresIn,
+      }),
 
-    const user = await this.usersService.findOneById(session.user.id);
-
-    if (!user?.role) {
-      throw new UnauthorizedException();
-    }
-
-    const hash = crypto
-      .createHash('sha256')
-      .update(randomStringGenerator())
-      .digest('hex');
-
-    await this.sessionService.update(session.id, { hash });
-
-    const { accessToken, refreshToken, accessExpires, refreshExpires } =
-      await this.getTokensData({
-        id: user.id,
-        role: user.role.name,
-        sessionId: session.id,
-        hash,
-      });
+      await this.jwtService.signAsync(refreshPayload, {
+        secret: authConfig.refreshSecret,
+        expiresIn: refreshExpiresIn,
+      }),
+    ]);
 
     return {
       accessToken,

@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   ObjectLiteral,
-  UpdateDateColumn
+  UpdateDateColumn,
 } from 'typeorm';
 
 export class BaseEntity implements ObjectLiteral {

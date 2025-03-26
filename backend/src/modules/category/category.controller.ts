@@ -14,6 +14,12 @@ export class CategoryController extends BaseController<
   UpdateCategoryDto
 > {
   constructor(protected readonly _service: CategoryService) {
-    super(_service, CategoryDto, CategoryEntity);
+    super(
+      _service,
+      CategoryEntity,
+      CategoryDto,
+      CreateCategoryDto,
+      UpdateCategoryDto,
+    );
   }
 }

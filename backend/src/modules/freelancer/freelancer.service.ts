@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { SellerEntity } from './entities/seller.entity';
+import { FreelancerEntity } from './entities/freelancer.entity';
 
 @Injectable()
-export class SellerService extends BaseService<SellerEntity> {
+export class FreelancerService extends BaseService<FreelancerEntity> {
   constructor(
-    @InjectRepository(SellerEntity)
-    private readonly _repository: Repository<SellerEntity>,
+    @InjectRepository(FreelancerEntity)
+    private readonly _repository: Repository<FreelancerEntity>,
   ) {
     super(_repository);
   }

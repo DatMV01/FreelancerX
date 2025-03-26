@@ -14,6 +14,6 @@ export class ReviewController extends BaseController<
   UpdateReviewDto
 > {
   constructor(protected readonly _service: ReviewService) {
-    super(_service, ReviewDto, ReviewEntity);
+    super(_service, ReviewEntity, ReviewDto, CreateReviewDto, UpdateReviewDto);
   }
 }

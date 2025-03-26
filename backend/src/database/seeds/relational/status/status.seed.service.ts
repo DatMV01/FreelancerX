@@ -25,8 +25,8 @@ export class StatusSeedService {
         Pending Verification – The user needs to verify their email or identity (for sellers).`,
       },
       {
-        id: StatusEnum.UNDEACTIVATED,
-        name: StatusEnum[StatusEnum.UNDEACTIVATED],
+        id: StatusEnum.UNACTIVATED,
+        name: StatusEnum[StatusEnum.UNACTIVATED],
         description: `The account was registered but has not been activated via email.`,
       },
 

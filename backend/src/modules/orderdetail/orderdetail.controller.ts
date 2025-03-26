@@ -14,6 +14,12 @@ export class OrderDetailController extends BaseController<
   UpdateOrderdetailDto
 > {
   constructor(protected readonly _service: OrderDetailService) {
-    super(_service, OrderDetailDto, OrderDetailEntity);
+    super(
+      _service,
+      OrderDetailEntity,
+      OrderDetailDto,
+      CreateOrderDetailDto,
+      UpdateOrderdetailDto,
+    );
   }
 }

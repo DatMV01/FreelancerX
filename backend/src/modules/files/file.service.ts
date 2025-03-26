@@ -11,7 +11,7 @@ import { FileMapper } from './mappers/file.mapper';
 import * as path from 'path';
 import * as fs from 'fs';
 import { RoleEnum } from '../role/enum/role.enum';
-import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Injectable()
 export class FileLocalService {
@@ -70,11 +70,11 @@ export class FileLocalService {
 
   async deleteFileByID(
     fileId: string,
-    currentUser: JwtPayloadType,
+    currentUser: JwtAccessPayloadType,
   ): Promise<boolean> {
     let entity;
 
-    if (currentUser.role.id === RoleEnum.ADMIN) {
+    if (currentUser.role === RoleEnum[RoleEnum.ADMIN]) {
       entity = await this.fileRepository.findOne({
         where: { id: fileId },
       });

@@ -14,6 +14,12 @@ export class PaymentController extends BaseController<
   UpdatePaymentDto
 > {
   constructor(protected readonly _service: PaymentService) {
-    super(_service, PaymentDto, PaymentEntity);
+    super(
+      _service,
+      PaymentEntity,
+      PaymentDto,
+      CreatePaymentDto,
+      UpdatePaymentDto,
+    );
   }
 }

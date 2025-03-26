@@ -1,6 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { Transform } from 'class-transformer';
-import { formatDate } from 'src/utils/transformers/format-date.transformer';
+import { formatDate } from 'src/utils/transformers/index.transformer';
 
 export class BaseDto<T> {
   constructor(partial: Partial<T>) {

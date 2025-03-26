@@ -19,24 +19,20 @@ export class SessionController extends BaseController<
   UpdateSessionDto
 > {
   constructor(private readonly sessionService: SessionService) {
-    super(sessionService, SessionDto, SessionEntity);
-  }
-
-  @Post()
-  create(data: CreateSessionDto): Promise<SessionDto> {
-    return super.create(data);
-  }
-
-  @Patch(':id')
-  update(id: string, data: UpdateSessionDto): Promise<SessionDto | null> {
-    return super.update(id, data);
+    super(
+      sessionService,
+      SessionEntity,
+      SessionDto,
+      CreateSessionDto,
+      UpdateSessionDto,
+    );
   }
 
   @Delete('/user/:userID')
-  async deleteByUserId(
+  async removeAllSession(
     @Param('userID') userId: UserDto['id'],
   ): Promise<boolean> {
-    return this.sessionService.removeByCondition({
+    return this.sessionService.remove({
       user: {
         id: userId.toString(),
       },
@@ -48,7 +44,7 @@ export class SessionController extends BaseController<
     @Param('userID') userId: UserDto['id'],
     @Param('sessionID') excludeSessionId: SessionDto['id'],
   ): Promise<boolean> {
-    return this.sessionService.removeByCondition({
+    return this.sessionService.remove({
       user: {
         id: userId.toString(),
       },

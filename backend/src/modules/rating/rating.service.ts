@@ -86,7 +86,7 @@ export class RatingService extends BaseService<RatingEntity> {
       throw new BadRequestException('Rating not found');
     }
 
-    if (rating.gig.seller.id !== ownerId)
+    if (rating.gig.freelancer.id !== ownerId)
       throw new BadRequestException('Only the gig owner can reply');
 
     const ownerReply = this.ratingReplyRepo.create({

@@ -17,6 +17,6 @@ export class UserController extends BaseController<
   UpdateUserDto
 > {
   constructor(protected readonly service: UserService) {
-    super(service, UserDto, UserEntity);
+    super(service, UserEntity, UserDto, CreateUserDto, UpdateUserDto);
   }
 }

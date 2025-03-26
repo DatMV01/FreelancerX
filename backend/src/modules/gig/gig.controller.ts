@@ -22,11 +22,10 @@ export class GigController extends BaseController<
   UpdateGigDto
 > {
   constructor(protected readonly _service: GigService) {
-    super(_service, GigDto, GigEntity);
+    super(_service, GigEntity, GigDto, CreateGigDto, UpdateGigDto);
   }
 
   @Post()
-  @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(data: CreateGigDto): Promise<GigDto> {
     if (data.pricing) {
       const pricePackage = Array.from(data.pricing).find(
@@ -45,14 +44,16 @@ export class GigController extends BaseController<
 
   @Get('/slug/:slug')
   async findOneBySlug(@Param('slug') slug: string) {
-    //const entity = await this.baseService.findOneBySlug(slug);
-    // const entity = await this.baseService.findOne({
-    //   where: { slug },
-    //   relations: {
-    //     seller: true,
-    //   },
-    // });
+    const entity = await this._service.findOneBySlug(slug);
 
+    if (!entity) {
+      throw new NotFoundException(`Gig with slug: ${slug} not found`);
+    }
+
+    return this.mapFromEntityToDto(entity);
+  }
+
+  async findOneBySlug2(@Param('slug') slug: string) {
     const queryBuilder = this.getQueryBuilder();
     const entity = await queryBuilder
       .leftJoinAndSelect(`${queryBuilder.alias}.category`, 'category')
@@ -63,19 +64,18 @@ export class GigController extends BaseController<
       )
       .leftJoinAndSelect(`${queryBuilder.alias}.orders`, 'orders')
       .leftJoinAndSelect(`${queryBuilder.alias}.reviews`, 'reviews')
-      .leftJoinAndSelect(`${queryBuilder.alias}.seller`, 'seller')
+      .leftJoinAndSelect(`${queryBuilder.alias}.freelancer`, 'freelancer')
 
-      .leftJoin('seller.user', 'user')
+      .leftJoin('freelancer.userProfile', 'userProfile')
       .addSelect([
-        'user.email',
-        'user.username',
-        'user.fullName',
-        'user.avatar',
-        'user.phoneNumber',
-        'user.country',
+        'userProfile.email',
+        'userProfile.fullName',
+        'userProfile.avatar',
+        'userProfile.phoneNumber',
+        'userProfile.country',
       ])
 
-      .leftJoin('user.status', 'status')
+      .leftJoin('userProfile.status', 'status')
       .addSelect(['status.id', 'status.name'])
 
       .where(`${queryBuilder.alias}.slug  =:slug`, {
@@ -87,7 +87,7 @@ export class GigController extends BaseController<
       throw new NotFoundException(`Gig with slug: ${slug} not found`);
     }
 
-    return this.toDtoDefault(entity);
+    return this.mapFromEntityToDto(entity);
   }
 
   protected additionalMapping(dto: GigDto, entity: GigEntity): GigDto {

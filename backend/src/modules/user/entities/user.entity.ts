@@ -6,16 +6,18 @@ import { NotificationEntity } from 'src/modules/notification/entities/notificati
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { ReviewEntity } from 'src/modules/review/entities/review.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
-import { SellerEntity } from 'src/modules/seller/entities/seller.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
 
@@ -28,6 +30,7 @@ export class UserEntity extends BaseEntity {
   id: string;
 
   @AutoMap()
+  @PrimaryColumn()
   @Column({ type: 'varchar', unique: true })
   email: string;
 
@@ -77,12 +80,12 @@ export class UserEntity extends BaseEntity {
   @JoinColumn({ name: 'status_id' })
   status: StatusEntity;
 
-  @AutoMap(() => SellerEntity)
-  @OneToOne(() => SellerEntity, (seller) => seller.user, {
+  @AutoMap(() => FreelancerEntity)
+  @OneToOne(() => FreelancerEntity, (freelancer) => freelancer.userProfile, {
     cascade: true,
     eager: true,
   })
-  sellerProfile: SellerEntity;
+  freelancerProfile: FreelancerEntity;
 
   @AutoMap(() => [OrderEntity])
   @OneToMany(() => OrderEntity, (order) => order.buyer, {

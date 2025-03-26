@@ -19,7 +19,7 @@ import { CurrentUser } from 'src/common/decorators';
 import { setTimeout } from 'timers/promises';
 import { FileLocalService } from './file.service';
 import { FileResponseDto } from './uploader/local/dto/file-response.dto';
-import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Controller({
   path: 'file',
@@ -33,7 +33,7 @@ export class FileController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @CurrentUser() currentUser: JwtPayloadType,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<FileResponseDto> {
     return this.filesService.create(file, currentUser);
   }
@@ -43,7 +43,7 @@ export class FileController {
   async deleteFile(
     @Query('filename') filename: string,
     @Query('id') id: string,
-    @CurrentUser() currentUser: JwtPayloadType,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
     if (id && currentUser) {
       const deleted = await this.filesService.deleteFileByID(id, currentUser);

@@ -1,7 +1,7 @@
 import {
   ClassSerializerInterceptor,
   Controller,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { BaseController } from '../base/base.controller';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -19,6 +19,6 @@ export class RoleController extends BaseController<
   UpdateRoleDto
 > {
   constructor(protected readonly roleSevice: RoleService) {
-    super(roleSevice, RoleDto, RoleEntity);
+    super(roleSevice, RoleEntity, RoleDto, CreateRoleDto, UpdateRoleDto);
   }
 }

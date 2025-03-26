@@ -1,11 +1,12 @@
 import { AutoMap } from '@automapper/classes';
-import { Allow, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateRoleDto {
-  @Allow()
+  @AutoMap()
   @IsNotEmpty()
   name: string;
 
-  @Allow()
+  @AutoMap()
+  @IsOptional()
   description?: string;
 }

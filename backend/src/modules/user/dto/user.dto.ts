@@ -11,7 +11,7 @@ import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { ReviewDto } from 'src/modules/review/dto/review.dto';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
-import { SellerDto } from 'src/modules/seller/dto/seller.dto';
+import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 
 export class UserDto extends BaseDto<UserDto> {
@@ -58,7 +58,7 @@ export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
   phoneNumber?: string | undefined;
 
-  @AutoMap(() => SellerDto)
+  @AutoMap(() => FreelancerDto)
   @Expose({ name: 'freelancer' })
   @Transform(({ value, key, obj, type, options }) => {
     if (type === TransformationType.PLAIN_TO_CLASS) {
@@ -66,7 +66,7 @@ export class UserDto extends BaseDto<UserDto> {
       return value ? value : undefined;
     }
   })
-  sellerProfile?: SellerDto | undefined;
+  freelancerProfile?: FreelancerDto | undefined;
 
   @AutoMap(() => [OrderDto])
   @Transform(({ value, key, obj, type, options }) => {
