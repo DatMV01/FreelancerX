@@ -9,16 +9,16 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('order_details')
+// @Entity('order_details')
 export class OrderDetailEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @AutoMap(() => OrderEntity)
-  @ManyToOne(() => OrderEntity, (order) => order.orderDetails)
-  @JoinColumn({ name: 'order_id' })
-  order: OrderEntity;
+  // @AutoMap(() => OrderEntity)
+  // @ManyToOne(() => OrderEntity, (order) => order.orderDetails)
+  // @JoinColumn({ name: 'order_id' })
+  // order: OrderEntity;
 
   @AutoMap()
   @Column()

@@ -1,92 +1,76 @@
-import { HttpStatus, UnprocessableEntityException } from '@nestjs/common';
-import { Transform, TransformationType, Type } from 'class-transformer';
+import { AutoMap } from '@automapper/classes';
+import { Transform, Type } from 'class-transformer';
 import {
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
-import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
-import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
+import {
+  userRoleTransformer,
+  userRoleTransformer2,
+  userStatusTransformer,
+  userStatusTransformer2,
+} from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/user.provider';
 
 export class CreateUserDto {
-  @IsString()
+  @AutoMap()
   @IsEmail()
   email: string;
 
+  @AutoMap()
+  @IsString()
   @MinLength(6)
-  password?: string;
+  @IsNotEmpty()
+  password: string;
 
-  @IsOptional()
-  provider?: string = AuthProvidersEnum.EMAIL;
-
+  @AutoMap()
+  @IsString()
   @IsNotEmpty()
   fullName: string;
 
+  @AutoMap()
   @IsOptional()
-  @Type(() => RoleDto)
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-      // This means the transformation is happening when receiving a request
+  @IsString()
+  country?: string;
 
-      const role = String(value).toUpperCase();
-      if (!Object.values(RoleEnum).includes(role)) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: { role: 'roleNotExists' },
-        });
-      }
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 
-      return {
-        id: RoleEnum[role],
-        name: RoleEnum[RoleEnum[role]],
-      };
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      // This means the transformation is happening when sending a response
-    }
-  })
-  role: RoleDto = {
-    id: RoleEnum.BUYER,
-    name: RoleEnum[RoleEnum.BUYER],
-  } as any;
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
+
+  @AutoMap()
+  @IsEnum(AuthProvidersEnum)
+  @IsOptional()
+  provider?: string = AuthProvidersEnum.EMAIL;
+
+  @AutoMap()
+  @IsOptional()
+  @Transform(userRoleTransformer)
+  roleId?: number;
+
+  @AutoMap()
+  @IsOptional()
+  @Transform(userStatusTransformer)
+  statusId?: number;
 
   @IsOptional()
   @Type(() => StatusDto)
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-      // This means the transformation is happening when receiving a request
-
-      const status = String(value).toUpperCase();
-      if (!Object.values(StatusEnum).includes(status)) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: { role: 'statusNotExists' },
-        });
-      }
-
-      return {
-        id: StatusEnum[status],
-        name: StatusEnum[StatusEnum[status]],
-      };
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      // This means the transformation is happening when sending a response
-    }
-  })
-  status: StatusDto = {
-    id: StatusEnum.UNACTIVATED,
-    name: StatusEnum[StatusEnum.UNACTIVATED],
-  } as any;
+  @Transform(userStatusTransformer2)
+  status?: StatusDto;
 
   @IsOptional()
-  country?: string | undefined;
-
-  @IsOptional()
-  avatar?: string | undefined;
-
-  @IsOptional()
-  phoneNumber?: string | undefined;
+  @Type(() => RoleDto)
+  @Transform(userRoleTransformer2)
+  role?: RoleDto;
 }

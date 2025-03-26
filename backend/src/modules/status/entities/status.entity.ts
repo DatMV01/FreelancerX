@@ -15,7 +15,7 @@ export class StatusEntity extends BaseEntity {
   id: number;
 
   @AutoMap()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @AutoMap()

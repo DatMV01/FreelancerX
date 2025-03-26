@@ -91,7 +91,7 @@ export class RatingService extends BaseService<RatingEntity> {
 
     const ownerReply = this.ratingReplyRepo.create({
       rating,
-      owner: { id: ownerId },
+      freelancerId: ownerId,
       message,
     });
 

@@ -21,7 +21,7 @@ export class FileEntity extends BaseEntity {
 
   @AutoMap()
   @ManyToOne(() => UserEntity, (user) => user.files, {
-    nullable: false,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

@@ -22,31 +22,52 @@ export class OrderEntity extends BaseEntity {
   id: string;
 
   @AutoMap(() => UserEntity)
-  @ManyToOne(() => UserEntity, (user) => user.buyerorders)
+  @ManyToOne(() => UserEntity, (user) => user.buyerorders, {
+    onDelete: 'SET NULL', // Nếu user bị xóa, đơn hàng vẫn tồn tại nhưng buyer_id sẽ thành NULL
+    nullable: true,
+  })
   @JoinColumn({ name: 'buyer_id' })
   buyer: UserEntity;
 
   @AutoMap(() => FreelancerEntity)
-  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.orders)
+  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.orders, {
+    onDelete: 'SET NULL', // Freelancer bị xóa, order vẫn còn
+    nullable: true,
+  })
   @JoinColumn({ name: 'freelancer_id' })
   freelancer: FreelancerEntity;
 
   @AutoMap(() => GigEntity)
-  @ManyToOne(() => GigEntity, (gig) => gig.orders)
+  @ManyToOne(() => GigEntity, (gig) => gig.orders, {
+    onDelete: 'SET NULL', // Gig bị xóa, order vẫn còn nhưng gig_id thành NULL
+    nullable: true,
+  })
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
-  @AutoMap(() => OrderDetailEntity)
-  @OneToMany(() => OrderDetailEntity, (orderDetail) => orderDetail.order)
-  orderDetails: OrderDetailEntity[];
+  // @AutoMap(() => OrderDetailEntity)
+  // @OneToMany(() => OrderDetailEntity, (orderDetail) => orderDetail.order, {
+  //   cascade: true, // Khi xóa order, các orderDetail liên quan cũng bị xóa
+  // })
+  // orderDetails: OrderDetailEntity[];
 
   @AutoMap(() => PaymentEntity)
-  @OneToMany(() => PaymentEntity, (payment) => payment.order)
+  @OneToMany(() => PaymentEntity, (payment) => payment.order, {
+    cascade: true, // Khi xóa order, các payment liên quan cũng bị xóa
+  })
   payments: PaymentEntity[];
 
   @Column()
   totalAmount: number;
+
+  @AutoMap()
+  @Column()
+  quantity: number;
+
+  @AutoMap()
+  @Column()
+  price: number;
 }

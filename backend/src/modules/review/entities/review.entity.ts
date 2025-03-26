@@ -10,21 +10,25 @@ import {
   Column,
 } from 'typeorm';
 
-@Entity('reviews')
+// @Entity('reviews')
 export class ReviewEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @AutoMap()
-  @ManyToOne(() => UserEntity, (user) => user.reviews)
-  @JoinColumn({ name: 'buyer_id' })
-  buyer: UserEntity;
+  // @AutoMap()
+  // @ManyToOne(() => UserEntity, (user) => user.reviews, {
+  //   onDelete: 'SET NULL',
+  // })
+  // @JoinColumn({ name: 'buyer_id' })
+  // buyer: UserEntity;
 
-  @AutoMap()
-  @ManyToOne(() => GigEntity, (gig) => gig.reviews)
-  @JoinColumn({ name: 'gig_id' })
-  gig: GigEntity;
+  // @AutoMap()
+  // @ManyToOne(() => GigEntity, (gig) => gig.reviews, {
+  //   onDelete: 'SET NULL',
+  // })
+  // @JoinColumn({ name: 'gig_id' })
+  // gig: GigEntity;
 
   @AutoMap()
   @Column()

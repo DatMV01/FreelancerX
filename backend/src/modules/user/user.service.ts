@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { throwUnprocessableEntityException } from 'src/common/exception/thowException';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { BaseEntity } from '../base/entities/base.entity';
 import { UserEntity } from './entities/user.entity';
@@ -69,5 +69,20 @@ export class UserService extends BaseService<UserEntity> {
     }
 
     return bcrypt.hashSync(newPassword, UserService.SALT);
+  }
+
+  protected additionalQuery(
+    queryBuilder: SelectQueryBuilder<UserEntity>,
+    appliedFilters: Set<string>,
+    filters: any,
+    sort: any,
+    currentUser: any,
+  ): SelectQueryBuilder<UserEntity> {
+    queryBuilder.leftJoinAndSelect(
+      `${queryBuilder.alias}.freelancerProfile`,
+      'freelancerProfile',
+    );
+
+    return queryBuilder;
   }
 }

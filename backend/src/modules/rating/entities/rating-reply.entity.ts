@@ -1,28 +1,34 @@
+import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RatingEntity } from './rating.entity';
-import { AutoMap } from '@automapper/classes';
 
-@Entity('rating_replies')
+@Entity('rating_reply')
 export class RatingReplyEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @AutoMap()
   id: string;
 
-  @OneToOne(() => RatingEntity)
   @AutoMap()
+  @OneToOne(() => RatingEntity)
   rating: RatingEntity;
 
-  @ManyToOne(() => UserEntity)
   @AutoMap()
-  owner: UserEntity;
+  @Column({ name: 'freelancer_id', nullable: true })
+  freelancerId: string;
+
+  @AutoMap()
+  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.ratingReplies)
+  @JoinColumn({ name: 'freelancer_id' })
+  freelancer: FreelancerEntity;
 
   @Column({ type: 'text' })
   @AutoMap()

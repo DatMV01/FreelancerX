@@ -15,7 +15,9 @@ export class NotificationEntity extends BaseEntity {
   @AutoMap()
   id: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.notifications)
+  @ManyToOne(() => UserEntity, (user) => user.notifications, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'user_id' })
   @AutoMap()
   user: UserEntity;

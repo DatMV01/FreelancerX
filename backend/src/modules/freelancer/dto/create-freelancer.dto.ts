@@ -10,11 +10,11 @@ export class CreateFreelancerDto {
   @IsString()
   about: string;
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @IsOptional()
   skills?: string[];
 
-  @AutoMap()
+  @AutoMap(() => [String])
   @IsOptional()
   languages?: string[];
 }

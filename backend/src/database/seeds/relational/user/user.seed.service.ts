@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { RoleEnum } from 'src/modules/role/enum/role.enum';
+
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { faker } from '@faker-js/faker';
 import { Repository } from 'typeorm';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 
 @Injectable()
 export class UserSeedService {
@@ -27,12 +28,14 @@ export class UserSeedService {
         avatar: faker.image.avatar(),
         country: 'Vietnam',
         phoneNumber: faker.phone.number(),
-        role: {
-          id: RoleEnum.ADMIN,
-        } as any,
-        status: {
-          id: StatusEnum.ACTIVE,
-        } as any,
+        roleId: RoleEnum.ADMIN,
+        statusId: StatusEnum.ACTIVE,
+        // role: {
+        //   id: RoleEnum.ADMIN,
+        // } as any,
+        // status: {
+        //   id: StatusEnum.ACTIVE,
+        // } as any,
       },
     ];
 
@@ -44,12 +47,14 @@ export class UserSeedService {
         avatar: faker.image.avatar(),
         country: faker.location.country(),
         phoneNumber: faker.phone.number(),
-        role: {
-          id: Math.floor(Math.random() * 4 + 1),
-        } as any,
-        status: {
-          id: Math.floor(Math.random() * 5 + 1),
-        } as any,
+        roleId: Math.floor(Math.random() * 4 + 1),
+        statusId: Math.floor(Math.random() * 5 + 1),
+        // role: {
+        //   id: Math.floor(Math.random() * 4 + 1),
+        // } as any,
+        // status: {
+        //   id: Math.floor(Math.random() * 5 + 1),
+        // } as any,
       });
     }
 

@@ -16,36 +16,53 @@ import {
   userStatusTransformer,
 } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/auth-providers.enum';
+import { AutoMap } from '@automapper/classes';
 
 export class AuthRegisterLoginDto {
+  @AutoMap()
   @Transform(lowerCaseTransformer)
   @IsString()
   @IsEmail()
   email: string;
 
+  @AutoMap()
   @IsString()
   @MinLength(6)
   password: string;
 
+  @AutoMap()
   @IsOptional()
   provider?: string = AuthProvidersEnum.EMAIL;
 
+  @AutoMap()
+  @IsString()
   @IsNotEmpty()
   fullName: string;
 
+  @AutoMap(() => RoleDto)
   @IsOptional()
   @Type(() => RoleDto)
   @Transform(userRoleTransformer)
-  role: RoleDto = {
-    id: RoleEnum.BUYER,
-    name: RoleEnum[RoleEnum.BUYER],
-  } as any;
+  role: RoleDto;
 
+  @AutoMap(() => StatusDto)
   @IsOptional()
   @Type(() => StatusDto)
   @Transform(userStatusTransformer)
-  status: StatusDto = {
-    id: StatusEnum.UNACTIVATED,
-    name: StatusEnum[StatusEnum.UNACTIVATED],
-  } as any;
+  status: StatusDto;
+
+  @AutoMap()
+  @IsNotEmpty()
+  @IsOptional()
+  avatar: string;
+
+  @AutoMap()
+  @IsNotEmpty()
+  @IsOptional()
+  country: string;
+
+  @AutoMap()
+  @IsNotEmpty()
+  @IsOptional()
+  phoneNumber: string;
 }

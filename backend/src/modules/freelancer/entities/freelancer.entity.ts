@@ -14,6 +14,7 @@ import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { FreelancerRankEnum } from '../enum/freelancerRank.enum';
+import { RatingReplyEntity } from 'src/modules/rating/entities/rating-reply.entity';
 
 @Entity('freelancer')
 export class FreelancerEntity extends BaseEntity {
@@ -26,12 +27,12 @@ export class FreelancerEntity extends BaseEntity {
   email: string;
 
   @AutoMap(() => UserEntity)
-  @OneToOne(() => UserEntity, (user) => user.freelancerProfile, {
+  @OneToOne(() => UserEntity, (user) => user.freelancer, {
     nullable: false,
     onDelete: 'NO ACTION',
   })
-  @JoinColumn({ name: 'email', referencedColumnName: 'email' })
-  userProfile: UserEntity;
+  @JoinColumn()
+  user: UserEntity;
 
   @AutoMap()
   @Column({
@@ -57,6 +58,17 @@ export class FreelancerEntity extends BaseEntity {
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.0 })
   rating: number;
 
+  @AutoMap(() => [RatingReplyEntity])
+  @OneToMany(
+    () => RatingReplyEntity,
+    (ratingReplies) => ratingReplies.freelancer,
+    {
+      eager: false,
+      onDelete: 'SET NULL',
+    },
+  )
+  ratingReplies: RatingReplyEntity[];
+
   @AutoMap()
   @Column({ type: 'int', default: 0 })
   reviewCount: number;
@@ -66,7 +78,7 @@ export class FreelancerEntity extends BaseEntity {
   completedOrderCount: number;
 
   @AutoMap()
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0 })
   responseTime?: number;
 
   @AutoMap()

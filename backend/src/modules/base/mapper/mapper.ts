@@ -62,6 +62,7 @@ import { UpdateUserDto } from 'src/modules/user/dto/update-user.dto';
 import { CreateBaseDto } from '../dto/create-base.dto';
 import { UpdateBaseDto } from '../dto/update-base.dto';
 import { UpdateFreelancerDto } from 'src/modules/freelancer/dto/update-freelancer.dto';
+import { AuthRegisterLoginDto } from 'src/modules/auth/dto/auth-email-register.dto';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -131,6 +132,7 @@ export class AutoMapper extends AutomapperProfile {
 
       createMap(mapper, UserEntity, UserDto);
       createMap(mapper, UserDto, UserEntity);
+      createMap(mapper, AuthRegisterLoginDto, UserEntity);
       createMap(mapper, CreateUserDto, UserEntity);
       createMap(mapper, UpdateUserDto, UserEntity);
 

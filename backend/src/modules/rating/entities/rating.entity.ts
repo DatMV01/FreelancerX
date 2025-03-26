@@ -18,12 +18,12 @@ export class RatingEntity extends BaseEntity {
   @AutoMap()
   id: string;
 
-  @ManyToOne(() => GigEntity, (gig) => gig.ratings, { onDelete: 'CASCADE' })
   @AutoMap()
+  @ManyToOne(() => GigEntity, (gig) => gig.ratings)
   gig: GigEntity;
 
-  @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @AutoMap()
+  @ManyToOne(() => UserEntity, (user) => user.ratings)
   user: UserEntity;
 
   @Column({ type: 'int' })
@@ -34,8 +34,10 @@ export class RatingEntity extends BaseEntity {
   @AutoMap()
   message: string;
 
-  @OneToOne(() => RatingReplyEntity)
-  @JoinColumn({ name: 'rating_reply' })
   @AutoMap()
+  @OneToOne(() => RatingReplyEntity, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'rating_reply' })
   ratingReply: RatingReplyEntity;
 }

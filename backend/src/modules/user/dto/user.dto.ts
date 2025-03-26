@@ -13,6 +13,7 @@ import { ReviewDto } from 'src/modules/review/dto/review.dto';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
+import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
@@ -32,41 +33,26 @@ export class UserDto extends BaseDto<UserDto> {
   fullName: string;
 
   @AutoMap(() => RoleDto)
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value?.name;
-    }
-  })
+  @Transform((params) => undefinedTransformer(params, ['id', 'name']))
   role: RoleDto;
 
   @AutoMap(() => StatusDto)
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value?.name;
-    }
-  })
+  @Transform((params) => undefinedTransformer(params, ['id', 'name']))
   status: StatusDto;
 
   @AutoMap()
-  country?: string | undefined;
+  country?: string;
 
   @AutoMap()
-  avatar?: string | undefined;
+  avatar?: string;
 
   @AutoMap()
-  phoneNumber?: string | undefined;
+  phoneNumber?: string;
 
   @AutoMap(() => FreelancerDto)
-  @Expose({ name: 'freelancer' })
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value ? value : undefined;
-    }
-  })
-  freelancerProfile?: FreelancerDto | undefined;
+  @Expose({ name: 'freelancerProfile' })
+  @Transform((params) => undefinedTransformer(params))
+  freelancerProfile?: FreelancerDto;
 
   @AutoMap(() => [OrderDto])
   @Transform(({ value, key, obj, type, options }) => {
@@ -75,7 +61,7 @@ export class UserDto extends BaseDto<UserDto> {
       return value ? value.length : undefined;
     }
   })
-  buyerorders?: OrderDto[] | undefined;
+  buyerorders?: OrderDto[];
 
   @AutoMap(() => [ReviewDto])
   @Transform(({ value, key, obj, type, options }) => {
@@ -84,7 +70,7 @@ export class UserDto extends BaseDto<UserDto> {
       return value ? value.length : undefined;
     }
   })
-  reviews?: ReviewDto[] | undefined;
+  reviews?: ReviewDto[];
 
   @AutoMap(() => [NotificationDto])
   @Transform(({ value, key, obj, type, options }) => {
@@ -93,7 +79,7 @@ export class UserDto extends BaseDto<UserDto> {
       return value ? value.length : undefined;
     }
   })
-  notifications?: NotificationDto[] | undefined;
+  notifications?: NotificationDto[];
 
   @AutoMap(() => [FileEntity])
   @Transform(({ value, key, obj, type, options }) => {
@@ -102,5 +88,5 @@ export class UserDto extends BaseDto<UserDto> {
       return value ? value.length : undefined;
     }
   })
-  files?: FileEntity[] | undefined;
+  files?: FileEntity[];
 }

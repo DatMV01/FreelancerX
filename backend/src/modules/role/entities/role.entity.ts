@@ -15,7 +15,7 @@ export class RoleEntity extends BaseEntity {
   id: number;
 
   @AutoMap()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @AutoMap()

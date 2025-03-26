@@ -1,17 +1,12 @@
 import { AutoMap } from '@automapper/classes';
-import {
-  Exclude,
-  Expose,
-  Transform,
-  TransformationType,
-} from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { ADMIN_GROUP, ME_GROUP } from 'src/common/constant/serialize.group';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { GigDto } from 'src/modules/gig/dto/gig.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';
-import { FreelancerRankEnum } from '../enum/freelancerRank.enum';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
+import { FreelancerRankEnum } from '../enum/freelancerRank.enum';
 
 export class FreelancerDto extends BaseDto<FreelancerDto> {
   @AutoMap()
@@ -31,11 +26,11 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
   about?: string;
 
   @AutoMap(() => [String])
-  @Transform(undefinedTransformer)
+  @Transform((params) => undefinedTransformer(params))
   skills?: string[];
 
   @AutoMap(() => [String])
-  @Transform(undefinedTransformer)
+  @Transform((params) => undefinedTransformer(params))
   languages?: string[];
 
   @AutoMap()
@@ -48,7 +43,7 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
   completedOrders: number;
 
   @AutoMap()
-  @Transform(undefinedTransformer)
+  @Transform((params) => undefinedTransformer(params))
   responseTime?: number;
 
   @AutoMap()

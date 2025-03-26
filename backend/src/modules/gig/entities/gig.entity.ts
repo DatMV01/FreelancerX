@@ -159,9 +159,9 @@ export class GigEntity extends BaseEntity {
   @OneToMany(() => OrderEntity, (order) => order.gig)
   orders: OrderEntity[];
 
-  @AutoMap()
-  @OneToMany(() => ReviewEntity, (review) => review.buyer)
-  reviews: ReviewEntity[];
+  // @AutoMap()
+  // @OneToMany(() => ReviewEntity, (review) => review.buyer)
+  // reviews: ReviewEntity[];
 
   @AutoMap()
   @Column({ type: 'varchar', length: 255, nullable: false })

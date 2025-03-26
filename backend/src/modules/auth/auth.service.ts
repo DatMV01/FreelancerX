@@ -39,7 +39,7 @@ export class AuthService {
   @InjectMapper() protected readonly mapper: Mapper;
 
   async register(createUserDto: AuthRegisterLoginDto): Promise<UserDto> {
-    const _userEntity = this.mapper.map(createUserDto, UserDto, UserEntity);
+    const _userEntity = this.mapper.map(createUserDto, AuthRegisterLoginDto, UserEntity);
 
     const entity = await this.usersService.create(_userEntity);
 
