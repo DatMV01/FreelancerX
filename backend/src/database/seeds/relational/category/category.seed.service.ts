@@ -18,7 +18,7 @@ export class CategorySeedService {
     const root_categories: DeepPartial<CategoryEntity[]> = [
       {
         id: '3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Programming & Tech',
         slug: 'programming-tech',
@@ -26,11 +26,11 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/programming-tech-thin.56382a2.svg',
         description:
           'Web development, mobile app development, eCommerce development, WordPress, AI & machine learning, and cybersecurity.',
-        slogen: 'You think it. A programmer <br /> <span>develops it.</span>',
+        slogan: 'You think it. A programmer <br /> <span>develops it.</span>',
       },
       {
         id: '1c9a3b6e-6d41-4d82-9423-58b8e3b0df29',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Digital Marketing',
         slug: 'digital-marketing',
@@ -38,11 +38,11 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/digital-marketing-thin.68edb44.svg',
         description:
           'SEO, social media marketing, paid advertising, content management, and marketing campaigns.',
-        slogen: 'Boost your brand. <br /> <span>Reach more customers.</span>',
+        slogan: 'Boost your brand. <br /> <span>Reach more customers.</span>',
       },
       {
         id: 'a7d28bfa-2b87-4e4a-8f4e-1d1b2d4e1a7c',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Writing & Translation',
         slug: 'writing-translation',
@@ -50,11 +50,11 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/writing-translation-thin.fd3699b.svg',
         description:
           'Blog writing, copywriting, book writing, translation services, proofreading, and editing.',
-        slogen: 'Words matter. <br /> <span>Craft your message.</span>',
+        slogan: 'Words matter. <br /> <span>Craft your message.</span>',
       },
       {
         id: '5fbc3d2e-1d5a-4f07-b6d1-8e1c9a5f2d7e',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Video & Animation',
         slug: 'video-animation',
@@ -62,12 +62,12 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/video-animation-thin.9d3f24d.svg',
         description:
           'Video editing, animation, 3D modeling, explainer videos, intros & outros, and more.',
-        slogen:
+        slogan:
           'Bring ideas to life. <br /> <span>Engage your audience.</span>',
       },
       {
         id: '9e4d2a1b-3f8c-4b71-81d5-2b7a1e9c3d5f',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Music & Audio',
         slug: 'music-audio',
@@ -75,12 +75,12 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/music-audio-thin.43a9801.svg',
         description:
           'Voice-over, music production, sound effects, mixing & mastering, podcast editing, and jingles.',
-        slogen:
+        slogan:
           'Let the world hear you. <br /> <span>Create your sound.</span>',
       },
       {
         id: '2b1d4e7a-5c3f-4a9d-8e1c-7b2f1d5a9e3c',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Business',
         slug: 'business',
@@ -88,11 +88,11 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/business-thin.885e68e.svg',
         description:
           'Business consulting, virtual assistants, financial consulting, market research, presentations, and business plans.',
-        slogen: 'Success starts here. <br /> <span>Grow your business.</span>',
+        slogan: 'Success starts here. <br /> <span>Grow your business.</span>',
       },
       {
         id: '7b2f1d5a-9e3c-4a8d-2b1d4e1c5f7a',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Data',
         slug: 'data',
@@ -100,29 +100,29 @@ export class CategorySeedService {
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/ai-services-thin.104f389.svg',
         description:
           'Data entry, data analysis, data visualization, data science, and databases.',
-        slogen:
+        slogan:
           'Turn data into insights. <br /> <span>Make informed decisions.</span>',
       },
       {
         id: '3d5a9e1c-7b2f-4a8d-2b1d4e1c5f7a',
-        parentCategory: undefined,
+        parentCategoryId: undefined,
         parentCategorySlug: undefined,
         title: 'Lifestyle',
         slug: 'lifestyle',
         url: '/categories/lifestyle',
         icon: 'https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/consulting-thin.d5547ff.svg',
         description: 'Consulting',
-        slogen: 'Enhance your life. <br /> <span>Find your balance.</span>',
+        slogan: 'Enhance your life. <br /> <span>Find your balance.</span>',
       },
-    ];
+    ] as any;
 
     const [programmingTech_category, ...others] = root_categories as any;
 
     const programmingTech_subCategories = [
       {
         id: '8e2d1a7b-3c9f-4d5a-6b1e-2f7a4c8d3e9f',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Website Development',
         slug: 'website-development',
         url: `${programmingTech_category.url}/website-development`,
@@ -132,8 +132,8 @@ export class CategorySeedService {
 
       {
         id: 'd0739b2a-df3b-4cb2-8f80-7416a3e13c4a',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Website Platform',
         slug: 'website-platform',
         url: `${programmingTech_category.url}/website-platform`,
@@ -142,8 +142,8 @@ export class CategorySeedService {
 
       {
         id: '8c2d3f5f-907d-4f98-b5b5-bc5a1c8b8d13',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Website Maintenance',
         slug: 'website-maintenance',
         url: `${programmingTech_category.url}/website-maintenance`,
@@ -152,8 +152,8 @@ export class CategorySeedService {
 
       {
         id: 'b8e4d703-9e6b-4f2f-a9a0-94d4f2643c6f',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         slug: 'ai-development',
         title: 'AI Development',
         url: `${programmingTech_category.url}/ai-development`,
@@ -162,8 +162,8 @@ export class CategorySeedService {
 
       {
         id: 'a2d98fc3-cb99-4655-9eaf-92cfb2134d84',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Chatbot Development',
         slug: 'chatbot-development',
         url: `${programmingTech_category.url}/chatbot-development`,
@@ -172,8 +172,8 @@ export class CategorySeedService {
 
       {
         id: '8fefea57-cff4-4690-bba9-febcb87283b3',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Game Development',
         slug: 'game-development',
         url: `${programmingTech_category.url}/game-development`,
@@ -182,8 +182,8 @@ export class CategorySeedService {
 
       {
         id: 'ded4b34f-29a3-48f2-bbd5-101d42a6ecde',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Mobile App Development',
         slug: 'mobile-app-development',
         url: `${programmingTech_category.url}/mobile-app-development`,
@@ -192,8 +192,8 @@ export class CategorySeedService {
 
       {
         id: '76bfc0a1-b62d-497a-b5a4-e6ea1c033ff0',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Cloud & Cybersecurity',
         slug: 'cloud-cybersecurity',
         url: `${programmingTech_category.url}/cloud-cybersecurity`,
@@ -202,8 +202,8 @@ export class CategorySeedService {
 
       {
         id: '26b73c6d-6f68-4781-9c76-35d903c5b563',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Data Science & ML',
         slug: 'datascience-machinelearning',
         url: `${programmingTech_category.url}/datascience-machinelearning`,
@@ -212,8 +212,8 @@ export class CategorySeedService {
 
       {
         id: '8c2a6e1f-4d65-4d7d-9490-8d3fbe1e48fa',
-        parentCategory: programmingTech_category,
-        parentCategorySlug: programmingTech_category,
+        parentCategoryId: programmingTech_category.id,
+        parentCategorySlug: programmingTech_category.slug,
         title: 'Software Development',
         slug: 'software-development',
         url: `${programmingTech_category.url}/software-development`,
@@ -237,8 +237,8 @@ export class CategorySeedService {
     const programmingTech_websiteDevelopment_subCategory = [
       {
         id: 'af0722a4-00c2-484e-b205-4d8527a78228',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044233/Python%20Developers.png',
         title: 'Python Developers',
         slug: 'python',
@@ -249,8 +249,8 @@ export class CategorySeedService {
 
       {
         id: '3cc198c5-7192-4d6c-b4d8-b062ee1c7b4d',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/8ab683c462bb7021359f813a67f0a210-1727008217020/HTML%20_%20CSS%20Developers.png',
         title: 'HTML & CSS Developers',
         slug: 'html-css',
@@ -261,8 +261,8 @@ export class CategorySeedService {
 
       {
         id: '9656aec9-8c36-4c07-98a2-bc37fdd5ff63',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/cb63c6dd487dc1630100243adea2913e-1727009044218/JavaScript%20Developers.png',
         title: 'JavaScript Developers',
         slug: 'javascript',
@@ -274,8 +274,8 @@ export class CategorySeedService {
 
       {
         id: 'b9f7c618-cc7a-4a63-a927-fd15e1a569ed',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         title: 'Business Websites',
         slug: 'business-websites',
         url: `${programmingTech_websiteDevelopment_category.url}/business-websites`,
@@ -284,8 +284,8 @@ export class CategorySeedService {
 
       {
         id: '7620a97b-8f5f-4d45-9a29-345b8e2c5752',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         title: 'E-Commerce Development',
         slug: 'e-commerce-development',
         url: `${programmingTech_websiteDevelopment_category.url}/e-commerce-development`,
@@ -294,8 +294,8 @@ export class CategorySeedService {
 
       {
         id: '5bda5b78-c8c0-4de1-95c1-e1a9b61c29ea',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         title: 'Landing Pages',
         slug: 'landing-pages',
         url: `${programmingTech_websiteDevelopment_category.url}/landing-pages`,
@@ -304,8 +304,8 @@ export class CategorySeedService {
 
       {
         id: '14f1b758-2a2b-4414-80d7-f76f4b1695a7',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         title: 'Dropshipping Websites',
         slug: 'dropshipping-websites',
         url: `${programmingTech_websiteDevelopment_category.url}/dropshipping-websites`,
@@ -314,8 +314,8 @@ export class CategorySeedService {
 
       {
         id: 'acbe1f82-cfd8-4c1a-82fe-befde076ab0e',
-        parentCategory: programmingTech_websiteDevelopment_category,
-        parentCategorySlug: programmingTech_websiteDevelopment_category,
+        parentCategoryId: programmingTech_websiteDevelopment_category.id,
+        parentCategorySlug: programmingTech_websiteDevelopment_category.slug,
         title: 'Build a Complete Website',
         slug: 'build-a-complete-website',
         url: `${programmingTech_websiteDevelopment_category.url}/build-a-complete-website`,
@@ -326,20 +326,20 @@ export class CategorySeedService {
     const programmingTech_websitePlatform_subCategory = [
       {
         id: 'afb9e093-b692-45a5-8d18-a25299e7e8f9',
-        parentCategory: programmingTech_websitePlatform_category,
-        parentCategorySlug: programmingTech_websitePlatform_category,
+        parentCategoryId: programmingTech_websitePlatform_category.id,
+        parentCategorySlug: programmingTech_websitePlatform_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447004/WordPress%20Developers.png',
         title: 'WordPress Developers',
         slug: 'wordpress',
         url: `${programmingTech_websitePlatform_category.url}/wordpress`,
         description:
-          'Find a freelance Wordpress development expert to build your WordPress website',
+          'Find a freelance WordPress development expert to build your WordPress website',
       },
 
       {
         id: '33594b0e-f360-46ea-9a00-94b417c819b2',
-        parentCategory: programmingTech_websitePlatform_category,
-        parentCategorySlug: programmingTech_websitePlatform_category,
+        parentCategoryId: programmingTech_websitePlatform_category.id,
+        parentCategorySlug: programmingTech_websitePlatform_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583518/Shopify%20Developers.png',
         title: 'Shopify Developers',
         slug: 'shopify',
@@ -349,8 +349,8 @@ export class CategorySeedService {
 
       {
         id: 'dede312d-6e9c-474d-92b9-85aa50650aa2',
-        parentCategory: programmingTech_websitePlatform_category,
-        parentCategorySlug: programmingTech_websitePlatform_category,
+        parentCategoryId: programmingTech_websitePlatform_category.id,
+        parentCategorySlug: programmingTech_websitePlatform_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/a4f23e7ad88e3c639e545e7f1ef6c24c-1727084447000/Wix%20Developers.png',
         title: 'Wix Developers',
         slug: 'wix',
@@ -359,8 +359,8 @@ export class CategorySeedService {
       },
       {
         id: '3f1d45e8-2d53-4c8e-9e9d-897d3c8f1b57',
-        parentCategory: programmingTech_websitePlatform_category,
-        parentCategorySlug: programmingTech_websitePlatform_category,
+        parentCategoryId: programmingTech_websitePlatform_category.id,
+        parentCategorySlug: programmingTech_websitePlatform_category.slug,
         parent_category_id: 'd0739b2a-df3b-4cb2-8f80-7416a3e13c4a',
         title: 'GoDaddy',
         slug: 'go-daddy',
@@ -371,8 +371,8 @@ export class CategorySeedService {
     const programmingTech_websiteMaintenance_subCategory = [
       {
         id: '33a74bc2-78b4-45e9-a8a9-5197d462abf5',
-        parentCategory: programmingTech_websiteMaintenance_category,
-        parentCategorySlug: programmingTech_websiteMaintenance_category,
+        parentCategoryId: programmingTech_websiteMaintenance_category.id,
+        parentCategorySlug: programmingTech_websiteMaintenance_category.slug,
         icon: '',
         title: 'Website Customization',
         slug: 'website-customization',
@@ -382,8 +382,8 @@ export class CategorySeedService {
 
       {
         id: '27db6e5f-93f9-4b26-82b9-13978b397a5e',
-        parentCategory: programmingTech_websiteMaintenance_category,
-        parentCategorySlug: programmingTech_websiteMaintenance_category,
+        parentCategoryId: programmingTech_websiteMaintenance_category.id,
+        parentCategorySlug: programmingTech_websiteMaintenance_category.slug,
         icon: '',
         title: 'Bug Fixes',
         slug: 'bug-fixes',
@@ -393,8 +393,8 @@ export class CategorySeedService {
 
       {
         id: '0f9b7d7d-e78e-4f63-a209-30368fbb0b83',
-        parentCategory: programmingTech_websiteMaintenance_category,
-        parentCategorySlug: programmingTech_websiteMaintenance_category,
+        parentCategoryId: programmingTech_websiteMaintenance_category.id,
+        parentCategorySlug: programmingTech_websiteMaintenance_category.slug,
         icon: '',
         title: 'Backup & Migration',
         slug: 'backup-migration',
@@ -404,8 +404,8 @@ export class CategorySeedService {
 
       {
         id: 'c9d75a1e-2b49-49c9-b9b3-4bb2b2087b35',
-        parentCategory: programmingTech_websiteMaintenance_category,
-        parentCategorySlug: programmingTech_websiteMaintenance_category,
+        parentCategoryId: programmingTech_websiteMaintenance_category.id,
+        parentCategorySlug: programmingTech_websiteMaintenance_category.slug,
         icon: '',
         title: 'Speed Optimization',
         slug: 'speed-optimization',
@@ -417,8 +417,8 @@ export class CategorySeedService {
     const programmingTech_aiDevelopment_subCategory = [
       {
         id: 'cdd32bfa-dcf7-4699-bc77-bf467c6ed7a4',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Websites & Software',
         slug: 'ai-websites-software',
@@ -428,8 +428,8 @@ export class CategorySeedService {
 
       {
         id: '5b4b7a34-9b8f-4b1b-b3e6-30f99eb10061',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Mobile Apps',
         slug: 'ai-mobile-apps',
@@ -439,8 +439,8 @@ export class CategorySeedService {
 
       {
         id: 'b0a634f9-cd88-4198-a4bc-c65ad9f1e27e',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Integrations',
         slug: 'ai-integrations',
@@ -450,8 +450,8 @@ export class CategorySeedService {
 
       {
         id: '71c87f2e-9a31-4b55-b43e-c29b2b8762fc',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Agents',
         slug: 'ai-agents',
@@ -461,8 +461,8 @@ export class CategorySeedService {
 
       {
         id: '7fe47cd4-c76d-4f27-90c3-c1d8a93bba32',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Fine-Tuning',
         slug: 'ai-fine-tuning',
@@ -472,8 +472,8 @@ export class CategorySeedService {
 
       {
         id: '1119f032-c299-4403-9d1f-e63a06433b35',
-        parentCategory: programmingTech_aiDevelopment_category,
-        parentCategorySlug: programmingTech_aiDevelopment_category,
+        parentCategoryId: programmingTech_aiDevelopment_category.id,
+        parentCategorySlug: programmingTech_aiDevelopment_category.slug,
         icon: '',
         title: 'AI Technology Consulting',
         slug: 'ai-technology-consulting',
@@ -485,8 +485,8 @@ export class CategorySeedService {
     const programmingTech_chatbotDevelopment_subCategory = [
       {
         id: 'f97d0a92-30c1-4e7f-83c4-276acbce098e',
-        parentCategory: programmingTech_chatbotDevelopment_category,
-        parentCategorySlug: programmingTech_chatbotDevelopment_category,
+        parentCategoryId: programmingTech_chatbotDevelopment_category.id,
+        parentCategorySlug: programmingTech_chatbotDevelopment_category.slug,
         icon: '',
         title: 'AI Chatbot',
         slug: 'ai-chatbot',
@@ -496,8 +496,8 @@ export class CategorySeedService {
 
       {
         id: 'd7b799b6-975f-49d3-a33d-5b462a7a9b87',
-        parentCategory: programmingTech_chatbotDevelopment_category,
-        parentCategorySlug: programmingTech_chatbotDevelopment_category,
+        parentCategoryId: programmingTech_chatbotDevelopment_category.id,
+        parentCategorySlug: programmingTech_chatbotDevelopment_category.slug,
         icon: '',
         title: 'Rules Based Chatbot',
         slug: 'rules-based-chatbot',
@@ -507,8 +507,8 @@ export class CategorySeedService {
 
       {
         id: 'e68555d7-b48c-4007-8830-b57fe9f88ff0',
-        parentCategory: programmingTech_chatbotDevelopment_category,
-        parentCategorySlug: programmingTech_chatbotDevelopment_category,
+        parentCategoryId: programmingTech_chatbotDevelopment_category.id,
+        parentCategorySlug: programmingTech_chatbotDevelopment_category.slug,
         icon: '',
         title: 'Discord',
         slug: 'discord',
@@ -518,8 +518,8 @@ export class CategorySeedService {
 
       {
         id: '07dce4e0-12f7-497d-bb44-b7d4979efed0',
-        parentCategory: programmingTech_chatbotDevelopment_category,
-        parentCategorySlug: programmingTech_chatbotDevelopment_category,
+        parentCategoryId: programmingTech_chatbotDevelopment_category.id,
+        parentCategorySlug: programmingTech_chatbotDevelopment_category.slug,
         icon: '',
         title: 'Telegram',
         slug: 'telegram',
@@ -531,8 +531,8 @@ export class CategorySeedService {
     const programmingTech_gameDevelopment_subCategory = [
       {
         id: '3ed72dfd-89ed-4685-a91c-cb47820c1578',
-        parentCategory: programmingTech_gameDevelopment_category,
-        parentCategorySlug: programmingTech_gameDevelopment_category,
+        parentCategoryId: programmingTech_gameDevelopment_category.id,
+        parentCategorySlug: programmingTech_gameDevelopment_category.slug,
         icon: '',
         title: 'Gameplay Experience & Feedback',
         slug: 'gameplay-experience-feedback',
@@ -542,7 +542,7 @@ export class CategorySeedService {
 
       {
         id: '54238f60-bc1b-4b59-a028-cd0977087cb9',
-        parentCategory: programmingTech_gameDevelopment_category,
+        parentCategoryId: programmingTech_gameDevelopment_category.id,
         parentCategorySlug: programmingTech_gameDevelopment_category.slug,
         icon: '',
         title: 'PC Games',
@@ -553,7 +553,7 @@ export class CategorySeedService {
 
       {
         id: 'c7f79b9d-b40b-4ac1-a9bb-d98adfc727ea',
-        parentCategory: programmingTech_gameDevelopment_category,
+        parentCategoryId: programmingTech_gameDevelopment_category.id,
         parentCategorySlug: programmingTech_gameDevelopment_category.slug,
         icon: '',
         title: 'Mobile Games',
@@ -564,22 +564,22 @@ export class CategorySeedService {
 
       {
         id: 'bf90a7bf-ca86-42b6-bb33-9869ecc79182',
-        parentCategory: programmingTech_gameDevelopment_category,
+        parentCategoryId: programmingTech_gameDevelopment_category.id,
         parentCategorySlug: programmingTech_gameDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/148a459235c2efcccf74882dd6790246-1727083583542/Unity%20Developers.png',
         title: 'Unity Developers',
         slug: 'unity',
-        url: '/categories/programming-tech/game-development/unity',
+        url: `${programmingTech_gameDevelopment_category.url}/unity`,
         description:
-          'Find the best unity game developers services you need to help you successfully meet your project planning goals and deadline',
+          'Find the best Unity game developers services you need to help you successfully meet your project planning goals and deadline.',
       },
     ];
 
     const programmingTech_mobileAppDevelopment_subCategory = [
       {
         id: '1a57b82b-019b-44e6-9e8b-89d5b703e4ea',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
-        parentCategorySlug: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
+        parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: '',
         title: 'Cross-platform Development',
         slug: 'cross-platform-development',
@@ -589,7 +589,7 @@ export class CategorySeedService {
 
       {
         id: '2d3a0e3d-157a-43bb-bbe6-5f06b4bb75b1',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
         parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011179/Android%20App%20Development.png',
         title: 'Android App Developers',
@@ -600,7 +600,7 @@ export class CategorySeedService {
 
       {
         id: 'ad63965a-5cc2-4520-8c5a-b5d08bc30f5f',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
         parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: 'https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/1857ea6cdffed9de2c5739f010338061-1727172011194/iOS%20App%20Development.png',
         title: 'iOS App Developers',
@@ -611,7 +611,7 @@ export class CategorySeedService {
 
       {
         id: 'd5c7db1f-f6d7-4b3b-a2c7-b8c5c25ec599',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
         parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: '',
         title: 'Website to App',
@@ -622,7 +622,7 @@ export class CategorySeedService {
 
       {
         id: '50ae8b27-b064-4c1f-a7e7-d0ebd30a2db6',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
         parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: '',
         title: 'Mobile App Maintenance',
@@ -633,7 +633,7 @@ export class CategorySeedService {
 
       {
         id: '1897200f-88b5-4c7c-b9e9-e3f0f83ed2d0',
-        parentCategory: programmingTech_mobileAppDevelopment_category,
+        parentCategoryId: programmingTech_mobileAppDevelopment_category.id,
         parentCategorySlug: programmingTech_mobileAppDevelopment_category.slug,
         icon: '',
         title: 'VR & AR Development',
@@ -646,7 +646,7 @@ export class CategorySeedService {
     const programmingTech_cloudCybersecurity_subCategory = [
       {
         id: 'b4f3c59e-d319-4edb-a062-5f8c4d37f6e0',
-        parentCategory: programmingTech_cloudCybersecurity_category,
+        parentCategoryId: programmingTech_cloudCybersecurity_category.id,
         parentCategorySlug: programmingTech_cloudCybersecurity_category.slug,
         icon: '',
         title: 'Cloud Computing',
@@ -657,7 +657,7 @@ export class CategorySeedService {
 
       {
         id: 'f4c03b78-54d4-4971-9dbb-42e7e58d70f1',
-        parentCategory: programmingTech_cloudCybersecurity_category,
+        parentCategoryId: programmingTech_cloudCybersecurity_category.id,
         parentCategorySlug: programmingTech_cloudCybersecurity_category.slug,
         icon: '',
         title: 'DevOps Engineering',
@@ -668,7 +668,7 @@ export class CategorySeedService {
 
       {
         id: 'a7596f43-c70c-4878-a48a-2a76e61cf97b',
-        parentCategory: programmingTech_cloudCybersecurity_category,
+        parentCategoryId: programmingTech_cloudCybersecurity_category.id,
         parentCategorySlug: programmingTech_cloudCybersecurity_category.slug,
         icon: '',
         title: 'Cybersecurity',
@@ -681,7 +681,8 @@ export class CategorySeedService {
     const programmingTech_datascienceMachineLearning_subCategory = [
       {
         id: 'f82ff9b7-56be-4e27-8f6f-053d66e3dff9',
-        parentCategory: programmingTech_datascienceMachineLearning_category,
+        parentCategoryId:
+          programmingTech_datascienceMachineLearning_category.id,
         parentCategorySlug:
           programmingTech_datascienceMachineLearning_category.slug,
         icon: '',
@@ -693,7 +694,8 @@ export class CategorySeedService {
 
       {
         id: 'ce65cbe1-c3cc-47b4-8312-28259b8970fd',
-        parentCategory: programmingTech_datascienceMachineLearning_category,
+        parentCategoryId:
+          programmingTech_datascienceMachineLearning_category.id,
         parentCategorySlug:
           programmingTech_datascienceMachineLearning_category.slug,
         icon: '',
@@ -705,7 +707,8 @@ export class CategorySeedService {
 
       {
         id: '83a86a91-66a6-4b24-8a6c-303f36fe52b0',
-        parentCategory: programmingTech_datascienceMachineLearning_category,
+        parentCategoryId:
+          programmingTech_datascienceMachineLearning_category.id,
         parentCategorySlug:
           programmingTech_datascienceMachineLearning_category.slug,
         icon: '',
@@ -717,7 +720,8 @@ export class CategorySeedService {
 
       {
         id: 'ce3f3027-dcf1-408f-88d5-b706620f0be0',
-        parentCategory: programmingTech_datascienceMachineLearning_category,
+        parentCategoryId:
+          programmingTech_datascienceMachineLearning_category.id,
         parentCategorySlug:
           programmingTech_datascienceMachineLearning_category.slug,
         icon: '',
@@ -731,7 +735,7 @@ export class CategorySeedService {
     const programmingTech_softwareDevelopment_subCategory = [
       {
         id: '70ed0547-7d79-460e-bb51-97c1b65e3df7',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'Web Applications',
@@ -742,7 +746,7 @@ export class CategorySeedService {
 
       {
         id: '76423207-3068-4cf1-8a60-4a8f2311a535',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'Desktop Applications',
@@ -753,7 +757,7 @@ export class CategorySeedService {
 
       {
         id: '85ab2385-b1d5-46d1-80b5-2ee25b35d1ed',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'Automations & Workflows',
@@ -764,7 +768,7 @@ export class CategorySeedService {
 
       {
         id: 'bf0878bb-b56c-49ad-8366-6d7ca3d77b8d',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'APIs & Integrations',
@@ -775,7 +779,7 @@ export class CategorySeedService {
 
       {
         id: '9ccf2530-76f1-47d4-b3a9-4d1c8a85cc09',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'Databases',
@@ -786,7 +790,7 @@ export class CategorySeedService {
 
       {
         id: '380c02a5-cd72-44b3-b657-bb3c47724376',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'Scripting',
@@ -797,7 +801,7 @@ export class CategorySeedService {
 
       {
         id: '5ecfe1ff-bcd5-4638-b8d5-8b89f5b5f649',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'QA & Review',
@@ -808,7 +812,7 @@ export class CategorySeedService {
 
       {
         id: '3f927240-4426-4b98-a9c3-524fa2fffe64',
-        parentCategory: programmingTech_softwareDevelopment_category,
+        parentCategoryId: programmingTech_softwareDevelopment_category.id,
         parentCategorySlug: programmingTech_softwareDevelopment_category.slug,
         icon: '',
         title: 'User Testing',

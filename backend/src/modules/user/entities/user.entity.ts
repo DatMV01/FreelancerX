@@ -5,9 +5,10 @@ import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { ReviewEntity } from 'src/modules/review/entities/review.entity';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
+import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
 import {
   Column,
   Entity,
@@ -18,7 +19,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
@@ -48,25 +48,25 @@ export class UserEntity extends BaseEntity {
   fullName: string;
 
   @AutoMap()
-  @Column({ nullable: true })
-  country?: string;
+  @Column({ type: 'nvarchar', nullable: true })
+  country?: string | null;
 
   @AutoMap()
-  @Column({ nullable: true })
-  avatar?: string;
+  @Column({ type: 'varchar', nullable: true })
+  avatar?: string | null;
 
   @AutoMap()
-  @Column({ nullable: true })
-  phoneNumber?: string;
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phoneNumber?: string | null;
 
   /* ROLE */
   @AutoMap()
   @Column({ name: 'role_id', nullable: true })
-  roleId?: number;
+  roleId?: number | null;
 
   @AutoMap(() => RoleEntity)
   @ManyToOne(() => RoleEntity, (role) => role.users, {
-    onDelete: 'SET NULL',
+    onDelete: 'SET NULL', // Khi xóa User, xóa luôn Role liên kết
     eager: true,
   })
   @JoinColumn({ name: 'role_id' })
@@ -75,7 +75,7 @@ export class UserEntity extends BaseEntity {
   /* STATUS */
   @AutoMap()
   @Column({ name: 'status_id', nullable: true })
-  statusId?: number;
+  statusId?: number | null;
 
   @AutoMap(() => StatusEntity)
   @ManyToOne(() => StatusEntity, (status) => status.users, {
@@ -86,23 +86,24 @@ export class UserEntity extends BaseEntity {
   status: StatusEntity;
 
   /* FREELANCER */
+  @AutoMap()
+  @Column({ name: 'freelancer_id', nullable: true })
+  freelancerId?: string | null;
+
   @AutoMap(() => FreelancerEntity)
   @OneToOne(() => FreelancerEntity, (freelancer) => freelancer.user, {
     cascade: true,
     eager: true,
   })
-  freelancer: FreelancerEntity;
+  @JoinColumn({ name: 'freelancer_id' })
+  freelancer?: FreelancerEntity | null;
 
   /* ORDERS */
   @AutoMap(() => [OrderEntity])
   @OneToMany(() => OrderEntity, (order) => order.buyer)
   buyerorders: OrderEntity[];
 
-  /* REVIEWS */
-  // @AutoMap(() => [ReviewEntity])
-  // @OneToMany(() => ReviewEntity, (review) => review.buyer)
-  // reviews: ReviewEntity[];
-
+  /* RATINGS */
   @AutoMap(() => [RatingEntity])
   @OneToMany(() => RatingEntity, (ratings) => ratings.user)
   ratings: RatingEntity[];
@@ -114,6 +115,13 @@ export class UserEntity extends BaseEntity {
 
   /* FILES */
   @AutoMap(() => [FileEntity])
-  @OneToMany(() => FileEntity, (files) => files.user)
+  @OneToMany(() => FileEntity, (file) => file.user)
   files: FileEntity[];
+
+  /* TRANSACTIONS */
+  @AutoMap(() => [TransactionEntity])
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.user, {
+    onDelete: 'RESTRICT', // Ngăn không cho xóa User nếu có Transaction
+  })
+  transactions: TransactionEntity[];
 }

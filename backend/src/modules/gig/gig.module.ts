@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { GigService } from './gig.service';
 import { GigController } from './gig.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GigEntity } from './entities/gig.entity';
+import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import { AutoMapper } from 'src/modules/base/mapper/mapper';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GigEntity]), UserModule],
+  imports: [TypeOrmModule.forFeature([GigEntity, GigTagEntity]), UserModule],
   controllers: [GigController],
   providers: [GigService, AutoMapper],
 })

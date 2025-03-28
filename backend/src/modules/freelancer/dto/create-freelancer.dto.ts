@@ -8,7 +8,7 @@ export class CreateFreelancerDto {
 
   @AutoMap()
   @IsString()
-  about: string;
+  bio: string;
 
   @AutoMap(() => [String])
   @IsOptional()

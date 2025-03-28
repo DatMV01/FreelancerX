@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { OrderDetailEntity } from './entities/orderdetail.entity';
+import { TransactionEntity } from './entities/transaction.entity';
 
 @Injectable()
 @Injectable()
-export class OrderDetailService extends BaseService<OrderDetailEntity> {
+export class TransactionService extends BaseService<TransactionEntity> {
   constructor(
-    @InjectRepository(OrderDetailEntity)
-    private readonly _repository: Repository<OrderDetailEntity>,
+    @InjectRepository(TransactionEntity)
+    private readonly _repository: Repository<TransactionEntity>,
   ) {
     super(_repository);
   }

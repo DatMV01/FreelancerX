@@ -4,10 +4,12 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { FileTypeEnum } from '../enum/file.enum';
 
 @Entity({ name: 'file' })
 export class FileEntity extends BaseEntity {
@@ -17,11 +19,23 @@ export class FileEntity extends BaseEntity {
 
   @AutoMap()
   @Column()
-  path: string;
+  url: string;
+
+  // @Column({
+  //   type: 'enum',
+  //   enum: FileTypeEnum,
+  //   default: FileTypeEnum.OTHER,
+  // })
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  mimeType?: string;
+
+  @Column({ type: 'varchar', length: 20, nullable: true, default: 'local' })
+  provider?: string;
 
   @AutoMap()
+  @Index()
   @ManyToOne(() => UserEntity, (user) => user.files, {
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE', // user xóa, file xóa theo
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

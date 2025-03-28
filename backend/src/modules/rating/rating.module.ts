@@ -5,12 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AutoMapper } from 'src/modules/base/mapper/mapper';
 import { RatingEntity } from './entities/rating.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { RatingReplyEntity } from './entities/rating-reply.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([RatingEntity, GigEntity, RatingReplyEntity]),
-  ],
+  imports: [TypeOrmModule.forFeature([RatingEntity, GigEntity])],
   controllers: [RatingController],
   providers: [RatingService, AutoMapper],
 })

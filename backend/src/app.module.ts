@@ -9,23 +9,22 @@ import { AppService } from './app.service';
 import appConfig from './config/app.config';
 import { DataBaseModule } from './database/database.module';
 import typeormConfig from './database/typeorm/typeorm.config';
-import { RoleModule } from './modules/role/role.module';
-import { StatusModule } from './modules/status/status.module';
-import { FileModule } from './modules/files/file.module';
 import { AuthModule } from './modules/auth/auth.module';
-import fileConfig from './modules/files/config/file.config';
-import { SessionModule } from './modules/session/session.module';
-import { UserModule } from './modules/user/user.module';
-import { GigModule } from './modules/gig/gig.module';
-import { ReviewModule } from './modules/review/review.module';
-import { PaymentModule } from './modules/payment/payment.module';
-import { OrderdetailModule } from './modules/orderdetail/orderdetail.module';
-import { OrderModule } from './modules/order/order.module';
-import { CategoryModule } from './modules/category/category.module';
-import { NotificationModule } from './modules/notification/notification.module';
 import authConfig from './modules/auth/config/auth.config';
-import { RatingModule } from './modules/rating/rating.module';
+import { CategoryModule } from './modules/category/category.module';
+import fileConfig from './modules/files/config/file.config';
+import { FileModule } from './modules/files/file.module';
 import { SellerModule } from './modules/freelancer/freelancer.module';
+import { GigModule } from './modules/gig/gig.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { OrderModule } from './modules/order/order.module';
+import { PaymentModule } from './modules/payment/payment.module';
+import { RatingModule } from './modules/rating/rating.module';
+import { RoleModule } from './modules/role/role.module';
+import { SessionModule } from './modules/session/session.module';
+import { StatusModule } from './modules/status/status.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -50,13 +49,12 @@ import { SellerModule } from './modules/freelancer/freelancer.module';
     AuthModule,
     GigModule,
     OrderModule,
-    OrderdetailModule,
+    TransactionModule,
     PaymentModule,
-    ReviewModule,
     CategoryModule,
     NotificationModule,
     RatingModule,
-    SellerModule
+    SellerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
@@ -7,10 +8,8 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { RatingReplyEntity } from './rating-reply.entity';
 
 @Entity('rating')
 export class RatingEntity extends BaseEntity {
@@ -18,26 +17,67 @@ export class RatingEntity extends BaseEntity {
   @AutoMap()
   id: string;
 
+  /* GIG */
   @AutoMap()
-  @ManyToOne(() => GigEntity, (gig) => gig.ratings)
+  @Column({ type: 'char', length: 36, name: 'gig_id', nullable: true })
+  gigId: string;
+
+  @AutoMap()
+  @ManyToOne(() => GigEntity, (gig) => gig.ratings, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
+  /* USER */
   @AutoMap()
-  @ManyToOne(() => UserEntity, (user) => user.ratings)
+  @Column({ type: 'char', length: 36, name: 'user_id', nullable: true })
+  userId?: string | null;
+
+  @AutoMap()
+  @ManyToOne(() => UserEntity, (user) => user.ratings, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
-  @Column({ type: 'int' })
+  /* FREELANCER */
+  @AutoMap()
+  @Column({ type: 'char', length: 36, name: 'freelancer_id', nullable: true })
+  freelancerId?: string | null;
+
+  @AutoMap()
+  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.ratings, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'freelancer_id' })
+  freelancer: FreelancerEntity;
+
+  /* RATE NUMBER */
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 0,
+    nullable: false,
+  })
   @AutoMap()
   rateNumber: number;
 
+  /* COMMENT */
   @Column({ type: 'text', nullable: true })
   @AutoMap()
-  message: string;
+  comment?: string | null;
 
+  /* REPLY */
   @AutoMap()
-  @OneToOne(() => RatingReplyEntity, {
-    cascade: true,
-  })
-  @JoinColumn({ name: 'rating_reply' })
-  ratingReply: RatingReplyEntity;
+  @Column({ type: 'text', nullable: true })
+  reply?: string | null;
+
+  @AutoMap(() => Date)
+  @Column({ type: 'datetime', precision: 6, nullable: true, default: null })
+  replyAt?: Date | null;
 }

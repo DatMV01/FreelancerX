@@ -101,12 +101,12 @@ export class FileLocalService {
 
   async deleteFileByName(name: string): Promise<boolean> {
     const entity = await this.fileRepository.findOne({
-      where: { path: Like(`%${name}%`) },
+      where: { url: Like(`%${name}%`) },
     });
 
     if (!entity) return false;
 
-    const filePath = path.resolve('.\\', entity.path);
+    const filePath = path.resolve('.\\', entity.url);
 
     try {
       await fs.promises.access(filePath, fs.constants.F_OK);

@@ -32,11 +32,12 @@ export class RatingController extends BaseController<
   @Post()
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateRatingDto): Promise<RatingDto> {
+    const { gigId, userId, rateNumber, comment } = data;
     const rating = await this._service.addRating(
-      data.gigId,
-      data.userId,
-      data.rateNumber,
-      data.message,
+      gigId,
+      userId,
+      rateNumber,
+      comment,
     );
 
     return super.mapFromEntityToDto(rating);

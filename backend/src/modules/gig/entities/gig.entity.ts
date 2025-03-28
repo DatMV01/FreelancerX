@@ -1,17 +1,19 @@
 import { AutoMap } from '@automapper/classes';
-import { Max, Min } from 'class-validator';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
-import { ReviewEntity } from 'src/modules/review/entities/review.entity';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
+  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -25,9 +27,19 @@ import {
   Requirement,
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import { slugify } from 'src/utils/slugify';
+
+@Entity({ name: 'gig_tag' })
+export class GigTagEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ unique: true, type: 'varchar', length: 50 })
+  name: string;
+}
 
 @Entity({ name: 'gig' })
+@Index('IDX_gig_search', ['title', 'description', 'slug'], { fulltext: true })
 export class GigEntity extends BaseEntity {
   /* Overview */
   @AutoMap()
@@ -38,51 +50,100 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @AutoMap(() => CategoryEntity)
-  @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
+  /**== Category ==*/
+  @AutoMap()
+  @Index()
+  @Column({
+    name: 'category_id',
     nullable: true,
-    eager: true,
+    type: 'char',
+    length: 36,
   })
-  @JoinColumn({ referencedColumnName: 'slug' })
-  category: CategoryEntity | null;
+  categoryId: string;
 
   @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
-    nullable: true,
     eager: true,
+    onDelete: 'SET NULL',
   })
-  @JoinColumn({ referencedColumnName: 'slug' })
-  subCategory: CategoryEntity | null;
+  @JoinColumn({ name: 'category_id' })
+  category: CategoryEntity;
+
+  /**== SubCategory ==*/
+  @AutoMap()
+  @Index()
+  @Column({
+    name: 'sub_category_id',
+    nullable: true,
+    type: 'char',
+    length: 36,
+  })
+  subCategoryId: string;
 
   @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
-    nullable: true,
     eager: true,
+    onDelete: 'SET NULL',
   })
-  @JoinColumn({ referencedColumnName: 'slug' })
+  @JoinColumn({ name: 'sub_category_id' })
+  subCategory: CategoryEntity;
+
+  /**== NestedSubCategory ==*/
+  @AutoMap()
+  @Index()
+  @Column({
+    name: 'nested_sub_category_id',
+    nullable: true,
+    type: 'char',
+    length: 36,
+  })
+  nestedSubcategoryId: string;
+
+  @AutoMap(() => CategoryEntity)
+  @ManyToOne(() => CategoryEntity, (category) => category.gigs, {
+    eager: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'nested_sub_category_id' })
   nestedSubcategory: CategoryEntity | null;
 
-  @AutoMap(() => String)
-  @Column({ type: 'simple-array', nullable: true })
-  tags: string[];
+  /**== Tags ==*/
+  // @AutoMap(() => String)
+  // @Column({ type: 'simple-array', nullable: true })
+  // tags: string[];
+
+  @AutoMap(() => [GigTagEntity])
+  @ManyToMany(() => GigTagEntity)
+  @JoinTable({
+    name: 'gigs_tags',
+    joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
+  })
+  tags?: GigTagEntity[];
   /* Overview */
 
   /* Pricing */
   @AutoMap()
-  @Column({ type: 'float', default: 0 })
+  @Index()
+  @Column({ type: 'bigint' })
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   basicPrice: number;
 
   @AutoMap()
-  @Column({ type: 'float', default: 0 })
+  @Index()
+  @Column({ type: 'bigint' })
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   standardPrice: number;
 
   @AutoMap()
-  @Column({ type: 'float', default: 0 })
+  @Index()
+  @Column({ type: 'bigint' })
+  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   premiumPrice: number;
 
   @AutoMap(() => PricingPackage)
   @Column({ type: 'json', nullable: true })
-  pricing: PricingPackage[];
+  pricingPackage: PricingPackage[];
   /* Pricing */
 
   /* Description & FAQ */
@@ -122,17 +183,28 @@ export class GigEntity extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   requirements?: Requirement[];
 
+  /* RATING */
+  @AutoMap(() => RatingEntity)
+  @OneToMany(() => RatingEntity, (rating) => rating.gig, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  ratings: RatingEntity[];
+
   @AutoMap()
-  @Column({ type: 'float', default: 0 })
-  avgRating: number;
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 0,
+    nullable: false,
+  })
+  @AutoMap()
+  ratingAverate: number;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
-  reviewCount: number;
-
-  @AutoMap(() => RatingEntity)
-  @OneToMany(() => RatingEntity, (rating) => rating.gig, { cascade: true })
-  ratings: RatingEntity[];
+  ratingCount: number;
 
   // @Column({ type: 'int', default: 0 })
   // popularity: number = 0;
@@ -140,16 +212,13 @@ export class GigEntity extends BaseEntity {
   // @Column({ type: 'boolean', default: false })
   // isPromoted: boolean = false;
 
-  @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  views: number;
-
   @AutoMap(() => FreelancerEntity)
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.gigs, {
     eager: true,
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancer: FreelancerEntity;
+  freelancer?: FreelancerEntity | null;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -159,17 +228,13 @@ export class GigEntity extends BaseEntity {
   @OneToMany(() => OrderEntity, (order) => order.gig)
   orders: OrderEntity[];
 
-  // @AutoMap()
-  // @OneToMany(() => ReviewEntity, (review) => review.buyer)
-  // reviews: ReviewEntity[];
-
   @AutoMap()
   @Column({ type: 'varchar', length: 255, nullable: false })
   slug: string;
 
   @BeforeInsert()
   beforeInsert() {
-    this.slug = `${this.title.trim().toLowerCase().replaceAll(' ', '-')}-${Date.now()}`;
+    this.slug = `${slugify(this.title)}-${Date.now()}`;
 
     this.updateAllCategory();
   }
@@ -179,14 +244,22 @@ export class GigEntity extends BaseEntity {
     this.updateAllCategory();
   }
 
+  @AfterLoad()
+  afterLoad() {
+    if (this.category) this.categoryId = this.category?.id ?? null;
+    if (this.subCategory) this.subCategoryId = this.subCategory?.id ?? null;
+    if (this.nestedSubcategory)
+      this.nestedSubcategoryId = this.nestedSubcategory?.id ?? null;
+  }
+
   updateAllCategory() {
-    this.category = (this.category as any) === '' ? null : this.category;
+    // this.category = (this.category as any) === '' ? null : this.category;
 
-    this.subCategory =
-      (this.subCategory as any) === '' ? null : this.subCategory;
+    // this.subCategory =
+    //   (this.subCategory as any) === '' ? null : this.subCategory;
 
-    this.nestedSubcategory =
-      (this.nestedSubcategory as any) === '' ? null : this.nestedSubcategory;
+    // this.nestedSubcategory =
+    //   (this.nestedSubcategory as any) === '' ? null : this.nestedSubcategory;
 
     if (!this.images?.image1 && !this.images?.image2 && !this.images?.image3) {
       this.images = null;

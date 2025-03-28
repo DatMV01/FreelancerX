@@ -1,44 +1,33 @@
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
-import { BaseDto } from 'src/modules/base/dto/base.dto';
-import { RatingReplyDto } from './rating-reply.dto';
 import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
+import { BaseDto } from 'src/modules/base/dto/base.dto';
 
 export class RatingDto extends BaseDto<RatingDto> {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   @AutoMap()
+  @ApiProperty()
   gigId: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   @AutoMap()
+  @ApiProperty()
   userId: string;
 
-  @ApiProperty()
-  @IsInt()
-  @Min(1)
-  @Max(5)
   @AutoMap()
+  @ApiProperty()
+  freelancerId: string;
+
+  @AutoMap()
+  @ApiProperty()
   rateNumber: number;
 
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
   @AutoMap()
-  message: string;
+  @ApiProperty()
+  comment: string;
 
-  @ApiProperty()
-  @IsOptional()
   @AutoMap()
-  ratingReply?: RatingReplyDto;
+  @ApiProperty()
+  reply?: string | null;
+
+  @AutoMap(() => Date)
+  @ApiProperty()
+  replyAt: Date;
 }

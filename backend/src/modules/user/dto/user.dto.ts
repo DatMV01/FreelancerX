@@ -2,18 +2,20 @@ import { AutoMap } from '@automapper/classes';
 import {
   Exclude,
   Expose,
-  Transform,
-  TransformationType,
+  Transform
 } from 'class-transformer';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
+import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
-import { ReviewDto } from 'src/modules/review/dto/review.dto';
+import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
-import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
+import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
+import { AuthProvidersEnum } from '../enum/user.provider';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
@@ -27,10 +29,19 @@ export class UserDto extends BaseDto<UserDto> {
   password: string;
 
   @AutoMap()
-  provider: string;
+  provider?: AuthProvidersEnum = AuthProvidersEnum.EMAIL;
 
   @AutoMap()
   fullName: string;
+
+  @AutoMap()
+  country?: string | null;
+
+  @AutoMap()
+  avatar?: string | null;
+
+  @AutoMap()
+  phoneNumber?: string | null;
 
   @AutoMap(() => RoleDto)
   @Transform((params) => undefinedTransformer(params, ['id', 'name']))
@@ -40,53 +51,39 @@ export class UserDto extends BaseDto<UserDto> {
   @Transform((params) => undefinedTransformer(params, ['id', 'name']))
   status: StatusDto;
 
-  @AutoMap()
-  country?: string;
-
-  @AutoMap()
-  avatar?: string;
-
-  @AutoMap()
-  phoneNumber?: string;
-
   @AutoMap(() => FreelancerDto)
-  @Expose({ name: 'freelancerProfile' })
+  @Expose({ name: 'freelancer' })
   @Transform((params) => undefinedTransformer(params))
-  freelancerProfile?: FreelancerDto;
+  freelancer?: FreelancerDto | null;
 
+  /* ORDERS */
   @AutoMap(() => [OrderDto])
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value ? value.length : undefined;
-    }
-  })
-  buyerorders?: OrderDto[];
+  @Exclude()
+  @Transform((params) => undefinedTransformer(params))
+  buyerorders?: OrderDto[] | null;
 
-  @AutoMap(() => [ReviewDto])
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value ? value.length : undefined;
-    }
-  })
-  reviews?: ReviewDto[];
+  /* RATINGS */
+  @AutoMap(() => [RatingEntity])
+  @Exclude()
+  @Transform((params) => undefinedTransformer(params))
+  ratings: RatingDto[];
 
+  /* NOTIFICATIONS */
   @AutoMap(() => [NotificationDto])
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value ? value.length : undefined;
-    }
-  })
+  @Exclude()
+  @Transform((params) => undefinedTransformer(params))
   notifications?: NotificationDto[];
 
+  /* FILES */
+
   @AutoMap(() => [FileEntity])
-  @Transform(({ value, key, obj, type, options }) => {
-    if (type === TransformationType.PLAIN_TO_CLASS) {
-    } else if (type === TransformationType.CLASS_TO_PLAIN) {
-      return value ? value.length : undefined;
-    }
-  })
+  @Exclude()
+  @Transform((params) => undefinedTransformer(params))
   files?: FileEntity[];
+
+  /* TRANSACTIONS */
+  @AutoMap(() => [TransactionDto])
+  @Exclude()
+  @Transform((params) => undefinedTransformer(params))
+  transactions: TransactionDto[];
 }

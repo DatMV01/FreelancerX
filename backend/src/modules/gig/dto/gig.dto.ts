@@ -126,7 +126,7 @@ export class GigDto extends BaseDto<GigDto> {
   premiumPrice: number;
 
   @AutoMap(() => PricingPackage)
-  pricing: PricingPackage[];
+  pricingPackage: PricingPackage[];
   /* Pricing */
 
   /* Description & FAQ */

@@ -27,8 +27,8 @@ export class GigController extends BaseController<
 
   @Post()
   async create(data: CreateGigDto): Promise<GigDto> {
-    if (data.pricing) {
-      const pricePackage = Array.from(data.pricing).find(
+    if (data.pricingPackage) {
+      const pricePackage = Array.from(data.pricingPackage).find(
         (_: PricingPackage) => _.package === 'Price',
       );
 

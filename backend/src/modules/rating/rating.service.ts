@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { RatingEntity } from './entities/rating.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { RatingReplyEntity } from './entities/rating-reply.entity';
-import { QueryDto } from '../base/dto/query.dto';
 
 @Injectable()
 export class RatingService extends BaseService<RatingEntity> {
@@ -15,9 +13,6 @@ export class RatingService extends BaseService<RatingEntity> {
 
     @InjectRepository(GigEntity)
     private readonly gigRepo: Repository<GigEntity>,
-
-    @InjectRepository(RatingReplyEntity)
-    private readonly ratingReplyRepo: Repository<RatingReplyEntity>,
   ) {
     super(_repository);
   }
@@ -25,32 +20,32 @@ export class RatingService extends BaseService<RatingEntity> {
   async addRating(
     gigId: string,
     userId: string,
-    rating: number,
-    review?: string,
+    rateNumber: number,
+    comment?: string,
   ) {
     const gig = await this.gigRepo.findOne({ where: { id: gigId } });
     if (!gig) {
       throw new BadRequestException('Gig not found');
     }
 
-    const newRating = this._repository.create({
+    const newRating = super.create({
       gig,
-      user: { id: userId },
-      rateNumber: rating,
-      message: review,
+      userId,
+      rateNumber,
+      comment: !comment || comment === '' ? null : comment,
     });
-    await this._repository.save(newRating);
 
-    const { avg, count } = await this._repository
-      .createQueryBuilder('gr')
-      .select('AVG(gr.rating)', 'avg')
-      .addSelect('COUNT(gr.id)', 'count')
-      .where('gr.gig = :gigId', { gigId })
-      .getRawOne();
+    // const { avg, count } = await this._repository
+    //   .createQueryBuilder('gr')
+    //   .select('AVG(gr.rateNumber)', 'avg')
+    //   .addSelect('COUNT(gr.id)', 'count')
+    //   .where('gr.gig = :gigId', { gigId })
+    //   .getRawOne();
 
-    gig.avgRating = parseFloat(avg) || 0;
-    gig.reviewCount = parseInt(count) || 0;
-    await this.gigRepo.save(gig);
+    // gig.ratingAverate = parseFloat(avg) || 0;
+    // gig.ratingCount = parseInt(count) || 0;
+
+    // await this.gigRepo.save(gig);
 
     return newRating;
   }
@@ -71,8 +66,8 @@ export class RatingService extends BaseService<RatingEntity> {
     }
 
     return {
-      avgRating: gig.avgRating,
-      totalReviews: gig.reviewCount,
+      avgRating: gig.ratingAverate,
+      totalReviews: gig.ratingCount,
     };
   }
 
@@ -86,15 +81,12 @@ export class RatingService extends BaseService<RatingEntity> {
       throw new BadRequestException('Rating not found');
     }
 
-    if (rating.gig.freelancer.id !== ownerId)
+    if (rating.freelancerId !== ownerId)
       throw new BadRequestException('Only the gig owner can reply');
 
-    const ownerReply = this.ratingReplyRepo.create({
-      rating,
-      freelancerId: ownerId,
-      message,
-    });
+    rating.reply = message;
+    rating.replyAt = new Date();
 
-    return this.ratingReplyRepo.save(ownerReply);
+    return super.update(ratingId, rating);
   }
 }

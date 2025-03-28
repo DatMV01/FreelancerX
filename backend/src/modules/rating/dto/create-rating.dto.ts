@@ -1,36 +1,37 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsInt,
   IsNotEmpty,
-  IsOptional,
+  IsNumber,
   IsString,
+  IsUUID,
   Max,
-  Min,
+  Min
 } from 'class-validator';
 
 export class CreateRatingDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   @AutoMap()
+  @IsNotEmpty()
+  @IsUUID()
+  @ApiProperty()
   gigId: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   @AutoMap()
+  @IsNotEmpty()
+  @IsUUID()
+  @ApiProperty()
   userId: string;
 
-  @ApiProperty()
-  @IsInt()
+  @AutoMap()
+  @IsNumber()
   @Min(1)
   @Max(5)
-  @AutoMap()
+  @ApiProperty()
   rateNumber: number;
 
+  @AutoMap()
   @ApiProperty()
   @IsString()
-  @AutoMap()
-  message: string;
+  @IsNotEmpty()
+  comment: string;
 }

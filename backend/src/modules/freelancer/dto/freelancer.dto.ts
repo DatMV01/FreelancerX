@@ -6,7 +6,7 @@ import { GigDto } from 'src/modules/gig/dto/gig.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
-import { FreelancerRankEnum } from '../enum/freelancerRank.enum';
+import { FreelancerRankEnum } from '../enum/freelancer.enum';
 
 export class FreelancerDto extends BaseDto<FreelancerDto> {
   @AutoMap()

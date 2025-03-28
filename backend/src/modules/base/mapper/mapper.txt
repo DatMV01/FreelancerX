@@ -1,0 +1,246 @@
+import { Mapper, createMap } from '@automapper/core';
+import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
+import { Injectable } from '@nestjs/common';
+import { AuthRegisterLoginDto } from 'src/modules/auth/dto/auth-email-register.dto';
+import { BaseDto } from 'src/modules/base/dto/base.dto';
+import { CategoryDto } from 'src/modules/category/dto/category.dto';
+import { CreateCategoryDto } from 'src/modules/category/dto/create-category.dto';
+import { UpdateCategoryDto } from 'src/modules/category/dto/update-category.dto';
+import { CategoryEntity } from 'src/modules/category/entities/category.entity';
+import { CreateFreelancerDto } from 'src/modules/freelancer/dto/create-freelancer.dto';
+import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
+import { UpdateFreelancerDto } from 'src/modules/freelancer/dto/update-freelancer.dto';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import {
+  CreateGigDto,
+  GigFreelancerDto,
+} from 'src/modules/gig/dto/create-gig.dto';
+import { GigDto } from 'src/modules/gig/dto/gig.dto';
+import { UpdateGigDto } from 'src/modules/gig/dto/update-gig.dto';
+import { GigEntity } from 'src/modules/gig/entities/gig.entity';
+import { CreateNotificationDto } from 'src/modules/notification/dto/create-notification.dto';
+import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
+import { UpdateNotificationDto } from 'src/modules/notification/dto/update-notification.dto';
+import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
+import { CreateOrderDto } from 'src/modules/order/dto/create-order.dto';
+import { OrderDto } from 'src/modules/order/dto/order.dto';
+import { UpdateOrderDto } from 'src/modules/order/dto/update-order.dto';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { CreatePaymentDto } from 'src/modules/payment/dto/create-payment.dto';
+import { PaymentDto } from 'src/modules/payment/dto/payment.dto';
+import { UpdatePaymentDto } from 'src/modules/payment/dto/update-payment.dto';
+import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
+import { CreateRatingDto } from 'src/modules/rating/dto/create-rating.dto';
+import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+import { UpdateRatingDto } from 'src/modules/rating/dto/update-rating.dto';
+import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { CreateRoleDto } from 'src/modules/role/dto/create-role.dto';
+import { UpdateRoleDto } from 'src/modules/role/dto/update-role.dto';
+import { CreateSessionDto } from 'src/modules/session/dto/create-session.dto';
+import { SessionDto } from 'src/modules/session/dto/session.dto';
+import { UpdateSessionDto } from 'src/modules/session/dto/update-session.dto';
+import { SessionEntity } from 'src/modules/session/entities/session.entity';
+import { CreateStatusDto } from 'src/modules/status/dto/create-status.dto';
+import { StatusDto } from 'src/modules/status/dto/status.dto';
+import { UpdateStatusDto } from 'src/modules/status/dto/update-status.dto';
+import { StatusEntity } from 'src/modules/status/entities/status.entity';
+import { CreateTransactionDto } from 'src/modules/transaction/dto/create-transaction.dto';
+import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
+import { UpdateTransactionDto } from 'src/modules/transaction/dto/update-transaction.dto';
+import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
+import { UpdateUserDto } from 'src/modules/user/dto/update-user.dto';
+import { UserDto } from 'src/modules/user/dto/user.dto';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { BaseEntity } from 'typeorm';
+import { RoleDto } from '../../role/dto/role.dto';
+import { RoleEntity } from '../../role/entities/role.entity';
+
+@Injectable()
+export class AutoMapper extends AutomapperProfile {
+  constructor(@InjectMapper() mapper: Mapper) {
+    super(mapper);
+  }
+
+  override get profile() {
+    return (mapper: Mapper): void => {
+      createMap<BaseEntity, BaseDto<any>>(mapper, BaseEntity, BaseDto<any>);
+      createMap<BaseDto<any>, BaseEntity>(mapper, BaseDto<any>, BaseEntity);
+
+      createMap<RoleEntity, RoleDto>(mapper, RoleEntity, RoleDto);
+      createMap<RoleDto, RoleEntity>(mapper, RoleDto, RoleEntity);
+      createMap<CreateRoleDto, RoleEntity>(mapper, CreateRoleDto, RoleEntity);
+      createMap<UpdateRoleDto, RoleEntity>(mapper, UpdateRoleDto, RoleEntity);
+
+      createMap<StatusEntity, StatusDto>(mapper, StatusEntity, StatusDto);
+      createMap<StatusDto, StatusEntity>(mapper, StatusDto, StatusEntity);
+      createMap<CreateStatusDto, StatusEntity>(
+        mapper,
+        CreateStatusDto,
+        StatusEntity,
+      );
+      createMap<UpdateStatusDto, StatusEntity>(
+        mapper,
+        UpdateStatusDto,
+        StatusEntity,
+      );
+
+      createMap<SessionEntity, SessionDto>(mapper, SessionEntity, SessionDto);
+      createMap<SessionDto, SessionEntity>(mapper, SessionDto, SessionEntity);
+      createMap<CreateSessionDto, SessionEntity>(
+        mapper,
+        CreateSessionDto,
+        SessionEntity,
+      );
+      createMap<UpdateSessionDto, SessionEntity>(
+        mapper,
+        UpdateSessionDto,
+        SessionEntity,
+      );
+
+      createMap<GigEntity, GigDto>(mapper, GigEntity, GigDto);
+      createMap<GigDto, GigEntity>(mapper, GigDto, GigEntity);
+      createMap<CreateGigDto, GigEntity>(mapper, CreateGigDto, GigEntity);
+      createMap<UpdateGigDto, GigEntity>(mapper, UpdateGigDto, GigEntity);
+
+      createMap<OrderEntity, OrderDto>(mapper, OrderEntity, OrderDto);
+      createMap<OrderDto, OrderEntity>(mapper, OrderDto, OrderEntity);
+      createMap<CreateOrderDto, OrderEntity>(
+        mapper,
+        CreateOrderDto,
+        OrderEntity,
+      );
+      createMap<UpdateOrderDto, OrderEntity>(
+        mapper,
+        UpdateOrderDto,
+        OrderEntity,
+      );
+
+      createMap<TransactionEntity, TransactionDto>(
+        mapper,
+        TransactionEntity,
+        TransactionDto,
+      );
+      createMap<TransactionDto, TransactionEntity>(
+        mapper,
+        TransactionDto,
+        TransactionEntity,
+      );
+      createMap<CreateTransactionDto, TransactionEntity>(
+        mapper,
+        CreateTransactionDto,
+        TransactionEntity,
+      );
+      createMap<UpdateTransactionDto, TransactionEntity>(
+        mapper,
+        UpdateTransactionDto,
+        TransactionEntity,
+      );
+
+      createMap<PaymentEntity, PaymentDto>(mapper, PaymentEntity, PaymentDto);
+      createMap<PaymentDto, PaymentEntity>(mapper, PaymentDto, PaymentEntity);
+      createMap<CreatePaymentDto, PaymentEntity>(
+        mapper,
+        CreatePaymentDto,
+        PaymentEntity,
+      );
+      createMap<UpdatePaymentDto, PaymentEntity>(
+        mapper,
+        UpdatePaymentDto,
+        PaymentEntity,
+      );
+
+      createMap<CategoryEntity, CategoryDto>(
+        mapper,
+        CategoryEntity,
+        CategoryDto,
+      );
+      createMap<CategoryDto, CategoryEntity>(
+        mapper,
+        CategoryDto,
+        CategoryEntity,
+      );
+      createMap<CreateCategoryDto, CategoryEntity>(
+        mapper,
+        CreateCategoryDto,
+        CategoryEntity,
+      );
+      createMap<UpdateCategoryDto, CategoryEntity>(
+        mapper,
+        UpdateCategoryDto,
+        CategoryEntity,
+      );
+
+      createMap<NotificationEntity, NotificationDto>(
+        mapper,
+        NotificationEntity,
+        NotificationDto,
+      );
+      createMap<NotificationDto, NotificationEntity>(
+        mapper,
+        NotificationDto,
+        NotificationEntity,
+      );
+      createMap<CreateNotificationDto, NotificationEntity>(
+        mapper,
+        CreateNotificationDto,
+        NotificationEntity,
+      );
+      createMap<UpdateNotificationDto, NotificationEntity>(
+        mapper,
+        UpdateNotificationDto,
+        NotificationEntity,
+      );
+
+      createMap<RatingEntity, RatingDto>(mapper, RatingEntity, RatingDto);
+      createMap<RatingDto, RatingEntity>(mapper, RatingDto, RatingEntity);
+      createMap<CreateRatingDto, RatingEntity>(
+        mapper,
+        CreateRatingDto,
+        RatingEntity,
+      );
+      createMap<UpdateRatingDto, RatingEntity>(
+        mapper,
+        UpdateRatingDto,
+        RatingEntity,
+      );
+
+      createMap<UserEntity, UserDto>(mapper, UserEntity, UserDto);
+      createMap<UserDto, UserEntity>(mapper, UserDto, UserEntity);
+      createMap<AuthRegisterLoginDto, UserEntity>(
+        mapper,
+        AuthRegisterLoginDto,
+        UserEntity,
+      );
+      createMap<CreateUserDto, UserEntity>(mapper, CreateUserDto, UserEntity);
+      createMap<UpdateUserDto, UserEntity>(mapper, UpdateUserDto, UserEntity);
+
+      createMap<GigFreelancerDto, FreelancerDto>(
+        mapper,
+        GigFreelancerDto,
+        FreelancerDto,
+      );
+      createMap<GigFreelancerDto, FreelancerEntity>(
+        mapper,
+        GigFreelancerDto,
+        FreelancerEntity,
+      );
+
+      createMap<FreelancerEntity, FreelancerDto>(
+        mapper,
+        FreelancerEntity,
+        FreelancerDto,
+      );
+      createMap<CreateFreelancerDto, FreelancerEntity>(
+        mapper,
+        CreateFreelancerDto,
+        FreelancerEntity,
+      );
+      createMap<UpdateFreelancerDto, FreelancerEntity>(
+        mapper,
+        UpdateFreelancerDto,
+        FreelancerEntity,
+      );
+    };
+  }
+}

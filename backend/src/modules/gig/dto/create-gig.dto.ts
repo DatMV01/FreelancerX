@@ -89,7 +89,7 @@ export class CreateGigDto {
 
   @AutoMap(() => [PricingPackage])
   @IsOptional()
-  pricing: PricingPackage[];
+  pricingPackage: PricingPackage[];
 
   @AutoMap()
   @IsString()

@@ -24,17 +24,17 @@ export class GigService extends BaseService<GigEntity> {
   ): SelectQueryBuilder<GigEntity> {
     if (Number(currentUser.role.id) === RoleEnum.ADMIN) {
       queryBuilder.leftJoinAndSelect(
-        `${queryBuilder.alias}.freelancerProfile`,
-        'freelancerProfile',
+        `${queryBuilder.alias}.freelancer`,
+        'freelancer',
       );
     } else {
       queryBuilder
         .leftJoinAndSelect(
-          `${queryBuilder.alias}.freelancerProfile`,
-          'freelancerProfile',
+          `${queryBuilder.alias}.freelancer`,
+          'freelancer',
         )
-        .where('freelancerProfile.id = :freelancerProfileId', {
-          freelancerProfileId: currentUser.id,
+        .where('freelancer.id = :freelancerId', {
+          freelancerId: currentUser.id,
         });
     }
 

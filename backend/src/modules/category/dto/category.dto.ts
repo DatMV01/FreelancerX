@@ -6,6 +6,9 @@ export class CategoryDto extends BaseDto<CategoryDto> {
   id: string;
 
   @AutoMap()
+  parentCategoryId: string;
+
+  @AutoMap()
   parentCategory?: CategoryDto;
 
   @AutoMap()
