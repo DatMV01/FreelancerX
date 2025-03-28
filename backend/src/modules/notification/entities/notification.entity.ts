@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { NotificationType } from '../enum/notification.enum';
 
-@Entity('notifications')
+@Entity('notification')
 export class NotificationEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @AutoMap()

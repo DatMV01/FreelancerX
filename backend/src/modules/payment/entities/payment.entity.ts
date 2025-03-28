@@ -12,7 +12,7 @@ import { PaymentStatus } from '../enum/payment.status';
 import { PaymentMethod } from '../enum/payment.method';
 import { AutoMap } from '@automapper/classes';
 
-@Entity('payments')
+@Entity('payment')
 export class PaymentEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')

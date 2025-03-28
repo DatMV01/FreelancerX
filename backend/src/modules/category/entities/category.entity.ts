@@ -28,7 +28,7 @@ export class CategoryEntity extends BaseEntity {
     type: 'char',
     length: 36,
   })
-  parentCategoryId: string;
+  parentId: string;
 
   @AutoMap(() => CategoryEntity)
   @ManyToOne(() => CategoryEntity, (category) => category.subCategories)

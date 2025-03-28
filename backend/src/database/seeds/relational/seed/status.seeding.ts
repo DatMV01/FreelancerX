@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
-
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class StatusSeedService {
+export class StatusSeeding {
   constructor(
     @InjectRepository(StatusEntity)
     private repository: Repository<StatusEntity>,
@@ -51,6 +50,6 @@ export class StatusSeedService {
 
     await this.repository.save(status);
 
-    console.log('Seeded statuses!');
+    console.log('\n == Status are seeded completely !!! == \n');
   }
 }

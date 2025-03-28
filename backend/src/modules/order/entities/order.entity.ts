@@ -15,7 +15,7 @@ import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.ent
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
 
-@Entity('orders')
+@Entity('order')
 export class OrderEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')

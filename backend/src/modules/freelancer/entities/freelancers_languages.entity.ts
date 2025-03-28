@@ -12,8 +12,8 @@ import { FreelancerProficiencyLevel } from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
 import { AutoMap } from '@automapper/classes';
 
-@Entity('freelancer_language')
-export class FreelancerLanguageEntity {
+@Entity('language')
+export class LanguageEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -49,14 +49,14 @@ export class FreelancersLanguages {
   freelancers: FreelancerEntity;
 
   @ManyToOne(
-    () => FreelancerLanguageEntity,
+    () => LanguageEntity,
     (language) => language.freelancers,
     {
       onDelete: 'CASCADE',
     },
   )
   @JoinColumn({ name: 'language_id' })
-  languages: FreelancerLanguageEntity;
+  languages: LanguageEntity;
 
   @Column({
     type: 'enum',

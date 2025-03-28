@@ -4,11 +4,11 @@ import { FreelancerService } from './freelancer.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FreelancerEntity } from './entities/freelancer.entity';
 import {
-  FreelancerSkillEntity,
+  SkillEntity,
   FreelancersSkills,
 } from './entities/freelancers_skills.entity';
 import {
-  FreelancerLanguageEntity,
+  LanguageEntity,
   FreelancersLanguages,
 } from './entities/freelancers_languages.entity';
 
@@ -16,8 +16,8 @@ import {
   imports: [
     TypeOrmModule.forFeature([
       FreelancerEntity,
-      FreelancerSkillEntity,
-      FreelancerLanguageEntity,
+      SkillEntity,
+      LanguageEntity,
       FreelancersLanguages,
       FreelancersSkills,
     ]),

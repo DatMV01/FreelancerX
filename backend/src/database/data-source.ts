@@ -1,4 +1,19 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
+import * as mysql from 'mysql2/promise';
+
+const createDatabase = async () => {
+  const connection = await mysql.createConnection({
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: Number(process.env.DATABASE_PORT) || 3306,
+    user: process.env.DATABASE_USERNAME || 'root',
+    password: process.env.DATABASE_PASSWORD || 'admin',
+  });
+
+  await connection.query(
+    `CREATE DATABASE IF NOT EXISTS ${process.env.DATABASE_NAME || 'freelancerx'}`,
+  );
+  await connection.end();
+};
 
 export const AppDataSource = new DataSource({
   type: process.env.DATABASE_TYPE,
@@ -38,3 +53,16 @@ export const AppDataSource = new DataSource({
         : undefined,
   },
 } as DataSourceOptions);
+
+// Gọi hàm trước khi kết nối TypeORM
+// (async () => {
+//   await createDatabase();
+//   await AppDataSource.initialize();
+// })();
+
+async function main() {
+  await createDatabase();
+  await AppDataSource.initialize();
+}
+
+main().catch((error) => console.error(error));

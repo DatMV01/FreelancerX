@@ -1,17 +1,17 @@
 import { NestFactory } from '@nestjs/core';
-import { RoleSeedService } from './role/role.seed.service';
+import { RoleSeeding } from './seed/role.seeding';
 import { SeedModule } from './seed.module';
-import { StatusSeedService } from './status/status.seed.service';
-import { UserSeedService } from './user/user.seed.service';
-import { CategorySeedService } from './category/category.seed.service';
+import { StatusSeeding } from './seed/status.seeding';
+import { UserSeeding } from './seed/user.seeding';
+import { CategorySeeding } from './seed/category.seeding';
 
 const runSeed = async () => {
   const app = await NestFactory.create(SeedModule);
 
-  await app.get(RoleSeedService).run();
-  await app.get(StatusSeedService).run();
-  await app.get(UserSeedService).run();
-  await app.get(CategorySeedService).run();
+  await app.get(RoleSeeding).run();
+  await app.get(StatusSeeding).run();
+  await app.get(UserSeeding).run();
+  await app.get(CategorySeeding).run();
 
   await app.close();
 };

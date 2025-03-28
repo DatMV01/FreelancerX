@@ -13,12 +13,15 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
+import { GigEntity } from 'src/modules/gig/entities/gig.entity';
+import { UsersGigsEntity } from './users_gigs.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
@@ -56,7 +59,7 @@ export class UserEntity extends BaseEntity {
   avatar?: string | null;
 
   @AutoMap()
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   phoneNumber?: string | null;
 
   /* ROLE */
@@ -124,4 +127,9 @@ export class UserEntity extends BaseEntity {
     onDelete: 'RESTRICT', // Ngăn không cho xóa User nếu có Transaction
   })
   transactions: TransactionEntity[];
+
+  /* FAVORITE GIGS */
+  @AutoMap(() => [UsersGigsEntity])
+  @ManyToMany(() => UsersGigsEntity)
+  favoriteGigs: UsersGigsEntity[];
 }

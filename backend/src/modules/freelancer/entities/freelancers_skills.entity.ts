@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import { FreelancerEntity } from './freelancer.entity';
 
-@Entity('freelancer_skill')
-export class FreelancerSkillEntity {
+@Entity('skill')
+export class SkillEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -47,9 +47,9 @@ export class FreelancersSkills {
   @JoinColumn({ name: 'freelancer_id' })
   freelancers: FreelancerEntity;
 
-  @ManyToOne(() => FreelancerSkillEntity, (skill) => skill.freelancers, {
+  @ManyToOne(() => SkillEntity, (skill) => skill.freelancers, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'skill_id' })
-  skills: FreelancerSkillEntity;
+  skills: SkillEntity;
 }

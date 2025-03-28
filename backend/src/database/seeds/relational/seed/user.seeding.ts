@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-
+import { faker } from '@faker-js/faker';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { faker } from '@faker-js/faker';
 import { Repository } from 'typeorm';
-import { RoleEnum } from 'src/modules/role/enum/role.enum';
 
 @Injectable()
-export class UserSeedService {
+export class UserSeeding {
   constructor(
     @InjectRepository(UserEntity)
     private repository: Repository<UserEntity>,
@@ -59,5 +58,7 @@ export class UserSeedService {
     }
 
     await this.repository.save(users);
+
+    console.log('\n == Users are seeded completely !!! == \n');
   }
 }

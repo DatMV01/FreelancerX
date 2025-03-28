@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { RoleEnum } from 'src/modules/role/enum/role.enum';
-
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class RoleSeedService {
+export class RoleSeeding {
   constructor(
     @InjectRepository(RoleEntity)
     private readonly repository: Repository<RoleEntity>,
@@ -52,6 +51,6 @@ export class RoleSeedService {
 
     await this.repository.save(roles);
 
-    console.log('Seeded roles!');
+    console.log('\n == Roles are seeded completely !!! == \n');
   }
 }

@@ -28,8 +28,9 @@ import {
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { slugify } from 'src/utils/slugify';
+import { UsersGigsEntity } from 'src/modules/user/entities/users_gigs.entity';
 
-@Entity({ name: 'gig_tag' })
+@Entity({ name: 'tag' })
 export class GigTagEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -120,6 +121,13 @@ export class GigEntity extends BaseEntity {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags?: GigTagEntity[];
+  /* Overview */
+
+  /**== FAVORITED USERS ==*/
+  @AutoMap(() => [UsersGigsEntity])
+  @ManyToMany(() => UsersGigsEntity)
+  favoritedUsers?: UsersGigsEntity[];
+
   /* Overview */
 
   /* Pricing */

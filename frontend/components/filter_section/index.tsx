@@ -14,16 +14,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, InputAdornment } from "@mui/material";
+import { countries } from "@/data/countries";
+import { languages } from "@/data/languages";
+import { Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { number, string, z } from "zod";
-import { Input } from "@/components/ui/input";
+import { z } from "zod";
 import { Checkbox } from "../ui/checkbox";
-import { languagesData, countriesData } from "@/data/country-languagues";
 import TagList from "./tagList";
-import FormExample from "./example";
 const buildQueryURL = (data: Record<string, any>) => {
   const params = new URLSearchParams();
 
@@ -124,7 +122,7 @@ export const FilterSection = () => {
 
   return (
     <div
-      className={`${isFixed ? "z-20 fixed left-0 top-0 w-full bg-white px-14" : "relative"}`}
+      className={`${isFixed ? "fixed left-0 top-0 z-20 w-full bg-white px-14" : "relative"}`}
     >
       <div className="flex w-full flex-wrap">
         <Popover>
@@ -222,7 +220,7 @@ export const FilterSection = () => {
                       <div>
                         <p className="mb-2 font-semibold">Seller Speak</p>
                         <FormItem className="grid grid-cols-2 grid-rows-2 gap-1">
-                          {languagesData.map((item, index) => (
+                          {languages.map((item, index) => (
                             <FormField
                               key={item.id}
                               control={form.control}
@@ -251,7 +249,7 @@ export const FilterSection = () => {
                                       />
                                     </FormControl>
                                     <FormLabel className="text-[14px]">
-                                      {item.language}
+                                      {item.name}
                                     </FormLabel>
                                   </FormItem>
                                 );
@@ -271,7 +269,7 @@ export const FilterSection = () => {
                       <div>
                         <p className="mb-2 font-semibold">Seller Lives In</p>
                         <FormItem className="grid grid-cols-2 grid-rows-2 gap-1">
-                          {countriesData.map((item, index) => (
+                          {countries.map((item, index) => (
                             <FormField
                               key={item.id}
                               control={form.control}
@@ -300,7 +298,7 @@ export const FilterSection = () => {
                                       />
                                     </FormControl>
                                     <FormLabel className="text-[14px]">
-                                      {item.country}
+                                      {item.name}
                                     </FormLabel>
                                   </FormItem>
                                 );

@@ -8,6 +8,8 @@ import {
 } from 'src/config/config.type';
 import { getMetadataArgsStorage } from 'typeorm';
 import typeormConfig, { TypeORMConfig } from './typeorm.config';
+import * as mysql from 'mysql2/promise';
+import { consoleSuccess } from 'src/utils/common';
 
 @Global()
 @Module({
@@ -15,14 +17,38 @@ import typeormConfig, { TypeORMConfig } from './typeorm.config';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forRoot({ load: [appConfig, typeormConfig] })], // Ensure ConfigModule has been already loadded .env file
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const databaseConfig = configService.get(DATABASE_CONFIG_REGISTER, {
-          infer: true,
-        }) as TypeORMConfig;
+      useFactory: async (configService: ConfigService) => {
+        const databaseConfig = (await configService.get(
+          DATABASE_CONFIG_REGISTER,
+          {
+            infer: true,
+          },
+        )) as TypeORMConfig;
 
-        const appConfig = configService.get(APP_CONFIG_REGISTER, {
+        const appConfig = (await configService.get(APP_CONFIG_REGISTER, {
           infer: true,
-        }) as AppConfig;
+        })) as AppConfig;
+
+        const createDatabaseIfNotExists = async () => {
+          const connection = await mysql.createConnection({
+            host: databaseConfig?.host || 'localhost',
+            port: Number(databaseConfig?.port) || 3306,
+            user: databaseConfig?.username || 'root',
+            password: databaseConfig?.password || 'admin',
+          });
+
+          await connection.query(
+            `CREATE DATABASE IF NOT EXISTS \`${databaseConfig?.name || 'freelancerx'}\``,
+          );
+
+          await connection.end();
+
+          consoleSuccess(
+            `Database "${databaseConfig?.name || 'freelancerx'}" is ready.`,
+          );
+        };
+
+        await createDatabaseIfNotExists();
 
         const options: TypeOrmModuleOptions = {
           type: databaseConfig.type as any,
@@ -60,19 +86,17 @@ import typeormConfig, { TypeORMConfig } from './typeorm.config';
           },
         };
 
-        console.log('====================================');
-        console.log(`DatabaseConfig:`);
-        console.log(databaseConfig);
+        consoleSuccess(`DatabaseConfig:`);
+        consoleSuccess(databaseConfig);
 
-        console.log(`AppConfig:`);
-        console.log(appConfig);
+        consoleSuccess(`AppConfig:`);
+        consoleSuccess(appConfig);
 
-        console.log(`Migrations:`);
-        console.log(options.migrations);
+        consoleSuccess(`Migrations:`);
+        consoleSuccess(options.migrations);
 
-        console.log(`Entites:`);
-        console.log(options.entities);
-        console.log('====================================');
+        consoleSuccess(`Entites:`);
+        consoleSuccess(options.entities);
 
         return options;
       },
