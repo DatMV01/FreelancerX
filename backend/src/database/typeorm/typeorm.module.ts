@@ -29,26 +29,11 @@ import { consoleSuccess } from 'src/utils/common';
           infer: true,
         })) as AppConfig;
 
-        const createDatabaseIfNotExists = async () => {
-          const connection = await mysql.createConnection({
-            host: databaseConfig?.host || 'localhost',
-            port: Number(databaseConfig?.port) || 3306,
-            user: databaseConfig?.username || 'root',
-            password: databaseConfig?.password || 'admin',
-          });
+        if (!databaseConfig) {
+          throw new Error('Database configuration is missing!');
+        }
 
-          await connection.query(
-            `CREATE DATABASE IF NOT EXISTS \`${databaseConfig?.name || 'freelancerx'}\``,
-          );
-
-          await connection.end();
-
-          consoleSuccess(
-            `Database "${databaseConfig?.name || 'freelancerx'}" is ready.`,
-          );
-        };
-
-        await createDatabaseIfNotExists();
+        await ensureDatabaseExists(databaseConfig);
 
         const options: TypeOrmModuleOptions = {
           type: databaseConfig.type as any,
@@ -85,18 +70,10 @@ import { consoleSuccess } from 'src/utils/common';
               : undefined,
           },
         };
-
-        consoleSuccess(`DatabaseConfig:`);
-        consoleSuccess(databaseConfig);
-
-        consoleSuccess(`AppConfig:`);
-        consoleSuccess(appConfig);
-
-        consoleSuccess(`Migrations:`);
-        consoleSuccess(options.migrations);
-
-        consoleSuccess(`Entites:`);
-        consoleSuccess(options.entities);
+        consoleSuccess('Database Configuration:', databaseConfig);
+        consoleSuccess('App Configuration:', appConfig);
+        consoleSuccess('Entities:', options.entities);
+        consoleSuccess('Migrations:', options.migrations);
 
         return options;
       },
@@ -104,3 +81,23 @@ import { consoleSuccess } from 'src/utils/common';
   ],
 })
 export class TypeORMModule {}
+
+async function ensureDatabaseExists(databaseConfig: TypeORMConfig) {
+  const connection = await mysql.createConnection({
+    host: databaseConfig.host || 'localhost',
+    port: Number(databaseConfig.port) || 3306,
+    user: databaseConfig.username || 'root',
+    password: databaseConfig.password || 'admin',
+  });
+
+  await connection.query(
+    `CREATE DATABASE IF NOT EXISTS \`${databaseConfig.name || 'freelancerx'}\``,
+  );
+
+  await connection.end();
+
+  consoleSuccess(
+    'Connection status',
+    `Database "${databaseConfig.name || 'freelancerx'}" is ready.`,
+  );
+}

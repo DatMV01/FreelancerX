@@ -8,7 +8,7 @@ import { JwtStrategy } from './strategies/jwt-access.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UserModule } from '../user/user.module';
 import { SessionModule } from '../session/session.module';
-import { SessionService } from '../session/service/session.service';
+import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
 import { AutoMapper } from '../base/mapper/mapper';
 

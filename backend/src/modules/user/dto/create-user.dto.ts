@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsString,
   Length,
-  MinLength,
 } from 'class-validator';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
@@ -18,7 +17,9 @@ import {
   userStatusTransformer2,
 } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/user.provider';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
+import { RoleEnum } from 'src/modules/role/enum/role.enum';
 
 export class CreateUserDto {
   @AutoMap()
@@ -33,7 +34,7 @@ export class CreateUserDto {
   @AutoMap()
   @ApiProperty({
     example: 'strongpassword',
-    description: 'User password',
+    description: 'User password (minimum 6 characters)',
     minLength: 6,
   })
   @IsString()
@@ -41,71 +42,97 @@ export class CreateUserDto {
   @IsNotEmpty()
   password: string;
 
-  @AutoMap()
-  @ApiProperty({
+  @AutoMap(() => String)
+  @ApiPropertyOptional({
     example: 'EMAIL',
     enum: AuthProvidersEnum,
+    enumName: 'AuthProvidersEnum',
     description: 'Authentication provider',
   })
   @IsEnum(AuthProvidersEnum)
   @IsOptional()
-  provider?: AuthProvidersEnum = AuthProvidersEnum.EMAIL;
+  provider: AuthProvidersEnum = AuthProvidersEnum.EMAIL;
 
   @AutoMap()
-  @ApiProperty({ example: 'Nguyen Van A', description: 'User full name' })
+  @ApiProperty({
+    example: 'Nguyen Van A',
+    description: 'User full name',
+  })
   @IsString()
   @IsNotEmpty()
   fullName: string;
 
   @AutoMap()
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'Vietnam',
     description: 'User country',
-    required: false,
+    nullable: true,
   })
   @IsString()
   @IsOptional()
-  country?: string | null;
+  country?: string;
 
   @AutoMap()
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'https://example.com/avatar.jpg',
     description: 'User avatar URL',
-    required: false,
+    nullable: true,
   })
   @IsString()
   @IsOptional()
-  avatar?: string | null;
+  avatar?: string;
 
   @AutoMap()
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: '+84901234567',
-    description: 'User phone number',
-    required: false,
+    description: 'User phone number (international format)',
+    nullable: true,
   })
   @IsString()
   @IsOptional()
-  phoneNumber?: string | null;
+  phoneNumber?: string;
+
+  // @AutoMap()
+  // @ApiPropertyOptional({
+  //   example: 1,
+  //   description: 'User role ID (mapped to RoleDto)',
+  // })
+  // @IsOptional()
+  // @Transform(userRoleTransformer)
+  // roleId?: number = RoleEnum.ADMIN;
+
+  // @AutoMap()
+  // @ApiPropertyOptional({
+  //   example: 1,
+  //   description: 'User status ID (mapped to StatusDto)',
+  // })
+  // @IsOptional()
+  // @Transform(userStatusTransformer)
+  // statusId?: number = StatusEnum.UNACTIVATED;
 
   @AutoMap()
-  @ApiProperty({ example: 1, description: 'User role ID', required: false })
-  @IsOptional()
-  @Transform(userRoleTransformer)
-  roleId?: number | null;
-
-  @AutoMap()
-  @ApiProperty({ example: 1, description: 'User status ID', required: false })
-  @IsOptional()
-  @Transform(userStatusTransformer)
-  statusId?: number | null;
-
+  @ApiPropertyOptional({
+    type: StatusDto,
+    description: 'User status',
+  })
   @IsOptional()
   @Type(() => StatusDto)
   @Transform(userStatusTransformer2)
-  status?: StatusDto;
+  status: StatusDto = {
+    id: StatusEnum.UNACTIVATED,
+    name: StatusEnum[StatusEnum.UNACTIVATED],
+  } as any;
 
+  @AutoMap()
+  @ApiPropertyOptional({
+    type: RoleDto,
+    description: 'User role',
+  })
   @IsOptional()
   @Type(() => RoleDto)
   @Transform(userRoleTransformer2)
-  role?: RoleDto;
+  role: RoleDto = {
+    id: RoleEnum.BUYER,
+    name: RoleEnum[RoleEnum.BUYER],
+  } as any;
 }

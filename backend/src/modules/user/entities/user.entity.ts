@@ -12,7 +12,9 @@ import { TransactionEntity } from 'src/modules/transaction/entities/transaction.
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
@@ -20,8 +22,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
+
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { UsersGigsEntity } from './users_gigs.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
@@ -38,7 +40,7 @@ export class UserEntity extends BaseEntity {
   @Exclude({ toPlainOnly: true })
   password: string;
 
-  @AutoMap()
+  @AutoMap(() => String)
   @Column({
     type: 'enum',
     enum: AuthProvidersEnum,
@@ -52,24 +54,23 @@ export class UserEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'nvarchar', nullable: true })
-  country?: string | null;
+  country?: string;
 
   @AutoMap()
   @Column({ type: 'varchar', nullable: true })
-  avatar?: string | null;
+  avatar?: string = undefined;
 
   @AutoMap()
   @Column({ type: 'varchar', length: 50, nullable: true })
-  phoneNumber?: string | null;
+  phoneNumber?: string;
 
   /* ROLE */
   @AutoMap()
-  @Column({ name: 'role_id', nullable: true })
-  roleId?: number | null;
+  @Column({ name: 'role_id', nullable: false })
+  roleId?: number;
 
   @AutoMap(() => RoleEntity)
   @ManyToOne(() => RoleEntity, (role) => role.users, {
-    onDelete: 'SET NULL', // Khi xóa User, xóa luôn Role liên kết
     eager: true,
   })
   @JoinColumn({ name: 'role_id' })
@@ -77,29 +78,29 @@ export class UserEntity extends BaseEntity {
 
   /* STATUS */
   @AutoMap()
-  @Column({ name: 'status_id', nullable: true })
-  statusId?: number | null;
+  @AutoMap()
+  @Index()
+  @Column({
+    name: 'status_id',
+    // nullable: true,
+    type: 'number',
+  })
+  statusId?: number;
 
   @AutoMap(() => StatusEntity)
   @ManyToOne(() => StatusEntity, (status) => status.users, {
-    onDelete: 'SET NULL',
     eager: true,
   })
   @JoinColumn({ name: 'status_id' })
   status: StatusEntity;
 
   /* FREELANCER */
-  @AutoMap()
-  @Column({ name: 'freelancer_id', nullable: true })
-  freelancerId?: string | null;
 
   @AutoMap(() => FreelancerEntity)
   @OneToOne(() => FreelancerEntity, (freelancer) => freelancer.user, {
-    cascade: true,
-    eager: true,
+    // eager: true,
   })
-  @JoinColumn({ name: 'freelancer_id' })
-  freelancer?: FreelancerEntity | null;
+  freelancer?: FreelancerEntity;
 
   /* ORDERS */
   @AutoMap(() => [OrderEntity])
@@ -129,7 +130,19 @@ export class UserEntity extends BaseEntity {
   transactions: TransactionEntity[];
 
   /* FAVORITE GIGS */
-  @AutoMap(() => [UsersGigsEntity])
-  @ManyToMany(() => UsersGigsEntity)
-  favoriteGigs: UsersGigsEntity[];
+  // @AutoMap(() => [UsersFavoriteGigsEntity])
+  // @OneToMany(() => UsersFavoriteGigsEntity, (_) => _.user)
+  // usersFavoriteGigs: UsersFavoriteGigsEntity[];
+
+  @AutoMap(() => [GigEntity])
+  @ManyToMany(() => GigEntity, (user) => user.users, {
+    cascade: true,
+    eager: false,
+  })
+  @JoinTable({
+    name: 'users_favorite_gigs',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
+  })
+  favoriteGigs: GigEntity[];
 }

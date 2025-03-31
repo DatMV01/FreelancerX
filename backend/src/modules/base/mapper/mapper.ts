@@ -1,4 +1,12 @@
-import { Mapper, createMap } from '@automapper/core';
+import {
+  Mapper,
+  afterMap,
+  beforeMap,
+  createMap,
+  forMember,
+  forSelf,
+  mapWith,
+} from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
 import { AuthRegisterLoginDto } from 'src/modules/auth/dto/auth-email-register.dto';
@@ -55,6 +63,10 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { BaseEntity } from 'typeorm';
 import { RoleDto } from '../../role/dto/role.dto';
 import { RoleEntity } from '../../role/entities/role.entity';
+import {
+  convertNullToUndefined,
+  removeUndefinedFields,
+} from 'src/utils/common';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -67,85 +79,119 @@ export class AutoMapper extends AutomapperProfile {
       createMap<BaseEntity, BaseDto<any>>(mapper, BaseEntity, BaseDto<any>);
       createMap<BaseDto<any>, BaseEntity>(mapper, BaseDto<any>, BaseEntity);
 
-      createMap(mapper, RoleEntity, RoleDto);
-      createMap(mapper, RoleDto, RoleEntity);
-      createMap(mapper, CreateRoleDto, RoleEntity);
-      createMap(mapper, UpdateRoleDto, RoleEntity);
+      const mappings = [
+        {
+          entity: RoleEntity,
+          dto: RoleDto,
+          createDto: CreateRoleDto,
+          updateDto: UpdateRoleDto,
+          isMappingCreateDto: true,
+        },
+        {
+          entity: StatusEntity,
+          dto: StatusDto,
+          createDto: CreateStatusDto,
+          updateDto: UpdateStatusDto,
+        },
+        {
+          entity: SessionEntity,
+          dto: SessionDto,
+          createDto: CreateSessionDto,
+          updateDto: UpdateSessionDto,
+        },
+        {
+          entity: GigEntity,
+          dto: GigDto,
+          createDto: CreateGigDto,
+          updateDto: UpdateGigDto,
+        },
+        {
+          entity: OrderEntity,
+          dto: OrderDto,
+          createDto: CreateOrderDto,
+          updateDto: UpdateOrderDto,
+        },
+        {
+          entity: TransactionEntity,
+          dto: TransactionDto,
+          createDto: CreateTransactionDto,
+          updateDto: UpdateTransactionDto,
+        },
+        {
+          entity: PaymentEntity,
+          dto: PaymentDto,
+          createDto: CreatePaymentDto,
+          updateDto: UpdatePaymentDto,
+        },
+        {
+          entity: CategoryEntity,
+          dto: CategoryDto,
+          createDto: CreateCategoryDto,
+          updateDto: UpdateCategoryDto,
+        },
+        {
+          entity: NotificationEntity,
+          dto: NotificationDto,
+          createDto: CreateNotificationDto,
+          updateDto: UpdateNotificationDto,
+        },
+        {
+          entity: RatingEntity,
+          dto: RatingDto,
+          createDto: CreateRatingDto,
+          updateDto: UpdateRatingDto,
+        },
+        {
+          entity: UserEntity,
+          dto: UserDto,
+          createDto: CreateUserDto,
+          updateDto: UpdateUserDto,
+        },
+        {
+          entity: FreelancerEntity,
+          dto: FreelancerDto,
+          createDto: CreateFreelancerDto,
+          updateDto: UpdateFreelancerDto,
+          isMappingCreateDto: true,
+        },
+        {
+          entity: UserEntity,
+          dto: AuthRegisterLoginDto,
+          createDto: AuthRegisterLoginDto,
+          updateDto: AuthRegisterLoginDto,
+        },
+      ];
+      mappings.forEach(
+        ({ entity, dto, createDto, updateDto, isMappingCreateDto }) => {
+          createMap(
+            mapper,
+            entity as any,
+            dto as any,
+            beforeMap((source, destination) => {
+              //     return convertNullToUndefined(source);
+            }),
 
-      createMap(mapper, StatusEntity, StatusDto);
-      createMap(mapper, StatusDto, StatusEntity);
-      createMap(mapper, CreateStatusDto, StatusEntity);
-      createMap(mapper, UpdateStatusDto, StatusEntity);
+            afterMap((source, destination) => {
+              Object.assign(destination, convertNullToUndefined(destination));
 
-      createMap(mapper, SessionEntity, SessionDto);
-      createMap(mapper, SessionDto, SessionEntity);
-      createMap(mapper, CreateSessionDto, SessionEntity);
-      createMap(mapper, UpdateSessionDto, SessionEntity);
+              //   console.log(destination);
+            }),
+          );
+          createMap(mapper, dto as any, entity as any);
+          const createMapping = createMap(mapper, createDto, entity as any);
 
-      createMap(mapper, GigEntity, GigDto);
-      createMap(mapper, GigDto, GigEntity);
-      createMap(mapper, CreateGigDto, GigEntity);
-      createMap(mapper, UpdateGigDto, GigEntity);
-
-      createMap(mapper, OrderEntity, OrderDto);
-      createMap(mapper, OrderDto, OrderEntity);
-      createMap(mapper, CreateOrderDto, OrderEntity);
-      createMap(mapper, UpdateOrderDto, OrderEntity);
-
-      createMap(mapper, TransactionEntity, TransactionDto);
-      createMap(mapper, TransactionDto, TransactionEntity);
-      createMap(mapper, CreateTransactionDto, TransactionEntity);
-      createMap(mapper, UpdateTransactionDto, TransactionEntity);
-
-      createMap(mapper, PaymentEntity, PaymentDto);
-      createMap(mapper, PaymentDto, PaymentEntity);
-      createMap(mapper, CreatePaymentDto, PaymentEntity);
-      createMap(mapper, UpdatePaymentDto, PaymentEntity);
-
-      createMap(mapper, CategoryEntity, CategoryDto);
-      createMap(mapper, CategoryDto, CategoryEntity);
-      createMap(mapper, CreateCategoryDto, CategoryEntity);
-      createMap(mapper, UpdateCategoryDto, CategoryEntity);
-
-      createMap(mapper, NotificationEntity, NotificationDto);
-      createMap(mapper, NotificationDto, NotificationEntity);
-      createMap(mapper, CreateNotificationDto, NotificationEntity);
-      createMap(mapper, UpdateNotificationDto, NotificationEntity);
-
-      createMap(mapper, RatingEntity, RatingDto);
-      createMap(mapper, RatingDto, RatingEntity);
-      createMap(mapper, CreateRatingDto, RatingEntity);
-      createMap(mapper, UpdateRatingDto, RatingEntity);
-
-      createMap(mapper, TransactionEntity, TransactionDto);
-      createMap(mapper, TransactionDto, TransactionEntity);
-      createMap(mapper, CreateTransactionDto, TransactionEntity);
-      createMap(mapper, UpdateTransactionDto, TransactionEntity);
-
-      createMap(mapper, UserEntity, UserDto);
-      createMap(mapper, UserDto, UserEntity);
-      createMap(mapper, AuthRegisterLoginDto, UserEntity);
-      createMap(mapper, CreateUserDto, UserEntity);
-      createMap(mapper, UpdateUserDto, UserEntity);
-
-      createMap(mapper, GigFreelancerDto, FreelancerDto);
-      createMap(mapper, GigFreelancerDto, FreelancerEntity);
-
-      createMap(mapper, FreelancerEntity, FreelancerDto);
-      createMap(
-        mapper,
-        CreateFreelancerDto,
-        FreelancerEntity,
-        // forMember(
-        //   (destination) => destination.userProfile,
-        //   mapFrom((source: CreateFreelancerDto) => {
-        //     return {
-        //       email: source.email,
-        //     } as any;
-        //   }),
-        // ),
+          if (isMappingCreateDto) {
+            createMap(
+              mapper,
+              updateDto,
+              entity as any,
+              forSelf(createMapping, (source) => source),
+            );
+          } else {
+            createMap(mapper, updateDto, entity as any);
+          }
+        },
       );
-      createMap(mapper, UpdateFreelancerDto, FreelancerEntity);
     };
   }
 }

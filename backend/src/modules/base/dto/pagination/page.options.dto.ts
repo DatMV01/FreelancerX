@@ -1,4 +1,5 @@
-import { Transform, Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class PageOptionsDto {
@@ -6,6 +7,7 @@ export class PageOptionsDto {
   @IsInt()
   @Min(1)
   @IsOptional()
+  @ApiPropertyOptional()
   readonly page: number = 1;
 
   @Type(() => Number)
@@ -13,11 +15,14 @@ export class PageOptionsDto {
   @Min(1)
   @Max(50)
   @IsOptional()
+  @ApiPropertyOptional()
   readonly limit: number = 10;
 
   @IsOptional()
+  @ApiPropertyOptional()
   sorts?: any;
 
   @IsOptional()
+  @ApiPropertyOptional()
   filters?: any;
 }

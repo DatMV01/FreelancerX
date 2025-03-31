@@ -1,5 +1,8 @@
 import {
+  AfterInsert,
+  AfterUpdate,
   BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -25,7 +28,7 @@ import {
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { FreelancersLanguages } from './freelancers_languages.entity';
-import { FreelancersSkills } from './freelancers_skills.entity';
+import { FreelancersSkills, SkillEntity } from './freelancers_skills.entity';
 
 @Entity('freelancer')
 export class FreelancerEntity extends BaseEntity {
@@ -34,11 +37,13 @@ export class FreelancerEntity extends BaseEntity {
   id: string;
 
   @AutoMap()
+  @Column()
   email: string;
 
   @AutoMap()
   @Column({
     name: 'user_id',
+    nullable: false,
     type: 'char',
     length: 36,
   })
@@ -46,8 +51,7 @@ export class FreelancerEntity extends BaseEntity {
 
   @AutoMap(() => UserEntity)
   @OneToOne(() => UserEntity, (user) => user.freelancer, {
-    nullable: false,
-    eager: false,
+   // eager: true,
     onDelete: 'CASCADE', //  Nếu user bị xóa, freelancer cũng bị xóa theo.
   })
   @JoinColumn({ name: 'user_id' })
@@ -85,22 +89,22 @@ export class FreelancerEntity extends BaseEntity {
   // languages?: FreelancerLanguageEntity[];
 
   @AutoMap(() => [FreelancersLanguages])
-  @OneToMany(() => FreelancersLanguages, (language) => language.freelancers, {
-    onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
+  @OneToMany(() => FreelancersLanguages, (language) => language.freelancer, {
+    cascade: true,
     eager: true,
   })
-  languages?: FreelancersLanguages[];
+  languages?: FreelancersLanguages[] | string[];
 
   // @AutoMap(() => [String])
   // @Column({ type: 'simple-array', nullable: true })
   // skills?: string[];
 
   @AutoMap(() => [FreelancersSkills])
-  @ManyToMany(() => FreelancersSkills, (skill) => skill.freelancers, {
-    onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
+  @OneToMany(() => FreelancersSkills, (skill) => skill.freelancer, {
+    cascade: true,
     eager: true,
   })
-  skills?: FreelancersSkills[];
+  skills?: FreelancersSkills[] | string[];
 
   @AutoMap(() => [CategoryEntity])
   @ManyToMany(() => CategoryEntity, (category) => category.freelancers, {
@@ -160,4 +164,20 @@ export class FreelancerEntity extends BaseEntity {
     onDelete: 'NO ACTION',
   })
   orders: OrderEntity[];
+
+  @AfterInsert()
+  @AfterUpdate()
+  afterInsertOrUpdate() {
+    if (this.user?.email) {
+      this.email = this.user.email;
+    }
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  beforeInsertOrUpdate() {
+    if (this.user?.email) {
+      this.email = this.user.email;
+    }
+  }
 }

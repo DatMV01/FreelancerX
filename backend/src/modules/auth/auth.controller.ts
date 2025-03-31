@@ -20,6 +20,8 @@ import { AuthRegisterLoginDto } from './dto/auth-email-register.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
+import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
+import { CurrentUser } from 'src/common/decorators';
 
 @Controller({
   path: 'auth',
@@ -30,8 +32,10 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  public me(@Req() request): Promise<MaybeNull<UserDto>> {
-    return this.service.me(request.user);
+  public me(
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<UserDto> {
+    return this.service.me(currentUser);
   }
 
   @Post('email/login')

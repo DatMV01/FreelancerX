@@ -6,6 +6,7 @@ import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { MaybeUndefined } from '../types/maybe.type';
+import { FreelancersLanguages } from 'src/modules/freelancer/entities/freelancers_languages.entity';
 
 const isValuesEmpty = (obj: object) =>
   Object.values(obj).every((v) => v == null || v == undefined);
@@ -47,6 +48,38 @@ export const undefinedTransformer = (
     }
 
     return value;
+  }
+};
+
+export const freelancerSkillsTransformer = (
+  { value, key, obj, type, options }: TransformFnParams,
+  field?: string | string[],
+): MaybeUndefined<any> => {
+  if (type === TransformationType.PLAIN_TO_CLASS) {
+  } else if (type === TransformationType.CLASS_TO_PLAIN) {
+    if (!value) return undefined;
+
+    const skills = Array.from(value).map((_: any) => {
+      return _.skill;
+    });
+
+    return skills;
+  }
+};
+
+export const freelancerLanguagesTransformer = (
+  { value, key, obj, type, options }: TransformFnParams,
+  field?: string | string[],
+): MaybeUndefined<any> => {
+  if (type === TransformationType.PLAIN_TO_CLASS) {
+  } else if (type === TransformationType.CLASS_TO_PLAIN) {
+    if (!value) return undefined;
+
+    const languages = Array.from(value).map((_: FreelancersLanguages) => {
+      return _.language;
+    });
+
+    return languages;
   }
 };
 

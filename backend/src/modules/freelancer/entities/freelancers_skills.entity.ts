@@ -1,5 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 import {
+  BaseEntity,
   Column,
   Entity,
   Index,
@@ -7,25 +8,28 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryColumn,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { FreelancerEntity } from './freelancer.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('skill')
-export class SkillEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+export class SkillEntity extends BaseEntity {
+  @PrimaryGeneratedColumn('increment')
+  @ApiProperty()
+  id: number;
 
   @Column({ unique: true, type: 'varchar', length: 50 })
-  name: string;
+  @ApiProperty()
+  title: string;
 
   //   @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.skills)
   //   //Nếu xóa một ngôn ngữ, freelancer vẫn không bị ảnh hưởng (vì không có onDelete: 'CASCADE' bên FreelancerLanguageEntity).
   //   freelancers: FreelancerEntity[];
 
   @AutoMap(() => [FreelancersSkills])
-  @OneToMany(() => FreelancersSkills, (freelancer) => freelancer.skills, {
-    onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
+  @OneToMany(() => FreelancersSkills, (freelancer) => freelancer.skill, {
+    cascade: true,
   })
   freelancers?: FreelancersSkills[];
 }
@@ -38,18 +42,19 @@ export class FreelancersSkills {
   freelancerId: string;
 
   @Index()
-  @PrimaryColumn({ type: 'char', length: 36, name: 'skill_id' })
-  skillId: string;
+  @PrimaryColumn({ type: 'int', name: 'skill_id' })
+  skillId: number;
 
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.skills, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancers: FreelancerEntity;
+  freelancer: FreelancerEntity;
 
   @ManyToOne(() => SkillEntity, (skill) => skill.freelancers, {
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'skill_id' })
-  skills: SkillEntity;
+  skill: SkillEntity;
 }

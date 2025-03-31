@@ -28,7 +28,7 @@ import {
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { slugify } from 'src/utils/slugify';
-import { UsersGigsEntity } from 'src/modules/user/entities/users_gigs.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 
 @Entity({ name: 'tag' })
 export class GigTagEntity {
@@ -106,7 +106,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'nested_sub_category_id' })
-  nestedSubcategory: CategoryEntity | null;
+  nestedSubcategory: CategoryEntity;
 
   /**== Tags ==*/
   // @AutoMap(() => String)
@@ -121,12 +121,10 @@ export class GigEntity extends BaseEntity {
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
   tags?: GigTagEntity[];
-  /* Overview */
 
-  /**== FAVORITED USERS ==*/
-  @AutoMap(() => [UsersGigsEntity])
-  @ManyToMany(() => UsersGigsEntity)
-  favoritedUsers?: UsersGigsEntity[];
+  @ManyToMany(() => UserEntity, (user) => user.favoriteGigs)
+  users: UserEntity[];
+  /* Overview */
 
   /* Overview */
 
@@ -222,11 +220,11 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap(() => FreelancerEntity)
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.gigs, {
-    eager: true,
+      eager: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancer?: FreelancerEntity | null;
+  freelancer?: FreelancerEntity ;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })

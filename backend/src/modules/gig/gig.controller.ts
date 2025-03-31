@@ -1,18 +1,26 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  Post,
-  SerializeOptions,
-} from '@nestjs/common';
-import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { BaseController } from '../base/base.controller';
 import { CreateGigDto } from './dto/create-gig.dto';
 import { GigDto, PricingPackage } from './dto/gig.dto';
 import { UpdateGigDto } from './dto/update-gig.dto';
 import { GigEntity } from './entities/gig.entity';
 import { GigService } from './gig.service';
+
+import {
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  SerializeOptions,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  CREATE_GROUP,
+  UPDATE_GROUP,
+} from 'src/common/constant/serialize.group';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('gig')
 export class GigController extends BaseController<
@@ -26,6 +34,15 @@ export class GigController extends BaseController<
   }
 
   @Post()
+  // @UseGuards(AuthGuard('jwt'))
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiBody({ type: CreateGigDto, required: false })
+  @ApiResponse({
+    status: 201,
+    description: 'Entity created successfully',
+    type: GigDto,
+  })
   async create(data: CreateGigDto): Promise<GigDto> {
     if (data.pricingPackage) {
       const pricePackage = Array.from(data.pricingPackage).find(
@@ -44,7 +61,7 @@ export class GigController extends BaseController<
 
   @Get('/slug/:slug')
   async findOneBySlug(@Param('slug') slug: string) {
-    const entity = await this._service.findOneBySlug(slug);
+    const entity = await this._service.findOne({ where: { slug } });
 
     if (!entity) {
       throw new NotFoundException(`Gig with slug: ${slug} not found`);

@@ -1,4 +1,7 @@
-import { HttpStatus, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpStatus,
+  UnprocessableEntityException
+} from '@nestjs/common';
 
 export const throwUnprocessableEntityException = (errors: any = {}) => {
   throw new UnprocessableEntityException({

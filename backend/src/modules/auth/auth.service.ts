@@ -14,7 +14,7 @@ import * as crypto from 'crypto';
 import * as ms from 'ms';
 import { AllConfigType, AUTH_CONFIG_REGISTER } from 'src/config/config.type';
 import { MaybeNull } from 'src/utils/types/nullable.type';
-import { SessionService } from '../session/service/session.service';
+import { SessionService } from '../session/session.service';
 import { UserDto } from '../user/dto/user.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
@@ -25,6 +25,18 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { AuthProvidersEnum } from './enum/auth-providers.enum';
 import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
+import { CurrentUser } from 'src/common/decorators';
+import { StatusEnum } from '../status/enum/statuses.enum';
+
+// @Injectable()
+// export class CategoryService extends BaseService<CategoryEntity> {
+//   constructor(
+//     @InjectRepository(CategoryEntity)
+//     private readonly _repository: Repository<CategoryEntity>,
+//   ) {
+//     super(_repository);
+//   }
+// }
 
 @Injectable()
 export class AuthService {
@@ -39,7 +51,11 @@ export class AuthService {
   @InjectMapper() protected readonly mapper: Mapper;
 
   async register(createUserDto: AuthRegisterLoginDto): Promise<UserDto> {
-    const _userEntity = this.mapper.map(createUserDto, AuthRegisterLoginDto, UserEntity);
+    const _userEntity = this.mapper.map(
+      createUserDto,
+      AuthRegisterLoginDto,
+      UserEntity,
+    );
 
     const entity = await this.usersService.create(_userEntity);
 
@@ -48,8 +64,8 @@ export class AuthService {
     return userDto;
   }
 
-  async me(userJwtPayload: JwtAccessPayloadType): Promise<MaybeNull<UserDto>> {
-    const entity = await this.usersService.findOneById(userJwtPayload.id);
+  async me(currentUser: JwtAccessPayloadType): Promise<UserDto> {
+    const entity = await this.usersService.findOneById(currentUser.id);
 
     const userDto = this.mapper.map(entity, UserEntity, UserDto);
 
@@ -135,9 +151,20 @@ export class AuthService {
   async refreshToken(
     jwtRefreshPayload: JwtRefreshPayloadType,
   ): Promise<Omit<LoginResponseDto, 'user'>> {
-    const session = await this.sessionService.findOneById(
-      jwtRefreshPayload.sessionId,
-    );
+    const queryBuilder = this.sessionService.getQueryBuilder();
+
+    const session = await queryBuilder
+      .leftJoinAndSelect(`${queryBuilder.alias}.user`, 'user')
+      .select([
+        `${queryBuilder.alias}.id`,
+        `${queryBuilder.alias}.hash`,
+        'user.id',
+        'user.email',
+      ])
+      .where(`${queryBuilder.alias}.id = :id`, {
+        id: String(jwtRefreshPayload.sessionId),
+      })
+      .getOne();
 
     if (!session || session.hash !== jwtRefreshPayload.hash) {
       throw new UnauthorizedException();
@@ -145,7 +172,7 @@ export class AuthService {
 
     const user = await this.usersService.findOneById(session.user.id);
 
-    if (!user?.role) {
+    if (!user.role || user.status.id == StatusEnum.LOCKED) {
       throw new UnauthorizedException();
     }
 
@@ -183,7 +210,7 @@ export class AuthService {
     id: string;
     role: string;
     email: string;
-    sessionId: number;
+    sessionId: string;
     hash: string;
   }) {
     const authConfig = this.configService.get(AUTH_CONFIG_REGISTER as any, {

@@ -11,9 +11,12 @@ import {
   LanguageEntity,
   FreelancersLanguages,
 } from './entities/freelancers_languages.entity';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forFeature([
       FreelancerEntity,
       SkillEntity,
@@ -23,6 +26,6 @@ import {
     ]),
   ],
   controllers: [FreelancerController],
-  providers: [FreelancerService],
+  providers: [FreelancerService, UserService],
 })
 export class SellerModule {}

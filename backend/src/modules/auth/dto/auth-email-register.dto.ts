@@ -13,10 +13,13 @@ import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import {
   lowerCaseTransformer,
   userRoleTransformer,
+  userRoleTransformer2,
   userStatusTransformer,
+  userStatusTransformer2,
 } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/auth-providers.enum';
 import { AutoMap } from '@automapper/classes';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AuthRegisterLoginDto {
   @AutoMap()
@@ -39,17 +42,31 @@ export class AuthRegisterLoginDto {
   @IsNotEmpty()
   fullName: string;
 
-  @AutoMap(() => RoleDto)
-  @IsOptional()
-  @Type(() => RoleDto)
-  @Transform(userRoleTransformer)
-  role: RoleDto;
-
-  @AutoMap(() => StatusDto)
+  @AutoMap()
+  @ApiPropertyOptional({
+    type: StatusDto,
+    description: 'User status',
+  })
   @IsOptional()
   @Type(() => StatusDto)
-  @Transform(userStatusTransformer)
-  status: StatusDto;
+  @Transform(userStatusTransformer2)
+  status: StatusDto = {
+    id: StatusEnum.UNACTIVATED,
+    name: StatusEnum[StatusEnum.UNACTIVATED],
+  } as any;
+
+  @AutoMap()
+  @ApiPropertyOptional({
+    type: RoleDto,
+    description: 'User role',
+  })
+  @IsOptional()
+  @Type(() => RoleDto)
+  @Transform(userRoleTransformer2)
+  role: RoleDto = {
+    id: RoleEnum.BUYER,
+    name: RoleEnum[RoleEnum.BUYER],
+  } as any;
 
   @AutoMap()
   @IsNotEmpty()
@@ -59,10 +76,10 @@ export class AuthRegisterLoginDto {
   @AutoMap()
   @IsNotEmpty()
   @IsOptional()
-  country: string;
+  country?: string;
 
   @AutoMap()
   @IsNotEmpty()
   @IsOptional()
-  phoneNumber: string;
+  phoneNumber?: string;
 }

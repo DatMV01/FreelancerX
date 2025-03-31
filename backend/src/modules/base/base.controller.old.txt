@@ -48,7 +48,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async create(@Body() data: CreateBaseDto): Promise<Dto> {
     if (Object.keys(data as any).length == 0) {
@@ -66,7 +66,7 @@ export abstract class BaseController<
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async findAll(
     @Query() query: QueryDto<Entity>,
     @CurrentUser() currentUser: any,
@@ -98,7 +98,7 @@ export abstract class BaseController<
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async findOneById(@Param('id') id: string) {
     const entity = await this.baseService.findOneById(id);
 
@@ -110,14 +110,14 @@ export abstract class BaseController<
   }
 
   @Get('/me/:id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [ADMIN_GROUP, ME_GROUP] })
   async me(@Param('id') id: string) {
     return this.findOneById(id);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   async update(
     @Param('id') id: string,
@@ -139,7 +139,7 @@ export abstract class BaseController<
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   async remove(@Param('id') id: string) {
     return this.baseService.remove(id);
   }

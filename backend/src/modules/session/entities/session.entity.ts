@@ -14,8 +14,8 @@ import {
 })
 export class SessionEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
-  
+  id: string;
+
   @Index()
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })

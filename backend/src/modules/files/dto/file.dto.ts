@@ -1,13 +1,12 @@
-import { Allow } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { Allow } from 'class-validator';
 import fileConfig, { FileConfig, FileDriver } from '../config/file.config';
 
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import appConfig, { AppConfig } from 'src/config/app.config';
 
-export class FileType {
-  @Allow()
+export class FileDto {
   id: string;
 
   @Transform(
@@ -44,4 +43,8 @@ export class FileType {
     },
   )
   url: string;
+
+  mimeType?: string;
+
+  provider?: string;
 }

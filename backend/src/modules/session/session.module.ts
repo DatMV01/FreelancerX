@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SessionController } from './controller/session.controller';
+import { SessionController } from './session.controller';
 import { SessionEntity } from './entities/session.entity';
-import { SessionService } from './service/session.service';
+import { SessionService } from './session.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SessionEntity])],

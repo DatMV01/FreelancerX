@@ -1,3 +1,3 @@
-import { FileType } from 'src/modules/files/domain/file.domain';
+import { FileDto } from 'src/modules/files/dto/file.dto';
 
-export class FileResponseDto extends FileType {}
+export class FileResponseDto extends FileDto {}

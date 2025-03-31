@@ -1,7 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
-import { throwUnprocessableEntityException } from 'src/common/exception/thowException';
 import { DeepPartial, Repository, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { BaseEntity } from '../base/entities/base.entity';
@@ -21,31 +24,26 @@ export class UserService extends BaseService<UserEntity> {
   async create(createDto: DeepPartial<UserEntity>): Promise<UserEntity> {
     const { email, password } = createDto;
 
-    const entity = email && (await this.exists({ where: { email } }));
+    const isExisted = await super.existsBy({ email });
 
-    entity &&
-      throwUnprocessableEntityException({
-        email: 'AlreadyExists',
-      });
+    if (isExisted) {
+      throw new UnprocessableEntityException('Email is already existed');
+    }
 
     // Hash password
     createDto.password =
       password && (await bcrypt.hash(password, UserService.SALT));
 
-    return await super.create(createDto);
+    return super.create(createDto);
   }
 
   async update(
     id: BaseEntity['id'],
     data: DeepPartial<UserEntity>,
-  ): Promise<UserEntity | undefined> {
+  ): Promise<UserEntity> {
     const userEntity = await this.findOne({
       where: { id: String(id) },
     });
-
-    if (!userEntity) {
-      throw new NotFoundException('User not found');
-    }
 
     userEntity.password = this.hashPasswordIfNeeded({
       oldHashPassword: userEntity.password,
@@ -79,8 +77,8 @@ export class UserService extends BaseService<UserEntity> {
     currentUser: any,
   ): SelectQueryBuilder<UserEntity> {
     queryBuilder.leftJoinAndSelect(
-      `${queryBuilder.alias}.freelancerProfile`,
-      'freelancerProfile',
+      `${queryBuilder.alias}.freelancer`,
+      'freelancer',
     );
 
     return queryBuilder;

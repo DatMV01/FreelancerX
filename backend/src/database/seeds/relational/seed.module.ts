@@ -9,6 +9,10 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { UserSeeding } from './seed/user.seeding';
 import { CategorySeeding } from './seed/category.seeding';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.entity';
+import { SkillSeeding } from './seed/skill.seeding';
+import { LanguageSeeding } from './seed/language.seeding';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RoleEntity])],
@@ -39,12 +43,28 @@ export class UserSeedModule {}
 export class CategorySeedModule {}
 
 @Module({
+  imports: [TypeOrmModule.forFeature([SkillEntity])],
+  providers: [SkillSeeding],
+  exports: [SkillSeeding],
+})
+export class SkillSeedModule {}
+
+@Module({
+  imports: [TypeOrmModule.forFeature([LanguageEntity])],
+  providers: [LanguageSeeding],
+  exports: [LanguageSeeding],
+})
+export class LanguageSeedModule {}
+
+@Module({
   imports: [
     TypeORMModule,
     RoleSeedModule,
     StatusSeedModule,
     UserSeedModule,
     CategorySeedModule,
+    SkillSeedModule,
+    LanguageSeedModule,
   ],
 })
 export class SeedModule {}

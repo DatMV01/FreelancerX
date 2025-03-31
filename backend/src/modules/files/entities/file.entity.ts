@@ -9,7 +9,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FileTypeEnum } from '../enum/file.enum';
+import { FileDriver } from '../config/file.config';
 
 @Entity({ name: 'file' })
 export class FileEntity extends BaseEntity {
@@ -21,21 +21,22 @@ export class FileEntity extends BaseEntity {
   @Column()
   url: string;
 
-  // @Column({
-  //   type: 'enum',
-  //   enum: FileTypeEnum,
-  //   default: FileTypeEnum.OTHER,
-  // })
   @Column({ type: 'varchar', length: 20, nullable: true })
   mimeType?: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true, default: 'local' })
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    default: FileDriver.LOCAL,
+  })
   provider?: string;
 
   @AutoMap()
   @Index()
   @ManyToOne(() => UserEntity, (user) => user.files, {
-    onDelete: 'CASCADE', // user xóa, file xóa theo
+    onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

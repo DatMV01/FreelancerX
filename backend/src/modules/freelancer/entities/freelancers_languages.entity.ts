@@ -11,13 +11,20 @@ import {
 import { FreelancerProficiencyLevel } from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
 import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('language')
 export class LanguageEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  @ApiProperty()
+  id: number;
+
+  @Column({ unique: true, type: 'varchar', length: 3 })
+  @ApiProperty()
+  alpha3: string;
 
   @Column({ unique: true, type: 'varchar', length: 50 })
+  @ApiProperty()
   name: string;
 
   // @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.languages)
@@ -25,9 +32,7 @@ export class LanguageEntity {
   // freelancers: FreelancerEntity[];
 
   @AutoMap(() => [FreelancersLanguages])
-  @OneToMany(() => FreelancersLanguages, (_) => _.languages, {
-    onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
-  })
+  @OneToMany(() => FreelancersLanguages, (_) => _.language)
   freelancers?: FreelancersLanguages[];
 }
 
@@ -39,24 +44,21 @@ export class FreelancersLanguages {
   freelancerId: string;
 
   @Index()
-  @PrimaryColumn({ type: 'char', length: 36, name: 'language_id' })
-  languageId: string;
+  @PrimaryColumn({ type: 'number', name: 'language_id' })
+  languageId: number;
 
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.languages, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancers: FreelancerEntity;
+  freelancer: FreelancerEntity;
 
-  @ManyToOne(
-    () => LanguageEntity,
-    (language) => language.freelancers,
-    {
-      onDelete: 'CASCADE',
-    },
-  )
+  @ManyToOne(() => LanguageEntity, (language) => language.freelancers, {
+    onDelete: 'CASCADE',
+    eager: true,
+  })
   @JoinColumn({ name: 'language_id' })
-  languages: LanguageEntity;
+  language: LanguageEntity;
 
   @Column({
     type: 'enum',

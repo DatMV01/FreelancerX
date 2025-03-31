@@ -8,8 +8,8 @@ import { StatusEntity } from './entities/status.entity';
 export class StatusService extends BaseService<StatusEntity> {
   constructor(
     @InjectRepository(StatusEntity)
-    private readonly sessionRepository: Repository<StatusEntity>,
+    private readonly _repository: Repository<StatusEntity>,
   ) {
-    super(sessionRepository);
+    super(_repository);
   }
 }

@@ -1,9 +1,6 @@
 import { AutoMap } from '@automapper/classes';
-import {
-  Exclude,
-  Expose,
-  Transform
-} from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
@@ -19,71 +16,90 @@ import { AuthProvidersEnum } from '../enum/user.provider';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
   id: string;
 
   @AutoMap()
+  @ApiProperty({ example: 'user@example.com' })
   email: string;
 
   @AutoMap()
   @Exclude()
   password: string;
 
-  @AutoMap()
-  provider?: AuthProvidersEnum = AuthProvidersEnum.EMAIL;
+  @AutoMap(() => String)
+  @ApiPropertyOptional({
+    enum: AuthProvidersEnum,
+    example: AuthProvidersEnum.EMAIL,
+    enumName: 'AuthProvidersEnum',
+  })
+  provider: AuthProvidersEnum;
 
   @AutoMap()
+  @ApiProperty({ example: 'Nguyen Van A' })
   fullName: string;
 
   @AutoMap()
-  country?: string | null;
+  @ApiPropertyOptional({ example: 'Vietnam', nullable: true })
+  // @Transform((params) => undefinedTransformer(params))
+  country?: string;
 
   @AutoMap()
-  avatar?: string | null;
+  @ApiPropertyOptional({
+    example: 'https://example.com/avatar.jpg',
+    nullable: true,
+  })
+ // // @Transform((params) => undefinedTransformer(params))
+  avatar?: string = undefined;
 
   @AutoMap()
-  phoneNumber?: string | null;
+  @ApiPropertyOptional({ example: '+84901234567', nullable: true })
+  // @Transform((params) => undefinedTransformer(params))
+  phoneNumber?: string;
 
   @AutoMap(() => RoleDto)
   @Transform((params) => undefinedTransformer(params, ['id', 'name']))
+  @ApiProperty({ type: RoleDto })
   role: RoleDto;
 
   @AutoMap(() => StatusDto)
   @Transform((params) => undefinedTransformer(params, ['id', 'name']))
+  @ApiProperty({ type: StatusDto })
   status: StatusDto;
 
   @AutoMap(() => FreelancerDto)
   @Expose({ name: 'freelancer' })
-  @Transform((params) => undefinedTransformer(params))
-  freelancer?: FreelancerDto | null;
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: FreelancerDto, nullable: true })
+  freelancer?: FreelancerDto;
 
   /* ORDERS */
   @AutoMap(() => [OrderDto])
-  @Exclude()
-  @Transform((params) => undefinedTransformer(params))
-  buyerorders?: OrderDto[] | null;
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: [OrderDto], example: [], nullable: true })
+  buyerorders?: OrderDto[];
 
   /* RATINGS */
   @AutoMap(() => [RatingEntity])
-  @Exclude()
-  @Transform((params) => undefinedTransformer(params))
-  ratings: RatingDto[];
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: [RatingDto], example: [], nullable: true })
+  ratings?: RatingDto[];
 
   /* NOTIFICATIONS */
   @AutoMap(() => [NotificationDto])
-  @Exclude()
-  @Transform((params) => undefinedTransformer(params))
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: [NotificationDto], example: [], nullable: true })
   notifications?: NotificationDto[];
 
   /* FILES */
-
   @AutoMap(() => [FileEntity])
-  @Exclude()
-  @Transform((params) => undefinedTransformer(params))
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: [FileEntity], example: [], nullable: true })
   files?: FileEntity[];
 
   /* TRANSACTIONS */
   @AutoMap(() => [TransactionDto])
-  @Exclude()
-  @Transform((params) => undefinedTransformer(params))
-  transactions: TransactionDto[];
+  // @Transform((params) => undefinedTransformer(params))
+  @ApiPropertyOptional({ type: [TransactionDto], example: [], nullable: true })
+  transactions?: TransactionDto[];
 }

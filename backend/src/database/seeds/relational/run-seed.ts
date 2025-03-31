@@ -4,6 +4,8 @@ import { SeedModule } from './seed.module';
 import { StatusSeeding } from './seed/status.seeding';
 import { UserSeeding } from './seed/user.seeding';
 import { CategorySeeding } from './seed/category.seeding';
+import { SkillSeeding } from './seed/skill.seeding';
+import { LanguageSeeding } from './seed/language.seeding';
 
 const runSeed = async () => {
   const app = await NestFactory.create(SeedModule);
@@ -12,6 +14,8 @@ const runSeed = async () => {
   await app.get(StatusSeeding).run();
   await app.get(UserSeeding).run();
   await app.get(CategorySeeding).run();
+  await app.get(SkillSeeding).run();
+  await app.get(LanguageSeeding).run();
 
   await app.close();
 };
