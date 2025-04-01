@@ -1,7 +1,3 @@
-export class RefreshResponseDto {
-  accessToken: string;
+import { JWTResponseDto } from './jwt-response.dto';
 
-  refreshToken: string;
-
-  accessExpires: number;
-}
+export class RefreshResponseDto extends JWTResponseDto {}

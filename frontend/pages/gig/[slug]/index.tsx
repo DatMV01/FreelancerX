@@ -1,12 +1,6 @@
 "use client";
 
-import { CircularProgress, Tooltip } from "@mui/material";
-import React, { useEffect } from "react";
-
-import { Divider, Tab, Tabs } from "@mui/material";
-import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
-import { useState } from "react";
-
+import BreadcrumbCategory from "@/components/BreadcrumbCategory";
 import { GigDto } from "@/dto/gig.dto";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import GigComments from "@/features/gig/components/GigComment";
@@ -15,18 +9,20 @@ import GigDescription from "@/features/gig/components/GigDescription";
 import GigFAQ from "@/features/gig/components/GigFAQ";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
 import GigMetaData from "@/features/gig/components/GigMetaData";
+import GigPrototype from "@/features/gig/components/GigPrototype";
 import GigRatings from "@/features/gig/components/GigReviews";
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
-import axiosInstance from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/apiClient";
+import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
+import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
 import { useRouter } from "next/router";
-import BreadcrumbCategory from "@/components/BreadcrumbCategory";
-import GigPrototype from "@/features/gig/components/GigPrototype";
+import React, { useEffect, useState } from "react";
 
 const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
- 
+
   return (
     <div className="flex justify-between">
       <BreadcrumbCategory
@@ -316,7 +312,7 @@ const GigDetail = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
-        const response = await axiosInstance.get(`/gig/slug/${slug}`);
+        const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
         const { data } = response;
 
         console.log(response.data);

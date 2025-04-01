@@ -116,7 +116,7 @@ const PopoverOrders = () => {
                     <Image
                       src={order.image}
                       alt="Gig Thumbnail"
-                      layout="fill"
+                      fill
                       className="rounded-sm"
                     />
                   </div>

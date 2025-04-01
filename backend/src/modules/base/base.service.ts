@@ -152,8 +152,12 @@ export abstract class BaseService<Entity extends BaseEntity> {
     const entity = await this.repository.findOne(options);
 
     if (!entity) {
-      consoleError(`Entity with options:  ${options} not found`);
-      throw new NotFoundException(`Entity with:  ${options} not found`);
+      consoleError(
+        `Entity with options:  ${JSON.stringify(options)} not found`,
+      );
+      throw new NotFoundException(
+        `Entity with: ${JSON.stringify(options)} not found`,
+      );
     }
     return entity;
   }
@@ -169,6 +173,18 @@ export abstract class BaseService<Entity extends BaseEntity> {
       throw new NotFoundException(`ID ${id} not found`);
     }
 
+    try {
+      return await this.repository.save(entity);
+    } catch (error) {
+      console.error('Error updating entity:', error);
+      throw new ConflictException('Update failed due to conflict');
+    }
+  }
+
+  async updateOnly(
+    id: BaseEntity['id'],
+    entity: DeepPartial<Entity>,
+  ): Promise<Entity> {
     try {
       return await this.repository.save(entity);
     } catch (error) {

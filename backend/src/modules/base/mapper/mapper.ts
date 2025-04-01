@@ -177,6 +177,7 @@ export class AutoMapper extends AutomapperProfile {
               //   console.log(destination);
             }),
           );
+
           createMap(mapper, dto as any, entity as any);
           const createMapping = createMap(mapper, createDto, entity as any);
 

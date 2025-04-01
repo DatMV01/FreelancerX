@@ -1,22 +1,20 @@
 "use client";
 
+import AddGigOverview from "@/components/gig_add_overview";
+import GigDescriptionFaq from "@/components/gig_description_faq";
+import GigGallary from "@/components/gig_gallery";
+import GigPricing from "@/components/gig_pricing";
+import GigPublish from "@/components/gig_publish";
+import { GigDto, GigStatus } from "@/dto/gig.dto";
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
-import { useCallback, useEffect, useState } from "react";
-import useSWR from "swr";
-import AddGigOverview from "@/components/gig_add_overview";
-import GigPricing from "@/components/gig_pricing";
-import GigDescriptionFaq from "@/components/gig_description_faq";
-import GigGallary from "@/components/gig_gallery";
-import GigPublish from "@/components/gig_publish";
-import { useRouter } from "next/navigation";
-import { GigDto, GigStatus } from "@/dto/gig.dto";
-import { useSession } from "next-auth/react";
-import axiosInstance from "@/lib/apiClient";
 import { AxiosResponse } from "axios";
-import { set } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const tabs = [
   { label: "1. Overview", endpoint: "/api/overview" },
@@ -66,7 +64,7 @@ export const uploadGig = async (
 
   const postGig = { ...prevGig, status: gigStatus };
 
-  const response: AxiosResponse<any> = await axiosInstance.post(
+  const response: AxiosResponse<any> = await axiosInstanceV1.post(
     "/gig",
     postGig,
   );

@@ -38,8 +38,8 @@ const MasonryGrid = () => {
     <div className="my-6">
       <Masonry breakpointCols={breakpointColumnsObj} className="flex gap-4">
         {images.map((src, index) => (
-          <div className="relative">
-            <div key={index} className="mb-4">
+          <div key={index} className="relative">
+            <div className="mb-4">
               <Link href="#">
                 <Image
                   src={src}

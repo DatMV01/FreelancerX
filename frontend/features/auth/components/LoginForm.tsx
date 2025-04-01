@@ -1,154 +1,178 @@
 "use client";
 
+import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/ui/password-input";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import CircularProgressCenter from "@/components/CircularProgressCenter";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-// Improved schema with additional validation rules
 const formSchema = z.object({
-  emailOrUsername: z.string().min(6, { message: "Invalid email or username" }),
+  email: z.string().min(6, { message: "Invalid email" }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters long" }),
-  //  .regex(/[a-zA-Z0-9]/, { message: "Password must be alphanumeric" }),
+  // .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
+  // .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
+  // .regex(/[0-9]/, { message: "Password must contain at least one digit" }),
 });
 
-export default function SignInForm({
+type FormType = z.infer<typeof formSchema>;
+
+type Props = {
+  setShowLoginForm?: (value: boolean) => void;
+  loginSuccessCallback?: () => void;
+};
+
+export default function LoginForm({
   setShowLoginForm,
-}: {
-  setShowLoginForm: any;
-}) {
-  const [error, setError] = useState("");
-  const [isLoading, setLoading] = useState(false);
+  loginSuccessCallback,
+}: Props) {
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    trigger,
+  } = useForm<FormType>({
     resolver: zodResolver(formSchema),
+    mode: "onSubmit",
     defaultValues: {
-      emailOrUsername: "amina_bogan@yahoo.com",
+      email: "admin@example.com",
       password: "user123",
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      setLoading(true);
+  const [message, setMessage] = useState<{
+    type: "success" | "errror";
+    message: string;
+  }>();
 
+  const handleLogin = async (formData: FormType) => {
+    try {
       const res = await signIn("credentials", {
-        identifier: values.emailOrUsername,
-        password: values.password,
+        email: formData.email,
+        password: formData.password,
         redirect: false,
       });
-
-      setLoading(false);
-
       if (res?.error) {
-        console.log(error);
-        setError("Invalid email or username");
+        setMessage({
+          type: "errror",
+          message: "Email or password is not correct.",
+        });
       } else {
-        setShowLoginForm(false);
-        router.push("/");
+        setShowLoginForm && setShowLoginForm(false);
+
+        loginSuccessCallback && loginSuccessCallback();
+        //  router.push("/");
+        //  window.location.reload();
       }
     } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      setMessage({
+        type: "errror",
+        message: "An error occurred. Please try again.",
+      });
     }
-  }
+  };
 
   return (
-    <div className="flex h-full w-screen flex-col items-center justify-center px-4 md:w-[500px]">
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-xl">Login</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="emailOrUsername"
-                  render={({ field }) => (
-                    <FormItem className="grid gap-2">
-                      <FormLabel htmlFor="emailOrUsername">
-                        Email or username
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          id="emailOrUsername"
-                          placeholder="johndoe@mail.com"
-                          type="text"
-                          autoComplete="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className="grid gap-2">
-                      <div className="flex items-center justify-between">
-                        <FormLabel htmlFor="password">Password</FormLabel>
-                        <Link
-                          href="#"
-                          className="ml-auto inline-block text-sm underline"
-                        >
-                          Forgot your password?
-                        </Link>
-                      </div>
-                      <FormControl>
-                        <PasswordInput
-                          id="password"
-                          placeholder="******"
-                          autoComplete="current-password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {error && <p className="text-red-500">{error}</p>}
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
-                <Button variant="outline" className="w-full">
-                  Login with Google
-                </Button>
-              </div>
-            </form>
-          </Form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="#" className="underline">
-              Sign up
+    <div className="flex w-full max-w-lg flex-col items-center justify-center px-4">
+      <h2 className="mb-4 text-center text-xl font-semibold">Login</h2>
+      <form onSubmit={handleSubmit(handleLogin)} className="w-full space-y-2">
+        <div>
+          <label className="block text-base font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            type="text"
+            {...register("email")}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            placeholder="johndoe@mail.com"
+            autoComplete="email"
+          />
+          {errors.email && (
+            <p className="my-2 text-sm text-red-500">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between">
+            <label className="block text-base font-medium text-gray-700">
+              Password
+            </label>
+
+            <Link
+              onClick={() => setShowLoginForm && setShowLoginForm(false)}
+              href="/auth/password/forgot"
+              className="text-sm underline"
+            >
+              Forgot your password?
             </Link>
           </div>
-        </CardContent>
-      </Card>
-      {isLoading && <CircularProgressCenter />}
+
+          <input
+            type="password"
+            {...register("password")}
+            className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            placeholder="******"
+            autoComplete="current-password"
+          />
+
+          {errors.password && (
+            <p className="my-2 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* ✅ Submit Button */}
+        <button
+          type="submit"
+          className="w-full rounded-md bg-green-500 py-2 text-white hover:bg-green-600"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Logging in..." : "Login"}
+        </button>
+        <button
+          type="button"
+          className="flex w-full justify-center space-x-2 rounded-md border border-gray-300 py-2 hover:bg-gray-100"
+          disabled={isSubmitting}
+        >
+          <Image
+            src="/images/icons/google.svg"
+            width="20"
+            height="20"
+            alt="Google"
+          />
+
+          <span>Login with Google</span>
+        </button>
+
+        {/* ✅ Success & Error Messages */}
+        {message && (
+          <p
+            className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
+          >
+            {message.message}
+          </p>
+        )}
+      </form>
+      <div className="mt-4 text-center text-sm">
+        <span>Don&apos;t have an account?&nbsp;</span>
+        <Link
+          href="/auth/signup"
+          onClick={() => setShowLoginForm && setShowLoginForm(false)}
+          className="underline"
+        >
+          Sign up
+        </Link>
+      </div>
+
+      {/* {isSubmitting && <CircularProgressCenter />} */}
     </div>
   );
 }

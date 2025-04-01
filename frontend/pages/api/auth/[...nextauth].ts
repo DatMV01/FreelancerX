@@ -1,8 +1,38 @@
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import * as jwt from "jsonwebtoken";
-import NextAuth, { AuthOptions, DefaultSession, User } from "next-auth";
+import NextAuth, {
+  AuthOptions,
+  DefaultSession,
+  Session,
+  User,
+} from "next-auth";
+import { encode, JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
+import Email from "next-auth/providers/email";
 import Google from "next-auth/providers/google";
 import { setTimeout } from "node:timers/promises";
+
+interface RoleDto {
+  id: number;
+  name: string;
+}
+
+interface UserDto {
+  id: string;
+  email: string;
+  provider: string;
+  fullName: string;
+  country: string;
+  phoneNumber: string;
+  role: RoleDto;
+  status: StatusDto;
+  freelancer?: any;
+}
+
+interface StatusDto {
+  id: number;
+  name: string;
+}
 
 declare module "next-auth" {
   /**
@@ -11,13 +41,11 @@ declare module "next-auth" {
    */
 
   interface User {
-    id: string;
-    role?: string;
-    firstName?: string;
-    lastName?: string;
     accessToken: string;
     refreshToken: string;
-    user: any;
+    accessExpires: number;
+    refreshExpires: number;
+    user: UserDto;
   }
   /**
    * The shape of the account object returned in the OAuth providers' `account` callback,
@@ -28,18 +56,8 @@ declare module "next-auth" {
   /**user
    * Returned by `useSession`, `auth`, contains information about the active session.
    */
-  interface Session {
-    accessToken?: string;
-    user: {
-      id: string;
-      role?: string;
-      fullName?: string;
-      avatar?: string,
-      accessToken: string;
-      refreshToken: string;
-      username: string;
-      sellerProfile:any;
-    } & DefaultSession["user"];
+  interface Session extends User {
+    expires: DefaultSession["expires"];
   }
 }
 
@@ -48,10 +66,15 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
   interface JWT {
-    /** This is an example. You can find me in types/next-auth.d.ts */
+    /** JWT Backend Type */
     accessToken: string;
-    user: User;
-    exp: number | undefined;
+    refreshToken: string;
+    user: UserDto;
+    accessExpires: number;
+    refreshExpires: number;
+    iat: number;
+    exp: number;
+    sessionId: string;
   }
 }
 
@@ -64,43 +87,43 @@ export const authOptions: AuthOptions = {
     Credentials({
       name: "Credentials",
       credentials: {
-        identifier: { label: "EmailOrUsername", type: "text", required: true },
+        email: { label: "email", type: "text", required: true },
         password: { label: "Password", type: "password", required: true },
       },
-      
+
       async authorize(credentials) {
-        debugger
-        if (!credentials?.identifier || !credentials?.password) {
+        if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials");
         }
-
-        await setTimeout(1000);
+ 
         try {
-         
-          const response = await fetch(
-            `http://localhost:3000/api/v1/auth/email/login`,
+          const { data, status } = await axiosInstanceV1.post(
+            "/auth/email/login",
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(credentials as any),
+              email: credentials.email,
+              password: credentials.password,
             },
           );
 
-          if (!response.ok) {
+          console.log(data);
+
+          console.log(status);
+
+          if (status !== 200) {
             throw new Error("Invalid credentials");
           }
 
-          if (response.ok && response.status === 200) {
-            const data = await response.json();
-            console.log(data)
-            return data;
-          }
-
-          return null;
+          return data;
         } catch (error: any) {
-          throw new Error(error.message);
+       
+          console.error(
+            "Login error:",
+            error.response?.data || error.message,
+          );
+
+          throw new Error(
+            error.response?.data || "Login Failed",
+          );
         }
       },
     }),
@@ -112,38 +135,47 @@ export const authOptions: AuthOptions = {
     verifyRequest: "/auth/verify-request",
     newUser: "/auth/new-user",
   },
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
   callbacks: {
     // async signIn({ user, account, profile, email, credentials }) { return true },
     // async redirect({ url, baseUrl }) { return baseUrl },
     // async session({ session, token, user }) { return session },
     // async jwt({ token, user, account, profile, isNewUser }) { return token }
-    async jwt({ token, user: data }) {
-      if (data) {
-        const decodedAccessToken = jwt.decode(
-          data.accessToken,
-        ) as jwt.JwtPayload;
+    async jwt({ token, user }: { token: JWT; user: User }) {
+      if (user) {
+        // Decode accessToken để lấy iat và exp từ backend
+        const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
+        if (payload?.exp && payload?.iat) {
+          token.iat = payload.iat;
+          token.exp = payload.exp;
+          token.payload = payload;
+        }
 
-        token.user = data.user;
-        token.accessToken = data.accessToken;
-        token.refreshToken = data.refreshToken;
-        token.iat = decodedAccessToken.iat;
-        token.exp = decodedAccessToken.exp;
+        token = {
+          ...token,
+          ...user,
+        };
       }
 
-      if (typeof token.exp === "number" && Date.now() < token.exp * 1000) {
-        return token;
-      }
+      console.log("jwt CB", token);
 
+      // Nếu accessToken còn hạn thì dùng tiếp
+      if (!token.exp || Date.now() < Number(token.exp) * 1000) return token;
+
+      // Nếu hết hạn thì refresh token
       return await refreshAccessToken(token);
     },
 
-    async session({ session, token }) {
+    //Hàm session() trong callbacks của NextAuth có nhiệm vụ cập nhật session object,
+    // giúp client (frontend) truy cập được accessToken và thông tin user trong session.
+    // const { data: session } = useSession();
+    async session({ session, token }: { session: Session; token: JWT }) {
       session = {
         ...session,
-        user: token.user as any,
-        accessToken: token.accessToken as any,
+        ...token,
       };
+
+      console.log("session CB", session);
 
       return session;
     },
@@ -151,28 +183,26 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "secret",
   debug: Boolean(process.env.NEXTAUTH_DEBUG) || true,
 };
+
 async function refreshAccessToken(token: any) {
+  debugger;
   try {
-    const res = await fetch(`http://localhost:3000/api/v1/auth/email/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken: token.refreshToken }),
+    const response = await axiosInstanceV1.post("/auth/email/refresh", {
+      refreshToken: token.refreshToken,
     });
 
-    if (!res.ok) throw new Error("Failed to refresh token");
+    if (!(response.status === 200)) throw new Error("Failed to refresh token");
 
-    const newTokens = await res.json();
+    const { accessToken, refreshToken } = response.data;
 
-    const decodedAccessToken = jwt.decode(
-      newTokens.accessToken,
-    ) as jwt.JwtPayload;
+    const decoded = jwt.decode(accessToken) as jwt.JwtPayload | null;
 
     return {
       ...token,
-      accessToken: newTokens.accessToken,
-      refreshToken: newTokens.refreshToken || token.refreshToken,
-      iat: decodedAccessToken.iat,
-      exp: decodedAccessToken.exp,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      iat: decoded?.iat,
+      exp: decoded?.exp,
     };
   } catch (error) {
     console.error("Error refreshing access token", error);

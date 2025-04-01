@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import useGetUserInfo from "@/hooks/useGetUserInfo";
-import LogoImage from "../LogoImage";
+import Logo from "../LogoImage";
 import PopoverAvatar from "../popover_avatar";
 import PopoverFavoriteListing from "../popover_favorite_listing";
 import PopoverMessages from "../popover_messages";
@@ -40,7 +40,7 @@ const Navbar = () => {
         <NavigationDrawer />
 
         <Link href="/" className="justify-self-center">
-          <LogoImage />
+          <Logo />
         </Link>
 
         <div className="hidden w-full md:block">
@@ -56,7 +56,7 @@ const Navbar = () => {
         <NavigationDrawer />
 
         <Link href="/" className="justify-self-center">
-          <LogoImage />
+          <Logo />
         </Link>
 
         <div className="hidden w-full md:block">

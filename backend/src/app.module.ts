@@ -25,12 +25,14 @@ import { SessionModule } from './modules/session/session.module';
 import { StatusModule } from './modules/status/status.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { UserModule } from './modules/user/user.module';
+import { MailModule } from './modules/mail/mail.module';
+import mailConfig from './modules/mail/config/mail.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, typeormConfig, fileConfig, authConfig],
+      load: [appConfig, typeormConfig, fileConfig, authConfig, mailConfig],
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
@@ -55,6 +57,7 @@ import { UserModule } from './modules/user/user.module';
     NotificationModule,
     RatingModule,
     SellerModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SessionEntity } from './entities/session.entity';
 import { Not, Repository } from 'typeorm';
@@ -14,11 +14,9 @@ export class SessionService extends BaseService<SessionEntity> {
     super(sessionRepository);
   }
 
-  async deleteByUserId(userId: string): Promise<boolean> {
+  async removeAllSessionByUserId(userId: string): Promise<boolean> {
     return super.remove({
-      user: {
-        id: userId.toString(),
-      },
+      userId,
     });
   }
 

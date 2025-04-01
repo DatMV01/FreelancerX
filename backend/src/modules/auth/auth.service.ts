@@ -1,6 +1,7 @@
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import {
+  BadRequestException,
   HttpStatus,
   Injectable,
   UnauthorizedException,
@@ -12,9 +13,14 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as ms from 'ms';
-import { AllConfigType, AUTH_CONFIG_REGISTER } from 'src/config/config.type';
-import { MaybeNull } from 'src/utils/types/nullable.type';
+import {
+  AllConfigType,
+  AUTH_CONFIG_REGISTER,
+  MAIL_CONFIG_REGISTER,
+} from 'src/config/config.type';
+import { MailService } from '../mail/mail.service';
 import { SessionService } from '../session/session.service';
+import { StatusEnum } from '../status/enum/statuses.enum';
 import { UserDto } from '../user/dto/user.dto';
 import { UserEntity } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
@@ -25,18 +31,10 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { AuthProvidersEnum } from './enum/auth-providers.enum';
 import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
-import { CurrentUser } from 'src/common/decorators';
-import { StatusEnum } from '../status/enum/statuses.enum';
-
-// @Injectable()
-// export class CategoryService extends BaseService<CategoryEntity> {
-//   constructor(
-//     @InjectRepository(CategoryEntity)
-//     private readonly _repository: Repository<CategoryEntity>,
-//   ) {
-//     super(_repository);
-//   }
-// }
+import { MailConfig } from '../mail/config/mail-config.type';
+import appConfig from 'src/config/app.config';
+import { faker } from '@faker-js/faker/.';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -44,11 +42,15 @@ export class AuthService {
     private jwtService: JwtService,
     private usersService: UserService,
     private sessionService: SessionService,
-    // private mailService: MailService,
+    private mailService: MailService,
     private configService: ConfigService<AllConfigType>,
   ) {}
 
   @InjectMapper() protected readonly mapper: Mapper;
+
+  authConfig = this.configService.get(AUTH_CONFIG_REGISTER as any, {
+    infer: true,
+  }) as AuthConfig;
 
   async register(createUserDto: AuthRegisterLoginDto): Promise<UserDto> {
     const _userEntity = this.mapper.map(
@@ -65,14 +67,17 @@ export class AuthService {
   }
 
   async me(currentUser: JwtAccessPayloadType): Promise<UserDto> {
-    const entity = await this.usersService.findOneById(currentUser.id);
+    const entity = await this.usersService.findOne({
+      where: { id: currentUser.id },
+      relations: ['freelancer'],
+    });
 
     const userDto = this.mapper.map(entity, UserEntity, UserDto);
 
     return userDto;
   }
 
-  async logout(sessionId: number): Promise<boolean> {
+  async logout(sessionId: string): Promise<boolean> {
     return await this.sessionService.removeOneById(sessionId);
   }
 
@@ -81,37 +86,32 @@ export class AuthService {
 
     const entity = await this.usersService.findOne({
       where: { email },
+      relations: ['freelancer'],
     });
 
     if (!entity) {
       throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          email: 'notFound',
-        },
+        email: 'notFound',
       });
     }
 
     if (entity.provider.toString() !== AuthProvidersEnum.EMAIL.toString()) {
       throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          email: `needLoginViaProvider:${entity.provider}`,
-        },
+        email: `needLoginViaProvider:${entity.provider}`,
       });
     }
 
-    const isValidPassword = await bcrypt.compare(
-      password,
-      entity.password || '',
-    );
+    if (!entity.role || entity.status.id == StatusEnum.LOCKED) {
+      throw new UnprocessableEntityException({
+        user: `${entity.email} was locked.`,
+      });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, entity.password);
 
     if (!isValidPassword) {
       throw new UnprocessableEntityException({
-        status: HttpStatus.UNPROCESSABLE_ENTITY,
-        errors: {
-          password: 'incorrectPassword',
-        },
+        password: 'incorrectPassword',
       });
     }
 
@@ -128,29 +128,25 @@ export class AuthService {
       hash,
     });
 
-    const { accessToken, refreshToken, accessExpires, refreshExpires } =
-      await this.getTokensData({
-        id: entity.id,
-        role: entity.role.name,
-        email: entity.email,
-        sessionId: session.id,
-        hash,
-      });
-
     const userDto = this.mapper.map(entity, UserEntity, UserDto);
 
+    const tokensData = await this.getTokensData({
+      id: entity.id,
+      role: entity.role.name,
+      email: entity.email,
+      sessionId: session.id,
+      hash,
+    });
+
     return {
-      accessToken,
-      refreshToken,
-      accessExpires,
-      refreshExpires,
+      ...tokensData,
       user: userDto,
     };
   }
 
   async refreshToken(
     jwtRefreshPayload: JwtRefreshPayloadType,
-  ): Promise<Omit<LoginResponseDto, 'user'>> {
+  ): Promise<LoginResponseDto> {
     const queryBuilder = this.sessionService.getQueryBuilder();
 
     const session = await queryBuilder
@@ -170,10 +166,15 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const user = await this.usersService.findOneById(session.user.id);
+    const entity = await this.usersService.findOne({
+      where: { id: session.user.id },
+      relations: ['freelancer'],
+    });
 
-    if (!user.role || user.status.id == StatusEnum.LOCKED) {
-      throw new UnauthorizedException();
+    if (!entity.role || entity.status.id == StatusEnum.LOCKED) {
+      throw new UnprocessableEntityException({
+        user: 'was locked.',
+      });
     }
 
     const newHash = crypto
@@ -183,20 +184,19 @@ export class AuthService {
 
     await this.sessionService.update(session.id, { hash: newHash });
 
-    const { accessToken, refreshToken, accessExpires, refreshExpires } =
-      await this.getTokensData({
-        id: user.id,
-        role: user.role.name,
-        email: user.email,
-        sessionId: session.id,
-        hash: newHash,
-      });
+    const tokensData = await this.getTokensData({
+      id: entity.id,
+      role: entity.role.name,
+      email: entity.email,
+      sessionId: session.id,
+      hash: newHash,
+    });
+
+    const userDto = this.mapper.map(entity, UserEntity, UserDto);
 
     return {
-      accessToken,
-      refreshToken,
-      accessExpires,
-      refreshExpires,
+      ...tokensData,
+      user: userDto,
     };
   }
 
@@ -250,8 +250,73 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+
       accessExpires,
       refreshExpires,
+
+      accessMaxage: ms(accessExpiresIn),
+      refreshMaxage: ms(refreshExpiresIn),
     };
+  }
+
+  async forgotPassword(email: string) {
+    const expiresIn = this.authConfig.forgotExpires || '15m';
+    const secret = this.authConfig.forgotSecret || 'forgotSecret';
+    const sessionId = uuidv4();
+    const user = await this.usersService.findOne({ where: { email } });
+
+    const resetToken = await this.jwtService.signAsync(
+      { sessionId, userId: user.id, email: user.email },
+      {
+        expiresIn,
+        secret,
+      },
+    );
+
+    await this.sessionService.create({
+      id: sessionId,
+      hash: resetToken,
+      user,
+    });
+
+    await this.mailService.forgotPassword({
+      data: {
+        hash: resetToken,
+        tokenExpires: new Date(Date.now() + ms(expiresIn)).getTime() || 0,
+      },
+      to: email,
+    });
+
+    return {
+      message: 'Password reset request has been sent to your email !',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const secret = this.authConfig.forgotSecret || 'forgotSecret';
+
+    try {
+      const { sessionId, userId, email, exp } = this.jwtService.verify(token, {
+        secret,
+      });
+
+      const session = await this.sessionService.findOne({
+        where: { id: sessionId, userId: userId },
+      });
+
+      if (!session || Date.now() > Number(exp * 1000)) {
+        throw new BadRequestException('Invalid token');
+      }
+
+      await this.sessionService.removeOneById(sessionId);
+
+      await this.usersService.update(userId, {
+        password: await bcrypt.hash(newPassword, 10),
+      });
+
+      return { message: 'Password reset successfully! You can now log in.' };
+    } catch (error) {
+      throw new BadRequestException('Invalid token');
+    }
   }
 }

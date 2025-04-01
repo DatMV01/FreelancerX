@@ -1,7 +1,7 @@
 "use client";
 
 import { GigDto, GigStatus } from "@/dto/gig.dto";
-import axiosInstance from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import {
   FormControl,
   IconButton,
@@ -15,11 +15,9 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { uploadGig } from "../gig_add_edit";
 import {
+  DataGrid,
+  GridColDef,
   gridPageCountSelector,
   gridPageSelector,
   gridPageSizeSelector,
@@ -32,6 +30,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { uploadGig } from "../gig_add_edit";
 
 import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions";
 
@@ -219,7 +220,7 @@ const GigsManageTable = ({
   const deleteGig = async (gigId: string) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
-      const response = await axiosInstance.delete(`gig/${gigId}`);
+      const response = await axiosInstanceV1.delete(`gig/${gigId}`);
       return response.status === 200;
     } catch (error) {
       alert(`Error deleting gig ${gigId}: ${error}`);
@@ -296,7 +297,7 @@ const GigsManageTable = ({
                 <Image
                   src={thumbnail.url}
                   alt="Gig Thumbnail"
-                  layout="fill"
+                  fill
                   className="rounded-sm"
                 />
               </div>
@@ -416,7 +417,7 @@ const GigsManageTable = ({
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
-        const response = await axiosInstance.get(`/gig`, {
+        const response = await axiosInstanceV1.get(`/gig`, {
           params: {
             page: paginationModel.page + 1,
             limit: paginationModel.pageSize,

@@ -6,51 +6,38 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import SignInForm from "@/features/auth/components/LoginForm";
+import LoginForm from "@/features/auth/components/LoginForm";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { VisuallyHidden } from "radix-ui";
-import { useEffect, useState } from "react";
 
 const LoginDialog = () => {
-  const [isShowLoginForn, setShowLoginForm] = useState(false);
-  const [isShowSignInButton, setShowJoinButton] = useState(false);
-
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      setShowJoinButton(false);
-    }
-    if (status === "unauthenticated" || status === "loading") {
-      setShowJoinButton(true);
-    }
-  }, [status, router]);
+  const [isShowLoginForm, setShowLoginForm] = useState(false);
+  const { status } = useSession();
 
   return (
-    <Dialog open={isShowLoginForn} onOpenChange={setShowLoginForm}>
-      {isShowSignInButton && (
-        <DialogTrigger
-          asChild
-          className="justify-self-end text-base font-bold md:block"
-        >
-          <button className="whitespace-nowrap rounded-sm border-[1px] border-green-500 px-2 py-1 text-green-500">
-            Sign In
-          </button>
-        </DialogTrigger>
+    <>
+      {status !== "authenticated" && (
+        <Dialog open={isShowLoginForm} onOpenChange={setShowLoginForm}>
+          <DialogTrigger asChild>
+            <button className="whitespace-nowrap rounded-sm border border-green-500 px-2 py-1 text-green-500">
+              Login
+            </button>
+          </DialogTrigger>
+
+          <DialogContent className="w-full max-w-md rounded-md bg-white px-0 py-4">
+            <VisuallyHidden.Root>
+              <DialogTitle>Login</DialogTitle>
+              <DialogDescription>Sign in to your account</DialogDescription>
+            </VisuallyHidden.Root>
+
+            <LoginForm setShowLoginForm={setShowLoginForm} />
+          </DialogContent>
+        </Dialog>
       )}
-
-      <DialogContent className="max-w-fit rounded-xl bg-white px-0 py-[16px]">
-        <VisuallyHidden.Root>
-          <DialogTitle>DialogTitle</DialogTitle>
-          <DialogDescription>DialogDescription</DialogDescription>
-        </VisuallyHidden.Root>
-
-        <SignInForm setShowLoginForm={setShowLoginForm} />
-      </DialogContent>
-    </Dialog>
+    </>
   );
 };
+
 export default LoginDialog;

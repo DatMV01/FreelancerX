@@ -51,16 +51,7 @@ const SearchBar = ({ ...props }) => {
   }, [ref]);
 
   return (
-    <div ref={ref} className="relative w-full">
-      {/* <form className="relative rounded-sm">
-        <input
-          type="search"
-          placeholder="Find services"
-          onChange={(e) => onChangeEvent(e)}
-          className="h-[40px] w-full border-2 border-gray-200 px-2 focus:border-gray-400 focus:outline-none"
-        />
-      </form> */}
-
+    <div ref={ref} className="relative">
       <form className="h-full] relative flex w-full flex-row">
         <input
           placeholder="Search for any service..."
@@ -68,7 +59,7 @@ const SearchBar = ({ ...props }) => {
           autoComplete="off"
           onChange={(e) => setInputValue(e.target.value)}
           value={inputValue}
-          className="h-[40px] w-full rounded-sm border border-gray-300 px-4 outline-none focus:border-gray-500"
+          className="h-[50px] w-full rounded-sm border border-gray-300 px-4 outline-none focus:border-gray-500"
         ></input>
 
         <button
@@ -98,8 +89,11 @@ const SearchBar = ({ ...props }) => {
 
       {showResults && (
         <ul className="absolute z-50 mt-1 h-max w-full rounded-sm border-2 border-gray-200 bg-white p-2">
-          {arr.map((a) => (
-            <li className="flex h-8 items-center hover:bg-green-100">
+          {arr.map((a, index) => (
+            <li
+              key={index}
+              className="flex h-8 items-center hover:bg-green-100"
+            >
               <button>
                 <span>{a.job.split(" ")[0]} </span>
                 <b>{a.job.split(" ")[1]} </b>

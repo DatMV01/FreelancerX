@@ -2,7 +2,7 @@
 
 import GigsManageTable from "@/components/gigs_manage_table";
 import { GigStatus } from "@/dto/gig.dto";
-import axiosInstance from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import { CircularProgress, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
@@ -11,11 +11,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 
 const fetcher = async (url: string) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  return (await axiosInstance.get(url)).data;
+  return (await axiosInstanceV1.get(url)).data;
 };
 
 interface TabPanelProps {

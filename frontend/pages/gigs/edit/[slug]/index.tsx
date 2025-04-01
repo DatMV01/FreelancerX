@@ -1,15 +1,13 @@
 "use client";
 
 import GigAddEdit from "@/components/gig_add_edit";
-import { GigDto } from "@/dto/gig.dto";
-import axiosInstance from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 const fetcher = async (url: string) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  return (await axiosInstance.get(url)).data;
+  return (await axiosInstanceV1.get(url)).data;
 };
 
 export default function EditGig() {

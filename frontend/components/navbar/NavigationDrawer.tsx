@@ -184,8 +184,14 @@ const NavigationDrawer = () => {
                 className="w-full p-2 text-left hover:bg-green-50 hover:text-green-500"
                 onClick={async () => {
                   //signOut({ redirect: true, callbackUrl: "/" });
-                  await signOut({ redirect: false, callbackUrl: "/" });
-                  router.push("/");
+                  // await signOut({
+                  //   redirect: true,
+                  //   callbackUrl: window.location.href,
+                  // });
+                  // router.push("/");
+
+                 await signOut({ redirect: false  });
+                 window.location.reload()
                 }}
               >
                 Logout

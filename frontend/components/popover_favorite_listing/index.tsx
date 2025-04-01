@@ -76,7 +76,7 @@ const FavoriteListingPopover = () => {
                       <Image
                         src={listing.thumbnail}
                         alt={listing.title}
-                        layout="fill"
+                        fill
                         className="rounded-sm"
                       />
                     </div>

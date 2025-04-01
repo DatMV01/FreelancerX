@@ -12,16 +12,17 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
-import { MaybeNull } from 'src/utils/types/nullable.type';
+import { CurrentUser } from 'src/common/decorators';
 import { UserDto } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthRegisterLoginDto } from './dto/auth-email-register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
-import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
-import { CurrentUser } from 'src/common/decorators';
+import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
 
 @Controller({
   path: 'auth',
@@ -42,28 +43,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public async login(
     @Body() loginDto: AuthEmailLoginDto,
-    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
-    const loginResponse = await this.service.validateUser(loginDto);
+    const tokenResponse = await this.service.validateUser(loginDto);
 
-    const { accessToken, refreshToken } = loginResponse;
-
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: loginResponse.accessExpires,
-    });
-
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: loginResponse.refreshExpires,
-    });
-
-    return loginResponse;
+    return this.handleResponseToken(tokenResponse, res);
   }
 
   @Post('email/register')
@@ -75,10 +59,34 @@ export class AuthController {
 
   @Post('refresh')
   @UseGuards(AuthGuard('jwt-refresh'))
-  public refresh(@Req() request): Promise<RefreshResponseDto> {
+  public async refresh(
+    @Req() request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<RefreshResponseDto> {
     const jwtRefreshPayload = request.user as JwtRefreshPayloadType;
 
-    return this.service.refreshToken(jwtRefreshPayload);
+    const tokenResponse = await this.service.refreshToken(jwtRefreshPayload);
+
+    return this.handleResponseToken(tokenResponse, res);
+  }
+
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.OK)
+  public forgotPassword(
+    @Body() forgotPassword: ForgotPasswordDto,
+  ): Promise<any> {
+    return this.service.forgotPassword(forgotPassword.email);
+  }
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  public resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<any> {
+    return this.service.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 
   @Post('logout')
@@ -112,4 +120,32 @@ export class AuthController {
 
     return { message: 'Logout successful' };
   }
+
+  private handleResponseToken = (tokensData: any, res: Response) => {
+    const {
+      accessToken,
+      refreshToken,
+      accessMaxage,
+      refreshMaxage,
+      accessExpires,
+      refreshExpires,
+      user,
+    } = tokensData;
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: accessMaxage,
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: refreshMaxage,
+    });
+
+    return { accessToken, refreshToken, accessExpires, refreshExpires, user };
+  };
 }

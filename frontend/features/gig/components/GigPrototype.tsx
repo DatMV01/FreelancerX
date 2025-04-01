@@ -1,27 +1,22 @@
 "use client";
 
 import BreadcrumbCpn from "@/components/breadcrumb";
-import { Avatar, Tooltip } from "@mui/material";
-import React, { useEffect } from "react";
-
+import CommentBox from "@/components/comment";
 import { Button } from "@/components/ui/button";
-import { Divider, Tab, Tabs, Typography } from "@mui/material";
-import { CheckCircle, Clock, Diamond, RefreshCw, Star } from "lucide-react";
-import { useState } from "react";
-
+import { GigDto } from "@/dto/gig.dto";
+import UserAvatar from "@/features/user/components/UserAvatar";
+import { axiosInstanceV1 } from "@/lib/apiClient";
+import { faker } from "@faker-js/faker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Avatar, Divider, Tab, Tabs, Tooltip, Typography } from "@mui/material";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
-
-import CommentBox from "@/components/comment";
-import { GigDto } from "@/dto/gig.dto";
-import UserAvatar from "@/features/user/components/UserAvatar";
-import axiosInstance from "@/lib/apiClient";
-import { faker } from "@faker-js/faker";
 import { LoremIpsum } from "lorem-ipsum";
+import { CheckCircle, Clock, Diamond, RefreshCw, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import GigCarousel from "./GigCarousel";
 
 const TabPanel = ({
@@ -916,7 +911,7 @@ const GigPrototype = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
-        const response = await axiosInstance.get(`/gig/slug/${slug}`);
+        const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
         const { data, meta } = response.data;
         setGig(data);
       } catch (error) {

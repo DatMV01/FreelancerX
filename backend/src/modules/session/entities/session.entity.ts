@@ -17,10 +17,13 @@ export class SessionEntity extends BaseEntity {
   id: string;
 
   @Index()
+  @Column({ type: 'char', length: 36, name: 'user_id' })
+  userId: string;
+
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
-  @Column()
+  @Column({ type: 'varchar', length: 500 })
   hash: string;
 }

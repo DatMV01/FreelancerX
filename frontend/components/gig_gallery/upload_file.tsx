@@ -1,15 +1,14 @@
 "use client";
 
+import { axiosInstanceV1 } from "@/lib/apiClient";
 import { cn } from "@/lib/utils";
 import { CircularProgress } from "@mui/material";
-import axios from "axios";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import {
   gig_documentsUpload,
   gig_imagesUpload,
   gig_videoUpload,
 } from "../gig_add_edit";
-import axiosInstance from "@/lib/apiClient";
 
 export interface FileInfomation {
   id: string;
@@ -165,7 +164,7 @@ const UploadFile = forwardRef(
       setUploading(true);
 
       try {
-        const { data, status } = await axiosInstance.post(
+        const { data, status } = await axiosInstanceV1.post(
           "/files/upload",
           {
             file: file,
@@ -245,7 +244,7 @@ const UploadFile = forwardRef(
       if (!fileInfo || !fileInfo.id) return false;
 
       try {
-        const response = await axiosInstance.delete(`/files`, {
+        const response = await axiosInstanceV1.delete(`/files`, {
           params: { id: fileInfo.id },
         });
 
