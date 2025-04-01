@@ -11,7 +11,7 @@ const CategoryMenu = () => {
   const { category, subcategory, subsubcategory } = router.query;
 
   return (
-    <ScrollableDiv showScrollBar={false} className="my-2 border-y-[2px]">
+    <ScrollableDiv showScrollBar={false} className="my-2 border-y border-gray-400">
       {categoriesMenuData.map((categoryData) => {
         const isActive =
           category &&

@@ -1,6 +1,6 @@
 import { InferGetServerSidePropsType } from "next";
 import { getServerSession } from "next-auth";
-import { Geist, Roboto } from "next/font/google";
+import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import { authOptions } from "./api/auth/[...nextauth]";
 import GuestHomePage from "./home/guest_homepage";
 import UserHomePage from "./home/user_homepage";
@@ -10,8 +10,8 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const roboto = Roboto({
-  weight: "400",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -29,7 +29,7 @@ export default function Index({
   isLogin,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
-    <div className={`${roboto.className} ${geistSans.variable} `}>
+    <div>
       {/* {isLogin ? <UserHomePage /> : <GuestHomePage />} */}
       <GuestHomePage />
     </div>

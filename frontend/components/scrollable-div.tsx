@@ -127,9 +127,9 @@ const ScrollableDiv = ({
       {showLeftRightButton && isLastScrollLeft && (
         <button
           onClick={scrollRightOnClick}
-          className="absolute right-0 top-1/2 z-10 flex h-full w-8 -translate-y-1/2 items-center justify-center bg-[white] bg-opacity-50"
+          className="absolute right-0 top-1/2 z-10 flex h-full w-8 -translate-y-1/2 items-center justify-center bg-white/50"
         >
-          <ChevronRight size={20} color="#000000" strokeWidth={2} />
+          <ChevronRight size={20} className="stroke-black stroke-[2]" />
         </button>
       )}
     </div>
