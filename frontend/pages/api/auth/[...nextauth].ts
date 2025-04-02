@@ -1,16 +1,8 @@
-import { axiosInstanceV1 } from "@/lib/apiClient";
 import * as jwt from "jsonwebtoken";
-import NextAuth, {
-  AuthOptions,
-  DefaultSession,
-  Session,
-  User,
-} from "next-auth";
-import { encode, JWT } from "next-auth/jwt";
+import NextAuth, { AuthOptions, Session, User } from "next-auth";
+import { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
-import Email from "next-auth/providers/email";
 import Google from "next-auth/providers/google";
-import { setTimeout } from "node:timers/promises";
 
 interface RoleDto {
   id: number;
@@ -57,7 +49,7 @@ declare module "next-auth" {
    * Returned by `useSession`, `auth`, contains information about the active session.
    */
   interface Session extends User {
-    expires: DefaultSession["expires"];
+    expires: number;
   }
 }
 
@@ -72,10 +64,12 @@ declare module "next-auth/jwt" {
     user: UserDto;
     accessExpires: number;
     refreshExpires: number;
-    iat: number;
-    exp: number;
-    sessionId: string;
+    payload: any;
   }
+}
+
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("NEXTAUTH_SECRET is not defined.");
 }
 
 export const authOptions: AuthOptions = {
@@ -95,35 +89,33 @@ export const authOptions: AuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Missing credentials");
         }
- 
+
         try {
-          const { data, status } = await axiosInstanceV1.post(
-            "/auth/email/login",
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/email/login`,
             {
-              email: credentials.email,
-              password: credentials.password,
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
             },
           );
 
-          console.log(data);
-
-          console.log(status);
-
-          if (status !== 200) {
+          if (!response.ok) {
             throw new Error("Invalid credentials");
           }
 
-          return data;
+          const data = await response.json();
+          return data; // Successful login
         } catch (error: any) {
-       
-          console.error(
-            "Login error:",
-            error.response?.data || error.message,
-          );
+          const errorMessage =
+            error.response?.data || error.message || "An error occurred";
 
-          throw new Error(
-            error.response?.data || "Login Failed",
-          );
+          console.error("Login error:", errorMessage);
+
+          throw new Error(errorMessage);
         }
       },
     }),
@@ -135,7 +127,11 @@ export const authOptions: AuthOptions = {
     verifyRequest: "/auth/verify-request",
     newUser: "/auth/new-user",
   },
-  session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 30,
+    updateAge: 0, // Disables rolling session
+  },
   callbacks: {
     // async signIn({ user, account, profile, email, credentials }) { return true },
     // async redirect({ url, baseUrl }) { return baseUrl },
@@ -145,25 +141,24 @@ export const authOptions: AuthOptions = {
       if (user) {
         // Decode accessToken để lấy iat và exp từ backend
         const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
-        if (payload?.exp && payload?.iat) {
-          token.iat = payload.iat;
-          token.exp = payload.exp;
-          token.payload = payload;
-        }
 
         token = {
-          ...token,
+          expires: user.accessExpires,
+          payload,
           ...user,
-        };
+        } as any;
+      }
+ 
+      console.log(token);
+
+      const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
+      if (Date.now() < token.accessExpires - refreshBuffer) {
+        console.log("Token still valid, no refresh needed.");
+        return token;
       }
 
-      console.log("jwt CB", token);
-
-      // Nếu accessToken còn hạn thì dùng tiếp
-      if (!token.exp || Date.now() < Number(token.exp) * 1000) return token;
-
-      // Nếu hết hạn thì refresh token
-      return await refreshAccessToken(token);
+      console.log("Token expired or close to expiration, refreshing...");
+      return refreshAccessToken(token);
     },
 
     //Hàm session() trong callbacks của NextAuth có nhiệm vụ cập nhật session object,
@@ -175,38 +170,40 @@ export const authOptions: AuthOptions = {
         ...token,
       };
 
-      console.log("session CB", session);
-
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "secret",
-  debug: Boolean(process.env.NEXTAUTH_DEBUG) || true,
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
 async function refreshAccessToken(token: any) {
   debugger;
   try {
-    const response = await axiosInstanceV1.post("/auth/email/refresh", {
-      refreshToken: token.refreshToken,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/refresh`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token.refreshToken}` },
+        body: JSON.stringify({ refreshToken: token.refreshToken }),
+      },
+    );
 
-    if (!(response.status === 200)) throw new Error("Failed to refresh token");
+    if (!res.ok) throw new Error("Failed to refresh token");
 
-    const { accessToken, refreshToken } = response.data;
+    const data = await res.json();
+    const payload = jwt.decode(data.accessToken) as jwt.JwtPayload | null;
 
-    const decoded = jwt.decode(accessToken) as jwt.JwtPayload | null;
+    token = {
+      expires: data.accessExpires,
+      payload,
+      ...data,
+    } as any;
 
-    return {
-      ...token,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      iat: decoded?.iat,
-      exp: decoded?.exp,
-    };
+    return token;
   } catch (error) {
     console.error("Error refreshing access token", error);
-    return { ...token, error: "RefreshAccessTokenError" };
+    return { error: "RefreshAccessTokenError" } as any;
   }
 }
 

@@ -12,7 +12,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { NavigationOptions } from "swiper/types";
 
-const data = [
+const fakeData = [
   {
     id: faker.string.uuid(),
     url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/187221060/original/498dee5818e4f41cec45d8abf27a15e081bdfaa7.jpg",
@@ -55,9 +55,10 @@ const data = [
 const GigCarousel = ({
   gig,
   className = "",
+  pauseVideoOnLeave = false,
 }: {
   gig?: GigDto;
-  showFullScreen?: boolean;
+  pauseVideoOnLeave?: boolean;
   className?: string;
 }) => {
   const prevRef = useRef(null);
@@ -69,6 +70,7 @@ const GigCarousel = ({
   const [isFullScreen, setFullscreen] = useState<boolean>(false);
   const [isFirstSlide, setIsFirstSlide] = useState(true);
   const [isLastSlide, setIsLastSlide] = useState(false);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const [videoTimes, setVideoTimes] = useState<{ [key: number]: number }>({});
 
@@ -101,8 +103,24 @@ const GigCarousel = ({
             ...video,
           },
         ]
-      : data
+      : fakeData
   ).filter(Boolean);
+
+  const handleMouseEnter = () => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 100);
+  };
+
+  const handleMouseLeave = () => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    setIsHovered(false);
+  };
 
   useEffect(() => {
     document.body.classList.toggle("overflow-hidden", isFullScreen);
@@ -152,7 +170,7 @@ const GigCarousel = ({
       <div
         onMouseEnter={() => {
           if (!isFullScreen) {
-            setIsHovered(true);
+            handleMouseEnter();
           }
         }}
         onTouchStart={() => {
@@ -164,42 +182,45 @@ const GigCarousel = ({
           if (!isFullScreen) {
             setIsHovered(false);
 
-            videoRefs.current.forEach((video, index) => {
-              if (video) {
-                setVideoTimes((prev) => ({
-                  ...prev,
-                  [index]: video.currentTime,
-                }));
-                video.pause();
-              }
-            });
+            pauseVideoOnLeave &&
+              videoRefs.current.forEach((video, index) => {
+                if (video) {
+                  setVideoTimes((prev) => ({
+                    ...prev,
+                    [index]: video.currentTime,
+                  }));
+                  video.pause();
+                }
+              });
           }
         }}
         onTouchEnd={() => {
           if (!isFullScreen) {
             setIsHovered(false);
 
-            videoRefs.current.forEach((video, index) => {
-              if (video) {
-                setVideoTimes((prev) => ({
-                  ...prev,
-                  [index]: video.currentTime,
-                }));
-                video.pause();
-              }
-            });
+            pauseVideoOnLeave &&
+              videoRefs.current.forEach((video, index) => {
+                if (video) {
+                  setVideoTimes((prev) => ({
+                    ...prev,
+                    [index]: video.currentTime,
+                  }));
+                  video.pause();
+                }
+              });
           }
         }}
         className={clsx(
           isFullScreen
-            ? "fixed inset-0 z-50 flex h-full items-center justify-between bg-black bg-opacity-80 p-10 pt-16"
+            ? "fixed inset-0 z-50 flex h-full items-center justify-between bg-black/70 p-10 pt-16"
             : "relative flex items-center justify-center " + className,
         )}
       >
         {isFullScreen && (
           <button
+            aria-label="Close fullscreen"
             onClick={() => setFullscreen(false)}
-            className="absolute right-4 top-4 rounded-full bg-red-500 p-2 text-white"
+            className="absolute top-4 right-4 rounded-full bg-red-500 p-2 text-white"
           >
             <X size={20} />
           </button>
@@ -208,47 +229,51 @@ const GigCarousel = ({
         <button
           ref={prevRef}
           className={clsx(
-            "absolute left-4 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-gray-300 p-2 text-white",
+            "absolute top-1/2 left-0 z-10 -translate-y-1/2 transform rounded-full bg-gray-300 p-1 text-white",
             {
-              "pointer-events-none hidden": !isHovered || isFirstSlide,
-              "opacity-100": isHovered && !isFirstSlide,
+              hidden: !isHovered || isFirstSlide,
+            },
+            {
+              "left-4": isFullScreen,
             },
           )}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={25} />
         </button>
 
         <button
           ref={nextRef}
           className={clsx(
-            "absolute right-4 top-1/2 z-10 -translate-y-1/2 transform rounded-full bg-gray-300 p-2 text-white",
+            "absolute top-1/2 right-0 z-10 -translate-y-1/2 transform rounded-full bg-gray-300 p-1 text-white",
             {
-              "pointer-events-none hidden": !isHovered || isLastSlide,
-              "opacity-100": isHovered && !isLastSlide,
+              hidden: !isHovered || isLastSlide,
+            },
+            {
+              "right-4": isFullScreen,
             },
           )}
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={25} />
         </button>
 
         <button
           onClick={() => setFullscreen((prev) => !prev)}
-          style={{
-            bottom: isFullScreen ? 20 : 0,
-            right: isFullScreen ? 20 : 0,
-          }}
           className={clsx(
-            "absolute z-10 rounded-full border-none bg-gray-300 p-2",
+            "absolute right-0 bottom-0 z-10 rounded-full border-none bg-gray-300 p-2",
             {
-              "pointer-events-none hidden": !isHovered,
-              "opacity-100": isHovered,
+              "right-5 bottom-5": isFullScreen,
+            },
+            {
+              hidden: !isHovered,
             },
           )}
         >
-          <Expand size={16} />
+          <Expand size={isFullScreen ? 20 : 16} />
         </button>
 
         <Swiper
+          speed={500}
+          touchRatio={1.5}
           modules={[Navigation, Pagination]}
           onSlideChange={handleSlideChange}
           spaceBetween={10}
@@ -280,7 +305,6 @@ const GigCarousel = ({
                   key={item.id}
                   className={clsx({
                     "p-2": isFullScreen,
-                    "p-1": !isFullScreen,
                   })}
                 >
                   <div className="flex h-full w-full items-center justify-center">
@@ -289,6 +313,7 @@ const GigCarousel = ({
                         src={item.url}
                         alt={"alt" in item ? (item.alt as string) : "Image"}
                         className="h-full w-full object-contain"
+                        loading="lazy"
                       />
                     )}
                     {item.type === "video" && (

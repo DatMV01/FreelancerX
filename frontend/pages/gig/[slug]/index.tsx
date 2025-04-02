@@ -14,7 +14,7 @@ import GigRatings from "@/features/gig/components/GigReviews";
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
 import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
 import { useRouter } from "next/router";
@@ -309,10 +309,11 @@ const GigDetail = () => {
     setLoading(true);
     const fetchData = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
+       
         const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
+       
         const { data } = response;
 
         console.log(response.data);

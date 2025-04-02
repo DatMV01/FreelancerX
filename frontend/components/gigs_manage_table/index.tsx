@@ -1,7 +1,7 @@
 "use client";
 
 import { GigDto, GigStatus } from "@/dto/gig.dto";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   FormControl,
   IconButton,

@@ -5,7 +5,7 @@ import CommentBox from "@/components/comment";
 import { Button } from "@/components/ui/button";
 import { GigDto } from "@/dto/gig.dto";
 import UserAvatar from "@/features/user/components/UserAvatar";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { faker } from "@faker-js/faker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Avatar, Divider, Tab, Tabs, Tooltip, Typography } from "@mui/material";
@@ -903,26 +903,6 @@ const GigPrototype = () => {
 
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);
-
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      try {
-        const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
-        const { data, meta } = response.data;
-        setGig(data);
-      } catch (error) {
-        alert("Error fetching data:" + error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (slug) fetchData();
-  }, [slug]);
 
   return (
     <>

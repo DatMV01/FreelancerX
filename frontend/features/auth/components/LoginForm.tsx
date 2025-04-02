@@ -1,6 +1,8 @@
 "use client";
 
 import CircularProgressCenter from "@/components/CircularProgressCenter";
+import { loginAsync } from "@/lib/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
@@ -24,13 +26,11 @@ type FormType = z.infer<typeof formSchema>;
 
 type Props = {
   setShowLoginForm?: (value: boolean) => void;
-  loginSuccessCallback?: () => void;
+  loginSuccessCb?: () => void;
 };
 
-export default function LoginForm({
-  setShowLoginForm,
-  loginSuccessCallback,
-}: Props) {
+export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const {
@@ -53,30 +53,54 @@ export default function LoginForm({
   }>();
 
   const handleLogin = async (formData: FormType) => {
-    try {
-      const res = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-      if (res?.error) {
-        setMessage({
-          type: "errror",
-          message: "Email or password is not correct.",
-        });
-      } else {
-        setShowLoginForm && setShowLoginForm(false);
+    const res = await signIn("credentials", {
+      email: formData.email,
+      password: formData.password,
+      redirect: false,
+    });
 
-        loginSuccessCallback && loginSuccessCallback();
-        //  router.push("/");
-        //  window.location.reload();
-      }
-    } catch (error) {
+    if (res?.error) {
+      setMessage({
+        type: "errror",
+        message: "Email or password is not correct.",
+      });
+    } else if (res?.status === 200) {
+      setShowLoginForm && setShowLoginForm(false);
+
+      loginSuccessCb && loginSuccessCb();
+    } else {
       setMessage({
         type: "errror",
         message: "An error occurred. Please try again.",
       });
     }
+
+    // try {
+    //   const res = (await dispatch(
+    //     loginAsync({
+    //       provider: "credentials",
+    //       email: formData.email,
+    //       password: formData.password,
+    //     }),
+    //   ).unwrap()) as any; // Unwrap to handle the success/failure directly
+
+    //   debugger;
+    //   if (res?.error) {
+    //     setMessage({
+    //       type: "errror",
+    //       message: "Email or password is not correct.",
+    //     });
+    //   } else {
+    //     setShowLoginForm && setShowLoginForm(false);
+
+    //     loginSuccessCb && loginSuccessCb();
+    //   }
+    // } catch (err) {
+    //   setMessage({
+    //     type: "errror",
+    //     message: "An error occurred. Please try again.",
+    //   });
+    // }
   };
 
   return (
@@ -171,8 +195,7 @@ export default function LoginForm({
           Sign up
         </Link>
       </div>
-
-      {/* {isSubmitting && <CircularProgressCenter />} */}
+      {isSubmitting && <CircularProgressCenter />}
     </div>
   );
 }

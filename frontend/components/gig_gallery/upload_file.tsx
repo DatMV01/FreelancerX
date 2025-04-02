@@ -1,6 +1,6 @@
 "use client";
 
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { cn } from "@/lib/utils";
 import { CircularProgress } from "@mui/material";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";

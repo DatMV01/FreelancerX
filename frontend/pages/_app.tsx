@@ -1,7 +1,9 @@
+import RootLayout from "@/components/layouts/root-layout";
+import { StoreProvider } from "@/pages/StoreProvider";
 import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import RootLayout from "@/components/layouts/root-layout";
+import AuthSync, { SessionRefresher } from "./authAsync";
 
 export default function App({
   Component,
@@ -9,9 +11,13 @@ export default function App({
 }: AppProps) {
   return (
     <SessionProvider session={session}>
-      <RootLayout>
-        <Component {...pageProps} />
-      </RootLayout>
+      <StoreProvider>
+        <AuthSync />
+        {/* <SessionRefresher /> */}
+        <RootLayout>
+          <Component {...pageProps} />
+        </RootLayout>
+      </StoreProvider>
     </SessionProvider>
   );
 }

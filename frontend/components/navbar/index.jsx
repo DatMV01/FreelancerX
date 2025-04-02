@@ -1,8 +1,9 @@
 "use client";
 
+import { selectIsLogin, selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 import clsx from "clsx";
 import Link from "next/link";
-import useGetUserInfo from "@/hooks/useGetUserInfo";
 import Logo from "../LogoImage";
 import PopoverAvatar from "../popover_avatar";
 import PopoverFavoriteListing from "../popover_favorite_listing";
@@ -13,26 +14,14 @@ import SearchBar from "../searchbar";
 import CategoryMenu from "./CategoryMenu";
 import LoginDialog from "./LoginDialog";
 import NavigationDrawer from "./NavigationDrawer";
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 
 const Navbar = () => {
-  // const [isAuthenticated, user, session] = useGetUserInfo();
-  const {isAuthenticated, user, session} = useGetUserInfo();
+  // const {isAuthenticated, user, session} = useGetUserInfo();
 
-  // const [isAuthenticated, setAuthenticated] = useState(false);
-  // const { data: session, status } = useSession();
-  // const router = useRouter();
+  const user = useAppSelector(selectUser);
+ 
 
-  // useEffect(() => {
-  //   if (status === "authenticated") {
-  //     setAuthenticated(true);
-  //   }
-  //   if (status === "unauthenticated" || status === "loading") {
-  //     setAuthenticated(false);
-  //   }
-  // }, [status, router]);
+    const isLogin = useAppSelector(selectIsLogin);
 
   return (
     <div>
@@ -63,7 +52,7 @@ const Navbar = () => {
           <SearchBar />
         </div>
 
-        {isAuthenticated && (
+        {isLogin && (
           <>
             <PopoverMessages />
             <PopoverNotifications />

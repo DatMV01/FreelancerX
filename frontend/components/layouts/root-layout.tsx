@@ -1,10 +1,11 @@
-import React from "react";
+"use client";
+
+import Navbar from "@/components/navbar";
 import Footer from "../footer";
-import Navbar from "@/components/navbar" 
 
 export default function RootLayout({ children }: { children: any }) {
   return (
-    <div className="flex min-h-screen flex-col max-w-[1400px] m-auto">
+    <div className="m-auto flex min-h-screen max-w-[1400px] flex-col">
       <header className="my-2 px-4 md:px-8">
         <Navbar />
       </header>

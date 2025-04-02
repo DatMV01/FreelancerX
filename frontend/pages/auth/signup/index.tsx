@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -60,7 +60,7 @@ export default function SignUpPage() {
     } catch (error) {
       setMessage({
         type: "error",
-        message: "An error occurred. Please try again.",
+        message: "Sign up failed. Please try again.",
       });
     }
   };

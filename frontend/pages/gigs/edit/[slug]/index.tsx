@@ -1,7 +1,7 @@
 "use client";
 
 import GigAddEdit from "@/components/gig_add_edit";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 

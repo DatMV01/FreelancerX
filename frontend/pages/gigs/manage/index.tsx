@@ -2,7 +2,7 @@
 
 import GigsManageTable from "@/components/gigs_manage_table";
 import { GigStatus } from "@/dto/gig.dto";
-import { axiosInstanceV1 } from "@/lib/apiClient";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";

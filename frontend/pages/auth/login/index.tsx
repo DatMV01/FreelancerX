@@ -11,7 +11,7 @@ export default function LoginPage() {
 
   return (
     <div className="my-6 flex justify-center">
-      <LoginForm loginSuccessCallback={loginSuccessCallback} />
+      <LoginForm loginSuccessCb={loginSuccessCallback} />
     </div>
   );
 }

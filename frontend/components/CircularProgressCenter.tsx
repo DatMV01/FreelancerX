@@ -3,7 +3,7 @@ import React from "react";
 
 const CircularProgressCenter = () => {
   return (
-    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white bg-opacity-10 backdrop-blur-sm">
+    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/10 backdrop-blur-xs">
       <CircularProgress />
     </div>
   );

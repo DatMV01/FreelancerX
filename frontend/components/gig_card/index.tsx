@@ -47,6 +47,7 @@ export const GigCard = () => {
     <div className="relative w-full rounded-sm">
       <div className="z-10 flex flex-col">
         <GigCarousel
+          pauseVideoOnLeave
           className={clsx(
             "h-[250px]",
             // "md:h-[250px]",
@@ -98,17 +99,17 @@ export const GigCard = () => {
         </div>
       </div>
 
-      <div className="absolute right-4 top-4 z-10">
+      <div className="absolute top-0 right-0 z-10">
         {!isFavorite && (
           <Tooltip title="Save to list" placement="top">
             <button
               className={clsx(
-                "flex h-9 w-9 items-center justify-center rounded-full",
+                "rounded-full p-2",
                 "bg-gray-100 hover:bg-gray-200",
               )}
               onClick={addFavoriteGig}
             >
-              <Heart size={16} className="stroke-gray-500" />
+              <Heart size={20} className="stroke-gray-500" />
             </button>
           </Tooltip>
         )}
@@ -116,12 +117,12 @@ export const GigCard = () => {
           <Tooltip title="Remove" placement="top">
             <button
               className={clsx(
-                "flex h-9 w-9 items-center justify-center rounded-full",
+                "flex rounded-full p-2",
                 "bg-red-200 hover:bg-red-100",
               )}
               onClick={removeFavoriteGig}
             >
-              <Heart size={16} className="stroke-red-500" />
+              <Heart size={20} className="stroke-red-500" />
             </button>
           </Tooltip>
         )}
