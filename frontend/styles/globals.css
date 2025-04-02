@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 .custom-pagination .swiper-pagination-bullet {
   @apply h-2 w-2 bg-gray-300 opacity-50 transition-all duration-300;
@@ -121,6 +122,26 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -140,7 +161,7 @@ body {
   button {
     @apply cursor-pointer;
   }
-  
+
   input[type="radio"] {
     @apply cursor-pointer;
   }
