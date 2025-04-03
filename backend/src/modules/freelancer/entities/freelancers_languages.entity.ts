@@ -8,25 +8,33 @@ import {
   PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FreelancerProficiencyLevel } from '../enum/freelancer.enum';
+import {
+  FreelancerLanguageProficiency,
+  FreelancerSkillProficiency,
+} from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
 import { AutoMap } from '@automapper/classes';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('language')
 export class LanguageEntity {
+  @AutoMap()
   @PrimaryGeneratedColumn('increment')
   @ApiProperty()
   id: number;
 
+  @AutoMap()
   @Column({ unique: true, type: 'varchar', length: 3 })
   @ApiProperty()
   alpha3: string;
 
+  @AutoMap()
   @Column({ unique: true, type: 'varchar', length: 50 })
   @ApiProperty()
   name: string;
 
+  @AutoMap()
+  proficiency: FreelancerLanguageProficiency;
   // @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.languages)
   // //Nếu xóa một ngôn ngữ, freelancer vẫn không bị ảnh hưởng (vì không có onDelete: 'CASCADE' bên FreelancerLanguageEntity).
   // freelancers: FreelancerEntity[];
@@ -47,9 +55,13 @@ export class FreelancersLanguages {
   @PrimaryColumn({ type: 'number', name: 'language_id' })
   languageId: number;
 
-  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.languages, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => FreelancerEntity,
+    (freelancer) => freelancer.freelancersLanguages,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'freelancer_id' })
   freelancer: FreelancerEntity;
 
@@ -62,8 +74,8 @@ export class FreelancersLanguages {
 
   @Column({
     type: 'enum',
-    enum: FreelancerProficiencyLevel,
-    default: FreelancerProficiencyLevel.BEGINNER,
+    enum: FreelancerLanguageProficiency,
+    default: FreelancerLanguageProficiency.BEGINNER,
   })
-  proficiency_level: FreelancerProficiencyLevel;
+  proficiency: FreelancerLanguageProficiency;
 }

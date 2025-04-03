@@ -35,7 +35,7 @@ import mailConfig from './modules/mail/config/mail.config';
       load: [appConfig, typeormConfig, fileConfig, authConfig, mailConfig],
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'),
+      rootPath: join(__dirname, '..', '..', 'public'),
       serveRoot: '/public',
     }),
     AutomapperModule.forRoot({

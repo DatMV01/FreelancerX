@@ -12,16 +12,22 @@ import {
 } from 'typeorm';
 import { FreelancerEntity } from './freelancer.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { FreelancerSkillProficiency } from '../enum/freelancer.enum';
 
 @Entity('skill')
 export class SkillEntity extends BaseEntity {
+  @AutoMap()
   @PrimaryGeneratedColumn('increment')
   @ApiProperty()
   id: number;
 
+  @AutoMap()
   @Column({ unique: true, type: 'varchar', length: 50 })
   @ApiProperty()
-  title: string;
+  name: string;
+
+  @AutoMap()
+  proficiency: FreelancerSkillProficiency;
 
   //   @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.skills)
   //   //Nếu xóa một ngôn ngữ, freelancer vẫn không bị ảnh hưởng (vì không có onDelete: 'CASCADE' bên FreelancerLanguageEntity).
@@ -45,9 +51,13 @@ export class FreelancersSkills {
   @PrimaryColumn({ type: 'int', name: 'skill_id' })
   skillId: number;
 
-  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.skills, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => FreelancerEntity,
+    (freelancer) => freelancer.freelancersSkills,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   @JoinColumn({ name: 'freelancer_id' })
   freelancer: FreelancerEntity;
 
@@ -57,4 +67,11 @@ export class FreelancersSkills {
   })
   @JoinColumn({ name: 'skill_id' })
   skill: SkillEntity;
+
+  @Column({
+    type: 'enum',
+    enum: FreelancerSkillProficiency,
+    default: FreelancerSkillProficiency.BEGINNER,
+  })
+  proficiency: FreelancerSkillProficiency;
 }

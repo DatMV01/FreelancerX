@@ -11,8 +11,14 @@ import {
   undefinedTransformer,
 } from 'src/utils/transformers/index.transformer';
 import { FreelancerRankEnum } from '../enum/freelancer.enum';
-import { FreelancersLanguages, LanguageEntity } from '../entities/freelancers_languages.entity';
-import { FreelancersSkills, SkillEntity } from '../entities/freelancers_skills.entity';
+import {
+  FreelancersLanguages,
+  LanguageEntity,
+} from '../entities/freelancers_languages.entity';
+import {
+  FreelancersSkills,
+  SkillEntity,
+} from '../entities/freelancers_skills.entity';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { IsOptional } from 'class-validator';
 
@@ -30,6 +36,9 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
     description: 'Freelancer email address',
   })
   email: string;
+
+  @AutoMap()
+  country: string;
 
   @AutoMap()
   @ApiProperty({ description: 'ID của user' })
@@ -50,50 +59,51 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
   })
   bio?: string;
 
+  @AutoMap()
+  avatar: string;
+
   @AutoMap(() => [FreelancersLanguages])
   @Transform((params) => freelancerLanguagesTransformer(params))
   @ApiPropertyOptional({
     type: [LanguageEntity],
-    example:  [
+    example: [
       {
-          "id": 174,
-          "code": "vi",
-          "name": "Vietnamese"
+        id: 174,
+        code: 'vi',
+        name: 'Vietnamese',
       },
       {
-          "id": 180,
-          "code": "yo",
-          "name": "Yoruba"
+        id: 180,
+        code: 'yo',
+        name: 'Yoruba',
       },
       {
-          "id": 183,
-          "code": "zu",
-          "name": "Zulu"
-      }
-  ],
+        id: 183,
+        code: 'zu',
+        name: 'Zulu',
+      },
+    ],
     description: 'Languages spoken by the freelancer',
   })
-  languages?: FreelancersLanguages[];
+  freelancersLanguages?: FreelancersLanguages[];
 
   @AutoMap(() => [FreelancersSkills])
   @Transform((params) => freelancerSkillsTransformer(params))
   @ApiPropertyOptional({
     type: [SkillEntity],
-    example:
-    [
+    example: [
       {
-          "id": 19,
-          "title": "JavaScript"
+        id: 19,
+        title: 'JavaScript',
       },
       {
-          "id": 20,
-          "title": "TypeScript"
-      }
-  ]
-  ,
+        id: 20,
+        title: 'TypeScript',
+      },
+    ],
     description: 'Skills possessed by the freelancer',
   })
-  skills?: FreelancersSkills[];
+  freelancersSkills?: FreelancersSkills[];
 
   @AutoMap()
   @ApiProperty({

@@ -40,7 +40,6 @@ export class FileController {
   @Post('upload')
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))
-  //@ApiBearerAuth()
   @ApiOperation({ summary: 'Upload a file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -68,7 +67,6 @@ export class FileController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  //@ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a file by ID or filename' })
   @ApiResponse({ status: 200, description: 'File deleted successfully' })
   @ApiResponse({
@@ -96,7 +94,6 @@ export class FileController {
 
   @Delete('/name/:name')
   @UseGuards(AuthGuard('jwt'))
-  //@ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a file by filename' })
   @ApiResponse({ status: 200, description: 'File deleted successfully' })
   @ApiResponse({
@@ -111,11 +108,8 @@ export class FileController {
       throw new BadRequestException();
     }
 
-    const deleted = await this.filesService.deleteFileByName(
-      name,
-      currentUser,
-    );
-    
+    const deleted = await this.filesService.deleteFileByName(name, currentUser);
+
     if (!deleted) {
       throw new HttpException(
         'File not found or cannot be deleted',

@@ -15,7 +15,11 @@ import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { CreateCategoryDto } from 'src/modules/category/dto/create-category.dto';
 import { UpdateCategoryDto } from 'src/modules/category/dto/update-category.dto';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
-import { CreateFreelancerDto } from 'src/modules/freelancer/dto/create-freelancer.dto';
+import {
+  CreateFreelancerDto,
+  LanguageDto,
+  SkillDto,
+} from 'src/modules/freelancer/dto/create-freelancer.dto';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { UpdateFreelancerDto } from 'src/modules/freelancer/dto/update-freelancer.dto';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
@@ -67,6 +71,8 @@ import {
   convertNullToUndefined,
   removeUndefinedFields,
 } from 'src/utils/common';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.entity';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -159,6 +165,18 @@ export class AutoMapper extends AutomapperProfile {
           dto: AuthRegisterLoginDto,
           createDto: AuthRegisterLoginDto,
           updateDto: AuthRegisterLoginDto,
+        },
+        {
+          entity: SkillEntity,
+          dto: SkillDto,
+          createDto: SkillDto,
+          updateDto: SkillDto,
+        },
+        {
+          entity: LanguageEntity,
+          dto: LanguageDto,
+          createDto: LanguageDto,
+          updateDto: LanguageDto,
         },
       ];
       mappings.forEach(

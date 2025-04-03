@@ -3,12 +3,56 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
+  IsUUID
 } from 'class-validator';
-import { SkillEntity } from '../entities/freelancers_skills.entity';
-import { LanguageEntity } from '../entities/freelancers_languages.entity';
+import {
+  FreelancerLanguageProficiency,
+  FreelancerSkillProficiency,
+} from '../enum/freelancer.enum';
+
+export class SkillDto {
+  @AutoMap()
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  id: number;
+
+  @AutoMap()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  name: string;
+
+  @AutoMap()
+  @IsNotEmpty()
+  @IsEnum(FreelancerSkillProficiency)
+  @ApiProperty()
+  proficiency: FreelancerSkillProficiency;
+}
+
+export class LanguageDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumber()
+  id: number;
+
+  @IsString()
+  @ApiProperty()
+  @AutoMap()
+  @IsNotEmpty()
+  name: string;
+
+  @AutoMap()
+  @IsNotEmpty()
+  @IsEnum(FreelancerLanguageProficiency)
+  @ApiProperty()
+  proficiency: FreelancerLanguageProficiency;
+}
 
 export class CreateFreelancerDto {
   @AutoMap()
@@ -18,7 +62,7 @@ export class CreateFreelancerDto {
     description: 'Unique identifier of the user',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  userId?: string;
+  userId: string;
 
   @AutoMap()
   @IsEmail()
@@ -27,7 +71,24 @@ export class CreateFreelancerDto {
     example: 'freelancer@example.com',
     description: 'Freelancer email address',
   })
-  email?: string;
+  email: string;
+
+  @AutoMap()
+  @IsString()
+  country: string;
+
+  @AutoMap()
+  @IsString()
+  @IsOptional()
+  avatar: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fullName: string;
+
+  @IsString()
+  @IsOptional()
+  phone: string;
 
   @AutoMap()
   @IsString()
@@ -46,23 +107,40 @@ export class CreateFreelancerDto {
   // })
   // skills?: string[];
 
-  @AutoMap(() => [String])
+  @AutoMap(() => [LanguageDto])
   @IsOptional()
   @IsArray()
   @ApiPropertyOptional({
-    type: [String],
-    example: ['English', 'French', 'Spanish'],
+    type: [LanguageDto],
+    example: [
+      {
+        id: 13,
+        name: 'Bashkir',
+        proficiency: 'Advanced',
+      },
+    ],
     description: 'Languages spoken by the freelancer',
   })
-  languages?: LanguageEntity[] | string[];
+  languages: LanguageDto[];
 
-  @AutoMap(() => [String])
+  @AutoMap(() => [LanguageDto])
   @IsOptional()
   @IsArray()
-  @ApiPropertyOptional({
-    type: [String],
-    example: ['JavaScript', 'React', 'Node.js'],
+  @ApiProperty({
+    type: [SkillDto],
+    example: [
+      {
+        id: 2,
+        name: 'Full Stack Development',
+        proficiency: 'Beginner',
+      },
+      {
+        id: 1743661647610,
+        name: 'ABC',
+        proficiency: 'Beginner',
+      },
+    ],
     description: 'Skills possessed by the freelancer',
   })
-  skills?: SkillEntity[] | string[];
+  skills: SkillDto[];
 }

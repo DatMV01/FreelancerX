@@ -20,7 +20,9 @@ interface Props {
   fileType: "image" | "video" | "document";
   className?: string;
   autoUpload?: boolean;
+  addionalFileType?: any;
   updateGigCb?: any;
+  onUploadSuccessCb?: any;
   fileInfomation?: FileInfomation;
 }
 const seperator = "|";
@@ -28,11 +30,14 @@ const seperator = "|";
 const UploadFile = forwardRef(
   (
     {
+      addionalFileType,
       keyFile,
       fileType,
       className,
       autoUpload = false,
       updateGigCb,
+      onUploadSuccessCb,
+
       fileInfomation,
     }: Props,
     ref,
@@ -163,12 +168,19 @@ const UploadFile = forwardRef(
       if (!file) return false;
       setUploading(true);
 
+      let newFile;
+      if (addionalFileType) {
+        const newFileName = `${addionalFileType}___${file.name}`;
+        newFile = new File([file], newFileName, { type: file.type });
+      }
+
+      const formData = new FormData();
+      formData.append("file", newFile || file);
+
       try {
         const { data, status } = await axiosInstanceV1.post(
-          "/files/upload",
-          {
-            file: file,
-          },
+          "/file/upload",
+          formData,
           {
             headers: {
               "Content-Type": "multipart/form-data",
@@ -182,6 +194,9 @@ const UploadFile = forwardRef(
             setUploadedUrl(url);
 
             setFileInfo(data);
+
+            onUploadSuccessCb({ url });
+
             // Update set state gig callback
             if (gig_imagesUpload.includes(_keyFile)) {
               updateGigCb((prev: any) => ({
@@ -244,9 +259,7 @@ const UploadFile = forwardRef(
       if (!fileInfo || !fileInfo.id) return false;
 
       try {
-        const response = await axiosInstanceV1.delete(`/files`, {
-          params: { id: fileInfo.id },
-        });
+        const response = await axiosInstanceV1.delete(`/file/${fileInfo.id}`);
 
         if (response.status === 200) {
           // Update set state gig callback
@@ -289,7 +302,11 @@ const UploadFile = forwardRef(
     };
 
     return (
-      <div className={cn("flex w-full flex-col items-center space-y-2 border")}>
+      <div
+        className={cn(
+          "flex w-full flex-col items-center space-y-2 border-transparent",
+        )}
+      >
         <div
           // className={`relative flex h-[250px]  w-full flex-col items-center justify-center overflow-hidden border-2 ${dragOver ? "border-4 border-blue-500" : "border-gray-400"}`}
           className={cn(
@@ -319,7 +336,7 @@ const UploadFile = forwardRef(
                 <video
                   src={preview}
                   controls
-                  className={`absolute left-0 top-0 h-full w-full ${uploading ? "opacity-50" : ""}`}
+                  className={`absolute top-0 left-0 h-full w-full ${uploading ? "opacity-50" : ""}`}
                 />
               )}
 
@@ -328,14 +345,14 @@ const UploadFile = forwardRef(
               )}
 
               {uploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-opacity-50 absolute inset-0 flex items-center justify-center bg-black">
                   <CircularProgress />
                 </div>
               )}
               {hovered && !uploading && (
                 <button
                   onClick={handleRemoveFile}
-                  className="absolute right-2 top-2 rounded-full bg-red-500 px-2 py-1 text-white hover:bg-red-700"
+                  className="absolute top-2 right-2 rounded-full bg-red-500 px-2 py-1 text-white hover:bg-red-700"
                 >
                   ✕
                 </button>

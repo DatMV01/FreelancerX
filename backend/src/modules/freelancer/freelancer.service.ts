@@ -63,10 +63,10 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const { id, email, skills, languages } = createDto;
+    const { userId, email, skills, languages } = createDto;
 
     const whereCondition: any[] = [];
-    if (id) whereCondition.push({ id });
+    if (userId) whereCondition.push({ id: userId });
     if (email) whereCondition.push({ email });
 
     const userEnity = await this.userService.findOne({
@@ -76,38 +76,47 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
 
     userEnity && (await super.existsByAndThrowExeption(whereCondition));
 
-    const allSkills = await this.createSkills(queryRunner, skills as string[]);
-    const allLangueges = await this.createLanguages(languages as string[]);
+    const skillNames = skills?.map((_) => _.name);
+    const allSkills = await this.createSkills(
+      queryRunner,
+      skillNames as string[],
+    );
+
+    const languageNames = languages?.map((_) => _.name);
+    const allLanguages = await this.createLanguages(languageNames as string[]);
 
     try {
-      const newUser = this._repository.create({
+      const createdFreelancer = this._repository.create({
         ...createDto,
         user: userEnity,
         languages: null,
         skills: null,
       } as any as FreelancerEntity);
 
-      const savedUser = await queryRunner.manager.save(newUser);
+      const savedFreelancer = await queryRunner.manager.save(createdFreelancer);
 
-      const userSkills = allSkills.map((skill) =>
+      const freelancerSkills = allSkills.map((skill) =>
         queryRunner.manager.create(FreelancersSkills, {
-          freelancerId: savedUser.id,
+          freelancerId: savedFreelancer.id,
           skill,
+          proficiency: skill.proficiency,
         }),
       );
-      await queryRunner.manager.save(userSkills);
+      await queryRunner.manager.save(freelancerSkills);
 
-      const userLanguages = allLangueges.map((language) =>
+      const freelancerLanguages = allLanguages.map((language) =>
         queryRunner.manager.create(FreelancersLanguages, {
-          freelancerId: savedUser.id,
+          freelancerId: savedFreelancer.id,
           language,
+          proficiency: language.proficiency,
         }),
       );
-      await queryRunner.manager.save(userLanguages);
+      await queryRunner.manager.save(freelancerLanguages);
 
       await queryRunner.commitTransaction();
 
-      return super.findOneById(savedUser.id);
+      const freelancerEntity = await super.findOneById(savedFreelancer.id);
+      return freelancerEntity;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -126,7 +135,11 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
 
     const entity = await this.findOneById(id);
 
-    const { email, skills, languages } = data;
+    const {
+      email,
+      freelancersSkills: skills,
+      freelancersLanguages: languages,
+    } = data;
 
     try {
       const updatedFreelancer = queryRunner.manager.create(FreelancerEntity, {
@@ -178,15 +191,15 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     skillNames: string[],
   ): Promise<SkillEntity[]> {
     const existingSkills = await queryRunner.manager.findBy(SkillEntity, {
-      title: In(skillNames),
+      name: In(skillNames),
     });
 
     const newSkillNames = skillNames.filter(
-      (title) => !existingSkills.some((skill) => skill.title === title),
+      (title) => !existingSkills.some((skill) => skill.name === title),
     );
     const newSkills = await Promise.all(
-      newSkillNames.map(async (title) => {
-        const newskill = queryRunner.manager.create(SkillEntity, { title });
+      newSkillNames.map(async (name) => {
+        const newskill = queryRunner.manager.create(SkillEntity, { name });
         return await queryRunner.manager.save(newskill);
       }),
     );

@@ -9,26 +9,24 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
-import {
-  FreelancerProficiencyLevel,
-  FreelancerRankEnum,
-} from '../enum/freelancer.enum';
-import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
-import { FreelancersLanguages } from './freelancers_languages.entity';
-import { FreelancersSkills, SkillEntity } from './freelancers_skills.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { FreelancerRankEnum } from '../enum/freelancer.enum';
+import {
+  FreelancersLanguages,
+  LanguageEntity,
+} from './freelancers_languages.entity';
+import { FreelancersSkills } from './freelancers_skills.entity';
 
 @Entity('freelancer')
 export class FreelancerEntity extends BaseEntity {
@@ -41,6 +39,14 @@ export class FreelancerEntity extends BaseEntity {
   email: string;
 
   @AutoMap()
+  @Column({ nullable: true })
+  avatar: string;
+
+  @AutoMap()
+  @Column({ nullable: true })
+  country: string;
+
+  @AutoMap()
   @Column({
     name: 'user_id',
     nullable: false,
@@ -51,7 +57,7 @@ export class FreelancerEntity extends BaseEntity {
 
   @AutoMap(() => UserEntity)
   @OneToOne(() => UserEntity, (user) => user.freelancer, {
-   // eager: true,
+    // eager: true,
     onDelete: 'CASCADE', //  Nếu user bị xóa, freelancer cũng bị xóa theo.
   })
   @JoinColumn({ name: 'user_id' })
@@ -93,7 +99,7 @@ export class FreelancerEntity extends BaseEntity {
     cascade: true,
     eager: true,
   })
-  languages?: FreelancersLanguages[] | string[];
+  freelancersLanguages?: FreelancersLanguages[] | string[];
 
   // @AutoMap(() => [String])
   // @Column({ type: 'simple-array', nullable: true })
@@ -104,7 +110,13 @@ export class FreelancerEntity extends BaseEntity {
     cascade: true,
     eager: true,
   })
-  skills?: FreelancersSkills[] | string[];
+  freelancersSkills?: FreelancersSkills[] | string[];
+
+  @AutoMap(() => [LanguageEntity])
+  languages: LanguageEntity[];
+
+  @AutoMap(() => [LanguageEntity])
+  skills: LanguageEntity[];
 
   @AutoMap(() => [CategoryEntity])
   @ManyToMany(() => CategoryEntity, (category) => category.freelancers, {

@@ -5,8 +5,15 @@ export enum FreelancerRankEnum {
   LEVEL3 = 'LEVEL3',
 }
 
-export enum FreelancerProficiencyLevel {
-  BEGINNER = 'BEGINNER',
-  INTERMEDIATE = 'INTERMEDIATE',
-  FLUENT = 'FLUENT',
+export enum FreelancerSkillProficiency {
+  BEGINNER = 'Beginner',
+  INTERMEDIATE = 'Intermediate',
+  ADVANCED = 'Advanced',
+}
+
+export enum FreelancerLanguageProficiency {
+  BEGINNER = 'Beginner',
+  INTERMEDIATE = 'Intermediate',
+  ADVANCED = 'Advanced',
+  FLUENT = 'Fluent',
 }

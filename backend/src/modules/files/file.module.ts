@@ -146,7 +146,17 @@ const destination = (
   file: Express.Multer.File,
   callback: (error: Error | null, destination: string) => void,
 ) => {
-  if (imageMimeTypes.includes(file.mimetype)) {
+
+  if (!file || !file.originalname ) {
+    return callback(new Error('No file or filename provided'), '');
+  }
+  if (file.originalname .startsWith('avartar___')) {
+    if (!fs.existsSync(`./public/avatars`)) {
+      fs.mkdirSync(`./public/avatars`, { recursive: true });
+    }
+
+    return callback(null, `./public/avatars`);
+  } else if (imageMimeTypes.includes(file.mimetype)) {
     if (!fs.existsSync(`./public/images`)) {
       fs.mkdirSync(`./public/images`, { recursive: true });
     }
@@ -158,7 +168,6 @@ const destination = (
     }
 
     return callback(null, `./public/videos`);
-
   } else if (documentMimeTypes.includes(file.mimetype)) {
     if (!fs.existsSync(`./public/documents`)) {
       fs.mkdirSync(`./public/documents`, { recursive: true });

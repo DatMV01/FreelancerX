@@ -14,7 +14,7 @@ export class FileDto {
       if ((fileConfig() as FileConfig).driver === FileDriver.LOCAL) {
         const _appConfig = appConfig() as AppConfig;
 
-        return `${_appConfig.backendDomain}:${_appConfig.port}/${value.replaceAll('\\', '/')}`;
+        return `${_appConfig.backendDomain}/${value.replaceAll('\\', '/')}`;
       } else if (
         [FileDriver.S3_PRESIGNED, FileDriver.S3].includes(
           (fileConfig() as FileConfig).driver,

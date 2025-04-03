@@ -6,6 +6,7 @@ import { FreelancerEntity } from './entities/freelancer.entity';
 import { FreelancerService } from './freelancer.service';
 import { AuthGuard } from '@nestjs/passport';
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -19,6 +20,8 @@ import {
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Controller('freelancer')
 export class FreelancerController extends BaseController<
@@ -36,30 +39,26 @@ export class FreelancerController extends BaseController<
       UpdateFreelancerDto,
     );
   }
-  // @Get(':id')
-  // // // @UseGuards(AuthGuard('jwt'))
-  // @ApiOperation({ summary: 'Get an entity by ID' })
-  // @ApiParam({ name: 'id', type: String })
-  // @ApiResponse({ status: 200, description: 'Entity found' })
-  // async findOneById(@Param('id') id: string) {
-  //   const entity = await this._service.findOneById(id);
-
-  //   return this.mapFromEntityToDto(entity);
-  // }
 
   @Post()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiOperation({ summary: 'Create a new freelancer' })
   @ApiBody({ type: CreateFreelancerDto, required: false })
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
     type: FreelancerDto,
   })
-  async create(data: CreateFreelancerDto): Promise<any> {
-    return super.create(data)
-    //return this._service.create(super.getEntityMapping(data));
+  createFreelancer(
+    @Body() data: CreateFreelancerDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<FreelancerDto> {
+    data = {
+      ...data,
+      userId: currentUser.id,
+    };
+    return super.create(data);
   }
 
   @Patch(':id')

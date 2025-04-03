@@ -10,56 +10,102 @@ import { categories, subCategoriesByCategory } from "@/data/data";
 import Image from "next/image";
 import Link from "next/link";
 import { VisuallyHidden } from "radix-ui";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import MasonryGrid from "./masonry-grid";
+
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useEffect } from "react";
 import { Scrollbar } from "swiper/modules";
+
 import "swiper/css";
 import "swiper/css/scrollbar";
 import clsx from "clsx";
 import LoginForm from "@/features/auth/components/LoginForm";
-import MasonryGrid from "./masonry-grid";
 
-const CategoriesSection = () => (
-  <div className="my-6 grid grid-cols-3 gap-3 md:grid-cols-4">
-    {categories.map((category) => (
-      <Link
-        key={category.id}
-        href={`/categories/${category.slug}`}
-        className="flex flex-col items-center gap-y-3 transition-transform hover:scale-105"
-      >
-        <div className="flex h-[100px] w-[100px] items-center justify-center rounded-2xl border-2">
-          <Image
-            width={40}
-            height={40}
-            src={category.icon2}
-            alt={category.title}
-          />
+const CategoriesSection = () => {
+  return (
+    <div
+      className={clsx(
+        "my-6 grid grid-cols-3 grid-rows-3 gap-3",
+        "md:grid-cols-4",
+      )}
+    >
+      {categories.map((category) => (
+        <Link
+          key={category.id}
+          href={`/categories/${category.slug}`}
+          className="flex flex-col items-center gap-y-3"
+        >
+          <div className="flex h-[100px] w-[100px] items-center justify-center rounded-2xl border-2">
+            <Image
+              width="0"
+              height="0"
+              src={category.icon2}
+              alt=" "
+              className="h-[40px] w-[40px]"
+            ></Image>
+          </div>
+          <p className="text-center"> {category.title}</p>
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+const PopularServiceSection = () => {
+  return (
+    <div className=" ">
+      <h2 className="text-2xl text-[#404145]">Popular Service</h2>
+
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex w-full space-x-4 py-4">
+          {subCategoriesByCategory.map((category: any) => {
+            return (
+              <Link key={category.id} href={`/categories/${category.slug}`}>
+                <div
+                  className={`flex h-[170px] w-[120px] flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1`}
+                >
+                  <p className="text-center text-wrap text-white">
+                    {category.title}
+                  </p>
+
+                  <Image
+                    className="rounded-lg"
+                    alt="Website Development"
+                    sizes="100vw"
+                    src="/images/website-development.webp"
+                    priority
+                  />
+                </div>
+              </Link>
+            );
+          })}
         </div>
-        <p className="text-center">{category.title}</p>
-      </Link>
-    ))}
-  </div>
-);
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    </div>
+  );
+};
 
-const PopularServiceSectionSwipper = () => {
-  const [slideSize, setSlideSize] = useState({
-    width: "120px",
-    height: "170px",
-  });
+export const PopularServiceSectionSwipper = () => {
+  const [slideWidth, setSlideWidth] = useState("120px");
+  const [slideHeight, setSlideHeight] = useState("170px");
 
   useEffect(() => {
-    const updateSize = () => {
+    const updateWidth = () => {
       if (window.innerWidth < 640) {
-        setSlideSize({ width: "100px", height: "150px" });
+      } else if (window.innerWidth >= 640) {
+      } else if (window.innerWidth >= 768) {
       } else if (window.innerWidth >= 1024) {
-        setSlideSize({ width: "150px", height: "200px" });
-      } else {
-        setSlideSize({ width: "120px", height: "170px" });
+      } else if (window.innerWidth >= 1280) {
+      } else if (window.innerWidth >= 1536) {
       }
     };
-    window.addEventListener("resize", updateSize);
-    updateSize();
-    return () => window.removeEventListener("resize", updateSize);
+
+    window.addEventListener("resize", updateWidth);
+    updateWidth();
+
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   return (
@@ -67,75 +113,217 @@ const PopularServiceSectionSwipper = () => {
       modules={[Scrollbar]}
       scrollbar={{ draggable: true, hide: true }}
       spaceBetween={15}
-      slidesPerView="auto"
+      slidesPerView={"auto"}
+      className="my-4 w-full"
+      style={{ paddingBottom: "10px" }}
     >
-      {subCategoriesByCategory.map((category: any) => (
-        <SwiperSlide key={category.id} style={slideSize}>
-          <Link href={`/categories/${category.slug}`}>
-            <div className="flex h-full flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1">
-              <p className="line-clamp-2 h-[50px] text-center text-white">
-                {category.title}
-              </p>
-              <div className="relative h-2/3">
-                <Image
-                  className="rounded-lg"
-                  alt={category.title}
-                  fill
-                  src="/images/website-development.webp"
-                  style={{ objectFit: "cover" }}
-                  priority
-                />
+      {subCategoriesByCategory.map((category: any, index) => {
+        return (
+          <SwiperSlide
+            key={index}
+            style={{ width: slideWidth, height: slideHeight }}
+          >
+            <Link key={category.id} href={`/categories/${category.slug}`}>
+              <div
+                className={`flex h-full flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1`}
+              >
+                <p className="line-clamp-2 h-[50px] overflow-hidden text-center text-ellipsis text-white">
+                  {category.title}
+                </p>
+
+                <div className="relative h-2/3">
+                  <Image
+                    className="rounded-lg"
+                    alt="Website Development"
+                    fill
+                    src="/images/website-development.webp"
+                    style={{ objectFit: "cover" }}
+                    priority
+                  />
+                </div>
               </div>
-            </div>
-          </Link>
-        </SwiperSlide>
-      ))}
+            </Link>
+          </SwiperSlide>
+        );
+      })}
     </Swiper>
   );
 };
 
-const LoginDialogGuestHomePage = () => {
-  const [isShowLoginForm, setShowLoginForm] = useState(false);
-
+const FingerTips = () => {
   return (
-    <Dialog open={isShowLoginForm} onOpenChange={setShowLoginForm}>
-      <DialogTrigger asChild>
-        <button className="rounded-sm border border-green-500 bg-green-500 px-4 py-2 text-xl text-white transition-colors hover:bg-green-700">
-          Join Now
-        </button>
-      </DialogTrigger>
-      <DialogContent className="animate-fade-in w-full max-w-md rounded-md bg-white px-0 py-4">
-        <VisuallyHidden.Root>
-          <DialogTitle>Login</DialogTitle>
-          <DialogDescription>Sign in to your account</DialogDescription>
-        </VisuallyHidden.Root>
-        <LoginForm setShowLoginForm={setShowLoginForm} />
-      </DialogContent>
-    </Dialog>
-  );
-};
+    <div className="flex flex-col items-center py-4">
+      <h2 className="text-3xl text-[#404145]">
+        Make it all happen with freelancers
+      </h2>
 
-const Banner = ({ slogen }: { slogen: string }) => {
-  return (
-    <div className="relative z-10 flex h-[300px] w-full flex-col items-center justify-center gap-4 rounded-md bg-green-900 bg-[url('/images/banner.png')] bg-cover bg-center md:h-[370px]">
-      <h1 className="text-3xl text-white">FreelancerX</h1>
-      <p
-        dangerouslySetInnerHTML={{ __html: slogen }}
-        className="text-center text-xl text-white md:text-4xl"
-      />
+      <ul className="grid grid-cols-1 gap-1 md:grid-cols-2">
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/categories.8badf97.svg"
+            height={0}
+            width={0}
+            alt="Access a pool of top talent across 700 categories"
+            className="my-2 mr-2 h-12 w-12"
+          />
+          <p className="text-ml max-w-xs">
+            Access a pool of top talent across 700 categories
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/matching.0eef7cc.svg"
+            height={0}
+            width={0}
+            alt="Enjoy a simple, easy-to-use matching experience"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">
+            Enjoy a simple, easy-to-use matching experience
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/quickly.6879514.svg"
+            height={0}
+            width={0}
+            alt="Get quality work done quickly and within budget"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">
+            Get quality work done quickly and within budget
+          </p>
+        </li>
+        <li className="flex flex-row items-center">
+          <Image
+            src="/finger-tips/happy.42ed7bd.svg"
+            height={0}
+            width={0}
+            alt="Only pay when you’re happy"
+            className="my-2 mr-2 h-12 w-12"
+          />
+
+          <p className="text-ml max-w-xs">Only pay when you’re happy</p>
+        </li>
+      </ul>
     </div>
   );
 };
 
+const LoginDialogGuestHomePage = ({ className }: { className?: any }) => {
+  const [isShowLoginForm, setShowLoginForm] = useState(false);
+
+  return (
+    <>
+      <Dialog open={isShowLoginForm} onOpenChange={setShowLoginForm}>
+        <DialogTrigger asChild>
+          <button className="rounded-sm border border-green-500 bg-green-500 px-4 py-2 text-xl text-white">
+            Join Now
+          </button>
+        </DialogTrigger>
+
+        <DialogContent className="w-full max-w-md rounded-md bg-white px-0 py-4">
+          <VisuallyHidden.Root>
+            <DialogTitle>Login</DialogTitle>
+            <DialogDescription>Sign in to your account</DialogDescription>
+          </VisuallyHidden.Root>
+
+          <LoginForm setShowLoginForm={setShowLoginForm} />
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+const MakeOnFreelancerConnect = () => {
+  return <MasonryGrid />;
+};
+
 const FingerTips2 = () => {
   return (
-    <div className="my-6 flex h-[250px] w-full flex-col items-center justify-between rounded-lg bg-[#4d1727] px-6 py-8">
+    <div className="flex h-[250px] w-full flex-col items-center justify-between rounded-lg bg-[#4d1727] px-6 py-8">
       <h2 className="text-center text-3xl text-white">
         Freelance services at your <br />
         <span className="text-[#ff7640]">fingertips</span>
       </h2>
 
-      <LoginDialogGuestHomePage />
+      <LoginDialogGuestHomePage className="px-4" />
+    </div>
+  );
+};
+``;
+
+const Banner = ({ slogen, ...props }: { slogen: any }) => {
+  const companies = [
+    {
+      name: "Meta",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/meta.ff37dd3.svg",
+      width: 70,
+      height: 14,
+    },
+    {
+      name: "Google",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/google.e74f4d9.svg",
+      width: 53.41,
+      height: 17.87,
+    },
+    {
+      name: "Netflix",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/netflix.b310314.svg",
+      width: 53.64,
+      height: 14.37,
+    },
+    {
+      name: "P&G",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/pg.22fca85.svg",
+      width: 33.13,
+      height: 13.8,
+    },
+    {
+      name: "PayPal",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/paypal.d398de5.svg",
+      width: 53.01,
+      height: 12.69,
+    },
+    {
+      name: "Payoneer",
+      src: "https://fiverr-res.cloudinary.com/npm-assets/@fiverr/logged_out_homepage_perseus/payoneer.7c1170d.svg",
+      width: 82.42,
+      height: 16,
+    },
+  ];
+
+  return (
+    <div
+      className={clsx(
+        "relative z-50 flex h-[350px] w-full flex-col items-center justify-center gap-4 rounded-md md:h-[370px]",
+        "bg-[rgb(37,66,0)] bg-cover bg-center bg-no-repeat",
+        "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/3a163e1090b4d0f0b8dc46abb36972ef-1739466831497/new-hero-md.png')]",
+      )}
+    >
+      <h1 className="text-3xl text-white">FreelancerX</h1>
+      <p
+        dangerouslySetInnerHTML={{ __html: slogen }}
+        className="text-center text-xl text-white md:text-4xl"
+      />
+
+      <div className="hidden flex-col items-center space-y-2 md:flex">
+        <span className="text-lg font-semibold text-gray-500">Trusted by:</span>
+        <ul className="flex flex-wrap justify-center gap-6">
+          {companies.map((company, index) => (
+            <li key={index} className="relative h-[20px] w-[80px]">
+              <Image
+                src={company.src}
+                alt={company.name}
+                fill
+                className="object-contain"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
@@ -146,9 +334,13 @@ const GuestHomePage = () => {
       <Banner
         slogen={"Scale your professional workforce <br/> with freelancers"}
       />
-      <CategoriesSection />
-      <PopularServiceSectionSwipper />
 
+      <CategoriesSection />
+      {/* <PopularServiceSection /> */}
+      <PopularServiceSectionSwipper />
+      <FingerTips />
+      <LoginDialogGuestHomePage />
+      <MakeOnFreelancerConnect />
       <FingerTips2 />
     </div>
   );

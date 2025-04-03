@@ -4,6 +4,7 @@ import axios from "axios";
 import { selectAccessToken } from "../redux/features/auth/authSlice";
 import { getClientStore } from "../redux/store";
 import { getSession } from "next-auth/react";
+import { useAppSelector } from "../redux/hooks";
 
 export const axiosInstanceV1 = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/v1`,
@@ -24,18 +25,11 @@ export const axiosInstanceV2 = axios.create({
 });
 
 const axiosConfig = async (config: any) => {
-  debugger;
   try {
     let accessToken: string | undefined | null;
 
-    const store = getClientStore();
-    const state = store.getState();
-    accessToken = selectAccessToken(state);
-
-    if (!accessToken) {
-      const session = await getSession();
-      accessToken = session?.accessToken;
-    }
+    const session = await getSession();
+    accessToken = session?.accessToken;
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;

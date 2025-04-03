@@ -39,6 +39,7 @@ import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import { QueryDto } from './dto/query.dto';
 import { BaseEntity } from './entities/base.entity';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiExtraModels(PageDto, PageMetaDto)
@@ -59,7 +60,7 @@ export abstract class BaseController<
   ) {}
 
   @Post()
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   @ApiOperation({ summary: 'Create a new entity' })
   @ApiBody({ type: Object })
@@ -138,7 +139,7 @@ export abstract class BaseController<
   }
 
   @Get(':id')
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get an entity by ID' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Entity found' })
@@ -149,14 +150,14 @@ export abstract class BaseController<
   }
 
   @Get('/me/:id')
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [ADMIN_GROUP, ME_GROUP] })
   async me(@Param('id') id: string) {
     return this.findOneById(id);
   }
 
   @Patch(':id')
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   @ApiOperation({ summary: 'Update an entity' })
   @ApiParam({ name: 'id', type: String, required: false })
@@ -177,7 +178,7 @@ export abstract class BaseController<
   }
 
   @Delete(':id')
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Soft delete an entity' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Entity deleted successfully' })
@@ -186,7 +187,7 @@ export abstract class BaseController<
   }
 
   @Delete('/hard/:id')
-  // // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Hard delete an entity' })
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Entity deleted successfully' })
