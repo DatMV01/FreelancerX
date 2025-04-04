@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import AvatarOnline from "../avatar_online/AvatarOnline";
 import { ScrollArea } from "../ui/scroll-area";
+import clsx from "clsx";
 
 const PopoverAvatar = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const PopoverAvatar = () => {
 
   const username = user?.email;
   const fullName = user?.fullName;
+  const isFreelancer = user?.freelancer !== null;
 
   return (
     <Popover>
@@ -44,19 +46,23 @@ const PopoverAvatar = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2">
+            <div className="grid h-12 grid-cols-2">
               <Link
-                href={`/buyer/${username}/profile`}
-                className="p-4 text-center hover:bg-green-50 hover:text-green-500"
+                href={`/buyer/profile/${username}`}
+                className="flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500"
               >
-                User Profile
+                Buyer Profile
               </Link>
 
               <Link
-                href={`/freelancer/${username}/profile`}
-                className="p-4 text-center hover:bg-green-50 hover:text-green-500"
+                href="/freelancer/onboarding"
+                className={clsx(
+                  "flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500",
+
+                  { "text-green-500": isFreelancer },
+                )}
               >
-                Freelancer Profile
+                {isFreelancer ? "Become a Freelancer" : "Freelancer Profile"}
               </Link>
             </div>
 
@@ -67,21 +73,16 @@ const PopoverAvatar = () => {
               Switch to Buying
             </Link>
 
-            <Link
-              href="/freelancer/dashboard"
-              className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
-            >
-              Switch to Freelancer
-            </Link>
+            {!isFreelancer && (
+              <Link
+                href="/freelancer/dashboard"
+                className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
+              >
+                Freelancer Dashboard
+              </Link>
+            )}
 
             <Divider />
-
-            <Link
-              href="/freelancer/onboarding"
-              className="p-4 text-green-500 hover:bg-green-50"
-            >
-              Become a Freelancer
-            </Link>
 
             <Link
               href={`/setting`}

@@ -6,8 +6,13 @@ import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import {
+  refetchMeAsync,
+  signUpAsFreelancer,
+} from "@/lib/redux/features/auth/authSlice";
+import { useAppDispatch } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";  
+import { X } from "lucide-react";
 import { useRouter } from "next/router";
 import { ChangeEvent, MouseEvent, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -104,6 +109,7 @@ export default function FreelancerSignupForm() {
     type: "success" | "errror";
     message: string;
   }>();
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -194,39 +200,67 @@ export default function FreelancerSignupForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log("Form Data Submitted:", values);
+
     try {
-      const response = await axiosInstanceV1.post("/freelancer", values);
-
-      const { data, status } = response;
-
-      if (status === 201) {
-        setMessage({
-          type: "success",
-          message: "Sign Up as a Freelancer successfully !",
-        });
-
-        setCountdown(5);
-
-        const countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev === 1) {
-              clearInterval(countdownInterval);
-              router.push(`/freelancer/profile/${data.email}`);
-              return null;
-            }
-            return prev! - 1;
-          });
-        }, 1000);
-      }
-
+      const data = await dispatch(signUpAsFreelancer(values)).unwrap();
       debugger;
-      console.log("Form Data Submitted Successfully:", response.data);
-    } catch (error) {
+      setMessage({
+        type: "success",
+        message: "Sign Up as a Freelancer successfully !",
+      });
+
+      setCountdown(5);
+
+      const countdownInterval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === 1) {
+            clearInterval(countdownInterval);
+            router.push(`/freelancer/profile/${data.email}`);
+            return null;
+          }
+          return prev! - 1;
+        });
+      }, 1000);
+    } catch (err) {
       setMessage({
         type: "errror",
         message: "An error occurred. Please try again.",
       });
     }
+
+    // try {
+    //   const response = await axiosInstanceV1.post("/freelancer", values);
+
+    //   const { data, status } = response;
+
+    //   if (status === 201) {
+    //     setMessage({
+    //       type: "success",
+    //       message: "Sign Up as a Freelancer successfully !",
+    //     });
+
+    //     setCountdown(5);
+
+    //     const countdownInterval = setInterval(() => {
+    //       setCountdown((prev) => {
+    //         if (prev === 1) {
+    //           clearInterval(countdownInterval);
+    //           router.push(`/freelancer/profile/${data.email}`);
+    //           return null;
+    //         }
+    //         return prev! - 1;
+    //       });
+    //     }, 1000);
+    //   }
+
+    //   debugger;
+    //   console.log("Form Data Submitted Successfully:", response.data);
+    // } catch (error) {
+    //   setMessage({
+    //     type: "errror",
+    //     message: "An error occurred. Please try again.",
+    //   });
+    // }
   }
 
   return (

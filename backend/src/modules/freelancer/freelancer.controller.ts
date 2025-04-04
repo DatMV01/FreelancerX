@@ -6,6 +6,7 @@ import { FreelancerEntity } from './entities/freelancer.entity';
 import { FreelancerService } from './freelancer.service';
 import { AuthGuard } from '@nestjs/passport';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -16,7 +17,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ADMIN_GROUP,
   CREATE_GROUP,
+  ME_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -61,8 +64,29 @@ export class FreelancerController extends BaseController<
     return super.create(data);
   }
 
+  @Get('/profile/:email')
+  @SerializeOptions({ groups: [ADMIN_GROUP] })
+  @ApiOperation({ summary: 'Get freelancer information by email' })
+  @ApiBody({ type: FreelancerDto, required: false })
+  @ApiResponse({
+    status: 200,
+    description: 'Entity found',
+    type: FreelancerDto,
+  })
+  async getFreelancerProfile(
+    @Param('email') email: string,
+  ): Promise<FreelancerDto> {
+    if (!email) {
+      throw new BadRequestException('Email can not empty');
+    }
+
+    const entity = await this.baseService.findOne({ where: { email } });
+
+    return this.mapFromEntityToDto(entity);
+  }
+
   @Patch(':id')
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   @ApiOperation({ summary: 'Update an entity' })
   @ApiParam({ name: 'id', type: String, required: false })
@@ -72,7 +96,11 @@ export class FreelancerController extends BaseController<
     description: 'Entity updated successfully',
     type: FreelancerDto,
   })
-  async update(id: string, data: UpdateFreelancerDto): Promise<FreelancerDto> {
-    return super.update(id, data);
+  async update(
+    @Param('id') id: string,
+    @Body() data: UpdateFreelancerDto,
+  ): Promise<FreelancerDto> {
+    const dto = await super.update(id, data);
+    return dto;
   }
 }

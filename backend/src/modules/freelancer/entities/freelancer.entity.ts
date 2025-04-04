@@ -47,6 +47,14 @@ export class FreelancerEntity extends BaseEntity {
   country: string;
 
   @AutoMap()
+  @Column({ nullable: true })
+  phone: string;
+
+  @AutoMap()
+  @Column()
+  fullName: string;
+
+  @AutoMap()
   @Column({
     name: 'user_id',
     nullable: false,
@@ -75,39 +83,14 @@ export class FreelancerEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   bio?: string;
 
-  // @AutoMap(() => [String])
-  // @Column({ type: 'simple-array', nullable: true })
-  // languages?: string[];
-
-  // @AutoMap(() => [FreelancerLanguageEntity])
-  // @ManyToMany(
-  //   () => FreelancerLanguageEntity,
-  //   (language) => language.freelancers,
-  //   {
-  //     onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
-  //   },
-  // )
-  // @JoinTable({
-  //   name: 'freelancers_languages',
-  //   joinColumn: { name: 'freelancer_id', referencedColumnName: 'id' },
-  //   inverseJoinColumn: { name: 'language_id', referencedColumnName: 'id' },
-  // })
-  // languages?: FreelancerLanguageEntity[];
-
   @AutoMap(() => [FreelancersLanguages])
   @OneToMany(() => FreelancersLanguages, (language) => language.freelancer, {
-    cascade: true,
     eager: true,
   })
   freelancersLanguages?: FreelancersLanguages[] | string[];
 
-  // @AutoMap(() => [String])
-  // @Column({ type: 'simple-array', nullable: true })
-  // skills?: string[];
-
   @AutoMap(() => [FreelancersSkills])
   @OneToMany(() => FreelancersSkills, (skill) => skill.freelancer, {
-    cascade: true,
     eager: true,
   })
   freelancersSkills?: FreelancersSkills[] | string[];
@@ -148,12 +131,12 @@ export class FreelancerEntity extends BaseEntity {
   @AutoMap()
   @Column({ type: 'int', default: 0 })
   @Index('IDX_freelancer_response_time')
-  responseTime?: number;
+  responseTime: number;
 
   @AutoMap()
   @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.0 })
   @Index('IDX_freelancer_rating')
-  completedRate?: number;
+  completedRate: number;
 
   @AutoMap()
   @Column({ type: 'bigint', default: 0 })

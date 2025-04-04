@@ -32,6 +32,7 @@ import {
 } from './entities/freelancers_languages.entity';
 import { RoleEnum } from '../role/enum/role.enum';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FreelancerService extends BaseService<FreelancerEntity> {
@@ -60,62 +61,71 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     createDto: DeepPartial<FreelancerEntity>,
   ): Promise<FreelancerEntity> {
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
-    const { userId, email, skills, languages } = createDto;
+    const { userId, email, skills, languages, avatar, phone, country } =
+      createDto;
 
     const whereCondition: any[] = [];
     if (userId) whereCondition.push({ id: userId });
     if (email) whereCondition.push({ email });
 
+    // Check if the user exists
     const userEnity = await this.userService.findOne({
-      select: { id: true, email: true },
+      select: {
+        id: true,
+        email: true,
+        avatar: true,
+        phone: true,
+        country: true,
+      },
       where: whereCondition,
     });
 
-    userEnity && (await super.existsByAndThrowExeption(whereCondition));
+    if (!userEnity) {
+      throw new NotFoundException('User not found');
+    }
 
-    const skillNames = skills?.map((_) => _.name);
-    const allSkills = await this.createSkills(
-      queryRunner,
-      skillNames as string[],
-    );
+    userEnity.avatar = avatar ?? userEnity.avatar;
+    userEnity.phone = phone ?? userEnity.phone;
+    userEnity.country = country ?? userEnity.country;
 
-    const languageNames = languages?.map((_) => _.name);
-    const allLanguages = await this.createLanguages(languageNames as string[]);
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const allSkills = await this.createSkills(queryRunner, skills || []);
+    const allLanguages = await this.createLanguages(languages || []);
 
     try {
-      const createdFreelancer = this._repository.create({
+      const createdFreelancer = queryRunner.manager.create(FreelancerEntity, {
         ...createDto,
         user: userEnity,
-        languages: null,
-        skills: null,
-      } as any as FreelancerEntity);
+        id: uuidv4(),
+      });
 
-      const savedFreelancer = await queryRunner.manager.save(createdFreelancer);
-
-      const freelancerSkills = allSkills.map((skill) =>
+      const createdFreelancerSkills = allSkills.map((skill) =>
         queryRunner.manager.create(FreelancersSkills, {
-          freelancerId: savedFreelancer.id,
+          freelancerId: createdFreelancer.id,
           skill,
           proficiency: skill.proficiency,
         }),
       );
-      await queryRunner.manager.save(freelancerSkills);
 
-      const freelancerLanguages = allLanguages.map((language) =>
+      const createdFreelancerLanguages = allLanguages.map((language) =>
         queryRunner.manager.create(FreelancersLanguages, {
-          freelancerId: savedFreelancer.id,
+          freelancerId: createdFreelancer.id,
           language,
           proficiency: language.proficiency,
         }),
       );
-      await queryRunner.manager.save(freelancerLanguages);
 
+      await queryRunner.manager.save(createdFreelancer);
+      await queryRunner.manager.save(createdFreelancerSkills);
+      await queryRunner.manager.save(createdFreelancerLanguages);
+
+      await queryRunner.manager.update(UserEntity, userEnity.id, userEnity);
       await queryRunner.commitTransaction();
 
-      const freelancerEntity = await super.findOneById(savedFreelancer.id);
+      const freelancerEntity = await super.findOneById(createdFreelancer.id);
       return freelancerEntity;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -133,51 +143,225 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
-    const entity = await this.findOneById(id);
-
-    const {
-      email,
-      freelancersSkills: skills,
-      freelancersLanguages: languages,
-    } = data;
-
     try {
-      const updatedFreelancer = queryRunner.manager.create(FreelancerEntity, {
-        ...entity,
-        ...data,
-        languages: null,
-        skills: null,
-      } as any);
-      await queryRunner.manager.save(updatedFreelancer);
+      // Find the existing freelancer entity
+      const freelancerEntity = await this.findOneById(id);
 
-      const allSkills = await this.createSkills(
-        queryRunner,
-        skills as string[],
-      );
+      const { skills, languages, level, email, avatar, phone, country } = data;
+
       await queryRunner.manager.delete(FreelancersSkills, { freelancerId: id });
-      const userSkills = allSkills.map((skill) =>
-        queryRunner.manager.create(FreelancersSkills, {
-          freelancerId: entity.id,
-          skill,
-        }),
-      );
-      await queryRunner.manager.save(userSkills);
-
-      const allLangueges = await this.createLanguages(languages as string[]);
       await queryRunner.manager.delete(FreelancersLanguages, {
         freelancerId: id,
       });
-      const userLanguages = allLangueges.map((language) =>
-        queryRunner.manager.create(FreelancersLanguages, {
-          freelancerId: entity.id,
-          language,
+
+      // Update the freelancer entity
+      const updatedFreelancerEntity: FreelancerEntity = {
+        ...freelancerEntity,
+        ...data,
+        userId: freelancerEntity.userId,
+        id: freelancerEntity.id,
+        email: freelancerEntity.email,
+        level: level || freelancerEntity.level,
+      } as any;
+
+      await queryRunner.manager.save(FreelancerEntity, updatedFreelancerEntity);
+
+      // Update related skills
+      const allSkills = await this.createSkills(queryRunner, skills || []);
+      const createdFreelancerSkills = allSkills.map((skill) =>
+        queryRunner.manager.create(FreelancersSkills, {
+          freelancerId: freelancerEntity.id,
+          skill,
+          proficiency: skill.proficiency,
         }),
       );
-      await queryRunner.manager.save(userLanguages);
+
+      // Update related languages
+      const allLanguages = await this.createLanguages(languages || []);
+      const createdFreelancerLanguages = allLanguages.map((language) =>
+        queryRunner.manager.create(FreelancersLanguages, {
+          freelancerId: freelancerEntity.id,
+          language,
+          proficiency: language.proficiency,
+        }),
+      );
+
+      // Delete existing relationships
+      await queryRunner.manager.delete(FreelancersSkills, {
+        freelancerId: freelancerEntity.id,
+      });
+      await queryRunner.manager.delete(FreelancersLanguages, {
+        freelancerId: freelancerEntity.id,
+      });
+
+      // Save new relationships
+      await queryRunner.manager.save(createdFreelancerSkills);
+      await queryRunner.manager.save(createdFreelancerLanguages);
+
+      // Commit the transaction
+      await queryRunner.commitTransaction();
+
+      // Return the updated freelancer entity
+      const result = await super.findOneById(id);
+      return result;
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      // Release the query runner
+      await queryRunner.release();
+    }
+  }
+
+  async update3(
+    id: BaseEntity['id'],
+    data: DeepPartial<FreelancerEntity>,
+  ): Promise<FreelancerEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const freelancerEntity = await this.findOneById(id);
+
+    const { skills, languages, email, avatar, phone, country } = data;
+
+    try {
+      // Tạo các kỹ năng và ngôn ngữ mới nếu có
+      const allSkills = await this.createSkills(queryRunner, skills || []);
+      const allLanguages = await this.createLanguages(languages || []);
+
+      // Tạo các bản ghi FreelancersSkills mới
+      const createdFreelancerSkills = allSkills.map((skill) =>
+        queryRunner.manager.create(FreelancersSkills, {
+          freelancerId: freelancerEntity.id,
+          skill,
+          proficiency: skill.proficiency,
+        }),
+      );
+
+      // Tạo các bản ghi FreelancersLanguages mới
+      const createdFreelancerLanguages = allLanguages.map((language) =>
+        queryRunner.manager.create(FreelancersLanguages, {
+          freelancerId: freelancerEntity.id,
+          language,
+          proficiency: language.proficiency,
+        }),
+      );
+
+      await queryRunner.manager.delete(FreelancersSkills, {
+        freelancerId: freelancerEntity.id,
+      });
+      await queryRunner.manager.delete(FreelancersLanguages, {
+        freelancerId: freelancerEntity.id,
+      });
+      const savedFreelancerSkills = await queryRunner.manager.save(
+        createdFreelancerSkills,
+      );
+      const savedFreelancerLanguages = await queryRunner.manager.save(
+        createdFreelancerLanguages,
+      );
+      Object.assign(freelancerEntity, {
+        ...data,
+        //   freelancersSkills: savedFreelancerSkills,
+        //     freelancersLanguages: savedFreelancerLanguages,
+      });
+      await queryRunner.manager.update(
+        FreelancerEntity,
+        freelancerEntity.id,
+        freelancerEntity,
+      );
+
+      // await queryRunner.manager.delete(FreelancersSkills, {
+      //   freelancerId: freelancerEntity.id,
+      // });
+      // await queryRunner.manager.delete(FreelancersLanguages, {
+      //   freelancerId: freelancerEntity.id,
+      // });
+
+      // Object.assign(freelancerEntity, {
+      //   ...data,
+      //   freelancersSkills: createdFreelancerSkills,
+      //   freelancersLanguages: createdFreelancerLanguages,
+      // });
+      // await queryRunner.manager.update(
+      //   FreelancerEntity,
+      //   freelancerEntity.id,
+      //   freelancerEntity,
+      // );
 
       await queryRunner.commitTransaction();
 
-      return super.findOneById(id);
+      const result = await super.findOneById(id);
+
+      return result;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+  async update2(
+    id: BaseEntity['id'],
+    data: DeepPartial<FreelancerEntity>,
+  ): Promise<FreelancerEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    const freelancerEntity = await this.findOneById(id);
+
+    const { skills, languages, email, avatar, phone, country } = data;
+
+    try {
+      // Tạo các kỹ năng và ngôn ngữ mới nếu có
+      const allSkills = await this.createSkills(queryRunner, skills || []);
+      const allLanguages = await this.createLanguages(languages || []);
+
+      // Xóa các kỹ năng và ngôn ngữ của freelancer hiện tại
+      await queryRunner.manager.delete(FreelancersSkills, {
+        freelancerId: freelancerEntity.id,
+      });
+      await queryRunner.manager.delete(FreelancersLanguages, {
+        freelancerId: freelancerEntity.id,
+      });
+
+      // Tạo các bản ghi FreelancersSkills mới
+      const createdFreelancerSkills = allSkills.map((skill) =>
+        queryRunner.manager.create(FreelancersSkills, {
+          freelancerId: freelancerEntity.id,
+          skill,
+          proficiency: skill.proficiency,
+        }),
+      );
+      const abc = await queryRunner.manager.save(createdFreelancerSkills);
+
+      // Tạo các bản ghi FreelancersLanguages mới
+      const createdFreelancerLanguages = allLanguages.map((language) =>
+        queryRunner.manager.create(FreelancersLanguages, {
+          freelancerId: freelancerEntity.id,
+          language,
+          proficiency: language.proficiency,
+        }),
+      );
+
+      // Cập nhật thông tin của freelancer
+
+      Object.assign(freelancerEntity, {
+        ...data,
+        freelancersSkills: abc,
+        freelancersLanguages: createdFreelancerSkills,
+      });
+      // Lưu lại freelancer entity
+
+      await queryRunner.manager.save(FreelancerEntity, freelancerEntity);
+
+      await queryRunner.commitTransaction();
+
+      const result = await super.findOneById(id);
+
+      return result;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -186,10 +370,9 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     }
   }
 
-  async createSkills(
-    queryRunner: QueryRunner,
-    skillNames: string[],
-  ): Promise<SkillEntity[]> {
+  async createSkills(queryRunner: QueryRunner, skills: any[]): Promise<any[]> {
+    const skillNames = skills?.map((_) => _.name);
+
     const existingSkills = await queryRunner.manager.findBy(SkillEntity, {
       name: In(skillNames),
     });
@@ -206,17 +389,34 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
 
     const allSkills = [...existingSkills, ...newSkills];
 
-    return allSkills;
+    const result = allSkills.map((skill) => {
+      const proficiencyMatch = skills.find((s) => s.name === skill.name);
+      return {
+        ...skill,
+        proficiency: proficiencyMatch ? proficiencyMatch.proficiency : null,
+      };
+    });
+
+    return result;
   }
 
-  async createLanguages(langages: string[]) {
+  async createLanguages(languages: any[]) {
+    const languageNames = languages.map((_) => _.name);
     const existingLanguages = await this.languageRepository.findBy({
-      name: In(langages),
+      name: In(languageNames),
     });
 
     const allLanguges = [...existingLanguages];
 
-    return allLanguges;
+    const result = allLanguges.map((langages) => {
+      const proficiencyMatch = languages.find((s) => s.name === langages.name);
+      return {
+        ...langages,
+        proficiency: proficiencyMatch ? proficiencyMatch.proficiency : null,
+      };
+    });
+
+    return result;
   }
 
   protected additionalQuery(

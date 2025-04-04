@@ -26,7 +26,7 @@ export class UserSeeding {
         password: bcrypt.hashSync('user123', 10),
         avatar: faker.image.avatar(),
         country: 'Vietnam',
-        phoneNumber: faker.phone.number(),
+        phone: faker.phone.number(),
         roleId: RoleEnum.ADMIN,
         statusId: StatusEnum.ACTIVE,
         // role: {
@@ -45,7 +45,7 @@ export class UserSeeding {
         password: bcrypt.hashSync('user123', 10),
         avatar: faker.image.avatar(),
         country: faker.location.country(),
-        phoneNumber: faker.phone.number(),
+        phone: faker.phone.number(),
         roleId: Math.floor(Math.random() * 4 + 1),
         statusId: Math.floor(Math.random() * 5 + 1),
         // role: {

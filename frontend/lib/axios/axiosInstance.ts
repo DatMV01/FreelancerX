@@ -36,7 +36,7 @@ const axiosConfig = async (config: any) => {
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
+ 
     return config;
   } catch (error) {
     return Promise.reject(error);

@@ -1,4 +1,6 @@
 import useGetUserInfo from "@/hooks/useGetUserInfo";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { stringAvatar } from "@/lib/utils";
 import { Avatar } from "@mui/material";
 import Badge from "@mui/material/Badge";
@@ -53,7 +55,7 @@ const MyAvatar = ({
       sx={{
         height: height,
         width: height,
-        fontSize:fontSize
+        fontSize: fontSize,
       }}
       alt="Avatar"
       src={avatarUrl}
@@ -102,7 +104,8 @@ const AvatarOnline = ({
     );
   }
 
-  const { isAuthenticated, user, session } = useGetUserInfo();
+  //const { isAuthenticated, user, session } = useGetUserInfo();
+  const user = useAppSelector(selectUser);
   const avatar = user?.avatar;
 
   return (

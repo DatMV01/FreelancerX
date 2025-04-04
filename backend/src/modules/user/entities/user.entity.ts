@@ -62,7 +62,7 @@ export class UserEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'varchar', length: 50, nullable: true })
-  phoneNumber?: string;
+  phone?: string;
 
   /* ROLE */
   @AutoMap()

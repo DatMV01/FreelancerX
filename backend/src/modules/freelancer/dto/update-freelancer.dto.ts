@@ -1,11 +1,10 @@
-import { CreateFreelancerDto } from './create-freelancer.dto';
-import { FreelancerRankEnum } from '../enum/freelancer.enum';
+import { AutoMap } from '@automapper/classes';
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsEnum, IsOptional } from 'class-validator';
-import { AutoMap } from '@automapper/classes';
+import { FreelancerRankEnum } from '../enum/freelancer.enum';
+import { CreateFreelancerDto } from './create-freelancer.dto';
 
 export class UpdateFreelancerDto extends PartialType(CreateFreelancerDto) {
-
   @AutoMap()
   @IsEnum(FreelancerRankEnum)
   @IsOptional()

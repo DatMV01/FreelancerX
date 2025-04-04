@@ -2,6 +2,80 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { signIn, signOut } from "next-auth/react";
 import { createAppSlice } from "../../createAppSlice";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+
+enum FreelancerRankEnum {
+  NEW = "NEW",
+  LEVEL1 = "LEVEL1",
+  LEVEL2 = "LEVEL2",
+  LEVEL3 = "LEVEL3",
+}
+
+enum FreelancerSkillProficiency {
+  BEGINNER = "Beginner",
+  INTERMEDIATE = "Intermediate",
+  ADVANCED = "Advanced",
+}
+
+enum FreelancerLanguageProficiency {
+  BEGINNER = "Beginner",
+  INTERMEDIATE = "Intermediate",
+  ADVANCED = "Advanced",
+  FLUENT = "Fluent",
+}
+
+interface FreelancerLanguage {
+  id: number;
+  alpha3: string;
+  name: string;
+  proficiency: FreelancerLanguageProficiency;
+}
+
+interface FreelancerSkill {
+  id: number;
+  name: string;
+  proficiency: FreelancerSkillProficiency;
+}
+
+interface FreelancerProfile {
+  createdAt: string;
+  id: string;
+  email: string;
+  country: string;
+  userId: string;
+  level: FreelancerRankEnum;
+  bio: string;
+  avatar: string;
+  phone: string;
+  freelancersLanguages: FreelancerLanguage[];
+  freelancersSkills: FreelancerSkill[];
+  reviewCount: number;
+  completedOrderCount: number;
+  earnings: string;
+  withdrawnAmount: string;
+  completedRate: string;
+  reviews?: {
+    id: number;
+    username: string;
+    rating: number;
+    comment: string;
+  }[];
+  gigs?: {
+    id: number;
+    title: string;
+    description: string;
+    price: number;
+    deliveryTime: string;
+    revisions: number;
+    rating: number;
+    reviews: number;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    freelancerId: string;
+    status: string;
+  }[];
+}
 
 interface RoleDto {
   id: number;
@@ -13,12 +87,13 @@ interface UserDto {
   email: string;
   provider: string;
   fullName: string;
+  phone: string;
   country: string;
   phoneNumber: string;
   avatar: string;
   role: RoleDto;
   status: StatusDto;
-  freelancer?: any;
+  freelancer?: FreelancerProfile | null;
 }
 
 interface StatusDto {
@@ -153,7 +228,7 @@ export const authSlice = createAppSlice({
     refreshAccessTokenAsync: create.asyncThunk(
       async (refreshToken: string, { rejectWithValue }) => {
         try {
-          const response = await axios.post("/api/auth/refresh-token", {
+          const response = await axiosInstanceV1.post("/api/auth/refresh", {
             refreshToken,
           });
           return response.data;
@@ -174,8 +249,116 @@ export const authSlice = createAppSlice({
         rejected: (state) => {
           state.status = "failed";
           state.accessToken = null;
-          state.refreshToken = null;
-          state.user = null;
+        },
+      },
+    ),
+    signUpAsFreelancer: create.asyncThunk(
+      async (data: any, { rejectWithValue }) => {
+        debugger;
+        try {
+          const response = await axiosInstanceV1.post("/freelancer", data);
+          return response.data;
+        } catch (error: any) {
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+          ) {
+            return rejectWithValue(error.response.data.message);
+          }
+
+          return rejectWithValue("signUpAsFreelancer failed");
+        }
+      },
+      {
+        pending: (state) => {
+          state.status = "loading";
+        },
+        fulfilled: (state, action) => {
+          debugger;
+          state.status = "idle";
+          if (state.user) {
+            state.user.freelancer = action.payload;
+            state.user.avatar = action.payload.avatar;
+            state.user.country = action.payload.country;
+          }
+        },
+        rejected: (state) => {
+          state.status = "failed";
+        },
+      },
+    ),
+
+    updateFreelancerProfile: create.asyncThunk(
+      async (data: any, { rejectWithValue }) => {
+        debugger;
+        try {
+          const response = await axiosInstanceV1.patch(
+            `/freelancer/${data.id}`,
+            data,
+          );
+          return response.data;
+        } catch (error: any) {
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+          ) {
+            return rejectWithValue(error.response.data.message);
+          }
+
+          return rejectWithValue("updateFreelancerProfile failed");
+        }
+      },
+      {
+        pending: (state) => {
+          state.status = "loading";
+        },
+        fulfilled: (state, action) => {
+          debugger;
+          state.status = "idle";
+          if (state.user) {
+            state.user.freelancer = action.payload;
+            state.user.avatar = action.payload.avatar;
+            state.user.country = action.payload.country;
+            state.user.phone = action.payload.phone;
+            state.user.fullName = action.payload.fullName;
+          }
+        },
+        rejected: (state) => {
+          state.status = "failed";
+        },
+      },
+    ),
+
+    refetchMeAsync: create.asyncThunk(
+      async (_, { rejectWithValue }) => {
+        try {
+          const response = await axios.get("/me");
+          return response.data;
+        } catch (error: any) {
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.message
+          ) {
+            return rejectWithValue(error.response.data.message);
+          }
+
+          return rejectWithValue("Refetch me failed");
+        }
+      },
+      {
+        pending: (state) => {
+          state.status = "loading";
+        },
+        fulfilled: (state, action) => {
+          debugger;
+          state.status = "idle";
+          state.user = action.payload.user;
+        },
+        rejected: (state) => {
+          state.status = "failed";
         },
       },
     ),
@@ -198,6 +381,9 @@ export const {
   logoutAsync,
   setAuthFromSession,
   refreshAccessTokenAsync,
+  signUpAsFreelancer,
+  refetchMeAsync,
+  updateFreelancerProfile,
 } = authSlice.actions;
 
 export const {

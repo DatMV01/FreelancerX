@@ -45,16 +45,14 @@ export class LanguageEntity {
 }
 
 @Entity('freelancers_languages')
+@Index(['freelancerId', 'languageId'], { unique: true })
 export class FreelancersLanguages {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
-
   @Index()
-  @Column({ type: 'char', length: 36, name: 'freelancer_id' })
+  @PrimaryColumn({ type: 'char', length: 36, name: 'freelancer_id' })
   freelancerId: string;
 
   @Index()
-  @Column({ type: 'number', name: 'language_id' })
+  @PrimaryColumn({ type: 'number', name: 'language_id' })
   languageId: number;
 
   @ManyToOne(

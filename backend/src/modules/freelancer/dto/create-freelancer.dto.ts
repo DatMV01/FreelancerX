@@ -8,7 +8,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID
+  IsUUID,
 } from 'class-validator';
 import {
   FreelancerLanguageProficiency,
@@ -62,7 +62,16 @@ export class CreateFreelancerDto {
     description: 'Unique identifier of the user',
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  userId: string;
+  id: string;
+
+  @AutoMap()
+  @IsOptional()
+  @IsUUID()
+  @ApiProperty({
+    description: 'Unique identifier of the user',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  userId?: string;
 
   @AutoMap()
   @IsEmail()
@@ -82,10 +91,12 @@ export class CreateFreelancerDto {
   @IsOptional()
   avatar: string;
 
+  @AutoMap()
   @IsString()
   @IsNotEmpty()
   fullName: string;
 
+  @AutoMap()
   @IsString()
   @IsOptional()
   phone: string;

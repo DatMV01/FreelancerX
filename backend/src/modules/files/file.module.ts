@@ -150,7 +150,7 @@ const destination = (
   if (!file || !file.originalname ) {
     return callback(new Error('No file or filename provided'), '');
   }
-  if (file.originalname .startsWith('avartar___')) {
+  if (file.originalname .startsWith('avatar___')) {
     if (!fs.existsSync(`./public/avatars`)) {
       fs.mkdirSync(`./public/avatars`, { recursive: true });
     }

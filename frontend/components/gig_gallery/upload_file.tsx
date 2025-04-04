@@ -9,9 +9,10 @@ import {
   gig_imagesUpload,
   gig_videoUpload,
 } from "../gig_add_edit";
+import { X } from "lucide-react";
 
-export interface FileInfomation {
-  id: string;
+interface FileInfomation {
+  id?: string;
   url: string;
 }
 
@@ -37,7 +38,6 @@ const UploadFile = forwardRef(
       autoUpload = false,
       updateGigCb,
       onUploadSuccessCb,
-
       fileInfomation,
     }: Props,
     ref,
@@ -51,10 +51,7 @@ const UploadFile = forwardRef(
     const [dragOver, setDragOver] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [error, setError] = useState("");
-    const [fileInfo, setFileInfo] = useState<{
-      id: string;
-      url: string;
-    } | null>();
+    const [fileInfo, setFileInfo] = useState<FileInfomation | null>();
 
     useImperativeHandle(ref, () => ({
       handleUpload,
@@ -302,11 +299,7 @@ const UploadFile = forwardRef(
     };
 
     return (
-      <div
-        className={cn(
-          "flex w-full flex-col items-center space-y-2 border-transparent",
-        )}
-      >
+      <div className={cn("space-y-2 border-transparent")}>
         <div
           // className={`relative flex h-[250px]  w-full flex-col items-center justify-center overflow-hidden border-2 ${dragOver ? "border-4 border-blue-500" : "border-gray-400"}`}
           className={cn(
@@ -352,9 +345,9 @@ const UploadFile = forwardRef(
               {hovered && !uploading && (
                 <button
                   onClick={handleRemoveFile}
-                  className="absolute top-2 right-2 rounded-full bg-red-500 px-2 py-1 text-white hover:bg-red-700"
+                  className="bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-full bg-black"
                 >
-                  ✕
+                  <X color="white" />
                 </button>
               )}
             </>

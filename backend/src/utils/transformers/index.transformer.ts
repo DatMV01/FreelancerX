@@ -7,6 +7,7 @@ import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { MaybeUndefined } from '../types/maybe.type';
 import { FreelancersLanguages } from 'src/modules/freelancer/entities/freelancers_languages.entity';
+import { FreelancersSkills } from 'src/modules/freelancer/entities/freelancers_skills.entity';
 
 const isValuesEmpty = (obj: object) =>
   Object.values(obj).every((v) => v == null || v == undefined);
@@ -59,8 +60,11 @@ export const freelancerSkillsTransformer = (
   } else if (type === TransformationType.CLASS_TO_PLAIN) {
     if (!value) return undefined;
 
-    const skills = Array.from(value).map((_: any) => {
-      return _.skill;
+    const skills = Array.from(value).map((_: FreelancersSkills) => {
+      return {
+        ..._.skill,
+        proficiency: _.proficiency,
+      };
     });
 
     return skills;
@@ -76,7 +80,10 @@ export const freelancerLanguagesTransformer = (
     if (!value) return undefined;
 
     const languages = Array.from(value).map((_: FreelancersLanguages) => {
-      return _.language;
+      return {
+        ..._.language,
+        proficiency: _.proficiency,
+      };
     });
 
     return languages;

@@ -62,6 +62,12 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
   @AutoMap()
   avatar: string;
 
+  @AutoMap()
+  phone: string;
+
+  @AutoMap()
+  fullName: string;
+
   @AutoMap(() => [FreelancersLanguages])
   @Transform((params) => freelancerLanguagesTransformer(params))
   @ApiPropertyOptional({
@@ -133,7 +139,7 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
     example: 50,
     description: 'Number of completed orders',
   })
-  completedOrders: number;
+  completedOrderCount: number;
 
   @AutoMap()
   @Transform((params) => undefinedTransformer(params))
@@ -141,7 +147,7 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
     example: 24,
     description: 'Average response time in hours',
   })
-  responseTime?: number;
+  responseTime: number;
 
   @AutoMap()
   @Expose({ groups: [ADMIN_GROUP, ME_GROUP], toPlainOnly: true })
@@ -172,4 +178,7 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
     description: 'List of orders associated with the freelancer',
   })
   orders?: OrderDto[];
+
+  @AutoMap()
+  completedRate: number;
 }
