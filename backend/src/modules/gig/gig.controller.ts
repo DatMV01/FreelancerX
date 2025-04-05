@@ -6,6 +6,7 @@ import { GigEntity } from './entities/gig.entity';
 import { GigService } from './gig.service';
 
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -21,6 +22,8 @@ import {
 } from 'src/common/constant/serialize.group';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/common/decorators';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Controller('gig')
 export class GigController extends BaseController<
@@ -34,16 +37,20 @@ export class GigController extends BaseController<
   }
 
   @Post()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiOperation({ summary: 'Create a new gig' })
   @ApiBody({ type: CreateGigDto, required: false })
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
     type: GigDto,
   })
-  async create(data: CreateGigDto): Promise<GigDto> {
+  async createGig(
+    @Body() data: CreateGigDto,
+
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<GigDto> {
     if (data.pricingPackage) {
       const pricePackage = Array.from(data.pricingPackage).find(
         (_: PricingPackage) => _.package === 'Price',
@@ -55,6 +62,26 @@ export class GigController extends BaseController<
 
       data.premiumPrice = Number(pricePackage?.premium || 0);
     }
+
+    data.userId = currentUser.id;
+
+    // if (String(data.category).includes('||')) {
+    //   const _ = data.category.split('||');
+    //   data.category = _[0];
+    //   data.categoryId = _[1];
+    // }
+
+    // if (String(data.subCategory).includes('||')) {
+    //   const _ = data.subCategory.split('||');
+    //   data.subCategory = _[0];
+    //   data.subCategoryId = _[1];
+    // }
+
+    // if (String(data.nestedSubcategory).includes('||')) {
+    //   const _ = data.nestedSubcategory.split('||');
+    //   data.nestedSubcategory = _[0];
+    //   data.nestedSubcategoryId = _[1];
+    // }
 
     return super.create(data);
   }

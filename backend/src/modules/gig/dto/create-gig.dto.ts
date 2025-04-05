@@ -44,6 +44,31 @@ export class CreateGigDto {
 
   @AutoMap()
   @IsString()
+  @IsOptional()
+  userId?: string;
+
+  @AutoMap()
+  @IsString()
+  @IsOptional()
+  freelancerId?: string;
+
+  @AutoMap()
+  @IsString()
+  @IsOptional()
+  categoryId: string;
+
+  @AutoMap()
+  @IsString()
+  @IsOptional()
+  subCategoryId: string;
+
+  @AutoMap()
+  @IsString()
+  @IsOptional()
+  nestedSubcategoryId: string;
+
+  @AutoMap()
+  @IsString()
   @IsNotEmpty()
   @ApiProperty()
   title: string;
@@ -61,7 +86,7 @@ export class CreateGigDto {
   @AutoMap()
   @IsOptional()
   @IsString()
-  nestedSubcategory?: string;
+  nestedSubcategory: string;
 
   @AutoMap(() => [String])
   @IsOptional()

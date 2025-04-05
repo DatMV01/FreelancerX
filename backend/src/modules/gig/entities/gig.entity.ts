@@ -114,7 +114,10 @@ export class GigEntity extends BaseEntity {
   // tags: string[];
 
   @AutoMap(() => [GigTagEntity])
-  @ManyToMany(() => GigTagEntity)
+  @ManyToMany(() => GigTagEntity, {
+    eager: true,
+    cascade: true,
+  })
   @JoinTable({
     name: 'gigs_tags',
     joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
@@ -218,13 +221,25 @@ export class GigEntity extends BaseEntity {
   // @Column({ type: 'boolean', default: false })
   // isPromoted: boolean = false;
 
+  @AutoMap()
+  userId: string;
+
+  @AutoMap()
+  @Column({
+    name: 'freelancer_id',
+    nullable: true,
+    type: 'char',
+    length: 36,
+  })
+  freelancerId: string;
+
   @AutoMap(() => FreelancerEntity)
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.gigs, {
-      eager: true,
+    eager: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancer?: FreelancerEntity ;
+  freelancer?: FreelancerEntity;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })

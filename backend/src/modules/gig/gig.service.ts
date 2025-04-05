@@ -1,18 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ObjectLiteral, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  DeepPartial,
+  In,
+  ObjectLiteral,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { GigEntity } from './entities/gig.entity';
+import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import { isNumberParse } from 'src/utils/common';
 import { RoleEnum } from '../role/enum/role.enum';
+import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
+import { FreelancerService } from '../freelancer/freelancer.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
   constructor(
     @InjectRepository(GigEntity)
     private readonly _repository: Repository<GigEntity>,
+
+    @InjectRepository(GigTagEntity)
+    private readonly gigTagRepository: Repository<GigTagEntity>,
+
+    private readonly freelancerService: FreelancerService,
   ) {
     super(_repository);
+  }
+
+  async create(createDto: DeepPartial<GigEntity>): Promise<GigEntity> {
+    const freelancer = await this.freelancerService.findOne({
+      where: { userId: createDto.userId },
+    });
+
+    const createdTags = await this.createTags(createDto.tags || []);
+
+    const createdEntity = this._repository.create({
+      ...createDto,
+      id: uuidv4(),
+      freelancer,
+      tags: createdTags,
+    });
+
+    return await this._repository.save(createdEntity);
+  }
+
+  async createTags(tags: any[]): Promise<any[]> {
+    const tagNames = tags;
+
+    const existingTags = await this.gigTagRepository.findBy({
+      name: In(tagNames),
+    });
+
+    const newTagNames = tagNames.filter(
+      (_) => !existingTags.some((__) => __.name === _),
+    );
+    const newTags = await Promise.all(
+      newTagNames.map(async (name) => {
+        const newskill = this.gigTagRepository.create({ name });
+        return await this.gigTagRepository.save(newskill);
+      }),
+    );
+
+    const allTags = [...existingTags, ...newTags];
+
+    return allTags;
   }
 
   protected additionalQuery(
@@ -29,10 +82,7 @@ export class GigService extends BaseService<GigEntity> {
       );
     } else {
       queryBuilder
-        .leftJoinAndSelect(
-          `${queryBuilder.alias}.freelancer`,
-          'freelancer',
-        )
+        .leftJoinAndSelect(`${queryBuilder.alias}.freelancer`, 'freelancer')
         .where('freelancer.id = :freelancerId', {
           freelancerId: currentUser.id,
         });

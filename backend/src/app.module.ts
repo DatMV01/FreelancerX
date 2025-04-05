@@ -14,7 +14,7 @@ import authConfig from './modules/auth/config/auth.config';
 import { CategoryModule } from './modules/category/category.module';
 import fileConfig from './modules/files/config/file.config';
 import { FileModule } from './modules/files/file.module';
-import { SellerModule } from './modules/freelancer/freelancer.module';
+import { FreelancerModule } from './modules/freelancer/freelancer.module';
 import { GigModule } from './modules/gig/gig.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { OrderModule } from './modules/order/order.module';
@@ -56,7 +56,7 @@ import mailConfig from './modules/mail/config/mail.config';
     CategoryModule,
     NotificationModule,
     RatingModule,
-    SellerModule,
+    FreelancerModule,
     MailModule,
   ],
   controllers: [AppController],

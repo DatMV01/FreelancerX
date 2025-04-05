@@ -1,3 +1,5 @@
+import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -5,16 +7,12 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import {
-  FreelancerLanguageProficiency,
-  FreelancerSkillProficiency,
+  FreelancerLanguageProficiency
 } from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
-import { AutoMap } from '@automapper/classes';
-import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('language')
 export class LanguageEntity {

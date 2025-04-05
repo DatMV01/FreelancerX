@@ -414,7 +414,6 @@ const GigsManageTable = ({
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
         const response = await axiosInstanceV1.get(`/gig`, {
@@ -424,6 +423,9 @@ const GigsManageTable = ({
             filters: `status:${gigStatus},` + `day_range:${dayRange}`,
           },
         });
+
+        debugger;
+
         const { data, meta } = response.data;
         setRows(data);
         setRowCount(meta.itemCount);

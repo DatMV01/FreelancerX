@@ -203,7 +203,7 @@ export default function FreelancerSignupForm() {
 
     try {
       const data = await dispatch(signUpAsFreelancer(values)).unwrap();
-      debugger;
+  
       setMessage({
         type: "success",
         message: "Sign Up as a Freelancer successfully !",

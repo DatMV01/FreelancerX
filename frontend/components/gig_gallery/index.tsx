@@ -1,11 +1,11 @@
 import { Button, CircularProgress, Divider } from "@mui/material";
 import { useRef, useState } from "react";
 import UploadFile from "./upload_file";
-import {
-  gig_documentsUpload,
-  gig_imagesUpload,
-  gig_videoUpload,
-} from "../gig_add_edit";
+ 
+
+export const gig_imagesUpload = [`image1`, `image2`, `image3`];
+export const gig_videoUpload = [`video1`];
+export const gig_documentsUpload = [`document1`, `document2`];
 
 interface Props {
   switchToTab: (tab: string) => void;
@@ -35,7 +35,7 @@ const GigGallary = ({ switchToTab, tabs, gig, setGig }: Props) => {
   return (
     <div className="relative my-6 flex w-full flex-col space-y-10">
       {uploading && (
-        <div className="absolute inset-0 z-50 m-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-opacity-50 absolute inset-0 z-50 m-0 flex items-center justify-center bg-black">
           <CircularProgress />
         </div>
       )}
@@ -46,7 +46,7 @@ const GigGallary = ({ switchToTab, tabs, gig, setGig }: Props) => {
           Get noticed by the right buyers with visual examples of your services.
         </p>
 
-        <div className="flex space-x-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
           <UploadFile
             ref={uploadRefs.image1}
             keyFile={gig_imagesUpload[0]}
@@ -100,7 +100,7 @@ const GigGallary = ({ switchToTab, tabs, gig, setGig }: Props) => {
         <strong className="text-2xl"> Documents (up to 2)</strong>
         <p>Show some of the best work you created in a document (PDFs only) </p>
 
-        <div className="flex space-x-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           <UploadFile
             ref={uploadRefs.document1}
             keyFile={gig_documentsUpload[0]}

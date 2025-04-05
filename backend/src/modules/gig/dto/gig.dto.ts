@@ -8,6 +8,7 @@ import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { Transform, TransformationType } from 'class-transformer';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
+import { GigTagEntity } from '../entities/gig.entity';
 
 export class PricingPackage {
   @AutoMap()
@@ -109,7 +110,7 @@ export class GigDto extends BaseDto<GigDto> {
   })
   nestedSubcategory?: CategoryDto;
 
-  @AutoMap(() => String)
+  @AutoMap(() => [GigTagEntity])
   tags: string[];
 
   @AutoMap()

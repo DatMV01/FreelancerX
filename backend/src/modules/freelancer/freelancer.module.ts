@@ -27,5 +27,6 @@ import { UserService } from '../user/user.service';
   ],
   controllers: [FreelancerController],
   providers: [FreelancerService, UserService],
+  exports: [FreelancerService],
 })
-export class SellerModule {}
+export class FreelancerModule {}

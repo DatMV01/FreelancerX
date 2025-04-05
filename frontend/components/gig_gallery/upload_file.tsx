@@ -192,7 +192,7 @@ const UploadFile = forwardRef(
 
             setFileInfo(data);
 
-            onUploadSuccessCb({ url });
+            onUploadSuccessCb && onUploadSuccessCb({ url });
 
             // Update set state gig callback
             if (gig_imagesUpload.includes(_keyFile)) {
@@ -299,7 +299,7 @@ const UploadFile = forwardRef(
     };
 
     return (
-      <div className={cn("space-y-2 border-transparent")}>
+      <div>
         <div
           // className={`relative flex h-[250px]  w-full flex-col items-center justify-center overflow-hidden border-2 ${dragOver ? "border-4 border-blue-500" : "border-gray-400"}`}
           className={cn(
@@ -345,9 +345,13 @@ const UploadFile = forwardRef(
               {hovered && !uploading && (
                 <button
                   onClick={handleRemoveFile}
-                  className="bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-full bg-black"
+                  className="absolute  flex items-center justify-center rounded-full"
                 >
-                  <X color="white" />
+                  <X
+                    color="white"
+                    size={40}
+                    className="rounded-full border border-red-500 bg-red-500 p-2"
+                  />
                 </button>
               )}
             </>

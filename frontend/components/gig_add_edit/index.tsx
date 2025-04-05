@@ -100,6 +100,8 @@ export default function GigAddEdit({ gigData }: Props) {
     gigData ? gigData : new GigDto({}),
   );
 
+  console.log(gig)
+
   const handleChangeTab = (_event: React.SyntheticEvent, newValue: string) => {
     setTab(newValue);
   };
