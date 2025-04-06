@@ -1,4 +1,4 @@
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import { Check } from "lucide-react";
 import React from "react";
 
@@ -21,10 +21,10 @@ const transformValue = (value: any) => {
 
 const GigComparePackage = ({ gig }: { gig: GigDto }) => {
   const packages: RowData[] =
-    gig?.pricing?.filter((_) => {
+    gig?.pricingPackage?.filter((_) => {
       return _.package !== "Name" && _.package !== "Description";
     }) || [];
-
+debugger
   const [delivery, revision, price, ...addtitionalPackages] = packages;
 
   const headers = ["Feature", "Basic", "Standard", "Premium"];

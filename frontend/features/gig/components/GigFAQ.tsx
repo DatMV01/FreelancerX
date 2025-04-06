@@ -1,4 +1,4 @@
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import React from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";

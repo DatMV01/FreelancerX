@@ -23,12 +23,12 @@ const PopoverAvatar = () => {
 
   const username = user?.email;
   const fullName = user?.fullName;
-  const isFreelancer = user?.freelancer !== null;
+  const isFreelancer = user?.freelancer;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <AvatarOnline showBadge />
+        <AvatarOnline />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <Divider />
@@ -40,9 +40,6 @@ const PopoverAvatar = () => {
               <div className="flex-1">
                 <p className="text-xl font-bold text-gray-700">{fullName}</p>
                 <span className="text-md text-gray-500">{user?.email}</span>
-                <div className="flex text-green-500">
-                  <CircleDollarSign size={20} /> 100
-                </div>
               </div>
             </div>
 
@@ -53,17 +50,27 @@ const PopoverAvatar = () => {
               >
                 Buyer Profile
               </Link>
+              {user?.freelancer && (
+                <Link
+                  href={`/freelancer/profile/${user?.freelancer?.email}`}
+                  className={clsx(
+                    "flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500",
+                  )}
+                >
+                  Freelancer Profile
+                </Link>
+              )}
 
-              <Link
-                href="/freelancer/onboarding"
-                className={clsx(
-                  "flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500",
-
-                  { "text-green-500": isFreelancer },
-                )}
-              >
-                {isFreelancer ? "Become a Freelancer" : "Freelancer Profile"}
-              </Link>
+              {!user?.freelancer && (
+                <Link
+                  href="/freelancer/onboarding"
+                  className={clsx(
+                    "flex items-center justify-center text-center text-green-500 hover:bg-green-50",
+                  )}
+                >
+                  Become a Freelancer
+                </Link>
+              )}
             </div>
 
             <Link

@@ -1,13 +1,13 @@
 "use client";
 
-import { SellerRankStatus } from "@/features/seller/seller.rank.enum";
+import { FreelancerRankEnum } from "@/dto/dto.type.";
 import { Diamond } from "lucide-react";
 import React from "react";
 
 const rankData = [
   {
-    level: SellerRankStatus.new,
-    label: "New Seller",
+    level: FreelancerRankEnum.NEW,
+    label: "New Freelancer",
     bgColor: "oklch(0.905 0.182 98.111)",
     diamonds: [
       "oklch(0.707 0.022 261.325)",
@@ -16,7 +16,7 @@ const rankData = [
     ],
   },
   {
-    level: SellerRankStatus.level1,
+    level: FreelancerRankEnum.LEVEL1,
     label: "Level 1",
     bgColor: "oklch(0.905 0.182 98.111)",
     diamonds: [
@@ -26,13 +26,13 @@ const rankData = [
     ],
   },
   {
-    level: SellerRankStatus.level2,
+    level: FreelancerRankEnum.LEVEL2,
     label: "Level 2",
     bgColor: "rgb(252 211 77)",
     diamonds: ["black", "black", "oklch(0.707 0.022 261.325)"],
   },
   {
-    level: SellerRankStatus.level3,
+    level: FreelancerRankEnum.LEVEL3,
     label: "Top Rated",
     bgColor: "rgb(252 211 77)",
     diamonds: ["black", "black", "black"],
@@ -44,14 +44,14 @@ const UserRank = ({ rankLevel }: { rankLevel: string }) => {
   if (!rank) return null;
 
   return (
-    <div className="flex w-fit items-center space-x-2">
-      <p
-        style={{ backgroundColor: rank.bgColor }}
-        className="flex h-[20px] w-fit shrink-0 grow-0 items-center rounded-sm px-2 text-xs font-bold"
-      >
-        <span>{rank.label}</span>
+    <div
+      style={{ backgroundColor: rank.bgColor }}
+      className="flex h-[20px] w-fit items-center space-x-2 rounded-sm px-2 text-xs font-bold"
+    >
+      <span>{rank.label}</span>
+      <p className="flex items-center">
         {rank.diamonds.map((color, i) => (
-          <Diamond key={i} size={10} fill={color} stroke="none" />
+          <Diamond key={i} size={12} fill={color} stroke="none" />
         ))}
       </p>
     </div>

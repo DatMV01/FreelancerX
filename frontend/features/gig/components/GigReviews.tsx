@@ -1,4 +1,4 @@
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import { Star } from "lucide-react";
 import React from "react";
 

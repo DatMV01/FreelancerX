@@ -1,57 +1,76 @@
-import { GigDto } from "@/dto/gig.dto";
-import { SellerRankStatus } from "@/features/seller/seller.rank.enum";
+import { FreelancerRankEnum, GigDto } from "@/dto/dto.type.";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import UserRank from "@/features/user/components/UserRank";
 import { Rating } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const GigSellerRank = ({ gig }: { gig: GigDto }) => {
-  const [avatarUrl, setAvatarUrl] = useState();
-  const [rankLevel, setRankLevel] = useState(SellerRankStatus.new);
+// "freelancer": {
+//         "createdAt": "Fri, 04 Apr 2025 12:58:29 GMT",
+//         "id": "062244bb-4507-47ce-8f6b-476af36641eb",
+//         "email": "admin@example.com",
+//         "country": "Benin",
+//         "userId": "84cb62f9-f2cf-489c-97d0-62a49f213c0e",
+//         "level": "NEW",
+//         "bio": "refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZXNzaW9uSWQiOiI2Y2NjYWRjNS1hNWNkLTQ4ODUtYTFjMC1lMzIxMDc0MmFmYTkiLCJoYXNoIjoiZDE2N2NiOGZhYTExNDQ2Nzc1YTA5OGZmYTA5OWU0NzEzMWZjMmE5NDE0OWRiMDE4YzBiOTJlY2Y1MzlhMDYxNiIsImlhdCI6MTc0Mzc2MjA0MCwiZXhwIjoxNzQ2MzU0MDQwfQ.gfVaDITJdf6jA-2dU1FoSAfy6yC8Yxi96ShW2q8QriE',\n  accessExpires: 1743848440527,",
+//         "avatar": "http://localhost:3000/public/images/avartar___Screenshot 2025-01-18 222228-1743771487197-e48890fbb17b6243b463e.png",
+//         "phone": "111111111111111",
+//         "fullName": "Mai Dat 123",
+//         "freelancersLanguages": [
+//             {
+//                 "id": 18,
+//                 "alpha3": "bel",
+//                 "name": "Belarusian",
+//                 "proficiency": "Intermediate"
+//             },
+//             {
+//                 "id": 19,
+//                 "alpha3": "ben",
+//                 "name": "Bengali",
+//                 "proficiency": "Beginner"
+//             }
+//         ],
+//         "freelancersSkills": [
+//             {
+//                 "id": 2,
+//                 "name": "Full Stack Development",
+//                 "proficiency": "Beginner"
+//             },
+//             {
+//                 "id": 11,
+//                 "name": "API Development",
+//                 "proficiency": "Intermediate"
+//             }
+//         ],
+//         "reviewCount": 0,
+//         "completedOrderCount": 0,
+//         "completedRate": "0.00"
+//     },
+//     "slug": "as-your-gig-storefront,-yourtitle-is-the-most-important-place-to-include-keywords-that-buyers-would-likely-use.-1743847762581"
+// }
 
-  const [userName, setUserName] = useState("mock-up-user-name");
+const GigSellerRank = ({ gig }: { gig: GigDto }) => {
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
+  const [level, setLevel] = useState(FreelancerRankEnum.NEW);
+
+  const [email, setEmail] = useState("email@example.ocm");
   const [fullName, setFullName] = useState("Mockup Name");
 
-  const [reviewRating, setReviewRating] = useState();
-  const [reviewCount, setReviewCount] = useState(0);
+  const [completedRate, setCompletedRate] = useState(0);
+  const [freelancerReviewCount, setFreelancerReviewCount] = useState(0);
+  const [gigReviewCount, setGigReviewCount] = useState(0);
 
   useEffect(() => {
-    const { seller } = gig;
+    const { freelancer, reviewCount: gigReviewCount } = gig;
 
-    setRankLevel(seller?.sellerLevel);
-    setFullName(seller?.fullName);
-    setReviewRating(seller?.rating);
-    setUserName(seller?.email);
+    setAvatarUrl(freelancer?.avatar);
+    setLevel(freelancer?.level);
+    setFullName(freelancer?.fullName);
+    setCompletedRate(freelancer?.completedRate);
+    setEmail(freelancer?.email);
+    setFreelancerReviewCount(freelancer?.reviewCount);
+    setGigReviewCount(gigReviewCount || 0);
   }, []);
-
-  // "createdAt": "Fri, 21 Mar 2025 23:17:08 GMT",
-  // "updatedAt": "Sun, 23 Mar 2025 13:17:23 GMT",
-  // "id": "67970bfa-44ea-48fd-b41d-46c6b0132067",
-  // "sellerLevel": "new",
-  // "about": "csdcds a a c xcszcsacascsacxs aasddas",
-  // "skills": [
-  //     "WordPress"
-  // ],
-  // "languages": [
-  //     "Urdu",
-  //     " English",
-  //     " French",
-  //     " German"
-  // ],
-  // "rating": "0.00",
-  // "completedOrders": 0,
-  // "responseTime": 0,
-  // "availability": "available",
-  // "email": "datmv1111@gmail.com",
-  // "username": null,
-  // "fullName": "mai dat",
-  // "avatar": null,
-  // "phoneNumber": null,
-  // "status": {
-  //     "id": 2,
-  //     "name": "PENDING_VERIFICATION"
-  // }
 
   const handleScroll = () => {
     document
@@ -62,7 +81,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
   return (
     <div className="my-2 flex items-center space-x-2">
       <Link
-        href={`/seller/profile/${userName}`}
+        href={`/freelancer/profile/${email}`}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -72,7 +91,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
       <div>
         <div className="flex items-center justify-between space-x-2">
           <Link
-            href={`/seller/profile/${userName}`}
+            href={`/freelancer/profile/${email}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-base font-bold hover:underline"
@@ -80,16 +99,16 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
             {fullName}
           </Link>
 
-          <UserRank rankLevel={rankLevel} />
+          <UserRank rankLevel={level} />
         </div>
 
         <div className="flex items-center text-yellow-500">
-          {reviewRating && (
+          {completedRate && (
             <>
-              <Rating defaultValue={reviewRating} precision={0.5} readOnly />
+              <Rating defaultValue={completedRate} precision={0.5} readOnly />
 
               <span className="ml-2 text-sm font-semibold text-black">
-                {reviewRating}
+                {completedRate}
               </span>
             </>
           )}
@@ -98,7 +117,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
             onClick={handleScroll}
             className="ml-1 text-sm text-gray-500 underline"
           >
-            ({reviewCount} reviews)
+            ({gigReviewCount} reviews)
           </button>
         </div>
       </div>

@@ -5,7 +5,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
-
 import { Patch, Post, SerializeOptions, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -13,6 +12,7 @@ import {
   CREATE_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
+import { FreelancerDto } from '../freelancer/dto/freelancer.dto';
 
 @Controller({
   path: 'user',
@@ -36,7 +36,11 @@ export class UserController extends BaseController<
   async findOneById(@Param('id') id: string) {
     const entity = await this.baseService.findOne({
       where: { id },
-      relations: ['freelancer', 'freelancer.languages', 'freelancer.skills'],
+      relations: [
+        'freelancer',
+        'freelancer.freelancersLanguages',
+        'freelancer.freelancersSkills',
+      ],
     });
 
     const dto = this.mapFromEntityToDto(entity);
@@ -71,5 +75,9 @@ export class UserController extends BaseController<
   })
   async update(id: string, data: UpdateUserDto): Promise<UserDto> {
     return super.update(id, data);
+  }
+
+  protected additionalMapping(dto: UserDto, entity: UserEntity): UserDto {
+    return { ...dto, freelancer: new FreelancerDto({ ...dto.freelancer }) };
   }
 }

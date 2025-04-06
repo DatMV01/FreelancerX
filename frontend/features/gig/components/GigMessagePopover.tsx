@@ -5,47 +5,61 @@ import {
 } from "@/components/ui/popover";
 
 import UserAvatar from "@/features/user/components/UserAvatar";
+import { useSearchParams } from "next/navigation";
 
-const GigMessagePopover = ({ sellerName }: { sellerName: string }) => {
+const GigMessagePopover = ({ freelancer }: { freelancer: any }) => {
+  const searchParams = useSearchParams();
+  const dev = false || searchParams.get("dev");
+
   return (
     <Popover>
-      <PopoverTrigger className="rounded-full bg-white p-2">
+      <PopoverTrigger className="rounded-full bg-green-100 p-2">
         <div className="flex items-center justify-center space-x-2">
           <UserAvatar />
-          <p className="font-semibold">Mesage {sellerName}</p>
+          <p className="font-semibold">
+            Mesage to {freelancer?.fullName || "Full Name"}
+          </p>
         </div>
       </PopoverTrigger>
       <PopoverContent
         side="top"
         align="center"
-        className="w-fit bg-gray-50 p-2"
+        className="w-50 border-none bg-transparent p-0"
       >
         <div className="flex flex-col space-y-2">
-          <button
-            className="rounded-full bg-white p-2"
-            onClick={() => console.log("abc")}
+          <a
+            href={`https://zalo.me/${freelancer.phone}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center space-x-2 rounded-full bg-green-200 p-2"
           >
-            <div className="flex items-center justify-center space-x-2">
-              <img
-                className="h-8 w-8"
-                src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
-              />
-              <p className="font-semibold">Zalo </p>
-            </div>
-          </button>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"
+              alt="Zalo"
+              width={30}
+              height={30}
+              className="cursor-pointer"
+            />
+            <span className="font-semibold">Zalo </span>
+          </a>
 
-          <button
-            className="rounded-full bg-white p-2"
-            onClick={() => console.log("abc")}
-          >
-            <div className="flex items-center justify-center space-x-2">
+          {dev && (
+            <a
+              href={`https://zalo.me/${freelancer.phone}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center space-x-2 rounded-full bg-green-200 p-2"
+            >
               <img
-                className="h-8 w-8"
                 src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg"
+                alt="Telegram"
+                width={30}
+                height={30}
+                className="cursor-pointer"
               />
-              <p className="font-semibold">Telegram </p>
-            </div>
-          </button>
+              <span className="font-semibold">Telegram </span>
+            </a>
+          )}
         </div>
       </PopoverContent>
     </Popover>

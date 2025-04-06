@@ -1,7 +1,8 @@
 "use client";
 
 import BreadcrumbCategory from "@/components/BreadcrumbCategory";
-import { GigDto } from "@/dto/gig.dto";
+import { Button } from "@/components/ui/button";
+import { GigDto } from "@/dto/dto.type.";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import GigComments from "@/features/gig/components/GigComment";
 import GigComparePackage from "@/features/gig/components/GigComparePackage";
@@ -15,8 +16,11 @@ import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
 import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -27,9 +31,9 @@ const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
     <div className="flex justify-between">
       <BreadcrumbCategory
         categoryInfo={{
-          category: gig?.category || "",
-          subcategory: gig?.subCategory || "",
-          subsubcategory: gig?.nestedSubcategory || "",
+          category: gig?.category,
+          subCategory: gig?.subCategory,
+          nestedSubcategory: gig?.nestedSubcategory,
         }}
       />
     </div>
@@ -105,6 +109,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   const [value, setValue] = useState(0);
   const [isFavorite, setFavorite] = useState(false);
+  const user = useAppSelector(selectUser);
 
   const [
     packageName,
@@ -113,7 +118,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
     packageRevisions,
     pricePackage,
     ...addtitionalPackages
-  ] = gig.pricing || [];
+  ] = gig.pricingPackage || [];
 
   const a = addtitionalPackages
     .filter((item) => item.basic !== "")
@@ -153,6 +158,14 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
+      {gig?.freelancer?.email === user?.email && (
+        <div className="my-2 flex justify-end">
+          <Button asChild>
+            <Link href={`/gig/edit/${gig.slug}`}>Edit Gig</Link>
+          </Button>
+        </div>
+      )}
+
       <div className="flex h-8 justify-end">
         {isFavorite ? (
           <Tooltip title="Remove" placement="top">
@@ -175,7 +188,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
         )}
       </div>
 
-      <div className="rounded-sm border border-gray-500">
+      <div className="rounded-sm border border-gray-200">
         <Tabs
           allowScrollButtonsMobile
           scrollButtons="auto"
@@ -260,7 +273,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
   const router = useRouter();
   const { user_id, gig_id } = router.query;
-  const { title, seller } = gig;
+  const { title, freelancer } = gig;
 
   console.log(gig);
   return (
@@ -274,10 +287,9 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
       <GigDescription gig={gig} />
 
       {false && <GigMetaData />}
-
       <GigSellerOverview gig={gig} />
 
-      {false && <GigSellerPortfolio />}
+      {true && <GigSellerPortfolio />}
 
       <GigComparePackage gig={gig} />
 
@@ -288,7 +300,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
       <GigComments gig={gig} />
 
       <div className="sticky bottom-10 z-10">
-        <GigMessagePopover sellerName="abc" />
+        <GigMessagePopover freelancer={freelancer} />
       </div>
     </div>
   );
@@ -304,6 +316,7 @@ const GigDetail = () => {
 
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);
+  const user = useAppSelector(selectUser);
 
   useEffect(() => {
     setLoading(true);
@@ -311,9 +324,8 @@ const GigDetail = () => {
       setLoading(true);
 
       try {
-       
         const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
-       
+
         const { data } = response;
 
         console.log(response.data);

@@ -11,7 +11,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Button from "@mui/material/Button";
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 
 interface Review {
   user: {

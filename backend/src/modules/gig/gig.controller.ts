@@ -24,6 +24,7 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { FreelancerDto } from '../freelancer/dto/freelancer.dto';
 
 @Controller('gig')
 export class GigController extends BaseController<
@@ -135,6 +136,6 @@ export class GigController extends BaseController<
   }
 
   protected additionalMapping(dto: GigDto, entity: GigEntity): GigDto {
-    return { ...dto };
+    return { ...dto, freelancer: new FreelancerDto({ ...dto.freelancer }) };
   }
 }

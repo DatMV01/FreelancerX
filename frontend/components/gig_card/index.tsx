@@ -14,7 +14,7 @@ import { faker } from "@faker-js/faker";
 import { Tooltip } from "@mui/material";
 import clsx from "clsx";
 import Link from "next/link";
-import { SellerRankStatus } from "@/features/seller/seller.rank.enum";
+import { FreelancerRankEnum } from "@/dto/dto.type.";
 
 export const GigCard = () => {
   const [level, setLevel] = useState<number>(0);
@@ -75,7 +75,7 @@ export const GigCard = () => {
               </Link>
             </div>
 
-            <UserRank rankLevel={SellerRankStatus.level3} />
+            <UserRank rankLevel={FreelancerRankEnum.LEVEL3} />
           </div>
 
           <Link

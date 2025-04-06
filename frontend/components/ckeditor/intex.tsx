@@ -6,12 +6,11 @@
 
 "use client";
 
-import { GigDto } from "@/dto/gig.dto";
 import dynamic from "next/dynamic";
 
 const CkEditorWithNoSSR = dynamic(import("./CkEditor"), { ssr: false });
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const MyCkEditorWithNoSSR = ({ gig, setGig }: { gig: any; setGig: any }) => {
   const [editorData, setEditorData] = useState<string>(gig?.description || "");

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Tooltip from "@mui/material/Tooltip";
 import { useRouter } from "next/router";
-import { GigStatus } from "@/dto/gig.dto";
+import { GigStatus } from "@/dto/dto.type.";
 import { CircularProgress } from "@mui/material";
 import { useState } from "react";
 import { set } from "react-hook-form";

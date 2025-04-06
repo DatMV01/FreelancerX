@@ -1,4 +1,4 @@
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import React from "react";
 
 const GigDescription = ({ gig }: { gig: GigDto }) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import GigsManageTable from "@/components/gigs_manage_table";
-import { GigStatus } from "@/dto/gig.dto";
+import { GigStatus } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress, Divider } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -180,6 +180,16 @@ export default function ManageGig() {
         <Link
           className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
           href="/gigs/new"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CREATE A NEW GIGS
+        </Link>
+
+        
+        <Link
+          className="flex items-center rounded bg-green-500 px-2 font-bold text-white hover:bg-green-600"
+          href="/gig/new"
           target="_blank"
           rel="noopener noreferrer"
         >

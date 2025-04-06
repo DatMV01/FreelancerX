@@ -1,11 +1,9 @@
-import useGetUserInfo from "@/hooks/useGetUserInfo";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { stringAvatar } from "@/lib/utils";
 import { Avatar } from "@mui/material";
 import Badge from "@mui/material/Badge";
 import { styled } from "@mui/material/styles";
-import { Session } from "next-auth";
 import { ReactNode } from "react";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({

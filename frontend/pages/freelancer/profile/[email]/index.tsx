@@ -2,12 +2,14 @@ import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import UserRank from "@/features/user/components/UserRank";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -86,17 +88,19 @@ interface FreelancerProfile {
 }
 
 const FreelancerProfile = () => {
+  const searchParams = useSearchParams();
   const [freelancer, setFreelancer] = useState<FreelancerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUser, setIsUser] = useState(false);
-
+  const router = useRouter();
   const [message, setMessage] = useState<{
     type: "success" | "errror";
     message: string;
   }>();
+
   const user = useAppSelector(selectUser);
 
-  const router = useRouter();
+  const dev = false || searchParams.get("dev");
   const { email } = router.query;
 
   useEffect(() => {
@@ -164,15 +168,17 @@ const FreelancerProfile = () => {
                       className="cursor-pointer"
                     />
                   </a>
-                  <a href="#" target="_blank" rel="noopener noreferrer">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_2019_Logo.svg"
-                      alt="Telegram"
-                      width={40}
-                      height={40}
-                      className="cursor-pointer"
-                    />
-                  </a>
+                  {dev && (
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                      <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_2019_Logo.svg"
+                        alt="Telegram"
+                        width={40}
+                        height={40}
+                        className="cursor-pointer"
+                      />
+                    </a>
+                  )}
                 </div>
               </div>
               <div className="w-full text-center md:ml-6 md:text-left">
@@ -181,9 +187,7 @@ const FreelancerProfile = () => {
                 </h2>
                 <p className="mt-1 text-sm text-gray-600">{freelancer.bio}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge className="bg-blue-500 text-white">
-                    {freelancer.level}
-                  </Badge>
+                  <UserRank rankLevel={freelancer.level} />
                 </div>
               </div>
             </CardContent>

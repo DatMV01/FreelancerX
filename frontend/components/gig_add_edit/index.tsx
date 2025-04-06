@@ -5,7 +5,7 @@ import GigDescriptionFaq from "@/components/gig_description_faq";
 import GigGallary from "@/components/gig_gallery";
 import GigPricing from "@/components/gig_pricing";
 import GigPublish from "@/components/gig_publish";
-import { GigDto, GigStatus } from "@/dto/gig.dto";
+import { GigDto, GigStatus } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress, Divider, Tooltip } from "@mui/material";
 import Box from "@mui/material/Box";

@@ -1,4 +1,4 @@
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import { Check, Edit, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 

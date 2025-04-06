@@ -3,7 +3,7 @@
 import BreadcrumbCpn from "@/components/breadcrumb";
 import CommentBox from "@/components/comment";
 import { Button } from "@/components/ui/button";
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { faker } from "@faker-js/faker";

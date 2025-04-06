@@ -16,22 +16,20 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { categories } from "@/data/data";
-import UserAvatar from "@/features/user/components/UserAvatar";
-import useGetUserInfo from "@/hooks/useGetUserInfo";
+import LogoutButton from "@/features/auth/components/LogoutButton";
+import { selectIsLogin, selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { Divider } from "@mui/material";
 import clsx from "clsx";
 import { AlignJustify } from "lucide-react";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import { VisuallyHidden } from "radix-ui";
 import { useState } from "react";
+import AvatarOnline from "../avatar_online/AvatarOnline";
 import { BrowseCategoryNav } from "./BrowseCategoryNav";
 import LoginDialog from "./LoginDialog";
-import { useAppSelector } from "@/lib/redux/hooks";
-import { selectIsLogin, selectUser } from "@/lib/redux/features/auth/authSlice";
-import { useSearchParams } from "next/navigation";
-import LogoutButton from "@/features/auth/components/LogoutButton";
 
 const NavigationDrawer = () => {
   const searchParams = useSearchParams();
@@ -66,7 +64,7 @@ const NavigationDrawer = () => {
 
             {isLogin && (
               <div className="flex items-center space-x-2">
-                <UserAvatar />
+                <AvatarOnline />
                 <div>{fullName}</div>
               </div>
             )}
@@ -173,6 +171,7 @@ const NavigationDrawer = () => {
                   >
                     Gigs
                   </Link>
+                  
                   <Link
                     className="w-full p-2 hover:bg-green-50 hover:text-green-500"
                     href={""}

@@ -1,6 +1,6 @@
 "use client";
 
-import { GigDto } from "@/dto/gig.dto";
+import { GigDto } from "@/dto/dto.type.";
 import { faker } from "@faker-js/faker";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
