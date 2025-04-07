@@ -1,7 +1,7 @@
-import UploadFile from "@/components/gig_gallery/upload_file";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import UploadFile from "@/components/uploadfile/UploadFile";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";

@@ -1,4 +1,3 @@
-import UploadFile from "@/components/gig_gallery/upload_file";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
