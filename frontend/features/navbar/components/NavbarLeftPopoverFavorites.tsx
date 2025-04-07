@@ -1,14 +1,14 @@
-import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Heart } from "lucide-react";
-import { Badge, Divider, Button, CircularProgress } from "@mui/material";
-import { ScrollArea } from "../ui/scroll-area";
-import Image from "next/image";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { faker } from "@faker-js/faker";
+import { Badge, Button, CircularProgress, Divider } from "@mui/material";
+import { Heart } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
 const favoriteListings = Array.from({ length: 50 }, (_, i) => ({
   id: i + 1,
@@ -18,7 +18,7 @@ const favoriteListings = Array.from({ length: 50 }, (_, i) => ({
   thumbnail: faker.image.urlLoremFlickr(),
 }));
 
-const FavoriteListingPopover = () => {
+const NavbarLeftPopoverFavorites = () => {
   const [visibleCount, setVisibleCount] = useState(10);
   const [favorites, setFavorites] = useState(
     favoriteListings.slice(0, visibleCount),
@@ -120,4 +120,4 @@ const FavoriteListingPopover = () => {
   );
 };
 
-export default FavoriteListingPopover;
+export default NavbarLeftPopoverFavorites;

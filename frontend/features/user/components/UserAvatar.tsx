@@ -1,6 +1,7 @@
 "use client";
 
-import useGetUserInfo from "@/hooks/useGetUserInfo";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
 import { stringAvatar } from "@/lib/utils";
 import { Avatar, Badge } from "@mui/material";
 import { styled } from "@mui/material/styles";
@@ -29,7 +30,13 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const MyAvatar = ({ avatarUrl, fontSize, height, width, children }: {
+const MyAvatar = ({
+  avatarUrl,
+  fontSize,
+  height,
+  width,
+  children,
+}: {
   avatarUrl?: string;
   fontSize?: number;
   height?: number;
@@ -56,18 +63,28 @@ const UserAvatar = ({
   height?: number;
   width?: number;
 }) => {
-  const { user } = useGetUserInfo();
+  const user = useAppSelector(selectUser);
+
   const finalAvatar = avatarUrl || user?.avatar;
   const displayName = fullName || user?.fullName;
-  
+
   const avatarComponent = (
-    <MyAvatar avatarUrl={finalAvatar} height={height} width={width} fontSize={fontSize}>
+    <MyAvatar
+      avatarUrl={finalAvatar}
+      height={height}
+      width={width}
+      fontSize={fontSize}
+    >
       {!finalAvatar && displayName ? stringAvatar(displayName).children : null}
     </MyAvatar>
   );
 
   return showBadge ? (
-    <StyledBadge overlap="circular" anchorOrigin={{ vertical: "bottom", horizontal: "right" }} variant="dot">
+    <StyledBadge
+      overlap="circular"
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      variant="dot"
+    >
       {avatarComponent}
     </StyledBadge>
   ) : (

@@ -1,19 +1,19 @@
-import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Store } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Badge,
-  Divider,
   Button,
   CircularProgress,
+  Divider,
   Tooltip,
 } from "@mui/material";
-import { ScrollArea } from "../ui/scroll-area";
+import { Store } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 const ORDER_STATUSES = [
   "PENDING",
@@ -57,7 +57,7 @@ const getStatusColor = (status: any) => {
   }
 };
 
-const PopoverOrders = () => {
+const NavbarLeftPopoverOrder = () => {
   const [visibleCount, setVisibleCount] = useState(10);
   const [orders, setOrders] = useState(ordersData.slice(0, visibleCount));
   const [loading, setLoading] = useState(false);
@@ -173,4 +173,4 @@ const PopoverOrders = () => {
   );
 };
 
-export default PopoverOrders;
+export default NavbarLeftPopoverOrder;

@@ -74,7 +74,6 @@ const MostPopular = ({ category, ...props }: { category: any }) => {
 };
 
 import ScrollableDiv2 from "@/components/scrollable-div-2";
-import SearchBar from "@/components/searchbar";
 import { programmingTechSubCategoriesExploreSection } from "@/data/explore-section";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Accordion from "@mui/material/Accordion";

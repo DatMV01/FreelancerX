@@ -369,7 +369,7 @@ export const authSlice = createAppSlice({
     selectRefreshToken: (auth) => auth.refreshToken,
     selectAuthStatus: (auth) => auth.status,
     selectUser: (auth) => auth.user,
-    selectIsLogin: (auth): boolean => auth.user !== null,
+    selectFreelancer: (auth) => auth.user?.freelancer,
   },
 });
 
@@ -390,6 +390,6 @@ export const {
   selectAccessToken,
   selectAuthStatus,
   selectUser,
+  selectFreelancer,
   selectRefreshToken,
-  selectIsLogin,
 } = authSlice.selectors;

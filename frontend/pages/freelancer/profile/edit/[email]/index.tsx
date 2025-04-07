@@ -13,7 +13,7 @@ import {
 } from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircularProgress } from "@mui/material";
+import { Badge, CircularProgress } from "@mui/material";
 import { X } from "lucide-react";
 import { useRouter } from "next/router";
 import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
@@ -550,22 +550,24 @@ export default function FreelancerSignupForm() {
                 </div>
 
                 {/* Render Languages */}
-                <div>
+                <div className="flex flex-wrap gap-2">
                   {languageFields.map((field, index) => (
-                    <div key={field.id} className="flex items-center gap-2">
-                      <p className="font-semibold">
-                        {field.name} ({field.proficiency})
-                      </p>
-
+                    <Badge
+                      key={field.id}
+                      className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
+                    >
+                      <span>
+                        {field.name} - {field.proficiency}
+                      </span>
                       <Button
-                        className="my-1 h-8 w-8"
+                        className="m-0 h-6 w-6 p-0 hover:bg-red-800"
                         type="button"
                         variant="destructive"
                         onClick={() => removeLanguage(index)}
                       >
                         <X size={20} />
                       </Button>
-                    </div>
+                    </Badge>
                   ))}
                 </div>
                 {errors.languages && (
@@ -621,23 +623,27 @@ export default function FreelancerSignupForm() {
                 </div>
 
                 {/* Render Skills */}
-                <div>
-                  {skillFields.map((field, index) => (
-                    <div key={field.id} className="flex items-center gap-2">
-                      <p className="font-semibold">
-                        {field.name} ({field.proficiency})
-                      </p>
+                <div className="flex flex-wrap gap-2">
+                  {skillFields.map((skill, index) => (
+                    <Badge
+                      key={skill.id}
+                      className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
+                    >
+                      <span>
+                        {skill.name} - {skill.proficiency}
+                      </span>
                       <Button
-                        className="my-1 h-8 w-8"
+                        className="m-0 h-6 w-6 p-0 hover:bg-red-800"
                         type="button"
                         variant="destructive"
                         onClick={() => removeSkill(index)}
                       >
                         <X size={20} />
                       </Button>
-                    </div>
+                    </Badge>
                   ))}
                 </div>
+
                 {errors.skills && (
                   <p className="text-red-500">{errors.skills.message}</p>
                 )}

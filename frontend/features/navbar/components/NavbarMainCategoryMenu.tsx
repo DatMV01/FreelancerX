@@ -1,17 +1,20 @@
 "use client";
 
+import ScrollableDiv from "@/components/scrollable-div";
 import { categoriesMenuData } from "@/data/data";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import ScrollableDiv from "../scrollable-div";
 
-const CategoryMenu = () => {
+const NavbarMainCategoryMenu = () => {
   const router = useRouter();
   const { category, subcategory, subsubcategory } = router.query;
 
   return (
-    <ScrollableDiv showScrollBar={false} className="my-2 border-y border-gray-400">
+    <ScrollableDiv
+      showScrollBar={false}
+      className="my-2 border-y border-gray-400"
+    >
       {categoriesMenuData.map((categoryData) => {
         const isActive =
           category &&
@@ -35,4 +38,4 @@ const CategoryMenu = () => {
   );
 };
 
-export default CategoryMenu;
+export default NavbarMainCategoryMenu;

@@ -1,37 +1,38 @@
-import React, { useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Bell, Mail } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Badge,
-  Divider,
   Avatar,
+  Badge,
   Button,
   CircularProgress,
+  Divider,
 } from "@mui/material";
-import { ScrollArea } from "../ui/scroll-area";
+import { Bell } from "lucide-react";
+import { useState } from "react";
 
-const messagesData = Array.from({ length: 50 }, (_, i) => ({
+const notificationsData = Array.from({ length: 50 }, (_, i) => ({
   id: i + 1,
-  sender: `User ${i + 1}`,
-  text: `This is message ${i + 1}`,
-  time: `${i + 1}m ago`,
-  avatar: `https://i.pravatar.cc/40?img=${(i % 10) + 1}`,
+  message: `Thông báo số ${i + 1}`,
+  time: `${i + 1} phút trước`,
   read: i % 2 === 0,
+  avatar: `https://i.pravatar.cc/40?img=${(i % 10) + 1}`,
 }));
 
-const PopoverMessages = () => {
+const NavbarLeftPopoverNotifications = () => {
   const [visibleCount, setVisibleCount] = useState(10);
-  const [messages, setMessages] = useState(messagesData.slice(0, visibleCount));
+  const [notifs, setNotifs] = useState(
+    notificationsData.slice(0, visibleCount),
+  );
 
   const [loading, setLoading] = useState(false);
 
   const markAsRead = (id: any) => {
-    setMessages(
-      messages.map((notif) =>
+    setNotifs(
+      notifs.map((notif) =>
         notif.id === id ? { ...notif, read: true } : notif,
       ),
     );
@@ -42,7 +43,7 @@ const PopoverMessages = () => {
     setTimeout(() => {
       const newCount = visibleCount + 10;
       setVisibleCount(newCount);
-      setMessages(messagesData.slice(0, newCount));
+      setNotifs(notificationsData.slice(0, newCount));
       setLoading(false);
     }, 2000);
   };
@@ -51,7 +52,7 @@ const PopoverMessages = () => {
     <Popover>
       <PopoverTrigger>
         <Badge
-          badgeContent={messages.filter((notif) => !notif.read).length}
+          badgeContent={notifs.filter((notif) => !notif.read).length}
           color="success"
           sx={{
             "& .MuiBadge-badge": {
@@ -68,38 +69,34 @@ const PopoverMessages = () => {
             },
           }}
         >
-          <Mail />
+          <Bell />
         </Badge>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div>
           <div className="flex border-b bg-gray-100 p-3 font-semibold text-gray-700">
-            <Mail /> &nbsp; Messages (
-            {messages.filter((notif) => !notif.read).length})
+            <Bell /> &nbsp; Notifacations (
+            {notifs.filter((notif) => !notif.read).length})
           </div>
           <Divider />
           <ScrollArea className="h-[600px] w-full">
-            {messages.length > 0 ? (
-              messages.map((msg) => (
+            {notifs.length > 0 ? (
+              notifs.map((notif) => (
                 <div
-                  key={msg.id}
-                  className="flex cursor-pointer items-center gap-3 border-b px-4 py-2 last:border-none hover:bg-gray-100"
-                  onClick={() => markAsRead(msg.id)}
+                  key={notif.id}
+                  className="flex cursor-pointer items-center gap-3 border-b p-4 last:border-none hover:bg-gray-100"
+                  onClick={() => markAsRead(notif.id)}
                 >
                   <Avatar
-                    src={msg.avatar}
-                    alt={msg.sender}
+                    src={notif.avatar}
+                    alt="Avatar"
                     sx={{ width: 50, height: 50 }}
                   />
                   <div className="flex-1">
-                    <p className="text-md font-semibold text-gray-700">
-                      {msg.sender}
-                    </p>
-                    <p className="text-sm text-gray-700">{msg.text}</p>
-                    <span className="text-xs text-gray-500">{msg.time}</span>
+                    <p className="text-sm text-gray-700">{notif.message}</p>
+                    <span className="text-xs text-gray-500">{notif.time}</span>
                   </div>
-
-                  {!msg.read && (
+                  {!notif.read && (
                     <span className="h-2 w-2 rounded-full bg-green-500"></span>
                   )}
                 </div>
@@ -108,7 +105,7 @@ const PopoverMessages = () => {
               <div className="p-3 text-gray-500">No Notifications...yet</div>
             )}
           </ScrollArea>
-          {visibleCount < messagesData.length && (
+          {visibleCount < notificationsData.length && (
             <div className="p-3 text-center">
               {loading ? (
                 <CircularProgress size={24} />
@@ -131,4 +128,4 @@ const PopoverMessages = () => {
   );
 };
 
-export default PopoverMessages;
+export default NavbarLeftPopoverNotifications;

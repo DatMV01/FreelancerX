@@ -1,14 +1,16 @@
 import { faker } from "@faker-js/faker";
-import { useEffect, useRef, useState } from "react";
 import { CircleX, Search } from "lucide-react";
-const SearchBar = ({ ...props }) => {
+import { useEffect, useRef, useState } from "react";
+
+const NavbarSearchBar = ({ ...props }) => {
   const [inputValue, setInputValue] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
-  const arr = Array.from({ length: 8 }, (_, i) => {
+  const arr = Array.from({ length: 100 }, (_, i) => {
     return {
       userId: faker.string.uuid(),
-      username: faker.internet.username(), // before version 9.1.0, use userName()
+      username: faker.internet.username(),
       email: faker.internet.email(),
       avatar: faker.image.avatar(),
       password: faker.internet.password(),
@@ -18,8 +20,38 @@ const SearchBar = ({ ...props }) => {
     };
   });
 
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchSearchResults = async (query: string) => {
+    console.log("Fetching results for:", query);
+
+    const results = arr.filter((a) =>
+      a.job.toLowerCase().includes(query.toLowerCase()),
+    );
+
+    setSearchResults(results);
+  };
+
   useEffect(() => {
-    inputValue === "" ? setShowResults(false) : setShowResults(true);
+    if (inputValue === "") {
+      setShowResults(false);
+      return;
+    }
+    setShowResults(true);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    timeoutRef.current = setTimeout(() => {
+      fetchSearchResults(inputValue);
+    }, 500);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [inputValue]);
 
   useEffect(() => {
@@ -50,9 +82,21 @@ const SearchBar = ({ ...props }) => {
     };
   }, [ref]);
 
+  const highlightText = (text: string, query: string) => {
+    if (!query) return text;
+    const parts = text.split(new RegExp(`(${query})`, "gi"));
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <b key={index}>{part}</b>
+      ) : (
+        part
+      ),
+    );
+  };
+
   return (
     <div ref={ref} className="relative">
-      <form className="h-full] relative flex w-full flex-row">
+      <form className="relative flex h-full w-full flex-row">
         <input
           placeholder="Search for any service..."
           type="text"
@@ -63,7 +107,7 @@ const SearchBar = ({ ...props }) => {
         ></input>
 
         <button
-          className="absolute right-2 top-1/2 flex h-[30px] w-[30px] -translate-y-1/2 items-center justify-center rounded-sm bg-green-900"
+          className="absolute top-1/2 right-2 flex h-[30px] w-[30px] -translate-y-1/2 items-center justify-center rounded-sm bg-green-900"
           onClick={(e) => {
             e.preventDefault();
           }}
@@ -73,7 +117,7 @@ const SearchBar = ({ ...props }) => {
 
         {showResults && (
           <button
-            className="absolute right-11 top-1/2 flex -translate-y-1/2 items-center justify-center"
+            className="absolute top-1/2 right-11 flex -translate-y-1/2 items-center justify-center"
             onClick={(e) => {
               e.preventDefault();
               setInputValue("");
@@ -88,15 +132,15 @@ const SearchBar = ({ ...props }) => {
       </form>
 
       {showResults && (
-        <ul className="absolute z-50 mt-1 h-max w-full rounded-sm border-2 border-gray-200 bg-white p-2">
-          {arr.map((a, index) => (
+        <ul className="absolute z-51 mt-1 max-h-90 w-full overflow-hidden overflow-y-auto rounded-sm border-2 border-gray-200 bg-white p-2">
+          {searchResults.map((a, index) => (
             <li
               key={index}
               className="flex h-8 items-center hover:bg-green-100"
             >
               <button>
-                <span>{a.job.split(" ")[0]} </span>
-                <b>{a.job.split(" ")[1]} </b>
+                {/* Highlight the matched text in job title */}
+                <span>{highlightText(a.job, inputValue)}</span>
               </button>
             </li>
           ))}
@@ -106,4 +150,4 @@ const SearchBar = ({ ...props }) => {
   );
 };
 
-export default SearchBar;
+export default NavbarSearchBar;

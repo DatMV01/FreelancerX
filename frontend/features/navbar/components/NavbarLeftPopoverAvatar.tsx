@@ -3,46 +3,40 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import LogoutButton from "@/features/auth/components/LogoutButton";
+import UserAvatar from "@/features/user/components/UserAvatar";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { Divider } from "@mui/material";
-import { CircleDollarSign } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import AvatarOnline from "../avatar_online/AvatarOnline";
-import { ScrollArea } from "../ui/scroll-area";
-import clsx from "clsx";
 
-const PopoverAvatar = () => {
-  const router = useRouter();
-
-  //const { isAuthenticated, user, session } = useGetUserInfo();
-
+const NavbarLeftPopoverAvatar = () => {
   const user = useAppSelector(selectUser);
 
   const username = user?.email;
   const fullName = user?.fullName;
-  const isFreelancer = user?.freelancer;
+  const freelancer = user?.freelancer;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <AvatarOnline />
+        <UserAvatar />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <Divider />
         <ScrollArea className="max-h-[600px] w-full">
           <div className="flex flex-col">
+            {/* User Info Section */}
             <div className="flex items-center gap-3 p-4">
-              <AvatarOnline height={50} width={50} />
-
+              <UserAvatar height={50} width={50} />
               <div className="flex-1">
                 <p className="text-xl font-bold text-gray-700">{fullName}</p>
                 <span className="text-md text-gray-500">{user?.email}</span>
               </div>
             </div>
 
+            {/* Profile Links */}
             <div className="grid h-12 grid-cols-2">
               <Link
                 href={`/buyer/profile/${username}`}
@@ -50,12 +44,11 @@ const PopoverAvatar = () => {
               >
                 Buyer Profile
               </Link>
+
               {user?.freelancer && (
                 <Link
                   href={`/freelancer/profile/${user?.freelancer?.email}`}
-                  className={clsx(
-                    "flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500",
-                  )}
+                  className="flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500"
                 >
                   Freelancer Profile
                 </Link>
@@ -63,16 +56,15 @@ const PopoverAvatar = () => {
 
               {!user?.freelancer && (
                 <Link
-                  href="/freelancer/onboarding"
-                  className={clsx(
-                    "flex items-center justify-center text-center text-green-500 hover:bg-green-50",
-                  )}
+                  href="/freelancer/new"
+                  className="flex items-center justify-center text-center text-green-500 hover:bg-green-50"
                 >
                   Become a Freelancer
                 </Link>
               )}
             </div>
 
+            {/* Switch Profile & Dashboard Links */}
             <Link
               href="/"
               className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
@@ -80,7 +72,7 @@ const PopoverAvatar = () => {
               Switch to Buying
             </Link>
 
-            {!isFreelancer && (
+            {!freelancer && (
               <Link
                 href="/freelancer/dashboard"
                 className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
@@ -91,6 +83,7 @@ const PopoverAvatar = () => {
 
             <Divider />
 
+            {/* Settings & Billing Links */}
             <Link
               href={`/setting`}
               className="p-4 hover:bg-green-50 hover:text-green-500"
@@ -108,9 +101,9 @@ const PopoverAvatar = () => {
 
           <Divider />
 
+          {/* Help & Logout Section */}
           <Link
             href={`/help`}
-            rel="noopener noreferrer"
             target="_blank"
             className="flex p-4 hover:bg-green-50 hover:text-green-500"
           >
@@ -118,9 +111,9 @@ const PopoverAvatar = () => {
           </Link>
 
           <LogoutButton
-            className="flex w-full items-center gap-3 border-b p-4 last:border-none hover:bg-green-50 hover:text-green-500"
+            className="flex w-full items-center p-4 last:border-none hover:bg-green-50 hover:text-green-500"
             onClickCb={() => {
-              console.log("======================= logout cb call");
+              window.location.reload();
             }}
           />
         </ScrollArea>
@@ -129,4 +122,4 @@ const PopoverAvatar = () => {
   );
 };
 
-export default PopoverAvatar;
+export default NavbarLeftPopoverAvatar;
