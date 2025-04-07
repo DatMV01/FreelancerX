@@ -68,7 +68,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id' })
-  category: CategoryEntity;
+  category?: CategoryEntity;
 
   /**== SubCategory ==*/
   @AutoMap()
@@ -87,7 +87,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'sub_category_id' })
-  subCategory: CategoryEntity;
+  subCategory?: CategoryEntity;
 
   /**== NestedSubCategory ==*/
   @AutoMap()
@@ -106,7 +106,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'nested_sub_category_id' })
-  nestedSubcategory: CategoryEntity;
+  nestedSubcategory?: CategoryEntity;
 
   /**== Tags ==*/
   // @AutoMap(() => String)
@@ -208,7 +208,6 @@ export class GigEntity extends BaseEntity {
     default: 0,
     nullable: false,
   })
-  @AutoMap()
   ratingAverate: number;
 
   @AutoMap()

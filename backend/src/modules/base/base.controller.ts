@@ -33,7 +33,7 @@ import {
 } from 'src/common/constant/serialize.group';
 
 import { CurrentUser } from 'src/common/decorators';
-import { consoleError } from 'src/utils/common';
+import { consoleError, removeUndefinedFields } from 'src/utils/common';
 import { SelectQueryBuilder } from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
@@ -172,7 +172,8 @@ export abstract class BaseController<
     }
 
     const entity = this.mapper.map(data, this.updateDtoType, this.entityType);
-    const updatedEntity = await this.baseService.update(id, entity);
+    const _entity = removeUndefinedFields(entity);
+    const updatedEntity = await this.baseService.update(id, _entity);
 
     return this.mapFromEntityToDto(updatedEntity);
   }

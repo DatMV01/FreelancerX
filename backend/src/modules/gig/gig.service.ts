@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DeepPartial,
-  In,
-  ObjectLiteral,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
-import { BaseService } from '../base/base.service';
-import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import { isNumberParse } from 'src/utils/common';
-import { RoleEnum } from '../role/enum/role.enum';
-import { FreelancerService } from '../freelancer/freelancer.service';
+import {
+  Between,
+  DeepPartial,
+  FindManyOptions,
+  In,
+  Repository,
+  SelectQueryBuilder
+} from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { BaseService } from '../base/base.service';
 import { BaseEntity } from '../base/entities/base.entity';
+import { FreelancerService } from '../freelancer/freelancer.service';
+import { RoleEnum } from '../role/enum/role.enum';
+import { GigEntity, GigTagEntity } from './entities/gig.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -50,16 +52,21 @@ export class GigService extends BaseService<GigEntity> {
     id: BaseEntity['id'],
     data: DeepPartial<GigEntity>,
   ): Promise<GigEntity> {
-  //  const gigEntity = await this.findOneById(id);
+    const gigEntity = await this.findOneById(id);
 
-    const createdTags = await this.createTags(data.tags || []);
+    if (data.tags) {
+      data.tags = await this.createTags(data.tags);
+    }
 
-    data.tags = createdTags;
-    data.category = undefined;
-    data.subCategory = undefined;
-    data.nestedSubcategory = undefined;
+    const updateEntity = {
+      ...gigEntity,
+      category: undefined,
+      subCategory: undefined,
+      nestedSubcategory: undefined,
+      ...data,
+    };
 
-    const save = await super.create(data);
+    const save = await super.create(updateEntity);
 
     return save;
   }
@@ -84,6 +91,34 @@ export class GigService extends BaseService<GigEntity> {
     const allTags = [...existingTags, ...newTags];
 
     return allTags;
+  }
+
+  protected modifyOptions(
+    options: FindManyOptions<GigEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): FindManyOptions<GigEntity> {
+    const { where, ...anotherOptions } = options as any;
+    const { day_range, ...anotherWheres } = where;
+
+    let whereOptions;
+    if (!Number.isNaN(Number.parseInt(day_range))) {
+      const now = new Date();
+      const manyDaysAgo = new Date();
+      manyDaysAgo.setDate(manyDaysAgo.getDate() - Number(day_range));
+
+      whereOptions = {
+        ...anotherWheres,
+        updatedAt: Between(manyDaysAgo, now),
+      };
+    } else if (day_range === 'All') {
+      whereOptions = anotherWheres;
+    }
+
+    const finalOptions = {
+      ...anotherOptions,
+      where: whereOptions,
+    };
+    return finalOptions;
   }
 
   protected additionalQuery(

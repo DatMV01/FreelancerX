@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { uploadGig } from "../gig_add_edit";
 
 import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions";
 
@@ -104,25 +103,21 @@ const CustomPagination = (
   props: TablePaginationActionsProps & { pageSizeOptions?: number[] },
 ) => {
   const { pageSizeOptions = [10, 20, 30, 40, 50] } = props;
+
   const apiRef = useGridApiContext();
-
   const page = useGridSelector(apiRef, gridPageSelector);
-
   const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-
   const pageCount = useGridSelector(apiRef, gridPageCountSelector);
 
-  const currentPage = page + 1;
-
-  const [inputPage, setInputPage] = useState(currentPage);
+  const [inputPage, setInputPage] = useState(page + 1);
 
   useEffect(() => {
-    setInputPage(currentPage);
+    setInputPage(page + 1);
   }, [page]);
 
   const handlePageChange = () => {
     const targetPage = Math.max(1, Math.min(inputPage, pageCount));
-    if (targetPage !== currentPage) {
+    if (targetPage !== page + 1) {
       setInputPage(targetPage);
     }
     apiRef.current.setPage(targetPage - 1);
@@ -142,7 +137,7 @@ const CustomPagination = (
         ActionsComponent={TablePaginationActions}
         rowsPerPageOptions={pageSizeOptions}
         labelDisplayedRows={({ from, to, count }) =>
-          `Page ${currentPage} of ${pageCount}`
+          `Page ${page + 1} of ${pageCount}`
         }
       />
 
@@ -161,48 +156,27 @@ const CustomPagination = (
   );
 };
 
-const GigsManageTable = ({
-  gigStatus,
-  ...props
-}: {
-  data: any;
-  gigStatus: any;
-}) => {
+const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
   const [rows, setRows] = useState<GigDto[]>([]);
-
   const [loadingRows, setLoadingRows] = useState<string[]>([]);
-
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 20,
   });
-
   const [dayRange, setDayRange] = useState(7);
-
   const [isDeleting, setDeleting] = useState(false);
-
   const [loading, setLoading] = useState(false);
+  const [rowCount, setRowCount] = useState(50);
 
-  const deleteAllGigs = async (gigIds: string[]) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const results = await Promise.all(gigIds.map(deleteGig));
-      return results.every((res) => res === true);
-    } catch (error) {
-      alert("Error deleting gigs:" + error);
-
-      return false;
-    }
-  };
-
-  const handleDeleteAll = useCallback(async () => {
+  const handleDeleteAll = async () => {
     if (selectedRows.length === 0) return;
+
     setLoadingRows(selectedRows);
     setDeleting(true);
-    const success = await deleteAllGigs(selectedRows);
+
+    const results = await Promise.all(selectedRows.map(deleteGig));
+    const success = results.every((result) => result === true);
 
     if (success) {
       setRows((prevRows) =>
@@ -214,52 +188,101 @@ const GigsManageTable = ({
     }
 
     setDeleting(false);
-  }, [selectedRows]);
+  };
+
+  const handleDeleteRow = async (gigId: string) => {
+    setLoadingRows((prev) => [...prev, gigId]);
+    const success = await deleteGig(gigId);
+    if (success) {
+      setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
+    }
+    setLoadingRows((prev) => prev.filter((id) => id !== gigId));
+  };
 
   const deleteGig = async (gigId: string) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
       const response = await axiosInstanceV1.delete(`gig/${gigId}`);
-      return response.status === 200;
+      if (response.status === 200) {
+        return true;
+      }
+      throw new Error(`Failed to delete gig with ID: ${gigId}`);
     } catch (error) {
+      console.error(error);
       alert(`Error deleting gig ${gigId}: ${error}`);
-
       return false;
     }
   };
 
-  const handleDeleteRow = useCallback(
-    async (gigId: string) => {
-      setLoadingRows((prev) => [...prev, gigId]);
+  const handlePauseRow = async (row: any) => {
+    const gigId = row.id;
+    setLoadingRows((prev) => [...prev, gigId]);
+    debugger;
+    const data = {
+      id: row.id,
+      status: GigStatus.PAUSED,
+    } as any;
 
-      const success = await deleteGig(gigId);
-      if (success) {
+    console.log(data);
+
+    try {
+      const response = await axiosInstanceV1.patch(`gig/${gigId}`, data);
+      if (response.status === 200) {
+        setLoadingRows((prev) => prev.filter((id) => id !== gigId));
         setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
-      } else {
-        alert(`Failed to delete gig with ID: ${gigId}`);
+
+        return true;
       }
+      throw new Error(`Failed to pausing gig with ID: ${gigId}`);
+    } catch (error) {
+      console.error(error);
+      alert(`Error pausing gig ${gigId}: ${error}`);
+      return false;
+    }
+  };
 
-      setLoadingRows((prev) => prev.filter((id) => id !== gigId));
-    },
-    [deleteGig],
-  );
+  // const fetchGigs = async () => {
+  //   try {
+  //     const response = await axiosInstanceV1.get(`/gig`, {
+  //       params: {
+  //         page: paginationModel.page + 1,
+  //         limit: paginationModel.pageSize,
+  //         filters: `status:${gigStatus},` + `day_range:${dayRange}`,
+  //       },
+  //     });
+  //     const { data, meta } = response.data;
+  //     setRows(data);
+  //     setRowCount(meta.itemCount);
+  //   } catch (error) {
+  //     alert("Error fetching data:" + error);
+  //   }
+  // };
 
-  const handlePauseRow = useCallback(
-    async (row: any) => {
-      const gigId = row.id;
-      setLoadingRows((prev) => [...prev, gigId]);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   fetchGigs().finally(() => setLoading(false));
+  // }, [dayRange, paginationModel.page, paginationModel.pageSize]);
 
-      const success = await uploadGig(row, GigStatus.PAUSED);
-      if (success) {
-        setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
-      } else {
-        alert(`Failed to pausing gig with ID: ${gigId}`);
-      }
+  const fetchGigs = useCallback(async () => {
+    try {
+      const response = await axiosInstanceV1.get("/gig", {
+        params: {
+          page: paginationModel.page + 1,
+          limit: paginationModel.pageSize,
+          filters: `status:${gigStatus},day_range:${dayRange}`,
+        },
+      });
+      const { data, meta } = response.data;
+      setRows(data);
+      setRowCount(meta.itemCount);
+    } catch (error) {
+      alert("Error fetching gigs: " + error);
+    }
+  }, [paginationModel, gigStatus, dayRange]);
 
-      setLoadingRows((prev) => prev.filter((id) => id !== gigId));
-    },
-    [deleteGig],
-  );
+  useEffect(() => {
+    setLoading(true);
+    fetchGigs().finally(() => setLoading(false));
+  }, [fetchGigs]);
 
   const columns: GridColDef[] = useMemo(
     () => [
@@ -316,6 +339,54 @@ const GigsManageTable = ({
         },
       },
       {
+        field: "basicPrice",
+        headerName: "Pricing",
+        type: "number",
+        width: 120,
+        sortComparator: (v1, v2) => {
+          if (v1 === null || v2 === null) return 0; // Handle null values
+          return v1 - v2; // Sort numbers in ascending order
+        },
+        renderCell: ({ row }) => (
+          <div className="flex h-full flex-col items-start justify-center">
+            <p>Basic: {row.basicPrice}</p>
+            <p>Standard:{row.standardPrice}</p>
+            <p>Premiem:{row.premiumPrice}</p>
+          </div>
+        ),
+      },
+      {
+        field: "ratingAverate",
+        headerName: "Rating",
+        type: "number",
+        width: 100,
+        sortComparator: (v1, v2) => {
+          if (v1 === null || v2 === null) return 0; // Handle null values
+          return v1 - v2; // Sort numbers in ascending order
+        },
+        renderCell: ({ row }) => (
+          <div className="flex h-full flex-col items-start justify-center">
+            <p>Count: {row.ratingCount}</p>
+            <p>Average:{row.ratingAverate}</p>
+          </div>
+        ),
+      },
+      {
+        field: "orders",
+        headerName: "Orders",
+        type: "number",
+        width: 70,
+        sortComparator: (v1, v2) => {
+          if (v1 === null || v2 === null) return 0; // Handle null values
+          return v1 - v2; // Sort numbers in ascending order
+        },
+        renderCell: ({ row }) => (
+          <div className="flex h-full items-center justify-end">
+            {row.orderCount}
+          </div>
+        ),
+      },
+      {
         field: "updatedAt",
         headerName: "DateTime",
         type: "dateTime",
@@ -326,8 +397,8 @@ const GigsManageTable = ({
           return updatedAt ? new Date(updatedAt) : null;
         },
         sortComparator: (v1, v2) => {
-          if (!v1 || !v2) return 0; // Handle null values
-          return v1.getTime() - v2.getTime(); // Sort by timestamp
+          if (!v1 || !v2) return 0;
+          return v1.getTime() - v2.getTime();
         },
         renderCell: (params) => {
           if (!params || !params.row || !params.row.updatedAt) {
@@ -356,57 +427,6 @@ const GigsManageTable = ({
         },
       },
       {
-        field: "views",
-        headerName: "Views",
-        type: "number",
-        width: 110,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => (
-          <div className="flex h-full items-center justify-end">
-            {row.views}
-          </div>
-        ),
-      },
-      {
-        field: "orders",
-        headerName: "Orders",
-        type: "number",
-        width: 110,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => (
-          <div className="flex h-full items-center justify-end">
-            {row.orderCount}
-          </div>
-        ),
-      },
-      {
-        field: "cancellations",
-        headerName: "Cancellations",
-        type: "number",
-        width: 110,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => {
-          const percent = row.views
-            ? ((row.orderCount * 100) / row.views).toFixed(1)
-            : 0;
-
-          return (
-            <div className="flex h-full items-center justify-end">
-              {`${percent}%`}
-            </div>
-          );
-        },
-      },
-      {
         field: "actions",
         headerName: "Actions",
         width: 100,
@@ -414,10 +434,10 @@ const GigsManageTable = ({
         renderCell: (params) => {
           const { row } = params;
           const { slug } = row;
-          const editUrl = `/gigs/edit/${slug}`;
+          const editUrl = `/gig/edit/${slug}`;
           const reviewUrl = `/gig/${slug}`;
           return (
-            <div className="my-2 flex flex-col space-y-2">
+            <div className="m-y-2 flex flex-col justify-center">
               <Button
                 href={editUrl}
                 target="_blank"
@@ -425,7 +445,6 @@ const GigsManageTable = ({
                 variant="contained"
                 color="primary"
                 size="small"
-                className="my-2"
                 disabled={loadingRows.includes(row.id)}
               >
                 Edit
@@ -438,6 +457,7 @@ const GigsManageTable = ({
                 variant="contained"
                 color="success"
                 size="small"
+                sx={{ marginTop: 1 }}
                 disabled={loadingRows.includes(row.id)}
               >
                 Review
@@ -450,6 +470,7 @@ const GigsManageTable = ({
                   size="small"
                   onClick={() => handlePauseRow(row)}
                   disabled={loadingRows.includes(row.id)}
+                  sx={{ marginTop: 1 }}
                 >
                   Paused
                 </Button>
@@ -461,6 +482,7 @@ const GigsManageTable = ({
                 size="small"
                 onClick={() => handleDeleteRow(row.id)}
                 disabled={loadingRows.includes(row.id)}
+                sx={{ marginTop: 1 }}
               >
                 {loadingRows.includes(row.id) ? "Deleting" : "Delete"}
               </Button>
@@ -471,35 +493,6 @@ const GigsManageTable = ({
     ],
     [handleDeleteRow, loadingRows],
   );
-
-  const [rowCount, setRowCount] = useState(50);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-
-      try {
-        const response = await axiosInstanceV1.get(`/gig`, {
-          params: {
-            page: paginationModel.page + 1,
-            limit: paginationModel.pageSize,
-            filters: `status:${gigStatus},` + `day_range:${dayRange}`,
-          },
-        });
-
-        const { data, meta } = response.data;
-
-        setRows(data);
-        setRowCount(meta.itemCount);
-      } catch (error) {
-        alert("Error fetching data:" + error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [dayRange]);
 
   return (
     <Paper
@@ -556,7 +549,10 @@ const GigsManageTable = ({
         onRowSelectionModelChange={(ids) => {
           setSelectedRows(ids as string[]);
         }}
-        getRowHeight={() => "auto"}
+        getRowHeight={(params: any) => {
+          // return params?.row?.someField === "specialValue" ? 100 : 150;
+          return "auto" as any;
+        }}
         disableRowSelectionOnClick
         slots={{ pagination: CustomPagination as any }}
         sx={{

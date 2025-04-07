@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 export const gig_imagesUpload = [`image1`, `image2`, `image3`];
@@ -225,72 +225,55 @@ const GigNew = () => {
     setFilterNestedSubCategory(result);
   }, [subCategoryId]);
 
-  const onSubmit = async (values: z.infer<typeof gigSchema>) => {
-    console.log("abc");
-    console.log("Submitted Data:", values);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasRedirectedRef = useRef(false);
 
-    let countdownInterval: NodeJS.Timeout | null = null;
+  const handleCountdownAndRedirect = (url: string) => {
+    if (hasRedirectedRef.current) return; // prevent multiple calls
+    hasRedirectedRef.current = true;
+
+    // Clear any existing interval
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+    }
+
+    setCountdown(5); // Start countdown from 5
+
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          if (countdownIntervalRef.current) {
+            clearInterval(countdownIntervalRef.current);
+            countdownIntervalRef.current = null; // Reset the interval reference
+          }
+          window.open(url, "_blank", "noopener,noreferrer");
+          return null;
+        }
+        return prev! - 1;
+      });
+    }, 1000);
+  };
+
+  const onSubmit = async (values: z.infer<typeof gigSchema>) => {
+    console.log("onSubmit called with values:", values);
+
+    if (actionType === "draft") {
+      values.status = GigStatus.DRAFT;
+    } else if (actionType === "publish") {
+      values.status = GigStatus.ACTIVE;
+    }
 
     try {
-      if (actionType === "draft") {
-        values.status = GigStatus.DRAFT;
+      const response = await axiosInstanceV1.post("/gig", values);
+      const { slug } = response.data;
 
-        const response = await axiosInstanceV1.post("/gig", values);
-        const { slug } = response.data;
+      setMessage({
+        type: "success",
+        message: `Create a Gig as ${actionType === "draft" ? "draft" : "active"} successfully!`,
+      });
 
-        setMessage({
-          type: "success",
-          message: "Create a Gig as draft successfully!",
-        });
-
-        setCountdown(5);
-
-        countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev === 1) {
-              if (countdownInterval) {
-                clearInterval(countdownInterval);
-              }
-
-              window.open(`/gig/${slug}`, "_blank", "noopener,noreferrer");
-
-              return null;
-            }
-            return prev! - 1;
-          });
-        }, 1000);
-      } else if (actionType === "publish") {
-        values.status = GigStatus.ACTIVE;
-
-        const response = await axiosInstanceV1.post("/gig", values);
-        const { slug } = response.data;
-
-        setMessage({
-          type: "success",
-          message: "Create a Gig as active successfully!",
-        });
-
-        setCountdown(5);
-
-        countdownInterval = setInterval(() => {
-          setCountdown((prev) => {
-            if (prev === 1) {
-              if (countdownInterval) {
-                clearInterval(countdownInterval);
-              }
-              window.open(`/gig/${slug}`, "_blank", "noopener,noreferrer");
-
-              return null;
-            }
-            return prev! - 1;
-          });
-        }, 1000);
-      }
+      handleCountdownAndRedirect(`/gig/${slug}`);
     } catch (error: any) {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-
       if (
         error.response &&
         error.response.data &&
@@ -570,10 +553,14 @@ const GigNew = () => {
               <div className="flex space-x-2">
                 <Tooltip title="Save gig as paused status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
-                    type="submit"
+                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
+                    type="button"
                     disabled={isSubmitting || !isValid}
-                    onClick={() => setActionType("draft")}
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent default form submission
+                      setActionType("draft");
+                      handleSubmit(onSubmit)(); // Manually trigger form submission
+                    }}
                   >
                     {isSubmitting ? "Processing..." : "Save as Draft & Preview"}
                   </Button>
@@ -581,15 +568,31 @@ const GigNew = () => {
 
                 <Tooltip title="Save gig as actice status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
+                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
                     disabled={isSubmitting}
-                    onClick={() => setActionType("publish")}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent default form submission
+                      setActionType("publish");
+                      handleSubmit(onSubmit)(); // Manually trigger form submission
+                    }}
                   >
                     {isSubmitting
                       ? "Processing..."
                       : "Save as Active & Preview"}
                   </Button>
                 </Tooltip>
+
+                <Button
+                  className="flex items-center rounded bg-blue-500 p-2 px-2 font-bold text-white hover:bg-blue-600"
+                  disabled={isSubmitting}
+                  type="button"
+                  onClick={(e) => {
+                    router.push("/gig/manage?tab=" + GigStatus.ACTIVE);
+                  }}
+                >
+                  Back to manage
+                </Button>
               </div>
 
               <div className="flex flex-col items-center justify-center">

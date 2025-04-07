@@ -634,7 +634,7 @@ const GigEdit = () => {
               <div className="flex space-x-2">
                 <Tooltip title="Save gig as paused status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-green-600"
+                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
                     type="submit"
                     disabled={isSubmitting || !isValid}
                     onClick={() => setActionType("draft")}
@@ -647,7 +647,7 @@ const GigEdit = () => {
 
                 <Tooltip title="Save gig as actice status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
+                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
                     disabled={isSubmitting}
                     onClick={() => setActionType("publish")}
                   >
@@ -656,6 +656,16 @@ const GigEdit = () => {
                       : "Update as Active & Preview"}
                   </Button>
                 </Tooltip>
+                <Button
+                  className="flex items-center rounded bg-blue-500 p-2 px-2 font-bold text-white hover:bg-blue-600"
+                  disabled={isSubmitting}
+                  type="button"
+                  onClick={(e) => {
+                    router.push("/gig/manage?tab=" + GigStatus.ACTIVE);
+                  }}
+                >
+                  Back to manage
+                </Button>
               </div>
 
               <div className="flex flex-col items-center justify-center">

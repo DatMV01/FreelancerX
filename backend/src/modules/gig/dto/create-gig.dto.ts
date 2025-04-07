@@ -21,6 +21,7 @@ import {
 import { GigStatus } from '../enum/gig.status';
 import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
+import { GigTagEntity } from '../entities/gig.entity';
 
 export class GigFreelancerDto {
   @AutoMap()
@@ -74,17 +75,17 @@ export class CreateGigDto {
   @ApiProperty()
   title: string;
 
-  @AutoMap()
-  @IsOptional()
-  category: CategoryDto;
+  // @AutoMap()
+  // @IsOptional()
+  // category: CategoryDto;
 
-  @AutoMap()
-  @IsOptional()
-  subCategory: CategoryDto;
+  //@AutoMap()
+  // @IsOptional()
+  // subCategory: CategoryDto;
 
-  @AutoMap()
-  @IsOptional()
-  nestedSubcategory: CategoryDto;
+  // @AutoMap()
+  // @IsOptional()
+  // nestedSubcategory: CategoryDto;
 
   @AutoMap(() => [String])
   @IsOptional()
