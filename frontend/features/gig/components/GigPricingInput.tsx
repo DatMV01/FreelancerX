@@ -608,6 +608,7 @@ const AddtionalRow = ({
     e: React.ChangeEvent<HTMLInputElement>,
     field: keyof EditData,
   ) => {
+    e.preventDefault();
     setEditData({ ...editData, [field]: e.target.value });
   };
 
@@ -689,7 +690,10 @@ const AddtionalRow = ({
               <td className="border p-2">
                 <button
                   className="mr-2 text-green-500"
-                  onClick={() => handleSave(row.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSave(row.id);
+                  }}
                 >
                   <Check size={16} />
                 </button>
@@ -710,13 +714,18 @@ const AddtionalRow = ({
               <td className="max-w-10 border p-2 break-words">
                 <button
                   className="mr-2 text-blue-500 hover:text-blue-700"
-                  onClick={() => handleEdit(row.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleEdit(row.id);
+                  }}
                 >
                   <Pencil size={16} />
                 </button>
                 <button
                   className="text-red-500 hover:text-red-700"
-                  onClick={() => handleDelete(row.id)}
+                  onClick={() => {
+                    handleDelete(row.id);
+                  }}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -815,10 +824,8 @@ export default function GigPricingInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddRow();
-    }
+    e.preventDefault();
+    handleAddRow();
   };
 
   return (

@@ -307,7 +307,7 @@ const GigCarousel = ({
                     "p-2": isFullScreen,
                   })}
                 >
-                  <div className="flex h-full w-full items-center justify-center">
+                  <div className="flex h-full w-full items-center justify-center px-10">
                     {item.type === "image" && (
                       <img
                         src={item.url}
@@ -322,7 +322,7 @@ const GigCarousel = ({
                           if (el) videoRefs.current[index] = el;
                         }}
                         controls
-                        className="h-fit"
+                        className="h-full p-8"
                       >
                         <source src={item.url} type="video/mp4" />
                       </video>

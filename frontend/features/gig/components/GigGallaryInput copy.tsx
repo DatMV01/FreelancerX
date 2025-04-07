@@ -16,12 +16,12 @@ type MediaItem = {
 
 type MediaData = {
   images: {
-    [key: string]: MediaItem | null;
+    [key: string]: MediaItem;
   };
   documents: {
     [key: string]: MediaItem | null;
   };
-  video: MediaItem | null;
+  video: MediaItem;
 };
 
 export const gig_imagesUpload = [`image1`, `image2`, `image3`];
@@ -47,10 +47,22 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
           <UploadFile
             autoUpload
             fileType="image"
-            keyFile={gig_imagesUpload[0]}
             fileInfomation={gallary?.images?.image1}
+            onFileChangeCb={(data: any) => {
+              console.log(data);
+              setGalarry(
+                (prev) =>
+                  ({
+                    ...prev,
+                    images: {
+                      ...prev?.images,
+                      image1: data.file,
+                    },
+                  }) as any,
+              );
+            }}
             onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
+              console.log(data);
               setGalarry(
                 (prev) =>
                   ({
@@ -76,19 +88,24 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
                   }) as any,
               );
             }}
-
-            // onFileChangeCb={(files: any) => {
-            //   console.log(files);
-            // }}
           />
           <UploadFile
             autoUpload
             fileType="image"
-            keyFile={gig_imagesUpload[1]}
             fileInfomation={gallary?.images?.image2}
+            onFileChangeCb={(data: any) => {
+              setGalarry(
+                (prev) =>
+                  ({
+                    ...prev,
+                    images: {
+                      ...prev?.images,
+                      image2: data.file,
+                    },
+                  }) as any,
+              );
+            }}
             onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
               setGalarry(
                 (prev) =>
                   ({
@@ -101,8 +118,6 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
               );
             }}
             onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
               setGalarry(
                 (prev) =>
                   ({
@@ -114,25 +129,24 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
                   }) as any,
               );
             }}
-
-            // onUploadSuccessCb={(data: any) => {
-            //   console.log(data);
-            // }}
-            // onDeleteSuccessCb={(data: any) => {
-            //   console.log(data);
-            // }}
-            //   onFileChangeCb={(files: any) => {
-            //     console.log(files);
-            //   }}
           />
           <UploadFile
             autoUpload
             fileType="image"
-            keyFile={gig_imagesUpload[2]}
             fileInfomation={gallary?.images?.image3}
+            onFileChangeCb={(data: any) => {
+              setGalarry(
+                (prev) =>
+                  ({
+                    ...prev,
+                    images: {
+                      ...prev?.images,
+                      image3: data.file,
+                    },
+                  }) as any,
+              );
+            }}
             onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
               setGalarry(
                 (prev) =>
                   ({
@@ -173,14 +187,13 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
         </p>
 
         <UploadFile
+          autoUpload
           fileType="video"
           className="h-[400px] w-full"
-          keyFile={gig_videoUpload[0]}
-          autoUpload
-          fileInfomation={gallary?.video}
+          onFileChangeCb={(data: any) => {
+            console.log(data);
+          }}
           onUploadSuccessCb={(data: any) => {
-            //  console.log(data);
-
             setGalarry(
               (prev) =>
                 ({
@@ -210,14 +223,13 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
 
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
           <UploadFile
+            autoUpload
             fileType="document"
             className="h-[400px] w-full"
-            keyFile={gig_documentsUpload[0]}
-            autoUpload
-            fileInfomation={gallary?.documents?.document1}
+            onFileChangeCb={(data: any) => {
+              console.log(data);
+            }}
             onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
               setGalarry(
                 (prev) =>
                   ({
@@ -246,14 +258,13 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
           />
 
           <UploadFile
+            autoUpload
             fileType="document"
             className="h-[400px] w-full"
-            keyFile={gig_documentsUpload[0]}
-            autoUpload
-            fileInfomation={gallary?.documents?.document2}
+            onFileChangeCb={(data: any) => {
+              console.log(data);
+            }}
             onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
               setGalarry(
                 (prev) =>
                   ({
@@ -279,10 +290,6 @@ const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
                   }) as any,
               );
             }}
-
-            //   onFileChangeCb={(files: any) => {
-            //     console.log(files);
-            //   }}
           />
         </div>
       </div>

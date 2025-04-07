@@ -110,6 +110,7 @@ export class AutoMapper extends AutomapperProfile {
           dto: GigDto,
           createDto: CreateGigDto,
           updateDto: UpdateGigDto,
+          isMappingCreateDto: true,
         },
         {
           entity: OrderEntity,

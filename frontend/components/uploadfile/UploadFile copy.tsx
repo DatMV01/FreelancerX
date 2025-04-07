@@ -17,15 +17,17 @@ export interface FileInfomation {
 }
 
 interface Props {
+  showUploadButton?: boolean;
   keyFile?: string;
   fileType: "image" | "video" | "document";
   className?: string;
   autoUpload?: boolean;
+  autoDelate?: boolean;
   addionalFileType?: any;
   onFileChangeCb?: any;
   onUploadSuccessCb?: any;
   onDeleteSuccessCb?: any;
-  fileInfomation?: FileInfomation | null;
+  fileInfomation?: FileInfomation;
 }
 
 const UploadFile = ({
@@ -34,6 +36,8 @@ const UploadFile = ({
   fileType,
   className,
   autoUpload = false,
+  autoDelate: autoDelete = false,
+  showUploadButton = true,
   onFileChangeCb,
   onDeleteSuccessCb,
   onUploadSuccessCb,
@@ -56,14 +60,16 @@ const UploadFile = ({
   }, []);
 
   useEffect(() => {
-    if (onFileChangeCb && file) {
-      onFileChangeCb({
-        file: file,
-        keyFile: keyFile,
-        addionalFileType: addionalFileType,
-      });
-    } else if (autoUpload && file) {
-      handleUpload();
+    if (autoUpload) {
+      file && handleUpload && handleUpload();
+    } else {
+      console.log("file change");
+      onFileChangeCb &&
+        onFileChangeCb({
+          file: file,
+          keyFile: keyFile,
+          addionalFileType: addionalFileType,
+        });
     }
   }, [file]);
 
@@ -218,12 +224,7 @@ const UploadFile = ({
     setFile(null);
     setPreview(null);
 
-    if (onFileChangeCb) {
-      onDeleteSuccessCb({
-        keyFile: keyFile,
-        addionalFileType: addionalFileType,
-      });
-    } else {
+    if (autoDelete) {
       await deleteFile();
     }
 
@@ -325,7 +326,7 @@ const UploadFile = ({
             )}
 
             {fileType === "document" && (
-              <iframe src={preview} width="100%" height="100%" />
+              <embed src={preview} width="100%" height="100%" />
             )}
 
             {uploading && (
@@ -371,7 +372,7 @@ const UploadFile = ({
         )}
       </div>
 
-      {!autoUpload && (
+      {showUploadButton && (
         <div className="mt-2 flex justify-center">
           <Button
             onClick={handleUpload}

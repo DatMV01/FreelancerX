@@ -3,13 +3,16 @@
 import MyCkEditorWithNoSSR from "@/components/ckeditor/CkEditorWithNoSSR";
 import { Button } from "@/components/ui/button";
 import { categories, Category, root_categories } from "@/data/categories";
-import { GigStatus } from "@/dto/dto.type.";
+import { GigDto, GigStatus } from "@/dto/dto.type.";
 import GigFrequentlyAskedQuestionsInput from "@/features/gig/components/GigFrequentlyAskedQuestionsInput";
 import GigGallaryInput from "@/features/gig/components/GigGallaryInput";
 import GigPricingInput from "@/features/gig/components/GigPricingInput";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { signUpAsFreelancer } from "@/lib/redux/features/auth/authSlice";
-import { useAppDispatch } from "@/lib/redux/hooks";
+import {
+  selectUser,
+  signUpAsFreelancer,
+} from "@/lib/redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
@@ -31,13 +34,15 @@ export const gig_documentsUpload = [`document1`, `document2`];
 import { z } from "zod";
 
 export const gigSchema = z.object({
+  id: z.string().optional().nullable(),
+  freelancerId: z.string().optional().nullable(),
   title: z.string().min(3),
   categoryId: z.string().nullable(),
-  category: z.string().min(3),
+  category: z.any().nullable(),
   subCategoryId: z.string().nullable(),
-  subCategory: z.string().min(3),
+  subCategory: z.any().nullable(),
   nestedSubcategoryId: z.string().nullable(),
-  nestedSubcategory: z.string().min(3),
+  nestedSubcategory: z.any().nullable(),
   basicPrice: z.number(),
   standardPrice: z.number(),
   premiumPrice: z.number(),
@@ -102,9 +107,11 @@ export const gigSchema = z.object({
       required: z.boolean(),
     }),
   ),
-  seller: z.object({
-    id: z.string(),
-  }),
+  freelancer: z
+    .object({
+      id: z.string(),
+    })
+    .nullable(),
 });
 
 const SearchTags = ({
@@ -116,7 +123,6 @@ const SearchTags = ({
 }) => {
   const [keywords, setKeywords] = useState<string[]>(tags || []);
   const [inputValue, setInputValue] = useState("");
-  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     onSetTagsCb && onSetTagsCb(keywords);
@@ -176,13 +182,14 @@ const SearchTags = ({
   );
 };
 
-const GigNew = () => {
+const GigEdit = () => {
   const {
     register,
     watch,
     setValue,
     getValues,
     control,
+    reset,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = useForm<z.infer<typeof gigSchema>>({
@@ -204,14 +211,47 @@ const GigNew = () => {
     type: "success" | "errror";
     message: string;
   }>();
+  const [isLoading, setLoading] = useState(true);
 
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+
+  useEffect(() => {
+    async function fetchFreelancerData() {
+      const { slug } = router.query;
+
+      if (!slug) return;
+
+      try {
+        const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
+
+        const data: GigDto = response.data;
+
+        reset({
+          ...data,
+          categoryId: data.category.id,
+          subCategoryId: data.subCategory.id,
+          nestedSubcategoryId: data.nestedSubcategory.id,
+          tags: data.tags,
+        } as any);
+
+        //   setFreelancer(data);
+      } catch (error) {
+        console.error("Failed to fetch freelancer data:", error);
+      } finally {
+        //   setLoading(false);
+        setLoading(false);
+      }
+    }
+
+    fetchFreelancerData();
+  }, [router.query, reset]);
 
   const categoryId = watch("categoryId");
   useEffect(() => {
     if (!categoryId || categoryId === "") return;
-    setValue("subCategoryId", "");
-    setValue("nestedSubcategoryId", "");
+    //  setValue("subCategoryId", "");
+    // setValue("nestedSubcategoryId", "");
     const result = categories.filter((_) => _.parentId === categoryId);
 
     setFilterSubCategory(result);
@@ -226,16 +266,24 @@ const GigNew = () => {
   }, [subCategoryId]);
 
   const onSubmit = async (values: z.infer<typeof gigSchema>) => {
-    console.log("abc");
     console.log("Submitted Data:", values);
 
     let countdownInterval: NodeJS.Timeout | null = null;
+
+    values.freelancerId = user?.freelancer?.id;
+    values.freelancer = null;
+    values.category = null;
+    values.subCategory = null;
+    values.nestedSubcategory = undefined;
 
     try {
       if (actionType === "draft") {
         values.status = GigStatus.DRAFT;
 
-        const response = await axiosInstanceV1.post("/gig", values);
+        const response = await axiosInstanceV1.patch(
+          `/gig/${values.id}`,
+          values,
+        );
         const { slug } = response.data;
 
         setMessage({
@@ -262,12 +310,15 @@ const GigNew = () => {
       } else if (actionType === "publish") {
         values.status = GigStatus.ACTIVE;
 
-        const response = await axiosInstanceV1.post("/gig", values);
+        const response = await axiosInstanceV1.patch(
+          `/gig/${values.id}`,
+          values,
+        );
         const { slug } = response.data;
 
         setMessage({
           type: "success",
-          message: "Create a Gig as active successfully!",
+          message: "Update a Gig as active successfully!",
         });
 
         setCountdown(5);
@@ -311,13 +362,17 @@ const GigNew = () => {
     console.log(allValues);
   }, [allValues]);
 
+  if (isLoading) {
+    return <div>Loading</div>;
+  }
+
   return (
     <div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            e.preventDefault(); // chặn submit
+            e.preventDefault();
           }
         }}
       >
@@ -325,7 +380,7 @@ const GigNew = () => {
           <div className="col-span-12 grid grid-cols-12 items-center bg-gray-200 p-8 text-green-900">
             {/* Centered Title */}
             <h1 className="col-span-4 col-start-5 text-center text-3xl font-bold">
-              Create Gig
+              Edit Gig
             </h1>
 
             {/* Buttons on the Right */}
@@ -470,6 +525,7 @@ const GigNew = () => {
           </div>
           <div className="col-span-9">
             <SearchTags
+              tags={watch("tags").map((tag: any) => tag.name)}
               onSetTagsCb={(data: any) => {
                 setValue("tags", data);
               }}
@@ -494,6 +550,7 @@ const GigNew = () => {
           </div>
           <div className="col-span-12">
             <GigPricingInput
+              pricingPackage={watch("pricingPackage")}
               onPrincingPakageInputCb={(data: any) => {
                 const { basicPrice, standardPrice, premiumPrice, pricing } =
                   data;
@@ -518,6 +575,7 @@ const GigNew = () => {
               </div>
 
               <MyCkEditorWithNoSSR
+                content={watch("description")}
                 onInputContentCb={(data: any) => {
                   //  console.log(data);
                   setValue("description", data);
@@ -533,6 +591,7 @@ const GigNew = () => {
                 </p>
               </div>
               <GigFrequentlyAskedQuestionsInput
+                faqs={watch("faqs")}
                 onFAQsCb={(data: any) => {
                   // console.log(data);
                   setValue("faqs", data);
@@ -546,6 +605,11 @@ const GigNew = () => {
           </div>
           <div className="col-span-12">
             <GigGallaryInput
+              gallarys={{
+                images: watch("images"),
+                video: watch("video"),
+                documents: watch("documents"),
+              }}
               onSetGallaryCb={(data: any) => {
                 const { documents, images, video } = data;
                 setValue("documents", documents);
@@ -570,24 +634,26 @@ const GigNew = () => {
               <div className="flex space-x-2">
                 <Tooltip title="Save gig as paused status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
+                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-green-600"
                     type="submit"
                     disabled={isSubmitting || !isValid}
                     onClick={() => setActionType("draft")}
                   >
-                    {isSubmitting ? "Processing..." : "Save as Draft & Preview"}
+                    {isSubmitting
+                      ? "Processing..."
+                      : "Update as Draft & Preview"}
                   </Button>
                 </Tooltip>
 
                 <Tooltip title="Save gig as actice status and open review gig pagge">
                   <Button
-                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
+                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
                     disabled={isSubmitting}
                     onClick={() => setActionType("publish")}
                   >
                     {isSubmitting
                       ? "Processing..."
-                      : "Save as Active & Preview"}
+                      : "Update as Active & Preview"}
                   </Button>
                 </Tooltip>
               </div>
@@ -616,4 +682,4 @@ const GigNew = () => {
   );
 };
 
-export default GigNew;
+export default GigEdit;

@@ -11,9 +11,9 @@ import { BaseService } from '../base/base.service';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import { isNumberParse } from 'src/utils/common';
 import { RoleEnum } from '../role/enum/role.enum';
-import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { FreelancerService } from '../freelancer/freelancer.service';
 import { v4 as uuidv4 } from 'uuid';
+import { BaseEntity } from '../base/entities/base.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -44,6 +44,24 @@ export class GigService extends BaseService<GigEntity> {
     });
 
     return await this._repository.save(createdEntity);
+  }
+
+  async update(
+    id: BaseEntity['id'],
+    data: DeepPartial<GigEntity>,
+  ): Promise<GigEntity> {
+  //  const gigEntity = await this.findOneById(id);
+
+    const createdTags = await this.createTags(data.tags || []);
+
+    data.tags = createdTags;
+    data.category = undefined;
+    data.subCategory = undefined;
+    data.nestedSubcategory = undefined;
+
+    const save = await super.create(data);
+
+    return save;
   }
 
   async createTags(tags: any[]): Promise<any[]> {
