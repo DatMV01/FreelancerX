@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import AuthSync from "./authAsync";
 import NavbarMain from "@/features/navbar/components/NavbarMain";
-import Footer from "@/components/footer";
+import Footer from "@/components/footer/Footer";
 
 function RootLayout({ children }: { children: any }) {
   return (
