@@ -21,6 +21,7 @@ import { useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
 import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -41,24 +42,42 @@ const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
 };
 
 const PackageSideBar = ({
+  gigId,
+  packageTitle,
   packageName,
   packagePrice,
   packageDescription,
   packageDelivery,
   packageRevisions,
   packageIncluded,
+  continueCb,
 }: {
+  gigId: string;
+  packageTitle: string;
   packageName: string;
   packagePrice: string;
   packageDescription: string;
   packageDelivery: string | number;
   packageRevisions: string | number;
   packageIncluded: string[];
+  continueCb?: any;
 }) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const handleScroll = () => {
     document
       .getElementById("compare-packages")
       ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onContinueClick = () => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("gigId", gigId);
+    params.set("packageTitle", packageTitle);
+
+    router.push(`/checkout?${params.toString()}`);
   };
 
   return (
@@ -94,7 +113,25 @@ const PackageSideBar = ({
         </ul>
       </div>
 
-      <button className="h-8 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+
+          onContinueClick();
+
+          // continueCb &&
+          //   continueCb({
+          //     gigId,
+          //     packageName,
+          //     packagePrice,
+          //     packageDescription,
+          //     packageDelivery,
+          //     packageRevisions,
+          //     packageIncluded,
+          //   });
+        }}
+        className="h-8 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600"
+      >
         Continue
       </button>
       <button className="h-8 rounded-sm border" onClick={handleScroll}>
@@ -215,6 +252,8 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
         {value == 0 && (
           <PackageSideBar
+            gigId={gig?.id}
+            packageTitle="basic"
             packageName={packageName?.basic}
             packagePrice={pricePackage?.basic}
             packageDescription={packageDescription?.basic}
@@ -226,6 +265,8 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
         {value == 1 && (
           <PackageSideBar
+            gigId={gig?.id}
+            packageTitle="standard"
             packageName={packageName?.standard}
             packagePrice={pricePackage?.standard}
             packageDescription={packageDescription?.standard}
@@ -237,6 +278,8 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
         {value == 2 && (
           <PackageSideBar
+            gigId={gig?.id}
+            packageTitle="premium"
             packageName={packageName?.premium}
             packagePrice={pricePackage?.premium}
             packageDescription={packageDescription?.premium}
