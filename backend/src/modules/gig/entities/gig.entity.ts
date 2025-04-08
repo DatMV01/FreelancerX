@@ -108,11 +108,6 @@ export class GigEntity extends BaseEntity {
   @JoinColumn({ name: 'nested_sub_category_id' })
   nestedSubcategory?: CategoryEntity;
 
-  /**== Tags ==*/
-  // @AutoMap(() => String)
-  // @Column({ type: 'simple-array', nullable: true })
-  // tags: string[];
-
   @AutoMap(() => [GigTagEntity])
   @ManyToMany(() => GigTagEntity, {
     eager: true,

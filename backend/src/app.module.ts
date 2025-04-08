@@ -26,6 +26,7 @@ import { StatusModule } from './modules/status/status.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';
+import { StripeModule } from './stripe/stripe.module';
 import mailConfig from './modules/mail/config/mail.config';
 
 @Module({
@@ -58,6 +59,7 @@ import mailConfig from './modules/mail/config/mail.config';
     RatingModule,
     FreelancerModule,
     MailModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

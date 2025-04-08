@@ -31,7 +31,7 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-    //  forbidNonWhitelisted: true,
+      //  forbidNonWhitelisted: true,
     }),
   );
 
@@ -41,6 +41,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   app.use(cookieParser());
+
+  app.use('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('FreelancerX')
