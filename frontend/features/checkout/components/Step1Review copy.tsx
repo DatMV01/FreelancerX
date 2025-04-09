@@ -59,15 +59,15 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
     };
 
     for (const pkg of gig.pricingPackage) {
-      if (pkg.type === "packageName") {
+      if ((pkg as any).type === "packageName") {
         info.packageName = pkg[title];
-      } else if (pkg.type === "packageDescription") {
+      } else if ((pkg as any).type === "packageDescription") {
         info.packageDescription = pkg[title];
-      } else if (pkg.type === "packageDelivery") {
+      } else if ((pkg as any).type === "packageDelivery") {
         info.packageDelivery = pkg[title];
-      } else if (pkg.type === "packageRevisions") {
+      } else if ((pkg as any).type === "packageRevisions") {
         info.packageRevisions = pkg[title];
-      } else if (pkg.type === "pricePackage") {
+      } else if ((pkg as any).type === "pricePackage") {
         info.packagePrice = pkg[title];
       } else {
         const value = pkg[title];

@@ -72,6 +72,6 @@ export class CategoryEntity extends BaseEntity {
   @OneToMany(() => GigEntity, (gig) => gig.category)
   gigs: GigEntity[];
 
-  @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.categories)
-  freelancers: FreelancerEntity[];
+  // @ManyToMany(() => FreelancerEntity, (freelancer) => freelancer.categories)
+  // freelancers: FreelancerEntity[];
 }

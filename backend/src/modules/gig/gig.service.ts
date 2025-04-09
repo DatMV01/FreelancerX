@@ -7,7 +7,7 @@ import {
   FindManyOptions,
   In,
   Repository,
-  SelectQueryBuilder
+  SelectQueryBuilder,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
@@ -16,6 +16,7 @@ import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerService } from '../freelancer/freelancer.service';
 import { RoleEnum } from '../role/enum/role.enum';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
+import { PackageEntity, PackageType } from './entities/package.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -25,6 +26,9 @@ export class GigService extends BaseService<GigEntity> {
 
     @InjectRepository(GigTagEntity)
     private readonly gigTagRepository: Repository<GigTagEntity>,
+
+    @InjectRepository(PackageEntity)
+    private readonly gigPackageRepository: Repository<PackageEntity>,
 
     private readonly freelancerService: FreelancerService,
   ) {
@@ -38,11 +42,20 @@ export class GigService extends BaseService<GigEntity> {
 
     const createdTags = await this.createTags(createDto.tags || []);
 
+    const [basic, standard, premium] = this.transformPackages(
+      createDto.pricingPackage,
+    );
+
+    const basicPackage = this.gigPackageRepository.create(basic);
+    const standardPackage = this.gigPackageRepository.create(standard);
+    const premiumPackage = this.gigPackageRepository.create(premium);
+
     const createdEntity = this._repository.create({
       ...createDto,
       id: uuidv4(),
       freelancer,
       tags: createdTags,
+      packages: [basicPackage, standardPackage, premiumPackage],
     });
 
     return await this._repository.save(createdEntity);
@@ -182,4 +195,57 @@ export class GigService extends BaseService<GigEntity> {
 
     return queryBuilder;
   }
+
+  transformPackages = (data) => {
+    const types = ['basic', 'standard', 'premium'];
+
+    const result = Object.values(PackageType).map((type) => {
+      const obj: Partial<PackageEntity> = {
+        id: uuidv4(),
+        type: type,
+        title: '',
+        description: '',
+        price: 0,
+        deliveryTime: 0,
+        revisions: 0,
+        features: [] as { package: string; value: string }[],
+      };
+
+      data.forEach((item) => {
+        const value = item[type];
+
+        switch (item.package.toLowerCase()) {
+          case 'name':
+            obj.title = value.replace(/[^\w ]/, '') ?? '';
+            break;
+          case 'description':
+            obj.description = value.replace(/[^\w ]/, '') ?? '';
+            break;
+          case 'price':
+            obj.price = Number(value ?? 0);
+            break;
+          case 'delivery':
+            obj.deliveryTime = Number(value ?? 0);
+            break;
+          case 'delivery':
+            obj.deliveryTime = Number(value ?? 0);
+            break;
+          case 'revisions':
+            obj.revisions = Number(value ?? 0);
+            break;
+          default:
+            obj.features = obj.features || [];
+            obj.features.push({
+              package: item.package,
+              value: value !== undefined ? value.toString() : '',
+            });
+            break;
+        }
+      });
+
+      return obj;
+    });
+
+    return result;
+  };
 }

@@ -27,6 +27,7 @@ import {
   LanguageEntity,
 } from './freelancers_languages.entity';
 import { FreelancersSkills } from './freelancers_skills.entity';
+import { WithdrawalRequest } from 'src/modules/transaction/entities/withdrawalRequest.entity';
 
 @Entity('freelancer')
 export class FreelancerEntity extends BaseEntity {
@@ -101,16 +102,16 @@ export class FreelancerEntity extends BaseEntity {
   @AutoMap(() => [LanguageEntity])
   skills: LanguageEntity[];
 
-  @AutoMap(() => [CategoryEntity])
-  @ManyToMany(() => CategoryEntity, (category) => category.freelancers, {
-    onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
-  })
-  @JoinTable({
-    name: 'freelancers_categories',
-    joinColumn: { name: 'freelancer_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
-  })
-  categories?: CategoryEntity[];
+  // @AutoMap(() => [CategoryEntity])
+  // @ManyToMany(() => CategoryEntity, (category) => category.freelancers, {
+  //   onDelete: 'CASCADE', // Khi freelancer bị xóa, giá trị trong bảng trung gian sẽ xóa
+  // })
+  // @JoinTable({
+  //   name: 'freelancers_categories',
+  //   joinColumn: { name: 'freelancer_id', referencedColumnName: 'id' },
+  //   inverseJoinColumn: { name: 'category_id', referencedColumnName: 'id' },
+  // })
+  // categories?: CategoryEntity[];
 
   @AutoMap(() => [RatingEntity])
   @OneToMany(() => RatingEntity, (rating) => rating.freelancer, {
@@ -159,6 +160,9 @@ export class FreelancerEntity extends BaseEntity {
     onDelete: 'NO ACTION',
   })
   orders: OrderEntity[];
+
+  @OneToMany(() => WithdrawalRequest, (withdrawal) => withdrawal.user)
+  withdrawals: WithdrawalRequest[];
 
   @AfterInsert()
   @AfterUpdate()

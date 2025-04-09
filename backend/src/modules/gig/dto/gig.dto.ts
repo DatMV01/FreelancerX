@@ -9,6 +9,7 @@ import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
 import { Transform, TransformationType } from 'class-transformer';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { GigTagEntity } from '../entities/gig.entity';
+import { PackageEntity } from '../entities/package.entity';
 
 export class PricingPackage {
   @AutoMap()
@@ -125,6 +126,9 @@ export class GigDto extends BaseDto<GigDto> {
 
   @AutoMap()
   premiumPrice: number;
+
+  @AutoMap(() => [PackageEntity])
+  packages: PackageEntity[];
 
   @AutoMap(() => PricingPackage)
   pricingPackage: PricingPackage[];

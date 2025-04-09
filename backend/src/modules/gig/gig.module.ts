@@ -6,10 +6,11 @@ import { UserModule } from '../user/user.module';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import { GigController } from './gig.controller';
 import { GigService } from './gig.service';
+import { PackageEntity } from './entities/package.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([GigEntity, GigTagEntity]),
+    TypeOrmModule.forFeature([GigEntity, GigTagEntity, PackageEntity]),
     UserModule,
     FreelancerModule,
   ],

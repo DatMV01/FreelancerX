@@ -24,6 +24,7 @@ import {
 import { AuthProvidersEnum } from '../enum/user.provider';
 
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
+import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
@@ -112,6 +113,9 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => RatingEntity, (ratings) => ratings.user)
   ratings: RatingEntity[];
 
+  @OneToMany(() => GigReviewEntity, (review) => review.gig)
+  reviews: GigReviewEntity[];
+
   /* NOTIFICATIONS */
   @AutoMap(() => [NotificationEntity])
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
@@ -140,7 +144,7 @@ export class UserEntity extends BaseEntity {
     eager: false,
   })
   @JoinTable({
-    name: 'users_favorite_gigs',
+    name: 'gigs_fovirites',
     joinColumn: { name: 'userId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
   })

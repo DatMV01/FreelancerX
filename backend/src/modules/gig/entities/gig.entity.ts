@@ -4,6 +4,9 @@ import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import slugify from 'slugify';
+import * as removeAccents from 'remove-accents';
+
 import {
   AfterLoad,
   BeforeInsert,
@@ -27,11 +30,12 @@ import {
   Requirement,
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { slugify } from 'src/utils/slugify';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { PackageEntity } from './package.entity';
+import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
-@Entity({ name: 'tag' })
-export class GigTagEntity {
+@Entity({ name: 'gigtag' })
+export class GigTagEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -68,7 +72,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id' })
-  category?: CategoryEntity;
+  category: CategoryEntity;
 
   /**== SubCategory ==*/
   @AutoMap()
@@ -87,7 +91,7 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'sub_category_id' })
-  subCategory?: CategoryEntity;
+  subCategory: CategoryEntity;
 
   /**== NestedSubCategory ==*/
   @AutoMap()
@@ -106,118 +110,9 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'nested_sub_category_id' })
-  nestedSubcategory?: CategoryEntity;
+  nestedSubcategory: CategoryEntity;
 
-  @AutoMap(() => [GigTagEntity])
-  @ManyToMany(() => GigTagEntity, {
-    eager: true,
-    cascade: true,
-  })
-  @JoinTable({
-    name: 'gigs_tags',
-    joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
-  })
-  tags?: GigTagEntity[];
-
-  @ManyToMany(() => UserEntity, (user) => user.favoriteGigs)
-  users: UserEntity[];
-  /* Overview */
-
-  /* Overview */
-
-  /* Pricing */
-  @AutoMap()
-  @Index()
-  @Column({ type: 'bigint' })
-  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  basicPrice: number;
-
-  @AutoMap()
-  @Index()
-  @Column({ type: 'bigint' })
-  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  standardPrice: number;
-
-  @AutoMap()
-  @Index()
-  @Column({ type: 'bigint' })
-  // @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
-  premiumPrice: number;
-
-  @AutoMap(() => PricingPackage)
-  @Column({ type: 'json', nullable: true })
-  pricingPackage: PricingPackage[];
-  /* Pricing */
-
-  /* Description & FAQ */
-  @AutoMap()
-  @Column({ type: 'mediumtext', nullable: true })
-  description: string;
-
-  @AutoMap(() => FAQ)
-  @Column({ type: 'json', nullable: true })
-  faqs?: FAQ[];
-  /* Description & FAQ */
-
-  /* Gallery */
-  @AutoMap(() => GigImages)
-  @Column({ type: 'json', nullable: true })
-  images?: GigImages | null;
-
-  @AutoMap(() => GigDocuments)
-  @Column({ type: 'json', nullable: true })
-  documents?: GigDocuments | null;
-
-  @AutoMap(() => GigFileInfo)
-  @Column({ type: 'json', nullable: true })
-  video?: GigFileInfo;
-
-  /* Gallery */
-
-  @AutoMap()
-  @Column({ type: 'enum', enum: GigStatus, default: GigStatus.DRAFT })
-  status: GigStatus;
-
-  @AutoMap(() => GigFileInfo)
-  @Column({ type: 'json', nullable: true })
-  thumbnail?: GigFileInfo | null;
-
-  @AutoMap(() => Requirement)
-  @Column({ type: 'json', nullable: true })
-  requirements?: Requirement[];
-
-  /* RATING */
-  @AutoMap(() => RatingEntity)
-  @OneToMany(() => RatingEntity, (rating) => rating.gig, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  ratings: RatingEntity[];
-
-  @AutoMap()
-  @Column({
-    type: 'decimal',
-    precision: 3,
-    scale: 2,
-    default: 0,
-    nullable: false,
-  })
-  ratingAverate: number;
-
-  @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  ratingCount: number;
-
-  // @Column({ type: 'int', default: 0 })
-  // popularity: number = 0;
-
-  // @Column({ type: 'boolean', default: false })
-  // isPromoted: boolean = false;
-
-  @AutoMap()
-  userId: string;
-
+  /**== Freelancer ==*/
   @AutoMap()
   @Column({
     name: 'freelancer_id',
@@ -233,7 +128,115 @@ export class GigEntity extends BaseEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'freelancer_id' })
-  freelancer?: FreelancerEntity;
+  freelancer: FreelancerEntity;
+
+  /**== Tags ==*/
+  @AutoMap(() => [GigTagEntity])
+  @ManyToMany(() => GigTagEntity, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'gigs_tags',
+    joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
+  })
+  tags: GigTagEntity[];
+
+  /**== FavoriteGigs ==*/
+  @AutoMap(() => [UserEntity])
+  @ManyToMany(() => UserEntity, (user) => user.favoriteGigs)
+  users: UserEntity[];
+  /* Overview */
+
+  /* Pricing */
+  // @AutoMap()
+  // @Index()
+  // @Column({ type: 'bigint' })
+  // basicPrice: number;
+
+  // @AutoMap()
+  // @Index()
+  // @Column({ type: 'bigint' })
+  // standardPrice: number;
+
+  // @AutoMap()
+  // @Index()
+  // @Column({ type: 'bigint' })
+  // premiumPrice: number;
+
+  @AutoMap(() => [PackageEntity])
+  @OneToMany(() => PackageEntity, (pkg) => pkg.gig, {
+    cascade: true,
+    eager: true,
+  })
+  packages: PackageEntity[];
+
+  @AutoMap(() => PricingPackage)
+  @Column({ type: 'json', nullable: true })
+  pricingPackage: PricingPackage[];
+  /* Pricing */
+
+  /* Description & FAQ */
+  @AutoMap()
+  @Column({ type: 'mediumtext', nullable: true })
+  description: string;
+
+  @AutoMap(() => FAQ)
+  @Column({ type: 'json', nullable: true })
+  faqs: FAQ[];
+  /* Description & FAQ */
+
+  /* Gallery */
+  @AutoMap(() => GigImages)
+  @Column({ type: 'json', nullable: true })
+  images: GigImages | null;
+
+  @AutoMap(() => GigDocuments)
+  @Column({ type: 'json', nullable: true })
+  documents: GigDocuments | null;
+
+  @AutoMap(() => GigFileInfo)
+  @Column({ type: 'json', nullable: true })
+  video: GigFileInfo;
+
+  /* Gallery */
+
+  @AutoMap()
+  @Column({ type: 'enum', enum: GigStatus, default: GigStatus.DRAFT })
+  status: GigStatus;
+
+  /* RATING */
+  @AutoMap(() => RatingEntity)
+  @OneToMany(() => RatingEntity, (rating) => rating.gig, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  ratings: RatingEntity[];
+
+  @OneToMany(() => GigReviewEntity, (review) => review.gig)
+  reviews: GigReviewEntity[];
+
+  @AutoMap()
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 2,
+    default: 0,
+    nullable: false,
+  })
+  ratingAverate: number;
+
+  @AutoMap()
+  @Column({ type: 'int', default: 0 })
+  ratingCount: number;
+
+  @AutoMap()
+  userId: string;
+
+  @AutoMap(() => Requirement)
+  @Column({ type: 'json', nullable: true })
+  requirements: Requirement[];
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -244,12 +247,13 @@ export class GigEntity extends BaseEntity {
   orders: OrderEntity[];
 
   @AutoMap()
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', unique: true, length: 255, nullable: false })
   slug: string;
 
   @BeforeInsert()
   beforeInsert() {
-    this.slug = `${slugify(this.title)}-${Date.now()}`;
+    const noAccents = `${removeAccents(this.title)}-${Date.now()}`;
+    this.slug = `${slugify(noAccents, { lower: true, strict: true })}`;
 
     this.updateAllCategory();
   }
@@ -268,20 +272,8 @@ export class GigEntity extends BaseEntity {
   }
 
   updateAllCategory() {
-    // this.category = (this.category as any) === '' ? null : this.category;
-
-    // this.subCategory =
-    //   (this.subCategory as any) === '' ? null : this.subCategory;
-
-    // this.nestedSubcategory =
-    //   (this.nestedSubcategory as any) === '' ? null : this.nestedSubcategory;
-
     if (!this.images?.image1 && !this.images?.image2 && !this.images?.image3) {
       this.images = null;
-    }
-
-    if (this.images?.image1) {
-      this.thumbnail = this.images?.image1;
     }
 
     if (!this.documents?.document1 && !this.documents?.document2) {

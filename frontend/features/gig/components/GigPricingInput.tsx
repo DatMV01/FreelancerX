@@ -1,8 +1,21 @@
 "use client";
 
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { Check, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import {
+  Check,
+  CheckCircle,
+  Pencil,
+  PlusCircle,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface RowData {
@@ -28,21 +41,41 @@ interface NewRowData {
 }
 
 const deliveryOptions = [
-  { id: "550e8400-e29b-41d4-a716-446655440001", day: 1, title: "1 day" },
-  { id: "550e8400-e29b-41d4-a716-446655440002", day: 2, title: "2 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440003", day: 3, title: "3 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440004", day: 4, title: "4 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440005", day: 5, title: "5 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440006", day: 6, title: "6 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440007", day: 7, title: "7 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440008", day: 10, title: "10 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440009", day: 14, title: "14 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440010", day: 21, title: "21 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440011", day: 30, title: "30 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440012", day: 45, title: "45 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440013", day: 60, title: "60 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440014", day: 75, title: "75 days" },
-  { id: "550e8400-e29b-41d4-a716-446655440015", day: 90, title: "90 days" },
+  { id: "446655440001", day: 1, title: "1 day" },
+  { id: "446655440002", day: 2, title: "2 days" },
+  { id: "446655440003", day: 3, title: "3 days" },
+  { id: "446655440004", day: 4, title: "4 days" },
+  { id: "446655440005", day: 5, title: "5 days" },
+  { id: "446655440006", day: 6, title: "6 days" },
+  { id: "446655440007", day: 7, title: "7 days" },
+  { id: "446655440008", day: 10, title: "10 days" },
+  { id: "446655440009", day: 14, title: "14 days" },
+  { id: "446655440010", day: 21, title: "21 days" },
+  { id: "446655440011", day: 30, title: "30 days" },
+  { id: "446655440012", day: 45, title: "45 days" },
+  { id: "446655440013", day: 60, title: "60 days" },
+  { id: "446655440014", day: 75, title: "75 days" },
+  { id: "446655440015", day: 90, title: "90 days" },
+  { id: "446655440016", day: 105, title: "105 days" },
+  { id: "446655440017", day: 120, title: "120 days" },
+];
+
+const revisionsCount = [
+  { id: "476655440001", count: 1 },
+  { id: "476655440002", count: 2 },
+  { id: "476655440003", count: 3 },
+  { id: "476655440004", count: 4 },
+  { id: "476655440005", count: 5 },
+  { id: "476655440006", count: 6 },
+  { id: "476655440007", count: 7 },
+  { id: "476655440008", count: 8 },
+  { id: "476655440009", count: 9 },
+  { id: "476655440010", count: 10 },
+  { id: "476655440011", count: 11 },
+  { id: "476655440012", count: 12 },
+  { id: "476655440013", count: 13 },
+  { id: "476655440014", count: 14 },
+  { id: "476655440015", count: 15 },
 ];
 
 const initialRequiredInformation = [
@@ -63,16 +96,16 @@ const initialRequiredInformation = [
   {
     id: 3,
     package: "Delivery",
-    basic: 1,
-    standard: 1,
+    basic: 3,
+    standard: 2,
     premium: 1,
   },
   {
     id: 4,
-    package: "Revision",
-    basic: 0,
-    standard: 0,
-    premium: 0,
+    package: "Revisions",
+    basic: 1,
+    standard: 2,
+    premium: 3,
   },
   {
     id: 5,
@@ -97,133 +130,81 @@ const RevisonRow = ({
   requiredInformation: any;
   setRequiredInformation: any;
 }) => {
-  const revisionsCount = [
-    { id: "3f1a3b17-8c92-4c3b-9e15-d9a1e62a5c1c", count: 0 },
-    { id: "3f1a3b17-8c92-4c3b-9e15-d9a1e62a5c1d", count: 1 },
-    { id: "7b2c56d4-5f84-45d8-8e6b-6d1e89c2a8a3", count: 2 },
-    { id: "ae8d3a55-4f42-4c3d-b9b3-ef1c8f90e7b4", count: 3 },
-    { id: "d2b63f4e-7115-4d24-90f9-7b8f3ea658c7", count: 4 },
-    { id: "49f5a162-6a3c-4a2f-8ef4-fd3e5b2a9f21", count: 5 },
-    { id: "5b9e6c41-8f74-41c3-89f5-d2c8a3e72b91", count: 6 },
-    { id: "8a3d4c92-5e71-4f38-b1d7-6f9c5e3a2b84", count: 7 },
-    { id: "e17f3a6d-2c95-4d81-b9f2-4c8d7a5e3b61", count: 8 },
-    { id: "9b5c7d3a-81e4-4f29-90b3-6d2f8a1c75e3", count: 9 },
-    { id: "6d4a7c8b-51f2-42e9-b3d9-8f3a2e75c14d", count: 10 },
-    { id: "3a9f7b2c-4d81-4f52-95e3-8c6d1a5e7b49", count: 11 },
-    { id: "4f6d8c7a-3b52-42e9-b915-2a9f7e5d3c81", count: 12 },
-    { id: "2b5e7a9c-6d81-4f42-93d4-7f1a8c3e5b25", count: 13 },
-    { id: "7c3a5d9f-4b81-42e6-b215-8f2d7a6c9e53", count: 14 },
-    { id: "5e4c8a7b-9f21-4d62-b315-3a7f2d6c81e9", count: 15 },
-  ];
-
   const { basic, standard, premium } = requiredInformation[3];
 
   return (
     <>
       <tr>
         <td className="border p-2 text-center">-</td>
-        <td className="border p-2">Revision</td>
+        <td className="border p-2">Revisions</td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={basic}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 4 ? { ..._, basic: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Revision"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              {revisionsCount.map((_, i) => (
-                <MenuItem key={_.id} value={_.count}>
+          <Select
+            value={basic.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 4 ? { ..._, basic: Number(value) } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select revisions" />
+            </SelectTrigger>
+            <SelectContent>
+              {revisionsCount.map((_) => (
+                <SelectItem key={_.id} value={_.count.toString()}>
                   {_.count}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={standard}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 4 ? { ..._, standard: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Revision"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              {revisionsCount.map((_, i) => (
-                <MenuItem key={_.id} value={_.count}>
+          <Select
+            value={standard.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 4 ? { ..._, standard: Number(value) } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select revisions" />
+            </SelectTrigger>
+            <SelectContent>
+              {revisionsCount.map((_) => (
+                <SelectItem key={_.id} value={_.count.toString()}>
                   {_.count}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Revision
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={premium}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 4 ? { ..._, premium: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Revision"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              {revisionsCount.map((_, i) => (
-                <MenuItem key={_.id} value={_.count}>
+          <Select
+            value={premium.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 4 ? { ..._, premium: Number(value) } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select revisions" />
+            </SelectTrigger>
+            <SelectContent>
+              {revisionsCount.map((_) => (
+                <SelectItem key={_.id} value={_.count.toString()}>
                   {_.count}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2 text-center">-</td>
       </tr>
@@ -367,121 +348,76 @@ const DeliveryRow = ({
   return (
     <>
       <tr>
-        <td className="border p-2 text-center">-</td>
+        <td className="border text-center">-</td>
         <td className="border p-2">Delivery</td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={requiredInformation[2].basic}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 3 ? { ..._, basic: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Delivery Day"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              <MenuItem value="">
-                <em>Delivery</em>
-              </MenuItem>
-
+          <Select
+            value={requiredInformation[2].basic.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 3 ? { ..._, basic: value } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select delivery day" />
+            </SelectTrigger>
+            <SelectContent>
               {deliveryOptions.map((_) => (
-                <MenuItem key={_.id} value={_.day}>
+                <SelectItem key={_.id} value={_.day.toString()}>
                   {_.title}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={requiredInformation[2].standard}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 3 ? { ..._, standard: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Delivery Day"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              <MenuItem value="">
-                <em>Delivery</em>
-              </MenuItem>
-
+          <Select
+            value={requiredInformation[2].standard.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 3 ? { ..._, standard: value } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select delivery day" />
+            </SelectTrigger>
+            <SelectContent>
               {deliveryOptions.map((_) => (
-                <MenuItem key={_.id} value={_.day}>
+                <SelectItem key={_.id} value={_.day.toString()}>
                   {_.title}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2">
-          <FormControl variant="standard" sx={{ p: 1, width: "100%" }}>
-            <InputLabel id="demo-simple-select-standard-label" sx={{ p: 1 }}>
-              Delivery
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              sx={{ width: 100 }}
-              value={requiredInformation[2].premium}
-              onChange={(e) => {
-                setRequiredInformation(
-                  requiredInformation.map((_: RowData) =>
-                    _.id === 3 ? { ..._, premium: e.target.value } : _,
-                  ),
-                );
-              }}
-              label="Delivery Day"
-              MenuProps={{
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                  },
-                },
-              }}
-            >
-              <MenuItem value="">
-                <em>Delivery</em>
-              </MenuItem>
-
+          <Select
+            value={requiredInformation[2].premium.toString()}
+            onValueChange={(value) => {
+              setRequiredInformation(
+                requiredInformation.map((_: RowData) =>
+                  _.id === 3 ? { ..._, premium: value } : _,
+                ),
+              );
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select delivery day" />
+            </SelectTrigger>
+            <SelectContent>
               {deliveryOptions.map((_) => (
-                <MenuItem key={_.id} value={_.day}>
+                <SelectItem key={_.id} value={_.day.toString()}>
                   {_.title}
-                </MenuItem>
+                </SelectItem>
               ))}
-            </Select>
-          </FormControl>
+            </SelectContent>
+          </Select>
         </td>
         <td className="border p-2 text-center">-</td>
       </tr>
@@ -568,10 +504,10 @@ const PriceRow = ({
 };
 
 const transformValue = (value: any) => {
-  if (value.toLowerCase() === "x") {
-    return <Check size={16} className="text-green-500" />;
+  if (value.toLowerCase() === "x" || value.toLowerCase() === "yes") {
+    return <CheckCircle size={18} className="text-green-500" />;
   } else if (value.toLowerCase() === "") {
-    return "-";
+    return <X color="red" size={18} />;
   } else {
     return value;
   }
@@ -657,7 +593,7 @@ const AddtionalRow = ({
             <>
               <td className="border p-2">
                 <input
-                  className="w-full border p-1"
+                  className="w-full border"
                   type="text"
                   value={editData.package}
                   onChange={(e) => handleEditChange(e, "package")}
@@ -702,33 +638,40 @@ const AddtionalRow = ({
           ) : (
             <>
               <td className="max-w-20 border p-2 break-words">{row.package}</td>
-              <td className="max-w-10 border p-2 break-words">
-                {transformValue(row.basic)}
+              <td className="max-w-10 border">
+                <p className="flex items-center justify-center break-words">
+                  {transformValue(row.basic)}
+                </p>
               </td>
-              <td className="max-w-10 border p-2 break-words">
-                {transformValue(row.standard)}
+              <td className="max-w-10 border">
+                <p className="flex items-center justify-center break-words">
+                  {transformValue(row.standard)}
+                </p>
               </td>
-              <td className="max-w-10 border p-2 break-words">
-                {transformValue(row.premium)}
+              <td className="max-w-10 border">
+                <p className="flex items-center justify-center break-words">
+                  {transformValue(row.premium)}
+                </p>
               </td>
-              <td className="max-w-10 border p-2 break-words">
-                <button
-                  className="mr-2 text-blue-500 hover:text-blue-700"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleEdit(row.id);
-                  }}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  className="text-red-500 hover:text-red-700"
-                  onClick={() => {
-                    handleDelete(row.id);
-                  }}
-                >
-                  <Trash2 size={16} />
-                </button>
+
+              <td className="max-w-10 border">
+                <span className="flex items-center justify-center space-x-4">
+                  <button
+                    className="text-blue-500 hover:text-blue-700"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleEdit(row.id);
+                    }}
+                  >
+                    <Pencil size={16} />
+                  </button>
+                  <button
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDelete(row.id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </span>
               </td>
             </>
           )}
@@ -747,8 +690,8 @@ export default function GigPricingInput({
   pricingPackage,
   onPrincingPakageInputCb,
 }: Props) {
-  let parsedRequiredInformation: RowData[] = [];
-  let parsedAdditionalInformation: RowData[] = [];
+  let parseRequire: RowData[] = [];
+  let parseFeatures: RowData[] = [];
   if (pricingPackage) {
     for (let index = 0; index < pricingPackage.length; index++) {
       const element: RowData = pricingPackage[index];
@@ -756,24 +699,22 @@ export default function GigPricingInput({
         element.package === "Name" ||
         element.package === "Description" ||
         element.package === "Delivery" ||
-        element.package === "Revision" ||
+        element.package === "Revisions" ||
         element.package === "Price"
       ) {
-        parsedRequiredInformation.push(element);
+        parseRequire.push(element);
       } else {
-        parsedAdditionalInformation.push(element);
+        parseFeatures.push(element);
       }
     }
   }
 
   const [requiredInformation, setRequiredInformation] = useState<RowData[]>(
-    pricingPackage
-      ? parsedRequiredInformation
-      : (initialRequiredInformation as any),
+    pricingPackage ? parseRequire : (initialRequiredInformation as any),
   );
 
-  const [additionalInformation, setAdditionalInformation] = useState<RowData[]>(
-    pricingPackage ? parsedAdditionalInformation : [],
+  const [featuresInformation, setFeaturesInformation] = useState<RowData[]>(
+    pricingPackage ? parseFeatures : [],
   );
 
   const [editId, setEditId] = useState<number | null>(null);
@@ -798,13 +739,13 @@ export default function GigPricingInput({
         basicPrice: Number(basicPrice),
         standardPrice: Number(standardPrice),
         premiumPrice: Number(premiumPrice),
-        pricing: [...requiredInformation, ...additionalInformation],
+        pricing: [...requiredInformation, ...featuresInformation],
       });
-  }, [requiredInformation, additionalInformation]);
+  }, [requiredInformation, featuresInformation]);
 
   const handleDeleteSelected = () => {
-    setAdditionalInformation(
-      additionalInformation.filter((r) => !selectedRows.includes(Number(r.id))),
+    setFeaturesInformation(
+      featuresInformation.filter((r) => !selectedRows.includes(Number(r.id))),
     );
     setSelectedRows([]);
   };
@@ -814,8 +755,14 @@ export default function GigPricingInput({
       newRowData.package &&
       (newRowData.basic || newRowData.standard || newRowData.premium)
     ) {
-      setAdditionalInformation([
-        ...additionalInformation,
+      newRowData.basic = newRowData.basic === "x" ? "Yes" : newRowData.basic;
+      newRowData.standard =
+        newRowData.standard === "x" ? "Yes" : newRowData.standard;
+      newRowData.premium =
+        newRowData.premium === "x" ? "Yes" : newRowData.premium;
+
+      setFeaturesInformation([
+        ...featuresInformation,
         { id: Date.now(), ...newRowData },
       ]);
       setNewRowData({ package: "", basic: "", standard: "", premium: "" });
@@ -824,8 +771,10 @@ export default function GigPricingInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    handleAddRow();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddRow();
+    }
   };
 
   return (
@@ -837,15 +786,15 @@ export default function GigPricingInput({
       >
         <Trash2 size={16} />
       </button>
-      <table className="w-full border-collapse border border-gray-300">
+      <table className="w-full">
         <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Select</th>
-            <th className="border p-2">Package</th>
-            <th className="border p-2">Basic</th>
-            <th className="border p-2">Standard</th>
-            <th className="border p-2">Premium</th>
-            <th className="border p-2">Actions</th>
+          <tr className="h-[50px] bg-gray-200">
+            <th>Select</th>
+            <th>Package</th>
+            <th>Basic</th>
+            <th>Standard</th>
+            <th>Premium</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -875,8 +824,8 @@ export default function GigPricingInput({
           />
 
           <AddtionalRow
-            additionalInformation={additionalInformation}
-            setAdditionalInformation={setAdditionalInformation}
+            additionalInformation={featuresInformation}
+            setAdditionalInformation={setFeaturesInformation}
             selectedRows={selectedRows}
             setSelectedRows={setSelectedRows}
             editId={editId}
@@ -886,7 +835,7 @@ export default function GigPricingInput({
           />
 
           <tr>
-            <td className="border p-2 text-center">-</td>
+            <td className="border text-center">-</td>
             <td className="border p-2">
               <input
                 ref={inputRef}
@@ -900,7 +849,7 @@ export default function GigPricingInput({
                 onKeyDown={handleKeyDown}
               />
             </td>
-            <td className="border p-2">
+            <td className="border p-1">
               <input
                 className="w-full border p-1"
                 type="text"
@@ -912,7 +861,7 @@ export default function GigPricingInput({
                 onKeyDown={handleKeyDown}
               />
             </td>
-            <td className="border p-2">
+            <td className="border p-1">
               <input
                 className="w-full border p-1"
                 type="text"
@@ -924,7 +873,7 @@ export default function GigPricingInput({
                 onKeyDown={handleKeyDown}
               />
             </td>
-            <td className="border p-2">
+            <td className="border p-1">
               <input
                 className="w-full border p-1"
                 type="text"
@@ -936,13 +885,15 @@ export default function GigPricingInput({
                 onKeyDown={handleKeyDown}
               />
             </td>
-            <td className="border p-2">
-              <button
-                className="text-blue-500 hover:text-blue-700"
-                onClick={handleAddRow}
-              >
-                <PlusCircle size={16} />
-              </button>
+            <td className="border">
+              <span className="flex items-center justify-center">
+                <button
+                  className="text-blue-500 hover:text-blue-700"
+                  onClick={handleAddRow}
+                >
+                  <PlusCircle size={16} />
+                </button>
+              </span>
             </td>
           </tr>
         </tbody>

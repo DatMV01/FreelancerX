@@ -2,10 +2,11 @@
 
 import BreadcrumbCategory from "@/components/BreadcrumbCategory";
 import { Button } from "@/components/ui/button";
-import { GigDto } from "@/dto/dto.type.";
+import { GigDto, GigPackage } from "@/dto/dto.type.";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import GigComments from "@/features/gig/components/GigComment";
 import GigComparePackage from "@/features/gig/components/GigComparePackage";
+import GigComparePackage2 from "@/features/gig/components/GigComparePackage2";
 import GigDescription from "@/features/gig/components/GigDescription";
 import GigFAQ from "@/features/gig/components/GigFAQ";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
@@ -19,7 +20,15 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
-import { CheckCircle, Clock, Heart, RefreshCw } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Heart,
+  RefreshCw,
+  Truck,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
@@ -93,11 +102,12 @@ const PackageSideBar = ({
 
       <div className="flex items-center space-x-4 text-gray-500">
         <p className="flex items-center gap-1">
-          <Clock size={16} />
+          <Clock size={18} className="text-orange-500" />
           <span> {packageDelivery}-day delivery</span>
         </p>
         <p className="flex items-center gap-1">
-          <RefreshCw size={16} />
+          <RefreshCw size={18} className="text-green-500" />
+
           <span> {packageRevisions} Revisions</span>
         </p>
       </div>
@@ -112,6 +122,13 @@ const PackageSideBar = ({
           ))}
         </ul>
       </div>
+
+      <button
+        className="h-8 cursor-pointer rounded-sm border"
+        onClick={handleScroll}
+      >
+        Compare packages
+      </button>
 
       <button
         onClick={(e) => {
@@ -133,9 +150,6 @@ const PackageSideBar = ({
         className="h-8 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600"
       >
         Continue
-      </button>
-      <button className="h-8 rounded-sm border" onClick={handleScroll}>
-        Compare packages
       </button>
     </div>
   );
@@ -160,7 +174,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   const a = addtitionalPackages
     .filter((item) => item.basic !== "")
     .map((item) => {
-      return item.basic === "x"
+      return item.basic === "x" || item.basic === "Yes"
         ? item.package
         : `${item.package}: ${item.basic}`;
     });
@@ -168,7 +182,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   const b = addtitionalPackages
     .filter((item) => item.standard !== "")
     .map((item) => {
-      return item.standard === "x"
+      return item.standard === "x" || item.standard === "Yes"
         ? item.package
         : `${item.package}: ${item.standard}`;
     });
@@ -176,7 +190,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   const c = addtitionalPackages
     .filter((item) => item.premium !== "")
     .map((item) => {
-      return item.premium === "x"
+      return item.premium === "x" || item.premium === "Yes"
         ? item.package
         : `${item.package}: ${item.premium}`;
     });
@@ -335,6 +349,8 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
       {true && <GigSellerPortfolio />}
 
       <GigComparePackage gig={gig} />
+
+      <GigComparePackage2 gig={gig} />
 
       <GigFAQ gig={gig} />
 

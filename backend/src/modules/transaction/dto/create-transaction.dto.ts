@@ -32,23 +32,22 @@ export class CreateTransactionDto {
   @AutoMap()
   @ApiProperty({
     description: 'Transaction amount in the respective currency',
-    example: 100.5,
-    minimum: 0.01,
+    example: 100,
+    minimum: 1,
   })
   @IsNumber()
-  @Min(0.01)
   @IsNotEmpty()
   amount: number;
 
   @AutoMap()
   @ApiProperty({
     description: 'Type of transaction (e.g., DEPOSIT, WITHDRAWAL)',
-    example: TransactionType.DEPOSIT,
+    example: TransactionType.PAYMENT,
     enum: TransactionType,
   })
   @IsEnum(TransactionType)
   @IsNotEmpty()
-  transactionType: TransactionType;
+  type: TransactionType;
 
   @AutoMap()
   @ApiPropertyOptional({
@@ -59,4 +58,12 @@ export class CreateTransactionDto {
   @IsEnum(TransactionStatus)
   @IsOptional()
   status?: TransactionStatus;
+
+  @AutoMap()
+  @IsOptional()
+  transactionId: string;
+
+  @AutoMap()
+  @IsOptional()
+  rawData?: any;
 }

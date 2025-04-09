@@ -6,6 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderStatus } from '../enum/order.status';
@@ -14,10 +15,11 @@ import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
+import { OrderItem } from './orderItem.entity';
+import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
 @Entity('order')
 export class OrderEntity extends BaseEntity {
-  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -57,11 +59,32 @@ export class OrderEntity extends BaseEntity {
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
+  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
+  items: OrderItem[];
+
+  @Column('int')
+  totalAmount: number; // in cents
+
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.UNPAID })
+  status: OrderStatus;
+
+  @Column({ type: 'varchar', nullable: true })
+  paymentMethod: 'stripe' | 'vnpay' | 'paypal' | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  paymentIntentId: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  checkoutSessionId: string;
+
   @AutoMap(() => PaymentEntity)
   @OneToMany(() => PaymentEntity, (payment) => payment.order, {
     cascade: true, // Khi xóa order, các payment liên quan cũng bị xóa
   })
   payments: PaymentEntity[];
+
+  @OneToMany(() => GigReviewEntity, (review) => review.gig)
+  reviews: GigReviewEntity[];
 
   @AutoMap(() => [TransactionEntity])
   @OneToMany(() => TransactionEntity, (transaction) => transaction.order, {
@@ -69,18 +92,9 @@ export class OrderEntity extends BaseEntity {
   })
   transactions: TransactionEntity[];
 
-  /* OTHER FIELDS */
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-  status: OrderStatus;
-
-  @AutoMap()
-  @Column({ default: 1 })
-  quantity: number;
-
   @Column({ type: 'varchar', length: 3, default: 'USD' })
   currency: string;
 
-  @AutoMap()
-  @Column({ type: 'bigint' })
-  price: number;
+  @OneToOne(() => GigReviewEntity)
+  review: GigReviewEntity;
 }
