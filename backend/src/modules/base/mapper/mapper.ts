@@ -38,14 +38,11 @@ import { CreateOrderDto } from 'src/modules/order/dto/create-order.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UpdateOrderDto } from 'src/modules/order/dto/update-order.dto';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { CreatePaymentDto } from 'src/modules/payment/dto/create-payment.dto';
-import { PaymentDto } from 'src/modules/payment/dto/payment.dto';
-import { UpdatePaymentDto } from 'src/modules/payment/dto/update-payment.dto';
-import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
+
 import { CreateRatingDto } from 'src/modules/rating/dto/create-rating.dto';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
 import { UpdateRatingDto } from 'src/modules/rating/dto/update-rating.dto';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { CreateRoleDto } from 'src/modules/role/dto/create-role.dto';
 import { UpdateRoleDto } from 'src/modules/role/dto/update-role.dto';
 import { CreateSessionDto } from 'src/modules/session/dto/create-session.dto';
@@ -124,12 +121,7 @@ export class AutoMapper extends AutomapperProfile {
           createDto: CreateTransactionDto,
           updateDto: UpdateTransactionDto,
         },
-        {
-          entity: PaymentEntity,
-          dto: PaymentDto,
-          createDto: CreatePaymentDto,
-          updateDto: UpdatePaymentDto,
-        },
+
         {
           entity: CategoryEntity,
           dto: CategoryDto,
@@ -143,7 +135,7 @@ export class AutoMapper extends AutomapperProfile {
           updateDto: UpdateNotificationDto,
         },
         {
-          entity: RatingEntity,
+          entity: ReviewEntity,
           dto: RatingDto,
           createDto: CreateRatingDto,
           updateDto: UpdateRatingDto,
@@ -198,7 +190,11 @@ export class AutoMapper extends AutomapperProfile {
           );
 
           createMap(mapper, dto as any, entity as any);
-          const createMapping = createMap(mapper, createDto, entity as any);
+          const createMapping = createMap(
+            mapper,
+            createDto as any,
+            entity as any,
+          );
 
           if (isMappingCreateDto) {
             createMap(
@@ -208,7 +204,7 @@ export class AutoMapper extends AutomapperProfile {
               forSelf(createMapping, (source) => source),
             );
           } else {
-            createMap(mapper, updateDto, entity as any);
+            createMap(mapper, updateDto as any, entity as any);
           }
         },
       );

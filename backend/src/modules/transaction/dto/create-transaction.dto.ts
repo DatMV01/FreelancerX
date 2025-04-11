@@ -7,8 +7,11 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { TransactionStatus, TransactionType } from '../enum/transaction.enum';
 import { AutoMap } from '@automapper/classes';
+import {
+  TransactionStatus,
+  TransactionType,
+} from '../entities/transaction.entity';
 
 export class CreateTransactionDto {
   @AutoMap()

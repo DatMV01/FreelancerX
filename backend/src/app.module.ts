@@ -18,7 +18,6 @@ import { FreelancerModule } from './modules/freelancer/freelancer.module';
 import { GigModule } from './modules/gig/gig.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { OrderModule } from './modules/order/order.module';
-import { PaymentModule } from './modules/payment/payment.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
@@ -28,6 +27,7 @@ import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';
 import { StripeModule } from './stripe/stripe.module';
 import mailConfig from './modules/mail/config/mail.config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -42,6 +42,7 @@ import mailConfig from './modules/mail/config/mail.config';
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
+    ScheduleModule.forRoot(),
     DataBaseModule,
     RoleModule,
     StatusModule,
@@ -53,7 +54,6 @@ import mailConfig from './modules/mail/config/mail.config';
     GigModule,
     OrderModule,
     TransactionModule,
-    PaymentModule,
     CategoryModule,
     NotificationModule,
     RatingModule,

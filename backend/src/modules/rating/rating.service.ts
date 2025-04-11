@@ -2,14 +2,14 @@ import { BadRequestException, Get, Injectable, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { RatingEntity } from './entities/rating.entity';
+import { ReviewEntity } from './entities/rating.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
 
 @Injectable()
-export class RatingService extends BaseService<RatingEntity> {
+export class RatingService extends BaseService<ReviewEntity> {
   constructor(
-    @InjectRepository(RatingEntity)
-    private readonly _repository: Repository<RatingEntity>,
+    @InjectRepository(ReviewEntity)
+    private readonly _repository: Repository<ReviewEntity>,
 
     @InjectRepository(GigEntity)
     private readonly gigRepo: Repository<GigEntity>,

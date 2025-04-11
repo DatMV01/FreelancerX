@@ -12,10 +12,10 @@ const runSeed = async () => {
 
   await app.get(RoleSeeding).run();
   await app.get(StatusSeeding).run();
-  await app.get(UserSeeding).run();
-  await app.get(CategorySeeding).run();
   await app.get(SkillSeeding).run();
   await app.get(LanguageSeeding).run();
+  await app.get(UserSeeding).run();
+  await app.get(CategorySeeding).run();
 
   await app.close();
 };

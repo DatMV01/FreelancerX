@@ -1,5 +1,8 @@
 import {
+  Body,
   Controller,
+  Get,
+  Param,
   Patch,
   Post,
   SerializeOptions,
@@ -18,14 +21,14 @@ import {
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { BaseController } from '../base/base.controller';
-
 import { CreateOrderDto } from './dto/create-order.dto';
-
 import { OrderDto } from './dto/order.dto';
-
+import { CurrentUser } from 'src/common/decorators';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
 import { OrderService } from './order.service';
+
 @Controller('order')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
 export class OrderController extends BaseController<
@@ -39,7 +42,7 @@ export class OrderController extends BaseController<
   }
 
   @Post()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   @ApiOperation({ summary: 'Create a new entity' })
   @ApiBody({ type: CreateOrderDto, required: false })
@@ -48,8 +51,28 @@ export class OrderController extends BaseController<
     description: 'Entity created successfully',
     type: OrderDto,
   })
-  async create(data: CreateOrderDto): Promise<OrderDto> {
-    return super.create(data);
+  async createOrder(
+    @Body() data: CreateOrderDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<{
+    orderId: string;
+    transactionId: string;
+    transactionStripeId: string;
+    clientSecret: string;
+    paymentIntentId: string;
+  }> {
+    return this._service.createOrder({ ...data, buyerId: currentUser.id });
+  }
+
+  @Get('/checkout/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get an entity by ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Entity found' })
+  async getCheckoutOrder(@Param('id') id: string) {
+    const entity = await this.baseService.findOneById(id);
+
+    return entity;
   }
 
   @Patch(':id')

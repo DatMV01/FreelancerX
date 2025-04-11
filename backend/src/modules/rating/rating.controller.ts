@@ -13,7 +13,7 @@ import { RatingService } from './rating.service';
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
-import { RatingEntity } from './entities/rating.entity';
+import { ReviewEntity } from './entities/rating.entity';
 
 import {
   UseGuards
@@ -23,13 +23,13 @@ import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('rating')
 export class RatingController extends BaseController<
-  RatingEntity,
+  ReviewEntity,
   RatingDto,
   CreateRatingDto,
   UpdateRatingDto
 > {
   constructor(protected readonly _service: RatingService) {
-    super(_service, RatingEntity, RatingDto, CreateRatingDto, UpdateRatingDto);
+    super(_service, ReviewEntity, RatingDto, CreateRatingDto, UpdateRatingDto);
   }
 
   @Post()

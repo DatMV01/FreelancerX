@@ -5,7 +5,7 @@ import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { Transform, TransformationType } from 'class-transformer';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { GigTagEntity } from '../entities/gig.entity';

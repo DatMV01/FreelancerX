@@ -3,7 +3,7 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import slugify from 'slugify';
 import * as removeAccents from 'remove-accents';
 
@@ -34,7 +34,7 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { PackageEntity } from './package.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
-@Entity({ name: 'gigtag' })
+@Entity({ name: 'gig_tags' })
 export class GigTagEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -207,12 +207,12 @@ export class GigEntity extends BaseEntity {
   status: GigStatus;
 
   /* RATING */
-  @AutoMap(() => RatingEntity)
-  @OneToMany(() => RatingEntity, (rating) => rating.gig, {
+  @AutoMap(() => ReviewEntity)
+  @OneToMany(() => ReviewEntity, (rating) => rating.gig, {
     cascade: true,
     onDelete: 'CASCADE',
   })
-  ratings: RatingEntity[];
+  ratings: ReviewEntity[];
 
   @OneToMany(() => GigReviewEntity, (review) => review.gig)
   reviews: GigReviewEntity[];

@@ -6,12 +6,16 @@ import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 
 @Injectable()
 export class UserSeeding {
   constructor(
     @InjectRepository(UserEntity)
     private repository: Repository<UserEntity>,
+
+    @InjectRepository(FreelancerEntity)
+    private freelancerRepository: Repository<FreelancerEntity>,
   ) {}
 
   async run() {
@@ -19,8 +23,48 @@ export class UserSeeding {
     await this.repository.clear();
     await this.repository.query('SET FOREIGN_KEY_CHECKS=1;');
 
+    const reelancerAdmin = this.freelancerRepository.create({
+      id: '91bfe180-9448-4b32-84ae-a6b8a6d99b84',
+      userId: 'cf946efc-e04b-49b1-a547-268c69d3ceef',
+      email: 'mamotgio@gmail.com',
+      fullName: 'Mai Dat',
+      phone: '0818012377',
+      country: 'Ecuador',
+      bio: 'Expert mobile app developer',
+      skills: [
+        {
+          id: 4,
+          name: 'Backend Development',
+          proficiency: 'Beginner',
+        },
+        {
+          id: 15,
+          name: 'Chatbot Development',
+          proficiency: 'Advanced',
+        },
+        {
+          id: 10,
+          name: 'SaaS Development',
+          proficiency: 'Beginner',
+        },
+      ],
+      languages: [
+        {
+          id: 3,
+          name: 'Avestan',
+          proficiency: 'Beginner',
+        },
+        {
+          id: 3,
+          name: 'Bambara',
+          proficiency: 'Advanced',
+        },
+      ],
+    } as any);
+
     const users: Partial<UserEntity>[] = [
       {
+        id: 'cf946efc-e04b-49b1-a547-268c69d3ceef',
         fullName: 'Super Admin',
         email: 'admin@example.com',
         password: bcrypt.hashSync('user123', 10),
@@ -58,6 +102,8 @@ export class UserSeeding {
     }
 
     await this.repository.save(users);
+
+    await this.freelancerRepository.save(reelancerAdmin);
 
     console.log('\n == Users are seeded completely !!! == \n');
   }

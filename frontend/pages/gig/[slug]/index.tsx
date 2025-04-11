@@ -25,6 +25,7 @@ import {
   Clock,
   DollarSign,
   Heart,
+  Loader2,
   RefreshCw,
   Truck,
   X,
@@ -52,6 +53,7 @@ const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
 
 const PackageSideBar = ({
   gigId,
+  gigPackage,
   packageTitle,
   packageName,
   packagePrice,
@@ -62,6 +64,7 @@ const PackageSideBar = ({
   continueCb,
 }: {
   gigId: string;
+  gigPackage: GigPackage;
   packageTitle: string;
   packageName: string;
   packagePrice: string;
@@ -73,6 +76,7 @@ const PackageSideBar = ({
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
 
   const handleScroll = () => {
     document
@@ -80,13 +84,41 @@ const PackageSideBar = ({
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const onContinueClick = () => {
+  const onContinueClick = async () => {
     const params = new URLSearchParams(searchParams.toString());
 
-    params.set("gigId", gigId);
-    params.set("packageTitle", packageTitle);
+    try {
+      setLoading(true);
 
-    router.push(`/checkout?${params.toString()}`);
+      const res = await axiosInstanceV1.post("/order", {
+        packageId: gigPackage.id,
+        gigId: gigId,
+        quantity: 1,
+      });
+
+      const {
+        orderId,
+        transactionId,
+        transactionStripeId,
+        clientSecret,
+        paymentIntentId,
+      } = res.data;
+
+      console.log(res.data);
+
+      params.set("gigId", gigId);
+
+      params.set("orderId", orderId);
+      params.set("transactionId", transactionId);
+      params.set("transactionStripeId", transactionStripeId);
+      params.set("clientSecret", clientSecret);
+      params.set("paymentIntentId", paymentIntentId);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+
+    router.push(`/payment/checkout?${params.toString()}`);
   };
 
   return (
@@ -133,23 +165,13 @@ const PackageSideBar = ({
       <button
         onClick={(e) => {
           e.preventDefault();
-
           onContinueClick();
-
-          // continueCb &&
-          //   continueCb({
-          //     gigId,
-          //     packageName,
-          //     packagePrice,
-          //     packageDescription,
-          //     packageDelivery,
-          //     packageRevisions,
-          //     packageIncluded,
-          //   });
         }}
-        className="h-8 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600"
+        className="flex h-8 items-center justify-center space-x-2 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={loading}
       >
-        Continue
+        {loading && <Loader2 className="animate-spin" size={18} />}
+        <span> {loading ? "Processing..." : "Place an order"}</span>
       </button>
     </div>
   );
@@ -195,6 +217,10 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
         : `${item.package}: ${item.premium}`;
     });
 
+  const basicPackage = gig.packages.find((_) => _.type === "basic");
+  const standardPackage = gig.packages.find((_) => _.type === "standard");
+  const premiumPackage = gig.packages.find((_) => _.type === "premium");
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -233,7 +259,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
               className="flex items-center justify-center rounded-full bg-transparent"
               onClick={addFavoriteGig}
             >
-              <Heart className="fill-[#b5b6ba] stroke-none" />
+              <Heart className="fill-[#d4dbf8] stroke-none" />
             </button>
           </Tooltip>
         )}
@@ -267,6 +293,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
         {value == 0 && (
           <PackageSideBar
             gigId={gig?.id}
+            gigPackage={basicPackage as any}
             packageTitle="basic"
             packageName={packageName?.basic}
             packagePrice={pricePackage?.basic}
@@ -280,6 +307,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
         {value == 1 && (
           <PackageSideBar
             gigId={gig?.id}
+            gigPackage={standardPackage as any}
             packageTitle="standard"
             packageName={packageName?.standard}
             packagePrice={pricePackage?.standard}
@@ -293,6 +321,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
         {value == 2 && (
           <PackageSideBar
             gigId={gig?.id}
+            gigPackage={premiumPackage as any}
             packageTitle="premium"
             packageName={packageName?.premium}
             packagePrice={pricePackage?.premium}

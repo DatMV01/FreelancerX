@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
+import StripeButton from "./StripeButton";
+import { Button } from "@/components/ui/button";
+import useSWR from "swr";
+import { useSearchParams } from "next/navigation";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
 type Props = {
   onNext: () => void;
@@ -8,40 +13,110 @@ type Props = {
 };
 
 export default function Step2Payment({ onNext, onBack }: Props) {
-  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const gigId = searchParams.get("gigId");
+  const orderId = searchParams.get("orderId");
+  const transactionId = searchParams.get("transactionId");
+  const transactionStripeId = searchParams.get("transactionStripeId");
+  const clientSecret = searchParams.get("clientSecret");
+  const paymentIntentId = searchParams.get("paymentIntentId");
 
   const handlePay = () => {
-    setLoading(true);
-    // Giả lập xử lý thanh toán (VD: redirect tới VNPAY, gọi webhook, v.v...)
     setTimeout(() => {
-      setLoading(false);
       onNext();
-    }, 3000); // có thể điều chỉnh thời gian phù hợp
+    }, 3000);
   };
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
+
+  const [order, setOrder] = useState<any>();
+  const { data, error, isLoading } = useSWR(
+    orderId ? `/order/checkout/${orderId}` : null,
+    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  );
+  useEffect(() => {
+    data && setOrder(data);
+  }, [data]);
 
   return (
-    <div className="space-y-4 p-6">
-      <h2 className="text-xl font-bold">💳 Payment</h2>
-      <p className="text-gray-600">Pay with VNPAY or your preferred method.</p>
+    <div className="flex flex-col space-y-6">
+      <div className="flex space-x-6">
+        <div className="w-2/3">
+          <StripeButton
+            paymentSuccesCb={(value: any) => {
+              setPaymentSuccess(value);
+            }}
+          />
+        </div>
+        <div className="w-1/3">
+          {!isLoading && order && (
+            <div className="w-full">
+              <h2 className="mb-6 text-xl font-semibold">Order Summary</h2>
 
-      <div className="mt-6 flex gap-4">
-        <button
-          onClick={onBack}
-          className="rounded bg-gray-200 px-4 py-2 text-gray-800 hover:bg-gray-300"
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex justify-between">
+                  <span>No:</span>
+                  <span className="text-right font-medium capitalize">
+                    {order.id}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Type:</span>
+                  <span className="font-medium capitalize">
+                    {order.snapshot.type}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Package:</span>
+                  <span className="font-medium">{order.snapshot.title}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery Time:</span>
+                  <span>{order.deliveryTime} days</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Revisions:</span>
+                  <span>{order.snapshot.revisions} times</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Quantity:</span>
+                  <span>{order.quantity}</span>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-2 border-t pt-4 text-sm text-gray-800">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>{order.totalAmount.toLocaleString()} USD</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Service Fee:</span>
+                  <span>0 USD</span>
+                </div>
+                <div className="flex justify-between text-base font-semibold">
+                  <span>Total:</span>
+                  <span>{order.price.toLocaleString()} USD</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-end">
+        <Button
+          className="disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onNext}
+          disabled={!paymentSuccess}
         >
-          Back
-        </button>
-
-        <button
-          onClick={handlePay}
-          className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
-          disabled={loading}
+          Continue
+        </Button>
+        <Button
+          className="disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onNext}
+ 
         >
-          {loading && <Loader2 className="animate-spin" size={18} />}
-          {loading ? "Processing..." : "Pay Now"}
-        </button>
-
-        <CheckoutButton packageId="1" amount={100} />
+          Continue
+        </Button>
       </div>
     </div>
   );

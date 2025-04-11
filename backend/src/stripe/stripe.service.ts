@@ -1,6 +1,22 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import {
+  OrderEntity,
+  OrderStatus,
+} from 'src/modules/order/entities/order.entity';
+import {
+  OrderAction,
+  OrderActor,
+  OrderLogEntity,
+} from 'src/modules/order/entities/orderLog.entity';
+import {
+  TransactionEntity,
+  TransactionStatus,
+} from 'src/modules/transaction/entities/transaction.entity';
+import { TransactionStripeEntity } from 'src/modules/transaction/entities/transactionStripe.entity';
 import Stripe from 'stripe';
+import { Repository } from 'typeorm';
 
 interface CheckoutSessionBody {
   packageId: string;
@@ -17,7 +33,33 @@ export class StripeService {
   constructor(
     @Inject('STRIPE_CLIENT') private stripe: Stripe,
     private configService: ConfigService,
+
+    @InjectRepository(TransactionStripeEntity)
+    private readonly transactionStripeRepo: Repository<TransactionStripeEntity>,
+
+    @InjectRepository(TransactionEntity)
+    private readonly transactionRepo: Repository<TransactionEntity>,
+
+    @InjectRepository(OrderEntity)
+    private readonly orderRepo: Repository<OrderEntity>,
+
+    @InjectRepository(OrderLogEntity)
+    private readonly orderLogRepo: Repository<OrderLogEntity>,
   ) {}
+
+  async createPaymentIntent(params: {
+    amount: number;
+    currency?: string;
+    metadata: Record<string, any>;
+  }) {
+    const paymentIntent = await this.stripe.paymentIntents.create({
+      amount: params.amount * 100, // cents
+      currency: params.currency || 'USD',
+      metadata: params.metadata,
+    });
+
+    return paymentIntent;
+  }
 
   async createCheckoutSession(body: CheckoutSessionBody) {
     const { packageId, amount, packageName, userId } = body;
@@ -48,7 +90,7 @@ export class StripeService {
       });
 
       this.logger.log(`Stripe Checkout Session created: ${session.id}`);
-      return { url: session.url };
+      return { url: session.url, sessionId: session.id };
     } catch (error) {
       this.logger.error('Error creating Stripe Checkout Session', error);
       throw error;
@@ -78,12 +120,10 @@ export class StripeService {
     try {
       switch (event.type) {
         case 'checkout.session.completed':
-          // → Cập nhật đơn hàng trong DB, gửi email, v.v.
           await this.handleCheckoutSessionCompleted(event);
           break;
 
         case 'payment_intent.succeeded':
-          // Có thể xử lý thêm nếu bạn dùng trực tiếp PaymentIntent
           await this.handlePaymentIntentSucceeded(event);
           break;
 
@@ -97,7 +137,7 @@ export class StripeService {
 
       return { success: true };
     } catch (error) {
-      this.logger.error('Error handling webhook event', error);
+      this.logger.error('❌ Error handling webhook event', error);
       return { success: false, message: error.message };
     }
   }
@@ -116,50 +156,62 @@ export class StripeService {
     this.logger.log(
       `✅ Payment successful - User: ${userId}, Package: ${packageId}`,
     );
-
-    // await this.orderService.markPaid(packageId, userId);
   }
 
-  // 👉 Handle 'charge.failed' Event
   private async handlePaymentIntentSucceeded(event: Stripe.Event) {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-    const metadata = paymentIntent.metadata as {
-      userId: string;
-      packageId: string;
-      orderId: string;
-    };
+    const metadata = paymentIntent.metadata as any;
 
-    const userId = metadata?.userId;
-    const packageId = metadata?.packageId;
     const orderId = metadata?.orderId;
+    const buyerId = metadata?.buyerId;
+    const gigId = metadata?.gigId;
+    const packageId = metadata?.packageId;
+    const transactionId = metadata?.transactionId;
 
-    this.logger.log(
-      `✅ PaymentIntent succeeded - User: ${userId}, Package: ${packageId}, Order: ${orderId}`,
-    );
+    this.logger.log('💾 Saving order:', {
+      orderId,
+      buyerId,
+      gigId,
+      packageId,
+      transactionId,
+      paymentIntentId: packageId.id,
+    });
 
-    // TODO: Update order status in the database, notify the user, etc.
+    await this.transactionRepo.update(transactionId, {
+      status: TransactionStatus.SUCCESS,
+    });
+
+    await this.orderRepo.update(orderId, {
+      status: OrderStatus.PAID,
+    });
+
+    await this.orderLogRepo.save({
+      orderId,
+      action: OrderAction.PAYMENT_CONFIRMED,
+      actor: OrderActor.SYSTEM,
+      detail: `Pay via Stripe`,
+    });
   }
 
   private async handlePaymentIntentFailed(event: Stripe.Event) {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
 
-    const metadata = paymentIntent.metadata as {
-      userId: string;
-      packageId: string;
-      orderId: string;
-    };
+    const metadata = paymentIntent.metadata as any;
 
-    const userId = metadata?.userId;
-    const packageId = metadata?.packageId;
     const orderId = metadata?.orderId;
+    const buyerId = metadata?.buyerId;
+    const gigId = metadata?.gigId;
+    const packageId = metadata?.packageId;
+    const transactionId = metadata?.transactionId;
 
-    this.logger.warn(
-      `❌ PaymentIntent failed - User: ${userId}, Package: ${packageId}, Order: ${orderId}`,
-    );
-
-    // TODO: Handle failed payment, notify the user, log the issue, etc.
+    this.logger.warn('❌ PaymentIntent failed:', {
+      orderId,
+      buyerId,
+      gigId,
+      packageId,
+      transactionId,
+      paymentIntentId: packageId.id,
+    });
   }
-
-  
 }

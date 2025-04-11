@@ -3,7 +3,13 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';
-import { TransactionStatus, TransactionType } from '../enum/transaction.enum';
+import {
+  TransactionProvider,
+  TransactionStatus,
+  TransactionType,
+} from '../entities/transaction.entity';
+import { TransactionStripeEntity } from '../entities/transactionStripe.entity';
+import { WithdrawalEntity } from '../entities/withdrawalRequest.entity';
 
 export class TransactionDto extends BaseDto<TransactionDto> {
   @AutoMap()
@@ -13,12 +19,18 @@ export class TransactionDto extends BaseDto<TransactionDto> {
   })
   id: string;
 
+  @AutoMap()
+  userId?: string;
+
   @AutoMap(() => UserDto)
   @ApiProperty({
     description: 'User associated with the transaction',
     type: () => UserDto,
   })
   user: UserDto;
+
+  @AutoMap()
+  orderId?: string;
 
   @AutoMap(() => OrderDto)
   @ApiPropertyOptional({
@@ -50,4 +62,19 @@ export class TransactionDto extends BaseDto<TransactionDto> {
     enum: TransactionStatus,
   })
   status: TransactionStatus;
+
+  @AutoMap(() => WithdrawalEntity)
+  withdrawal?: WithdrawalEntity;
+
+  @AutoMap(() => TransactionStripeEntity)
+  transactionStripe?: TransactionStripeEntity;
+
+  @AutoMap()
+  type: TransactionType;
+
+  @AutoMap()
+  provider: TransactionProvider;
+
+  @AutoMap()
+  currency: string;
 }

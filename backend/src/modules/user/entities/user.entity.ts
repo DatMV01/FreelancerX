@@ -5,7 +5,7 @@ import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
@@ -109,9 +109,9 @@ export class UserEntity extends BaseEntity {
   buyerorders: OrderEntity[];
 
   /* RATINGS */
-  @AutoMap(() => [RatingEntity])
-  @OneToMany(() => RatingEntity, (ratings) => ratings.user)
-  ratings: RatingEntity[];
+  @AutoMap(() => [ReviewEntity])
+  @OneToMany(() => ReviewEntity, (ratings) => ratings.user)
+  ratings: ReviewEntity[];
 
   @OneToMany(() => GigReviewEntity, (review) => review.gig)
   reviews: GigReviewEntity[];
@@ -144,7 +144,7 @@ export class UserEntity extends BaseEntity {
     eager: false,
   })
   @JoinTable({
-    name: 'gigs_fovirites',
+    name: 'user_gigs_favorite',
     joinColumn: { name: 'userId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
   })

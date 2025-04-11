@@ -7,7 +7,7 @@ import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
@@ -80,7 +80,7 @@ export class UserDto extends BaseDto<UserDto> {
   buyerorders?: OrderDto[];
 
   /* RATINGS */
-  @AutoMap(() => [RatingEntity])
+  @AutoMap(() => [ReviewEntity])
   // @Transform((params) => undefinedTransformer(params))
   @ApiPropertyOptional({ type: [RatingDto], example: [], nullable: true })
   ratings?: RatingDto[];

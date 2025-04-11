@@ -13,6 +13,7 @@ import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.
 import { SkillSeeding } from './seed/skill.seeding';
 import { LanguageSeeding } from './seed/language.seeding';
 import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RoleEntity])],
@@ -29,7 +30,7 @@ export class RoleSeedModule {}
 export class StatusSeedModule {}
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [TypeOrmModule.forFeature([UserEntity, FreelancerEntity])],
   providers: [UserSeeding],
   exports: [UserSeeding],
 })

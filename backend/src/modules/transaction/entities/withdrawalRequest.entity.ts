@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -11,8 +12,8 @@ import {
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
 
-@Entity()
-export class WithdrawalRequest {
+@Entity('freelancer_widthdrawals')
+export class WithdrawalEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -47,8 +48,9 @@ export class WithdrawalRequest {
   @Column({ nullable: true })
   processedAt?: Date;
 
-  @OneToOne(() => TransactionEntity, (txn) => txn.withdrawalRequest, {
-    nullable: true,
+  @OneToOne(() => TransactionEntity, (txn) => txn.withdrawal, {
+    nullable: false,
   })
+  @JoinColumn({ name: 'transaction_id' })
   transaction?: TransactionEntity;
 }

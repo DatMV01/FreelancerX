@@ -19,7 +19,7 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { RatingEntity } from 'src/modules/rating/entities/rating.entity';
+import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { FreelancerRankEnum } from '../enum/freelancer.enum';
 import {
@@ -27,7 +27,7 @@ import {
   LanguageEntity,
 } from './freelancers_languages.entity';
 import { FreelancersSkills } from './freelancers_skills.entity';
-import { WithdrawalRequest } from 'src/modules/transaction/entities/withdrawalRequest.entity';
+import { WithdrawalEntity } from 'src/modules/transaction/entities/withdrawalRequest.entity';
 
 @Entity('freelancer')
 export class FreelancerEntity extends BaseEntity {
@@ -113,12 +113,12 @@ export class FreelancerEntity extends BaseEntity {
   // })
   // categories?: CategoryEntity[];
 
-  @AutoMap(() => [RatingEntity])
-  @OneToMany(() => RatingEntity, (rating) => rating.freelancer, {
+  @AutoMap(() => [ReviewEntity])
+  @OneToMany(() => ReviewEntity, (rating) => rating.freelancer, {
     eager: false,
     onDelete: 'SET NULL',
   })
-  ratings: RatingEntity[];
+  ratings: ReviewEntity[];
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -161,8 +161,8 @@ export class FreelancerEntity extends BaseEntity {
   })
   orders: OrderEntity[];
 
-  @OneToMany(() => WithdrawalRequest, (withdrawal) => withdrawal.user)
-  withdrawals: WithdrawalRequest[];
+  @OneToMany(() => WithdrawalEntity, (withdrawal) => withdrawal.user)
+  withdrawals: WithdrawalEntity[];
 
   @AfterInsert()
   @AfterUpdate()

@@ -9,6 +9,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -44,13 +45,16 @@ export class GigReviewEntity extends BaseEntity {
 
   /* ORDER */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'order_id', nullable: true })
+  @Column({
+    type: 'char',
+    length: 36,
+    name: 'order_id',
+    nullable: true,
+    unique: true,
+  })
   orderId: string;
 
-  @ManyToOne(() => OrderEntity, (order) => order.reviews, {
-    onDelete: 'CASCADE',
-    nullable: true,
-  })
+  @OneToOne(() => OrderEntity, (order) => order.review)
   @JoinColumn({ name: 'order_id' })
   order: OrderEntity;
 

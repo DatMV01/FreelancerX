@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { GigReviewEntity } from './entities/gigreview.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderEntity } from '../order/entities/order.entity';
+import { OrderEntity, OrderStatus } from '../order/entities/order.entity';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
 
 @Injectable()
@@ -43,7 +43,7 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
       throw new ForbiddenException('You are not the buyer of this order');
     }
 
-    if (order.status !== 'completed') {
+    if (order.status !== OrderStatus.COMPLETED) {
       throw new BadRequestException(
         'Order must be completed to leave a review',
       );
@@ -65,31 +65,34 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
 
     return review;
   }
- 
-  async replyToReview(userId: string, reviewId: string, dto: { reply: string }) {
+
+  async replyToReview(
+    userId: string,
+    reviewId: string,
+    dto: { reply: string },
+  ) {
     const review = await this._repository.findOne({
       where: { id: reviewId },
       relations: ['gig', 'gig.freelancer'],
     });
-  
+
     if (!review) {
       throw new NotFoundException('Review not found');
     }
-  
+
     if (review.gig.freelancer.id !== userId) {
       throw new ForbiddenException('You are not the owner of this gig');
     }
-  
+
     if (review.reply) {
       throw new BadRequestException('You already replied to this review');
     }
-  
+
     review.reply = dto.reply;
     review.repliedAt = new Date();
-  
+
     return await this._repository.save(review);
   }
-
 
   async getGigRatings(gigId: string) {
     return this._repository.find({

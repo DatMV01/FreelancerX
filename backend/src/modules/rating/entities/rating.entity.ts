@@ -6,19 +6,21 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('rating')
-export class RatingEntity extends BaseEntity {
+@Entity('gig_reviews')
+export class ReviewEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @AutoMap()
   id: string;
 
   /* GIG */
   @AutoMap()
+  @Index()
   @Column({ type: 'char', length: 36, name: 'gig_id', nullable: true })
   gigId: string;
 

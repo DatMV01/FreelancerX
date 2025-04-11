@@ -9,17 +9,28 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { OrderStatus } from '../enum/order.status';
+
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
-import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
-import { OrderItem } from './orderItem.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { OrderLogEntity } from './orderLog.entity';
+import { PackageEntity } from 'src/modules/gig/entities/package.entity';
 
-@Entity('order')
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  IN_PROGRESS = 'IN_PROGRESS',
+  DELIVERED = 'DELIVERED',
+  COMPLETED = 'COMPLETED',
+  CANCELED = 'CANCELED',
+  REFUNDED = 'REFUNDED',
+}
+
+@Entity('orders')
 export class OrderEntity extends BaseEntity {
+  @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -59,42 +70,71 @@ export class OrderEntity extends BaseEntity {
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
-  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
-  items: OrderItem[];
+  /* PACKAGE */
+  @AutoMap()
+  @Column({ name: 'package_id', nullable: true })
+  packageId: string;
 
-  @Column('int')
-  totalAmount: number; // in cents
-
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.UNPAID })
-  status: OrderStatus;
-
-  @Column({ type: 'varchar', nullable: true })
-  paymentMethod: 'stripe' | 'vnpay' | 'paypal' | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  paymentIntentId: string;
-
-  @Column({ type: 'varchar', nullable: true })
-  checkoutSessionId: string;
-
-  @AutoMap(() => PaymentEntity)
-  @OneToMany(() => PaymentEntity, (payment) => payment.order, {
-    cascade: true, // Khi xóa order, các payment liên quan cũng bị xóa
+  @AutoMap(() => PackageEntity)
+  @ManyToOne(() => PackageEntity, (_) => _.orders, {
+    onDelete: 'SET NULL',
   })
-  payments: PaymentEntity[];
+  @JoinColumn({ name: 'package_id' })
+  package: PackageEntity;
 
-  @OneToMany(() => GigReviewEntity, (review) => review.gig)
-  reviews: GigReviewEntity[];
-
-  @AutoMap(() => [TransactionEntity])
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.order, {
-    onDelete: 'RESTRICT', // NGĂN CHẶN việc xóa Order nếu có Transaction liên quan
-  })
-  transactions: TransactionEntity[];
-
+  @AutoMap()
   @Column({ type: 'varchar', length: 3, default: 'USD' })
   currency: string;
 
+  @AutoMap()
+  @Column('int')
+  price: number;
+
+  @AutoMap()
+  @Column('int')
+  quantity: number;
+
+  @AutoMap()
+  @Column('int')
+  totalAmount: number;
+
+  @AutoMap()
+  @Column('json', { nullable: true })
+  requirements: any; // info bổ sung nếu cần
+
+  @AutoMap()
+  @Column()
+  deliveryTime: number; // days
+
+  @AutoMap(() => Date)
+  expectedDeliveryDate: Date;
+
+  @AutoMap()
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  status: OrderStatus;
+
+  @Column({ type: 'json', nullable: true })
+  snapshot: any;
+
+  // @AutoMap(() => TransactionEntity)
+  // @OneToOne(() => TransactionEntity, (transaction) => transaction.order, {
+  //   cascade: true,
+  //   eager: true,
+  // })
+  // @JoinColumn()
+  // transaction: TransactionEntity;
+
+  @AutoMap(() => [TransactionEntity])
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.order, {
+    //   eager: true,
+  })
+  transactions: TransactionEntity[];
+
+  @AutoMap(() => [OrderLogEntity])
+  @OneToMany(() => OrderLogEntity, (log) => log.order)
+  orderlogs: OrderLogEntity[];
+
+  @AutoMap(() => [GigReviewEntity])
   @OneToOne(() => GigReviewEntity)
   review: GigReviewEntity;
 }

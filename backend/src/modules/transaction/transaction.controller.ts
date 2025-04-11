@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { BaseController } from '../base/base.controller';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionDto } from './dto/transaction.dto';
@@ -43,6 +43,17 @@ export class TransactionController extends BaseController<
   })
   async create(data: CreateTransactionDto): Promise<TransactionDto> {
     return super.create(data);
+  }
+
+  @Get('/stripe/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get an entity by ID' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Entity found' })
+  async findStripeById(@Param('id') id: string) {
+    const entity = await this._service.findStripeById(id);
+
+    return entity;
   }
 
   @Patch(':id')

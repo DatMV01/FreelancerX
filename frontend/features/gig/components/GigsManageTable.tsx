@@ -316,7 +316,9 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
         },
         renderCell: (params) => {
           const { row } = params;
-          const { title, thumbnail } = row;
+          const { title, images } = row;
+          const { image1, image2, image3 } = images;
+
           return (
             <Stack
               direction="row"
@@ -326,7 +328,7 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
             >
               <div className="relative h-14 w-14 flex-shrink-0">
                 <Image
-                  src={thumbnail.url}
+                  src={image1.url || image2.url || image3.url}
                   alt="Gig Thumbnail"
                   fill
                   className="rounded-sm"
@@ -347,13 +349,21 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
           if (v1 === null || v2 === null) return 0; // Handle null values
           return v1 - v2; // Sort numbers in ascending order
         },
-        renderCell: ({ row }) => (
-          <div className="flex h-full flex-col items-start justify-center">
-            <p>Basic: {row.basicPrice}</p>
-            <p>Standard:{row.standardPrice}</p>
-            <p>Premiem:{row.premiumPrice}</p>
-          </div>
-        ),
+        renderCell: ({ row }) => {
+          const basicPackage = row.packages.find((_) => _.type === "basic");
+          const standardPackage = row.packages.find(
+            (_) => _.type === "standard",
+          );
+          const premiumPackage = row.packages.find((_) => _.type === "premium");
+
+          return (
+            <div className="flex h-full flex-col items-start justify-center">
+              <p>Basic: {basicPackage.price}</p>
+              <p>Standard:{standardPackage.price}</p>
+              <p>Premiem:{premiumPackage.price}</p>
+            </div>
+          );
+        },
       },
       {
         field: "ratingAverate",

@@ -1,6 +1,13 @@
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { GigEntity } from './gig.entity';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
 
 export enum PackageType {
   BASIC = 'basic',
@@ -41,4 +48,9 @@ export class PackageEntity extends BaseEntity {
 
   @Column('json', { nullable: true })
   features: PackageFeature[];
+
+  @OneToMany(() => OrderEntity, (language) => language.package, {
+    eager: false,
+  })
+  orders: OrderEntity;
 }

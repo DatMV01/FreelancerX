@@ -1,19 +1,19 @@
 "use client";
 
 import {
-     Accordion,
-     AccordionContent,
-     AccordionItem,
-     AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-     Sheet,
-     SheetClose,
-     SheetContent,
-     SheetDescription,
-     SheetHeader,
-     SheetTitle,
-     SheetTrigger,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { root_categories } from "@/data/categories";
 import LogoutButton from "@/features/auth/components/LogoutButton";
@@ -21,8 +21,8 @@ import NavbarLeftLoginDialog from "@/features/navbar/components/NavbarLeftLoginD
 import { NavbarLeftSubCategory } from "@/features/navbar/components/NavbarLeftSubCategory";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import {
-     selectFreelancer,
-     selectUser,
+  selectFreelancer,
+  selectUser,
 } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { Divider } from "@mui/material";
@@ -123,7 +123,7 @@ const NavbarLeft = () => {
             <>
               {freelancer ? (
                 <Accordion type="single" collapsible defaultValue="item-1">
-                  <AccordionItem value="my-business" className="m-2">
+                  <AccordionItem value="item-1" className="m-2">
                     <AccordionTrigger className="h-[40px] text-base font-bold">
                       My Business
                     </AccordionTrigger>

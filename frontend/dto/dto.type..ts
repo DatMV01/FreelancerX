@@ -98,6 +98,8 @@ export type Feature = {
 };
 
 export type GigPackage = {
+  description:string;
+  id:string;
   type: string;
   title: string;
   price: number;

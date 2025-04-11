@@ -24,7 +24,7 @@ const GigComparePackage = ({ gig }: { gig: GigDto }) => {
     gig?.pricingPackage?.filter((_) => {
       return _.package !== "Name" && _.package !== "Description";
     }) || [];
-debugger
+ 
   const [delivery, revision, price, ...addtitionalPackages] = packages;
 
   const headers = ["Feature", "Basic", "Standard", "Premium"];

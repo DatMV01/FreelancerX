@@ -20,6 +20,18 @@ export class StripeController {
     return this.stripeService.createCheckoutSession(body);
   }
 
+  @Post('create-payment-intent')
+  async create(@Body() body) {
+    const { amount, orderInfo } = body;
+
+    const clientSecret = await this.stripeService.createPaymentIntent({
+      amount,
+      currency: 'USD',
+      metadata: orderInfo,
+    });
+    return { clientSecret };
+  }
+
   @Post('webhook')
   @HttpCode(HttpStatus.OK)
   async handleWebhook(
@@ -28,7 +40,6 @@ export class StripeController {
     @Headers('stripe-signature') signature: string,
   ) {
     try {
-      // Giao việc xử lý cho service
       await this.stripeService.handleWebhook(req.body, signature);
       res.status(200).send('Received');
     } catch (err) {
