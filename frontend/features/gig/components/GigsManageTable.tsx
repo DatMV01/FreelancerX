@@ -350,11 +350,15 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
           return v1 - v2; // Sort numbers in ascending order
         },
         renderCell: ({ row }) => {
-          const basicPackage = row.packages.find((_) => _.type === "basic");
-          const standardPackage = row.packages.find(
-            (_) => _.type === "standard",
+          const basicPackage = row.packages.find(
+            (_: any) => _.type === "basic",
           );
-          const premiumPackage = row.packages.find((_) => _.type === "premium");
+          const standardPackage = row.packages.find(
+            (_: any) => _.type === "standard",
+          );
+          const premiumPackage = row.packages.find(
+            (_: any) => _.type === "premium",
+          );
 
           return (
             <div className="flex h-full flex-col items-start justify-center">

@@ -687,3 +687,11 @@ export default function FreelancerSignupForm() {
     </div>
   );
 }
+
+const filteredOrders = orders?.filter((order) => {
+  const matchesSearch = order.client
+    .toLowerCase()
+    .includes(searchQuery.toLowerCase());
+  const matchesStatus = filterStatus ? order.status === filterStatus : true;
+  return matchesSearch && matchesStatus;
+}) || [];

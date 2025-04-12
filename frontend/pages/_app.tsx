@@ -5,10 +5,13 @@ import type { AppProps } from "next/app";
 import AuthSync from "./authAsync";
 import NavbarMain from "@/features/navbar/components/NavbarMain";
 import Footer from "@/components/footer/Footer";
+import { Toaster } from "sonner";
 
 function RootLayout({ children }: { children: any }) {
   return (
     <div className="m-auto flex min-h-screen max-w-[1400px] flex-col">
+      <Toaster richColors position="top-right" />
+
       <header className="my-2 px-4 md:px-8">
         <NavbarMain />
       </header>
