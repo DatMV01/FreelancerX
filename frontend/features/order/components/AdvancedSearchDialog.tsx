@@ -19,10 +19,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { CalendarIcon, FilterIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { orderStatus } from "../dto";
+import { useRouter } from "next/router";
 
 export type Filters = {
   keyword: string;
@@ -78,7 +79,9 @@ export default function AdvancedSearchDialog() {
     if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
     if (filters.status) params.set("status", filters.status);
 
-    router.push(`?${params.toString()}`);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    router.push(newUrl, undefined, { scroll: false });
+    //  router.push(`?${params.toString()}`);
     setOpen(false);
   };
 

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { orderStatus } from "./dto";
+import { OrderStatus, orderStatus } from "./dto";
 import { v4 as uuidv4 } from "uuid";
 
 const generateSampleOrders = (count = 100) => {
@@ -56,7 +56,17 @@ const generateSampleOrders = (count = 100) => {
   return orders;
 };
 
-function generateFakeOrder(): any {
+// export enum OrderStatus {
+//   PENDING = "PENDING",
+//   PAID = "PAID",
+//   IN_PROGRESS = "IN_PROGRESS",
+//   DELIVERED = "DELIVERED",
+//   COMPLETED = "COMPLETED",
+//   CANCELED = "CANCELED",
+//   REFUNDED = "REFUNDED",
+// }
+
+function generateFakeOrder(requredOrderStatus: OrderStatus[]): any {
   const packageId = uuidv4();
   const features = [
     { value: "Yes", package: "Functional website" },
@@ -103,7 +113,7 @@ function generateFakeOrder(): any {
     totalAmount,
     requirements: faker.datatype.boolean() ? faker.lorem.sentences(2) : null,
     deliveryTime,
-    status: faker.helpers.arrayElement(orderStatus),
+    status: faker.helpers.arrayElement(requredOrderStatus ?? orderStatus),
     deadline: faker.date.soon({ days: 90 }).toISOString().split("T")[0],
     snapshot: {
       id: packageId,
@@ -126,6 +136,25 @@ export const fetchOrders = () => {
     setTimeout(() => {
       //    const orders = generateSampleOrders(300);
       const fakeOrders = Array.from({ length: 500 }, generateFakeOrder);
+
+      resolve(fakeOrders);
+    }, 1500);
+  });
+};
+
+export const fetchFreelancersOrders = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      //    const orders = generateSampleOrders(300);
+      const fakeOrders = Array.from({ length: 500 }, () =>
+        generateFakeOrder([
+          OrderStatus.PENDING,
+          OrderStatus.IN_PROGRESS,
+          OrderStatus.DELIVERED,
+          OrderStatus.COMPLETED,
+          OrderStatus.CANCELED,
+        ]),
+      );
 
       resolve(fakeOrders);
     }, 1500);

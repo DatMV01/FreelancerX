@@ -279,7 +279,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="flex items-center gap-2">
           <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden">
                 <AlignJustify className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -310,7 +310,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Body: Sidebar + Main */}
       <div className="flex flex-1">
         {/* Sidebar (desktop only) */}
-        <aside className="hidden w-[300px] shrink-0 border-r bg-white p-4 md:block">
+        <aside className="hidden w-[300px] shrink-0 border-r bg-white p-4 lg:block">
           <div className="rounded-lg border p-3 text-center font-bold">
             {userRole === "buyer" && "Buyer Dashboard"}
             {userRole === "freelancer" && "Freelancer Dashboard"}
