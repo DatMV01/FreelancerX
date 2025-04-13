@@ -1,9 +1,14 @@
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import BuyerAccountSettings from "@/features/dashboard/buyer/components/BuyerAccountSettings";
 import { ReactElement } from "react";
 
 function BuyerDashboardSettings() {
   return (
-    <h2 className="mb-4 text-xl font-bold">BuyerDashboardSettings</h2>
+    <div>
+      <h2 className="mb-4 text-xl font-bold">BuyerDashboardSettings</h2>
+
+      <BuyerAccountSettings />
+    </div>
   );
 }
 

@@ -76,7 +76,7 @@ export default function BuyerDashboardHome() {
     <div className=" ">
       <BuyerOverviewWeekly />
 
-      <Divider className="py-2"/>
+      <Divider className="py-4"/>
       <BuyerOverviewMonthly />
     </div>
   );

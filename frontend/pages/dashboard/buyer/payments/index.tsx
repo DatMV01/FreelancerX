@@ -1,8 +1,9 @@
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import BuyerPayments from "@/features/dashboard/buyer/components/BuyerPayments";
 import { ReactElement } from "react";
 
 function BuyerDashboardGigs() {
-  return <h2 className="mb-4 text-xl font-bold">BuyerDashboardGigs</h2>;
+  return <BuyerPayments />
 }
 
 BuyerDashboardGigs.getLayout = function getLayout(page: ReactElement) {
