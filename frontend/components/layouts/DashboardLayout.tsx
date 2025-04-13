@@ -16,7 +16,10 @@ import NavbarLeftPopoverMessages from "@/features/navbar/components/NavbarLeftPo
 import NavbarLeftPopoverNotifications from "@/features/navbar/components/NavbarLeftPopoverNotifications";
 import NavbarLeftPopoverOrder from "@/features/navbar/components/NavbarLeftPopoverOrder";
 import UserAvatar from "@/features/user/components/UserAvatar";
-import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import {
+  selectFreelancer,
+  selectUser,
+} from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { route } from "@/lib/route";
 import { motion } from "framer-motion";
@@ -34,6 +37,7 @@ import {
   Package,
   Search,
   Settings,
+  ShoppingBag,
   User,
   Users,
   UserSearch,
@@ -50,50 +54,42 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const sharedNavItems = [
+const buyerNavItems = [
   {
     label: "Home",
-    href: "/dashboard",
+    href: route.buyer.dashboard,
     icon: Home,
-    roles: ["buyer", "freelancer", "admin"],
+    roles: ["buyer"],
   },
   {
     label: "Profile",
-    href: "/dashboard/profile",
+    href: route.buyer.profile,
     icon: User,
-    roles: ["buyer", "freelancer", "admin"],
+    roles: ["buyer"],
   },
-  {
-    label: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-    roles: ["buyer", "freelancer", "admin"],
-  },
-];
-
-const buyerNavItems = [
   {
     label: "Orders",
-    href: "/dashboard/buyer/orders",
-    icon: Package,
-    roles: ["buyer"],
-  },
-  {
-    label: "Favorites",
-    href: "/dashboard/buyer/favorites",
-    icon: Heart,
-    roles: ["buyer"],
-  },
-  {
-    label: "Browse Freelancers",
-    href: "/dashboard/freelancers",
-    icon: UserSearch,
+    href: route.buyer.orders,
+    icon: ShoppingBag,
     roles: ["buyer"],
   },
   {
     label: "Payments",
-    href: "/dashboard/payments",
+    href: route.buyer.payments,
     icon: CreditCard,
+    roles: ["buyer"],
+  },
+  {
+    label: "Favorites",
+    href: route.buyer.favorites,
+    icon: Heart,
+    roles: ["buyer"],
+  },
+
+  {
+    label: "Settings",
+    href: route.buyer.settings,
+    icon: Settings,
     roles: ["buyer"],
   },
   {
@@ -106,27 +102,46 @@ const buyerNavItems = [
 
 const freelancerNavItems = [
   {
-    label: "Projects",
-    href: "/dashboard/projects",
+    label: "Home",
+    href: route.freelancer.dashboard,
+    icon: Home,
+    roles: ["freelancer"],
+  },
+  {
+    label: "Profile",
+    href: route.freelancer.profile,
+    icon: User,
+    roles: ["freelancer"],
+  },
+  {
+    label: "Orders",
+    href: route.freelancer.orders,
+    icon: ShoppingBag,
+    roles: ["freelancer"],
+  },
+  {
+    label: "Payments",
+    href: route.freelancer.payments,
+    icon: CreditCard,
+    roles: ["freelancer"],
+  },
+  {
+    label: "Gigs",
+    href: route.freelancer.gigs,
     icon: Package,
     roles: ["freelancer"],
   },
-  {
-    label: "Find Work",
-    href: "/dashboard/find-work",
-    icon: Search,
-    roles: ["freelancer"],
-  },
+
   {
     label: "Earnings",
-    href: "/dashboard/earnings",
+    href: route.freelancer.earnings,
     icon: Wallet,
     roles: ["freelancer"],
   },
   {
-    label: "Portfolio",
-    href: "/dashboard/portfolio",
-    icon: Folder,
+    label: "Settings",
+    href: route.freelancer.settings,
+    icon: Settings,
     roles: ["freelancer"],
   },
   {
@@ -139,8 +154,14 @@ const freelancerNavItems = [
 
 const adminNavItems = [
   {
+    label: "Home",
+    href: route.admin.dashboard,
+    icon: Home,
+    roles: ["admin"],
+  },
+  {
     label: "Manage Users",
-    href: "/dashboard/admin/users",
+    href: route.admin.users,
     icon: Users,
     roles: ["admin"],
   },
@@ -151,33 +172,27 @@ const adminNavItems = [
     roles: ["admin"],
   },
   {
-    label: "Revenue",
-    href: "/dashboard/admin/revenue",
+    label: "Finance",
+    href: route.admin.finance,
     icon: DollarSign,
     roles: ["admin"],
   },
   {
-    label: "Admin Settings",
-    href: "/dashboard/admin/settings",
+    label: "System Settings",
+    href: route.admin.settings,
     icon: Settings,
     roles: ["admin"],
   },
+
   {
-    label: "Feedback",
-    href: "/dashboard/admin/feedback",
-    icon: MessageSquare,
-    roles: ["admin"],
-  },
-  {
-    label: "Help",
-    href: "/dashboard/admin/help",
+    label: "Supports",
+    href: route.admin.supports,
     icon: LifeBuoy,
     roles: ["admin"],
   },
 ];
 
 export const navItems = [
-  ...sharedNavItems,
   ...buyerNavItems,
   ...freelancerNavItems,
   ...adminNavItems,
@@ -250,9 +265,11 @@ const renderUserPopovers = () => (
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const user = useAppSelector(selectUser);
+  const freelancer = useAppSelector(selectFreelancer);
 
+  const fullName = user?.fullName || "Guest";
   const [sheetOpen, setSheetOpen] = useState(false);
-  const userRole = "admin";
+  const userRole = user?.role?.name.toLocaleLowerCase() ?? "buyer";
 
   return (
     <div className="bg-muted/40 mx-auto flex min-h-screen max-w-[1400px] flex-col">
@@ -266,7 +283,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <AlignJustify className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-4">
+            <SheetContent side="left" className="w-[300px] p-4">
               <SidebarNav
                 userRole={userRole}
                 onNavigate={() => setSheetOpen(false)}
@@ -274,7 +291,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </SheetContent>
           </Sheet>
           <div className="flex items-center space-x-2 font-bold">
-            <Logo /> <span>FreelancerX Dashboard</span>
+            <Logo /> <span>FreelancerX</span>
           </div>
         </div>
 
@@ -293,7 +310,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Body: Sidebar + Main */}
       <div className="flex flex-1">
         {/* Sidebar (desktop only) */}
-        <aside className="hidden w-[250px] shrink-0 border-r bg-white p-4 md:block">
+        <aside className="hidden w-[300px] shrink-0 border-r bg-white p-4 md:block">
+          <div className="rounded-lg border p-3 text-center font-bold">
+            {userRole === "buyer" && "Buyer Dashboard"}
+            {userRole === "freelancer" && "Freelancer Dashboard"}
+            {userRole === "admin" && "Admin Dashboard"}
+          </div>
+
+          <div className="my-2 flex items-center space-x-2">
+            <UserAvatar height={50} width={50} />
+            <div className="flex-1">
+              <p className="text-xl font-bold text-gray-700">{fullName}</p>
+              <span className="text-md text-gray-500">{user?.email}</span>
+            </div>
+          </div>
+
           <SidebarNav userRole={userRole} />
         </aside>
 

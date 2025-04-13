@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Heart, Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,12 +20,17 @@ type Gig = {
 };
 
 export default function FavoriteGigs() {
-  const {
-    data: gigs,
-    mutate,
-    isLoading,
-  } = useSWR("/api/favorites", fakekFavoriteGigs);
+  const [gigs, setGigs] = useState([]);
+
+  const { data, mutate, isLoading } = useSWR(
+    "/api/favorites",
+    fakekFavoriteGigs,
+  );
   const [unfavoriting, setUnfavoriting] = useState<string | null>(null);
+
+  useEffect(() => {
+    data && setGigs(data as any);
+  }, [data]);
 
   const handleUnfavorite = async (id: string) => {
     setUnfavoriting(id);

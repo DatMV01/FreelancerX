@@ -29,8 +29,8 @@ const CategoriesSection = () => {
     <ul
       className={clsx(
         "my-6 grid grid-cols-3 grid-rows-3 gap-3",
-        "md:grid-cols-5 md:grid-rows-2 md:[&>li:nth-child(n+9)]:block",
-        "lg:grid-cols-9 lg:grid-rows-1 lg:[&>li:nth-child(n+9)]:block",
+        "md:grid-cols-9 md:grid-rows-1 md:[&>li:nth-child(n+9)]:block",
+        //"lg:grid-cols-9 lg:grid-rows-1 lg:[&>li:nth-child(n+9)]:block",
       )}
     >
       {categories.map((category) => (
