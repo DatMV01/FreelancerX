@@ -3,6 +3,7 @@ import axios from "axios";
 import { signIn, signOut } from "next-auth/react";
 import { createAppSlice } from "../../createAppSlice";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { RoleEnum } from "@/dto/dto.type.";
 
 enum FreelancerRankEnum {
   NEW = "NEW",
@@ -156,7 +157,7 @@ export const authSlice = createAppSlice({
         state.accessToken = accessToken;
         state.refreshToken = refreshToken;
         state.user = user;
-        state.freelancer = user?.freelancer as any;
+        state.freelancer = state.freelancer ?? (user?.freelancer as any);
         state.accessExpires = accessExpires;
         state.refreshExpires = refreshExpires;
         state.payload = payload;
@@ -260,7 +261,6 @@ export const authSlice = createAppSlice({
     ),
     signUpAsFreelancer: create.asyncThunk(
       async (data: any, { rejectWithValue }) => {
-        debugger;
         try {
           const response = await axiosInstanceV1.post("/freelancer", data);
           return response.data;
@@ -281,12 +281,17 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          debugger;
           state.status = "idle";
+          state.freelancer = action.payload;
           if (state.user) {
             state.user.freelancer = action.payload;
             state.user.avatar = action.payload.avatar;
+            state.user.phone = action.payload.phone;
             state.user.country = action.payload.country;
+            state.user.role = {
+              id: RoleEnum.FREELANCER,
+              name: RoleEnum[RoleEnum.FREELANCER],
+            };
           }
         },
         rejected: (state) => {
@@ -297,7 +302,6 @@ export const authSlice = createAppSlice({
 
     updateFreelancerProfile: create.asyncThunk(
       async (data: any, { rejectWithValue }) => {
-        debugger;
         try {
           const response = await axiosInstanceV1.patch(
             `/freelancer/${data.id}`,
@@ -321,7 +325,6 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          debugger;
           state.status = "idle";
           if (state.user) {
             state.user.freelancer = action.payload;
@@ -359,7 +362,6 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          debugger;
           state.status = "idle";
           state.user = action.payload.user;
         },

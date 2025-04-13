@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -77,7 +78,13 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
         avatar: true,
         phone: true,
         country: true,
+        roleId: true,
+        role: {
+          id: true,
+          name: true,
+        },
       },
+      relations: ['role'],
       where: whereCondition,
     });
 
@@ -85,9 +92,18 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
       throw new NotFoundException('User not found');
     }
 
+    const freelancerEntity = await this._repository.existsBy({ userId });
+    if (freelancerEntity) {
+      throw new BadRequestException('User has registered as freelancer.');
+    }
+
     userEnity.avatar = avatar ?? userEnity.avatar;
     userEnity.phone = phone ?? userEnity.phone;
     userEnity.country = country ?? userEnity.country;
+    userEnity.role = {
+      id: RoleEnum.FREELANCER,
+      name: RoleEnum[RoleEnum.FREELANCER],
+    } as any;
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -126,6 +142,9 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
       await queryRunner.commitTransaction();
 
       const freelancerEntity = await super.findOneById(createdFreelancer.id);
+      freelancerEntity.avatar = userEnity.avatar as any;
+      freelancerEntity.phone = userEnity.phone as any;
+      freelancerEntity.country = userEnity.country as any;
       return freelancerEntity;
     } catch (error) {
       await queryRunner.rollbackTransaction();

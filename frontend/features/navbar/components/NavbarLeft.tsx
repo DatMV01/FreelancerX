@@ -25,6 +25,7 @@ import {
   selectUser,
 } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
+import { route } from "@/lib/route";
 import { Divider } from "@mui/material";
 import clsx from "clsx";
 import { AlignJustify } from "lucide-react";
@@ -53,7 +54,8 @@ const NavbarLeft = () => {
   const freelancer = useAppSelector(selectFreelancer);
 
   const fullName = user?.fullName || "Guest";
-
+  const isAdmin = user?.role?.name === "ADMIN";
+ 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -63,20 +65,25 @@ const NavbarLeft = () => {
       </SheetTrigger>
 
       <SheetContent side="left" className="w-[300px] bg-white p-4">
-        <SheetHeader>
+        <SheetHeader className="p-0">
           <SheetTitle>
             {user ? (
               <div className="flex items-center space-x-2">
-                <UserAvatar />
-                <div>{fullName}</div>
+                <UserAvatar height={50} width={50} />
+                <div className="flex-1">
+                  <p className="text-xl font-bold text-gray-700">{fullName}</p>
+                  <span className="text-md text-gray-500">{user?.email}</span>
+                </div>
               </div>
             ) : (
               <div className="flex justify-center">
                 <NavbarLeftLoginDialog />
               </div>
             )}
+
             <Divider className="py-2" />
           </SheetTitle>
+
           <VisuallyHidden.Root>
             <SheetDescription>Menu</SheetDescription>
           </VisuallyHidden.Root>
@@ -92,11 +99,31 @@ const NavbarLeft = () => {
         >
           <MenuItem href="/" label="Home" />
 
-          {user && (
+          {user && isAdmin && (
+            <MenuItem href={route.admin.dashboard} label="Admin Dashboarđ" />
+          )}
+
+          {user && !isAdmin && (
             <>
-              <MenuItem href="/inbox" label="Inbox" />
-              <MenuItem href="/orders" label="Manage Orders" />
-              <MenuItem href="/fovorites" label="Favorite Lists" />
+              <MenuItem href={route.buyer.dashboard} label="Buyer Dashboarđ" />
+
+              {freelancer && (
+                <MenuItem
+                  href={route.freelancer.dashboard}
+                  label="Freelancer Dashboarđ"
+                />
+              )}
+
+              {!freelancer && (
+                <SheetClose asChild>
+                  <Link
+                    href={route.public.freelancer_signup}
+                    className="flex w-full items-center p-2 text-green-500 hover:bg-green-50 hover:text-green-500"
+                  >
+                    Become a Freelancer
+                  </Link>
+                </SheetClose>
+              )}
             </>
           )}
 
@@ -120,50 +147,24 @@ const NavbarLeft = () => {
           </Accordion>
 
           {user && (
-            <>
-              {freelancer ? (
-                <Accordion type="single" collapsible defaultValue="item-1">
-                  <AccordionItem value="item-1" className="m-2">
-                    <AccordionTrigger className="h-[40px] text-base font-bold">
-                      My Business
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col text-base">
-                      <MenuItem href="/orders" label="Orders" />
-                      <MenuItem href="/gig/manage" label="Gig" />
-                      <MenuItem href="/profile" label="Profile" />
-                      <MenuItem href="/earning" label="Earnings" />
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              ) : (
-                <SheetClose asChild>
-                  <Link
-                    href="/freelancer/new"
-                    className="flex w-full items-center p-2 text-green-500 hover:bg-green-50 hover:text-green-500"
-                  >
-                    Become a Freelancer
-                  </Link>
-                </SheetClose>
+            <div>
+              <Divider className="py-2" />
+              <div className="p-2 text-base font-bold">General</div>
+
+              {dev && (
+                <>
+                  <MenuItem href="/setting" label="Settings" />
+                  <MenuItem href="/billing" label="Billing and payments" />
+                </>
               )}
 
-              <div className="p-2">
-                <div className="text-base font-bold">General</div>
-
-                {dev && (
-                  <>
-                    <MenuItem href="/setting" label="Settings" />
-                    <MenuItem href="/billing" label="Billing and payments" />
-                  </>
-                )}
-
-                <SheetClose asChild>
-                  <LogoutButton
-                    className="w-full p-2 text-left hover:bg-green-50 hover:text-green-500"
-                    onClickCb={() => window.location.reload()}
-                  />
-                </SheetClose>
-              </div>
-            </>
+              <SheetClose asChild>
+                <LogoutButton
+                  className="flex w-full items-center p-2 hover:bg-green-50 hover:text-green-500"
+                  onClickCb={() => window.location.reload()}
+                />
+              </SheetClose>
+            </div>
           )}
         </div>
       </SheetContent>

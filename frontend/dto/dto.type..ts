@@ -98,8 +98,8 @@ export type Feature = {
 };
 
 export type GigPackage = {
-  description:string;
-  id:string;
+  description: string;
+  id: string;
   type: string;
   title: string;
   price: number;
@@ -180,4 +180,12 @@ export enum FreelancerLanguageProficiency {
   INTERMEDIATE = "Intermediate",
   ADVANCED = "Advanced",
   FLUENT = "Fluent",
+}
+
+export enum RoleEnum {
+  ADMIN = 1,
+  BUYER = 2,
+  FREELANCER = 3,
+  GUEST = 4,
+  // REGISTERED = 5,
 }

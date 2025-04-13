@@ -80,9 +80,17 @@ export class FreelancerController extends BaseController<
       throw new BadRequestException('Email can not empty');
     }
 
-    const entity = await this.baseService.findOne({ where: { email } });
+    const entity = await this.baseService.findOne({
+      where: { email },
+      relations: ['user'],
+    });
 
-    return this.mapFromEntityToDto(entity);
+    const { user, ...finalEntity } = entity;
+    finalEntity.avatar = user.avatar as any;
+    finalEntity.country = user.country as any;
+    finalEntity.phone = user.phone as any;
+
+    return this.mapFromEntityToDto(finalEntity as any);
   }
 
   @Patch(':id')

@@ -40,20 +40,20 @@ export class FreelancerEntity extends BaseEntity {
   email: string;
 
   @AutoMap()
-  @Column({ nullable: true })
+  //@Column({ nullable: true })
   avatar: string;
 
   @AutoMap()
-  @Column({ nullable: true })
+//  @Column({ nullable: true })
   country: string;
 
   @AutoMap()
-  @Column({ nullable: true })
+ // @Column({ nullable: true })
   phone: string;
 
   @AutoMap()
   @Column()
-  fullName: string;
+  displayName: string;
 
   @AutoMap()
   @Column({

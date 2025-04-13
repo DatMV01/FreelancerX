@@ -94,7 +94,7 @@ export class CreateFreelancerDto {
   @AutoMap()
   @IsString()
   @IsNotEmpty()
-  fullName: string;
+  displayName: string;
 
   @AutoMap()
   @IsString()

@@ -1,30 +1,28 @@
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LogoutButton from "@/features/auth/components/LogoutButton";
 import UserAvatar from "@/features/user/components/UserAvatar";
-import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import {
+  selectFreelancer,
+  selectUser,
+} from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { route } from "@/lib/route";
-import { Divider } from "@mui/material";
 import Link from "next/link";
 
 const NavbarLeftPopoverAvatar = () => {
   const user = useAppSelector(selectUser);
+  const freelancer = useAppSelector(selectFreelancer);
 
   const username = user?.email;
   const fullName = user?.fullName;
-  const freelancer = user?.freelancer;
+
+  const isAdmin = user?.role?.name === "ADMIN";
 
   return (
     <DropdownMenu>
@@ -35,8 +33,6 @@ const NavbarLeftPopoverAvatar = () => {
         <DropdownMenuSeparator />
         <ScrollArea className="max-h-[600px] w-full">
           <div className="flex flex-col">
-            {/* User Info Section */}
-
             <div className="flex items-center gap-3 p-4">
               <UserAvatar height={50} width={50} />
               <div className="flex-1">
@@ -46,30 +42,44 @@ const NavbarLeftPopoverAvatar = () => {
             </div>
             <DropdownMenuSeparator />
 
-            <Link
-              href={`/help`}
-              target="_blank"
-              className="flex p-4 hover:bg-green-50 hover:text-green-500"
-            >
-              Buyer Dashboarđ
-            </Link>
-
-            {user?.freelancer && (
+            {isAdmin && (
               <Link
-                href={`/freelancer/profile/${user?.freelancer?.email}`}
+                href={route.admin.dashboard}
                 className="flex p-4 hover:bg-green-50 hover:text-green-500"
               >
-                Freelancer Dashboarđ
+                Admin Dashboard
               </Link>
             )}
 
-            {!user?.freelancer && (
-              <Link
-                href={`/freelancer/profile/${user?.freelancer?.email}`}
-                className="flex p-4   hover:text-green-500  text-green-500 hover:bg-green-50"
-              >
-                Become a Freelancer
-              </Link>
+            {!isAdmin && (
+              <>
+                <Link
+                  href={route.buyer.dashboard}
+                  target="_blank"
+                  className="flex p-4 hover:bg-green-50 hover:text-green-500"
+                >
+                  Buyer Dashboarđ
+                </Link>
+
+                {freelancer && (
+                  <Link
+                    href={route.freelancer.dashboard}
+                    target="_blank"
+                    className="flex p-4 hover:bg-green-50 hover:text-green-500"
+                  >
+                    Freelancer Dashboarđ
+                  </Link>
+                )}
+
+                {!freelancer && (
+                  <Link
+                    href={route.public.freelancer_signup}
+                    className="flex p-4 text-green-500 hover:bg-green-50 hover:text-green-500"
+                  >
+                    Become a Freelancer
+                  </Link>
+                )}
+              </>
             )}
 
             {/* Profile Links */}
@@ -101,7 +111,7 @@ const NavbarLeftPopoverAvatar = () => {
             </div> */}
 
             {/* Switch Profile & Dashboard Links */}
-{/* 
+            {/* 
             {!freelancer && (
               <Link
                 href="/freelancer/dashboard"
@@ -130,14 +140,15 @@ const NavbarLeftPopoverAvatar = () => {
 
           <DropdownMenuSeparator />
 
-          {/* Help & Logout Section */}
-          <Link
-            href={route.public.help}
-            target="_blank"
-            className="flex p-4 hover:bg-green-50 hover:text-green-500"
-          >
-            Help & Support
-          </Link>
+          {!isAdmin && (
+            <Link
+              href={route.public.help}
+              target="_blank"
+              className="flex p-4 hover:bg-green-50 hover:text-green-500"
+            >
+              Help & Support
+            </Link>
+          )}
 
           <LogoutButton
             className="flex w-full items-center p-4 last:border-none hover:bg-green-50 hover:text-green-500"

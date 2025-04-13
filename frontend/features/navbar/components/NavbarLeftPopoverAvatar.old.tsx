@@ -7,18 +7,18 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LogoutButton from "@/features/auth/components/LogoutButton";
 import UserAvatar from "@/features/user/components/UserAvatar";
-import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import { selectFreelancer, selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { Divider } from "@mui/material";
 import Link from "next/link";
 
 const NavbarLeftPopoverAvatar = () => {
   const user = useAppSelector(selectUser);
+  const freelancer = useAppSelector(selectFreelancer);
 
   const username = user?.email;
   const fullName = user?.fullName;
-  const freelancer = user?.freelancer;
-
+ 
   return (
     <Popover>
       <PopoverTrigger>

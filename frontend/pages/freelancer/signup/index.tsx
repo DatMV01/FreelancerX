@@ -5,9 +5,7 @@ import UploadFile from "@/components/uploadfile/UploadFile";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
-  refetchMeAsync,
   selectUser,
   signUpAsFreelancer,
 } from "@/lib/redux/features/auth/authSlice";
@@ -23,7 +21,7 @@ import { z } from "zod";
 type SkillAndLanguage = { id: number; name: string; proficiency: string };
 
 type FormData = {
-  fullName: string;
+  displayName: string;
   phone: string;
   bio: string;
   avatar?: string;
@@ -38,7 +36,9 @@ const availableLanguagesData: Omit<SkillAndLanguage, "proficiency">[] =
 const availableCountriesData = countries;
 
 const formSchema = z.object({
-  fullName: z.string().min(3, "Full Name must be at least 3 characters long"),
+  displayName: z
+    .string()
+    .min(3, "Display name must be at least 3 characters long"),
   phone: z.string().regex(/^[0-9]{10,15}$/, "Invalid phone number"),
   bio: z.string().min(10, "Bio must be at least 10 characters long"),
   country: z.string().min(1, "Country must be selected"),
@@ -73,7 +73,7 @@ export default function FreelancerSignupForm() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: "",
+      displayName: "",
       phone: "",
       bio: "",
       avatar: "",
@@ -113,14 +113,6 @@ export default function FreelancerSignupForm() {
   }>();
   const dispatch = useAppDispatch();
   const router = useRouter();
-
-  const user = useAppSelector(selectUser);
-
-  useEffect(() => {
-    if (user && user.fullName) {
-      setValue("fullName", user.fullName);
-    }
-  }, [user]);
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -205,6 +197,7 @@ export default function FreelancerSignupForm() {
   const removeAvatar = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
     setValue("avatar", "");
   };
 
@@ -216,7 +209,7 @@ export default function FreelancerSignupForm() {
 
       setMessage({
         type: "success",
-        message: "Sign Up as a Freelancer successfully !",
+        message: "Sign up as a Freelancer successfully !",
       });
 
       setCountdown(5);
@@ -277,7 +270,7 @@ export default function FreelancerSignupForm() {
     <div className="flex w-full flex-col items-center justify-center bg-gray-100">
       <div className="items-center justify-center p-8 text-black">
         <h1 className="text-center text-3xl font-bold">
-          Sign Up as a Freelancer
+          Sign up as a Freelancer
         </h1>
         <p className="mt-4 text-center text-gray-600">
           Join our platform and start earning today.
@@ -290,22 +283,23 @@ export default function FreelancerSignupForm() {
             onSubmit={handleSubmit(onSubmit)}
             className="grid grid-cols-10 gap-6"
           >
-            {/* Full Name */}
+            {/* Display Name */}
             <div className="col-span-3">
-              <label className="text-gray-700">Full Name</label>
+              <label className="text-gray-700">Display Name</label>
             </div>
             <div className="col-span-7">
               <Controller
-                name="fullName"
+                name="displayName"
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Full Name" required />
+                  <Input {...field} placeholder="Display Name" required />
                 )}
               />
-              {errors.fullName && (
-                <p className="text-red-500">{errors.fullName.message}</p>
+              {errors.displayName && (
+                <p className="text-red-500">{errors.displayName.message}</p>
               )}
             </div>
+
             {/* Phone Number */}
             <div className="col-span-3">
               <label className="text-gray-700">Phone Number</label>
@@ -327,6 +321,7 @@ export default function FreelancerSignupForm() {
                 <p className="text-red-500">{errors.phone.message}</p>
               )}
             </div>
+
             {/* Bio */}
             <div className="col-span-3">
               <label className="text-gray-700">Bio</label>
@@ -359,7 +354,7 @@ export default function FreelancerSignupForm() {
                 fileType="image"
                 addionalFileType="avartar"
                 onUploadSuccessCb={(e: any) => {
-                  setValue("avatar", e.url);
+                  setValue("avatar", e.data.url);
                 }}
                 autoUpload
               />
@@ -519,6 +514,7 @@ export default function FreelancerSignupForm() {
                 <p className="text-red-500">{errors.languages.message}</p>
               )}
             </div>
+
             {/* Skills Section */}
             <div className="col-span-3">
               <label className="text-gray-700">Skills</label>

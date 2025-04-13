@@ -2,10 +2,12 @@
 
 export const route = {
   buyer: {
+    dashboard: "/dashboard/buyer/home",
     orders: "/dashboard/buyer/orders",
     favorites: "/dashboard/buyer/favorites",
   },
   freelancer: {
+    dashboard: "/dashboard/freelancer/home",
     gigs: "/dashboard/freelancer/gigs",
     gigs_new: "/dashboard/freelancer/gigs-new",
     gigs_edit: (id: string | number) => `/dashboard/freelancer/gigs-edit/${id}`,
@@ -13,7 +15,7 @@ export const route = {
     earnings: "/dashboard/freelancer/earnings",
   },
   admin: {
-    dashboard: "/dashboard/admin/dashboard",
+    dashboard: "/dashboard/admin/home",
     users: "/dashboard/admin/users",
     gigs: "/dashboard/admin/gigs",
     reports: "/dashboard/admin/reports",
@@ -25,7 +27,7 @@ export const route = {
   },
   public: {
     home: "/",
-    
+
     gigs: "/gigs",
     gig_detail: (id: string | number) => `/gigs/${id}`,
 
@@ -38,5 +40,7 @@ export const route = {
     login: "/auth/login",
     register: "/auth/signup",
     forgot_password: "/auth/password/forgot",
+
+    freelancer_signup: "/freelancer/signup",
   },
 };

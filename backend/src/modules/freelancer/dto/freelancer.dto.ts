@@ -66,7 +66,7 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
   phone: string;
 
   @AutoMap()
-  fullName: string;
+  displayName: string;
 
   @AutoMap(() => [FreelancersLanguages])
   @Transform((params) => freelancerLanguagesTransformer(params))

@@ -63,7 +63,7 @@ export class UserSeeding {
       id: '91bfe180-9448-4b32-84ae-a6b8a6d99b84',
       userId: 'b9686ad5-bf69-49d3-850e-0b5395a2bc52',
       email: 'freelancer@example.com',
-      fullName: 'Freelancer',
+      displayName: 'Freelancer DisplayName',
       phone: '0818012377',
       country: 'Ecuador',
       bio: 'Expert mobile app developer',
