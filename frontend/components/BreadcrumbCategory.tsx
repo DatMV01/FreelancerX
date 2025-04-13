@@ -43,8 +43,6 @@ const BreadcrumbCategory = ({
     ].filter(Boolean);
   }
 
-  console.log("router.query", router.query);
-
   // const { category, subCategory, nestedSubcategory } = useMemo(() => {
   //   return categoryInfo;
   // }, [categoryInfo]);

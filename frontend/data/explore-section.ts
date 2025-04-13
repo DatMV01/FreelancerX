@@ -6,23 +6,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Website Development",
-        href: "/categories/programming-tech/website-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development",
       },
       {
         name: "Website Maintenance",
-        href: "/categories/programming-tech/website-maintenance?source=vertical-buckets",
+        href: "/categories/programming-tech/website-maintenance",
       },
       {
         name: "WordPress",
-        href: "/categories/programming-tech/website-development/wordpress-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/wordpress-development",
       },
       {
         name: "Shopify",
-        href: "/categories/programming-tech/website-development/shopify-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/shopify-development",
       },
       {
         name: "Custom Websites",
-        href: "/categories/programming-tech/website-development/custom-websites-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/custom-websites-development",
       },
     ],
   },
@@ -33,23 +33,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Web Applications",
-        href: "/categories/programming-tech/software-development/web-application?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/web-application",
       },
       {
         name: "Desktop Applications",
-        href: "/categories/programming-tech/software-development/desktop-applications?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/desktop-applications",
       },
       {
         name: "Game Development",
-        href: "/categories/programming-tech/game-development?source=vertical-buckets",
+        href: "/categories/programming-tech/game-development",
       },
       {
         name: "Chatbot Development",
-        href: "/categories/programming-tech/chatbots?source=vertical-buckets",
+        href: "/categories/programming-tech/chatbots",
       },
       {
         name: "Browser Extensions",
-        href: "/categories/programming-tech/software-development/browser-extension?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/browser-extension",
       },
     ],
   },
@@ -60,23 +60,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Software Development",
-        href: "/categories/programming-tech/software-development?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development",
       },
       {
         name: "AI Development",
-        href: "/categories/programming-tech/ai-coding?source=vertical-buckets",
+        href: "/categories/programming-tech/ai-coding",
       },
       {
         name: "APIs & Integrations",
-        href: "/categories/programming-tech/software-development/api-integrations?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/api-integrations",
       },
       {
         name: "Scripting",
-        href: "/categories/programming-tech/software-development/scripting?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/scripting",
       },
       {
         name: "Plugins Development",
-        href: "/categories/programming-tech/software-development/plugins-development?source=vertical-buckets",
+        href: "/categories/programming-tech/software-development/plugins-development",
       },
     ],
   },
@@ -87,23 +87,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Mobile App Development",
-        href: "/categories/programming-tech/mobile-app-services?source=vertical-buckets",
+        href: "/categories/programming-tech/mobile-app-services",
       },
       {
         name: "Cross-platform Apps",
-        href: "/categories/programming-tech/mobile-app-services/custom-app?source=vertical-buckets",
+        href: "/categories/programming-tech/mobile-app-services/custom-app",
       },
       {
         name: "Android App Development",
-        href: "/categories/programming-tech/mobile-app-services/android-development?source=vertical-buckets",
+        href: "/categories/programming-tech/mobile-app-services/android-development",
       },
       {
         name: "iOS App Development",
-        href: "/categories/programming-tech/mobile-app-services/ios-development?source=vertical-buckets",
+        href: "/categories/programming-tech/mobile-app-services/ios-development",
       },
       {
         name: "Mobile App Maintenance",
-        href: "/categories/programming-tech/mobile-app-maintenance?source=vertical-buckets",
+        href: "/categories/programming-tech/mobile-app-maintenance",
       },
     ],
   },
@@ -114,23 +114,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Wix",
-        href: "/categories/programming-tech/website-development/wix-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/wix-development",
       },
       {
         name: "Webflow",
-        href: "/categories/programming-tech/website-development/webflow-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/webflow-development",
       },
       {
         name: "GoDaddy",
-        href: "/categories/programming-tech/website-development/godaddy-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/godaddy-development",
       },
       {
         name: "Squarespace",
-        href: "/categories/programming-tech/website-development/squarespace-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/squarespace-development",
       },
       {
         name: "WooCommerce",
-        href: "/categories/programming-tech/website-development/woocommerce-development?source=vertical-buckets",
+        href: "/categories/programming-tech/website-development/woocommerce-development",
       },
     ],
   },
@@ -141,7 +141,7 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Support & IT",
-        href: "/categories/programming-tech/support-it-services?source=vertical-buckets",
+        href: "/categories/programming-tech/support-it-services",
       },
       {
         name: "Cloud Computing",
@@ -149,19 +149,19 @@ export const programmingTechSubCategoriesExploreSection = [
       },
       {
         name: "DevOps Engineering",
-        href: "/categories/programming-tech/devops?source=vertical-buckets",
+        href: "/categories/programming-tech/devops",
       },
       {
         name: "Cybersecurity",
-        href: "/categories/programming-tech/cybersecurity-data-protection?source=vertical-buckets",
+        href: "/categories/programming-tech/cybersecurity-data-protection",
       },
       {
         name: "Development for Streamers",
-        href: "/categories/programming-tech/development-for-streamers?source=vertical-buckets",
+        href: "/categories/programming-tech/development-for-streamers",
       },
       {
         name: "Convert Files",
-        href: "/categories/programming-tech/file-conversion-services?source=vertical-buckets",
+        href: "/categories/programming-tech/file-conversion-services",
       },
     ],
   },
@@ -172,23 +172,23 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Blockchain Development & Solutions",
-        href: "/categories/programming-tech/blockchain-cryptocurrency?source=vertical-buckets",
+        href: "/categories/programming-tech/blockchain-cryptocurrency",
       },
       {
         name: "Decentralized Apps (dApps)",
-        href: "/categories/programming-tech/blockchain-cryptocurrency/decentralized-application?source=vertical-buckets",
+        href: "/categories/programming-tech/blockchain-cryptocurrency/decentralized-application",
       },
       {
         name: "Coin Design & Tokenization",
-        href: "/categories/programming-tech/cryptocurrencies-tokens/coin-design-tokenization?source=vertical-buckets",
+        href: "/categories/programming-tech/cryptocurrencies-tokens/coin-design-tokenization",
       },
       {
         name: "Blockchain Security & Auditing",
-        href: "/categories/programming-tech/blockchain-cryptocurrency/security-audits?source=vertical-buckets",
+        href: "/categories/programming-tech/blockchain-cryptocurrency/security-audits",
       },
       {
         name: "Exchange Platforms",
-        href: "/categories/programming-tech/cryptocurrencies-tokens/cryptocurrency-trading-platforms?source=vertical-buckets",
+        href: "/categories/programming-tech/cryptocurrencies-tokens/cryptocurrency-trading-platforms",
       },
     ],
   },
@@ -199,19 +199,19 @@ export const programmingTechSubCategoriesExploreSection = [
     bucketContent: [
       {
         name: "Electronics Engineering",
-        href: "/categories/programming-tech/electronics-engineering?source=vertical-buckets",
+        href: "/categories/programming-tech/electronics-engineering",
       },
       {
         name: "QA & Review",
-        href: "/categories/programming-tech/qa-services?source=vertical-buckets",
+        href: "/categories/programming-tech/qa-services",
       },
       {
         name: "User Testing",
-        href: "/categories/programming-tech/user-testing-services?source=vertical-buckets",
+        href: "/categories/programming-tech/user-testing-services",
       },
       {
         name: "Online Coding Lessons",
-        href: "/categories/programming-tech/online-coding-lessons?source=vertical-buckets",
+        href: "/categories/programming-tech/online-coding-lessons",
       },
     ],
   },

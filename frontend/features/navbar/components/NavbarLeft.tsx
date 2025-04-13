@@ -136,7 +136,14 @@ const NavbarLeft = () => {
                   </AccordionItem>
                 </Accordion>
               ) : (
-                <MenuItem href="/freelancer/new" label="Become a Freelancer" />
+                <SheetClose asChild>
+                  <Link
+                    href="/freelancer/new"
+                    className="flex w-full items-center p-2 text-green-500 hover:bg-green-50 hover:text-green-500"
+                  >
+                    Become a Freelancer
+                  </Link>
+                </SheetClose>
               )}
 
               <div className="p-2">

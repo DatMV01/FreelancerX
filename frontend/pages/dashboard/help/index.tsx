@@ -1,8 +1,10 @@
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle } from "lucide-react";
+import { ReactElement } from "react";
 
 export default function HelpAndSupport() {
   return (
@@ -33,3 +35,7 @@ export default function HelpAndSupport() {
     </div>
   );
 }
+
+HelpAndSupport.getLayout = function getLayout(page: ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};

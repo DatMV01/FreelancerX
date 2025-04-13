@@ -5,85 +5,55 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { categories, subCategoriesByCategory } from "@/data/data";
+import LoginForm from "@/features/auth/components/LoginForm";
+import clsx from "clsx";
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { VisuallyHidden } from "radix-ui";
-import { useState } from "react";
-import MasonryGrid from "./masonry-grid";
-
-import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import Masonry from "react-masonry-css";
+import { toast } from "sonner";
 import { Scrollbar } from "swiper/modules";
-
-import "swiper/css";
-import "swiper/css/scrollbar";
-import clsx from "clsx";
-import LoginForm from "@/features/auth/components/LoginForm";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 const CategoriesSection = () => {
   return (
-    <div
+    <ul
       className={clsx(
         "my-6 grid grid-cols-3 grid-rows-3 gap-3",
-        "md:grid-cols-4",
+        "md:grid-cols-5 md:grid-rows-2 md:[&>li:nth-child(n+9)]:block",
+        "lg:grid-cols-9 lg:grid-rows-1 lg:[&>li:nth-child(n+9)]:block",
       )}
     >
       {categories.map((category) => (
-        <Link
-          key={category.id}
-          href={`/categories/${category.slug}`}
-          className="flex flex-col items-center gap-y-3"
-        >
-          <div className="flex h-[100px] w-[100px] items-center justify-center rounded-2xl border-2">
-            <Image
-              width="0"
-              height="0"
-              src={category.icon2}
-              alt=" "
-              className="h-[40px] w-[40px]"
-            ></Image>
-          </div>
-          <p className="text-center"> {category.title}</p>
-        </Link>
+        <li key={category.id}>
+          <Link
+            key={category.id}
+            href={`/categories/${category.slug}`}
+            className="flex flex-col items-center gap-y-3"
+          >
+            <div className="flex aspect-square w-full items-center justify-center rounded-2xl border-2">
+              <Image
+                width="0"
+                height="0"
+                src={category.icon2}
+                alt=""
+                className="h-1/2 w-1/2"
+              ></Image>
+            </div>
+            <p className="text-center"> {category.title}</p>
+          </Link>
+        </li>
       ))}
-    </div>
-  );
-};
-
-const PopularServiceSection = () => {
-  return (
-    <div className=" ">
-      <h2 className="text-2xl text-[#404145]">Popular Service</h2>
-
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex w-full space-x-4 py-4">
-          {subCategoriesByCategory.map((category: any) => {
-            return (
-              <Link key={category.id} href={`/categories/${category.slug}`}>
-                <div
-                  className={`flex h-[170px] w-[120px] flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1`}
-                >
-                  <p className="text-wrap text-center text-white">
-                    {category.title}
-                  </p>
-
-                  <Image
-                    className="rounded-lg"
-                    alt="Website Development"
-                    sizes="100vw"
-                    src="/images/website-development.webp"
-                    priority
-                  />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+    </ul>
   );
 };
 
@@ -127,7 +97,7 @@ export const PopularServiceSectionSwipper = () => {
               <div
                 className={`flex h-full flex-col justify-between rounded-lg bg-gradient-to-b from-green-900 via-green-500 to-green-300 p-1`}
               >
-                <p className="line-clamp-2 h-[50px] overflow-hidden text-ellipsis text-center text-white">
+                <p className="line-clamp-2 h-[50px] overflow-hidden text-center text-ellipsis text-white">
                   {category.title}
                 </p>
 
@@ -153,10 +123,12 @@ export const PopularServiceSectionSwipper = () => {
 const FingerTips = () => {
   return (
     <div className="flex flex-col items-center py-4">
-      <h2 className="text-3xl text-[#404145]">
-        Make it all happen with freelancers
-      </h2>
-
+      <div className="flex flex-col items-center space-y-2 space-x-2 md:flex-row">
+        <h2 className="text-center text-2xl text-[#404145]">
+          Make it all happen with freelancers
+        </h2>
+        <LoginDialogGuestHomePage />
+      </div>
       <ul className="grid grid-cols-1 gap-1 md:grid-cols-2">
         <li className="flex flex-row items-center">
           <Image
@@ -237,8 +209,73 @@ const LoginDialogGuestHomePage = ({ className }: { className?: any }) => {
   );
 };
 
-const MakeOnFreelancerConnect = () => {
-  return <MasonryGrid />;
+const MakeOnFreelancerX = () => {
+  const images = [
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/191c6e31b9bfe0fd9b2fc451e27e85bb-1736450670/E9B43626-8420-4EEB-854E-BF12EA5226B9.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/f58a0ec0cbf150e8820d66215a2c9376-1737742372/Edit%2001_Living_View_02.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/c3c5d09628c579e6dcee504169d7a75a-1738523763/Enscape_2025-02-02-13-20-00.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/415621a20fb5072ce9a14c49c97b1c93-1737775736/living_3.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/520224652e8cd1c4726d8cd16d02a61c-1739318180/0592674F-1C7A-4063-8A92-3A31DA585669.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/21fadbcd4d139bf0d2ae12b9d82c3118-1737908482/Untitled-1.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/437f692c601e3a045a0363ed7cd61a57-1736420267/voidspore.jpg",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/cb6b2c8ed5ba7973b8db1c844392b5bd-1736069946/IMG_8116.jpeg",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/81ddfa32a7d78e205f1a508e69ba65a4-1739185390/Scene%201_2.png",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/1490cb7f3dc6eb6ceddd2f4e467e3392-1736972279/IMG_5405.jpeg",
+    "https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto,t_delivery_web_tile/v1/attachments/delivery/asset/f77381c1c316bbc6b9c5d3495b1d4b24-1737463495/door%202%20chocolate.jpg",
+  ];
+
+  const breakpointColumnsObj = {
+    default: 4, // Desktop
+    1024: 3, // Tablet
+    640: 2, // Mobile
+  };
+
+  const saveToListHandle = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    toast.info("Under development");
+  };
+  return (
+    <div className="my-6">
+      <Masonry breakpointCols={breakpointColumnsObj} className="flex gap-2">
+        {images.map((src, index) => (
+          <div key={index} className="relative">
+            <div className="mb-2">
+              <Link href="#">
+                <img
+                  src={src}
+                  alt={`Image ${index}`}
+                  className="rounded-sm object-cover"
+                />
+              </Link>
+            </div>
+
+            <div className="absolute top-2 right-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger onClick={(e) => saveToListHandle(e)}>
+                    <p className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-gray-100 fill-gray-500 hover:bg-gray-200">
+                      <Heart size={18} />
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save to lis</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* <div className="absolute right-2 bottom-2">
+              <button className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-transparent fill-white hover:bg-gray-100 hover:fill-gray-500">
+                <Ellipsis className="stroke-gray-5900" />
+              </button>
+            </div> */}
+          </div>
+        ))}
+      </Masonry>
+    </div>
+  );
 };
 
 const FingerTips2 = () => {
@@ -253,8 +290,9 @@ const FingerTips2 = () => {
     </div>
   );
 };
+``;
 
-const Banner = ({ slogen, ...props }: { slogen: any }) => {
+const Banner = ({ slogen }: { slogen: string }) => {
   const companies = [
     {
       name: "Meta",
@@ -295,59 +333,55 @@ const Banner = ({ slogen, ...props }: { slogen: any }) => {
   ];
 
   return (
-    <div
-      className={clsx(
-        "relative z-10 flex h-[300px] w-full flex-col items-center justify-center gap-4 rounded-md md:h-[370px]",
-        "bg-[rgb(37,66,0)] bg-contain bg-center",
-        "bg-[url('https://fiverr-res.cloudinary.com/image/upload/f_auto,q_auto/v1/attachments/generic_asset/asset/3a163e1090b4d0f0b8dc46abb36972ef-1739466831497/new-hero-md.png')]",
-      )}
-    >
-      <h1 className="text-3xl text-white">Bee Freelancer</h1>
-      <p
-        dangerouslySetInnerHTML={{ __html: slogen }}
-        className="text-center text-xl text-white md:text-4xl"
+    <div className="relative h-[300px] w-full overflow-hidden rounded-md md:h-[300px] lg:h-[400px] xl:h-[500px]">
+      <Image
+        src="/new-hero-md.webp"
+        alt="Banner"
+        fill
+        className="object-fill"
       />
-
-      <div className="hidden flex-col items-center space-y-2 md:flex">
-        <span className="text-lg font-semibold text-gray-500">Trusted by:</span>
-        <ul className="flex flex-wrap justify-center gap-6">
-          {companies.map((company, index) => (
-            <li key={index}>
-              <Image
-                src={company.src}
-                alt={company.name}
-                fill
-                style={{ objectFit: "cover" }}
-                className="h-auto"
-              />
-            </li>
-          ))}
-        </ul>
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-white">
+        <h1 className="text-3xl">FreelancerX</h1>
+        <p
+          dangerouslySetInnerHTML={{ __html: slogen }}
+          className="text-center text-xl md:text-2xl"
+        />
+        <div className="flex flex-col items-center space-y-2">
+          <span className="text-base font-semibold text-gray-300">
+            Trusted by:
+          </span>
+          <ul className="flex flex-wrap justify-center gap-4">
+            {companies.map((company, index) => (
+              <li key={index} className="animate-fade-in">
+                <Image
+                  src={company.src}
+                  alt={company.name}
+                  width={company.width}
+                  height={company.height}
+                  className="object-contain"
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-
-      {/* <div className="w-[90%] md:hidden">
-        <SearchBar />
-      </div> */}
     </div>
   );
 };
 
-const GuestHomePage = () => {
+const PublicHomePage = () => {
   return (
-    <div className="my-2">
+    <div className="flex flex-col">
       <Banner
         slogen={"Scale your professional workforce <br/> with freelancers"}
       />
 
       <CategoriesSection />
-      {/* <PopularServiceSection /> */}
-      <PopularServiceSectionSwipper />
       <FingerTips />
-      <LoginDialogGuestHomePage />
-      <MakeOnFreelancerConnect />
+      <MakeOnFreelancerX />
       <FingerTips2 />
     </div>
   );
 };
 
-export default GuestHomePage;
+export default PublicHomePage;

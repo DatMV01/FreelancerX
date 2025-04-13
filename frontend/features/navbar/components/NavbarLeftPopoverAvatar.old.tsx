@@ -1,10 +1,4 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Popover,
   PopoverContent,
@@ -15,7 +9,6 @@ import LogoutButton from "@/features/auth/components/LogoutButton";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
-import { route } from "@/lib/route";
 import { Divider } from "@mui/material";
 import Link from "next/link";
 
@@ -27,16 +20,15 @@ const NavbarLeftPopoverAvatar = () => {
   const freelancer = user?.freelancer;
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>
+    <Popover>
+      <PopoverTrigger>
         <UserAvatar showBadge />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
         <DropdownMenuSeparator />
         <ScrollArea className="max-h-[600px] w-full">
           <div className="flex flex-col">
             {/* User Info Section */}
-
             <div className="flex items-center gap-3 p-4">
               <UserAvatar height={50} width={50} />
               <div className="flex-1">
@@ -44,36 +36,9 @@ const NavbarLeftPopoverAvatar = () => {
                 <span className="text-md text-gray-500">{user?.email}</span>
               </div>
             </div>
-            <DropdownMenuSeparator />
-
-            <Link
-              href={`/help`}
-              target="_blank"
-              className="flex p-4 hover:bg-green-50 hover:text-green-500"
-            >
-              Buyer Dashboarđ
-            </Link>
-
-            {user?.freelancer && (
-              <Link
-                href={`/freelancer/profile/${user?.freelancer?.email}`}
-                className="flex p-4 hover:bg-green-50 hover:text-green-500"
-              >
-                Freelancer Dashboarđ
-              </Link>
-            )}
-
-            {!user?.freelancer && (
-              <Link
-                href={`/freelancer/profile/${user?.freelancer?.email}`}
-                className="flex p-4   hover:text-green-500  text-green-500 hover:bg-green-50"
-              >
-                Become a Freelancer
-              </Link>
-            )}
 
             {/* Profile Links */}
-            {/* <div className="grid h-12 grid-cols-2">
+            <div className="grid h-12 grid-cols-2">
               <Link
                 href={`/buyer/profile/${username}`}
                 className="flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500"
@@ -98,10 +63,16 @@ const NavbarLeftPopoverAvatar = () => {
                   Become a Freelancer
                 </Link>
               )}
-            </div> */}
+            </div>
 
             {/* Switch Profile & Dashboard Links */}
-{/* 
+            <Link
+              href="/"
+              className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
+            >
+              Switch to Buying
+            </Link>
+
             {!freelancer && (
               <Link
                 href="/freelancer/dashboard"
@@ -109,7 +80,7 @@ const NavbarLeftPopoverAvatar = () => {
               >
                 Freelancer Dashboard
               </Link>
-            )} */}
+            )}
 
             {/* <DropdownMenuSeparator />
 
@@ -132,7 +103,7 @@ const NavbarLeftPopoverAvatar = () => {
 
           {/* Help & Logout Section */}
           <Link
-            href={route.public.help}
+            href={`/help`}
             target="_blank"
             className="flex p-4 hover:bg-green-50 hover:text-green-500"
           >
@@ -146,8 +117,8 @@ const NavbarLeftPopoverAvatar = () => {
             }}
           />
         </ScrollArea>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 };
 

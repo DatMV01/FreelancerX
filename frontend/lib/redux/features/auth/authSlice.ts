@@ -108,6 +108,8 @@ interface AuthState {
   refreshExpires: number | null;
   payload: any | null;
   user: UserDto | null;
+  sesion: null;
+  freelancer: FreelancerProfile | null;
   expires: Date | null;
   status: "idle" | "loading" | "failed";
 }
@@ -119,6 +121,8 @@ const initialState: AuthState = {
   refreshExpires: null,
   payload: null,
   user: null,
+  sesion: null,
+  freelancer: null,
   expires: null,
   status: "idle",
 };
@@ -148,9 +152,11 @@ export const authSlice = createAppSlice({
           payload,
           expires,
         } = action.payload;
+        state.sesion = action.payload as any;
         state.accessToken = accessToken;
         state.refreshToken = refreshToken;
         state.user = user;
+        state.freelancer = user?.freelancer as any;
         state.accessExpires = accessExpires;
         state.refreshExpires = refreshExpires;
         state.payload = payload;
@@ -369,7 +375,8 @@ export const authSlice = createAppSlice({
     selectRefreshToken: (auth) => auth.refreshToken,
     selectAuthStatus: (auth) => auth.status,
     selectUser: (auth) => auth.user,
-    selectFreelancer: (auth) => auth.user?.freelancer,
+    selectSession: (auth) => auth.sesion,
+    selectFreelancer: (auth) => auth.freelancer,
   },
 });
 
@@ -390,6 +397,7 @@ export const {
   selectAccessToken,
   selectAuthStatus,
   selectUser,
+  selectSession,
   selectFreelancer,
   selectRefreshToken,
 } = authSlice.selectors;

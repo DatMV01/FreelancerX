@@ -1,40 +1,36 @@
+import MainLayout from "@/components/layouts/MainLayout";
 import { StoreProvider } from "@/pages/StoreProvider";
 import "@/styles/globals.css";
+import { NextPage } from "next";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import AuthSync from "./authAsync";
-import NavbarMain from "@/features/navbar/components/NavbarMain";
-import Footer from "@/components/footer/Footer";
+import { ReactElement, ReactNode } from "react";
 import { Toaster } from "sonner";
+import SyncSessionToRedux  from "./syncSessionToRedux ";
 
-function RootLayout({ children }: { children: any }) {
-  return (
-    <div className="m-auto flex min-h-screen max-w-[1400px] flex-col">
-      <Toaster richColors position="top-right" />
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
 
-      <header className="my-2 px-4 md:px-8">
-        <NavbarMain />
-      </header>
-      <main className="flex-grow px-4 md:px-8">{children}</main>
-      <footer className="my-2 px-4 md:px-8">
-        <Footer />
-      </footer>
-    </div>
-  );
-}
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
 export default function App({
   Component,
   pageProps: { session, ...pageProps },
-}: AppProps) {
+}: AppPropsWithLayout) {
+  const getLayout =
+    Component.getLayout ?? ((page) => <MainLayout>{page}</MainLayout>);
+
   return (
     <SessionProvider session={session}>
       <StoreProvider>
-        <AuthSync />
-        {/* <SessionRefresher /> */}
-        <RootLayout>
-          <Component {...pageProps} />
-        </RootLayout>
+        <Toaster richColors position="top-right" />
+
+        <SyncSessionToRedux  />
+
+        {getLayout(<Component {...pageProps} />)}
       </StoreProvider>
     </SessionProvider>
   );

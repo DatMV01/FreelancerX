@@ -2,7 +2,6 @@
 
 import Logo from "@/components/LogoImage";
 
-
 import NavbarLeft from "@/features/navbar/components/NavbarLeft";
 import NavbarLeftLoginDialog from "@/features/navbar/components/NavbarLeftLoginDialog";
 import NavbarLeftPopoverAvatar from "@/features/navbar/components/NavbarLeftPopoverAvatar";
@@ -15,20 +14,43 @@ import NavbarSearchBar from "@/features/navbar/components/NavbarSearchBar";
 
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
+import { route } from "@/lib/route";
+import { Badge } from "@mui/material";
+import { Heart } from "lucide-react";
 import Link from "next/link";
+
+const renderUserPopovers = () => (
+  <>
+    <NavbarLeftPopoverMessages />
+    <NavbarLeftPopoverNotifications />
+    <NavbarLeftPopoverOrder />
+    <Link href={route.buyer.favorites}>
+      <Badge
+        color="success"
+        sx={{
+          "& .MuiBadge-badge": {
+            fontSize: "11px",
+            height: "21px",
+            minWidth: "21px",
+            padding: "0px",
+          },
+          "&": {
+            borderRadius: "100%",
+          },
+          "&:hover": {
+            backgroundColor: "#F3F4F6",
+          },
+        }}
+      >
+        <Heart />
+      </Badge>
+    </Link>
+    <NavbarLeftPopoverAvatar />
+  </>
+);
 
 const NavbarMain = () => {
   const user = useAppSelector(selectUser);
-
-  const renderUserPopovers = () => (
-    <>
-      <NavbarLeftPopoverMessages />
-      <NavbarLeftPopoverNotifications />
-      <NavbarLeftPopoverOrder />
-      <NavbarLeftPopoverFavorites />
-      <NavbarLeftPopoverAvatar />
-    </>
-  );
 
   return (
     <div>

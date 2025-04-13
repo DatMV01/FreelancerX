@@ -1,44 +1,65 @@
 "use client";
 
-import { CircularProgress } from "@mui/material";
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import DashboardLayout, {
+  navItems,
+} from "@/components/layouts/DashboardLayout";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ReactElement, useEffect, useState } from "react";
 
-export default function DashBoard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+export const SidebarNav = ({
+  userRole,
+  onNavigate,
+}: {
+  userRole: string;
+  onNavigate?: () => void;
+}) => {
+  const pathname = usePathname();
+
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("auth/signin");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    // return (
-    //   <div className="flex h-screen items-center justify-center">
-    //     <CircularProgress />
-    //   </div>
-    // );
-    return null;
-  }
-
-  if (!session) return null;
-
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
   return (
-    <div>
-      <h2>Dashboard</h2>
-      <p>Welcome, {session.user?.email}!</p>
-      <p>firstName, {session.user?.firstName}!</p>
-      <p>lastName, {session.user?.lastName}!</p>
-      <p>role, {session.user?.role}!</p>
-      <button
-        className="border border-indigo-600"
-        onClick={() => signOut({ redirect: true, callbackUrl: "/auth/signin" })}
-      >
-        Logout
-      </button>
-    </div>
+    <nav className="space-y-2">
+      {navItems.map((item) => {
+        if (!item.roles.includes(userRole)) return null;
+
+        const isActive = pathname === item.href;
+        return (
+          <Link key={item.href} href={item.href}>
+            <div
+              className={`flex items-center gap-3 rounded-lg p-3 transition-colors ${
+                isActive
+                  ? "bg-gray-200 font-semibold text-black"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-black"
+              }`}
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.label}</span>
+            </div>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+};
+
+function DashboardPage() {
+  const userRole = "admin";
+  return (
+    <>
+      <SidebarNav userRole={"buyer"} />
+      <SidebarNav userRole={"freelancer"} />
+      <SidebarNav userRole={"admin"} />
+    </>
   );
 }
+
+DashboardPage.getLayout = function getLayout(page: ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};
+
+export default DashboardPage;
