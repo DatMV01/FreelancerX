@@ -137,7 +137,17 @@ export const authOptions: AuthOptions = {
     // async redirect({ url, baseUrl }) { return baseUrl },
     // async session({ session, token, user }) { return session },
     // async jwt({ token, user, account, profile, isNewUser }) { return token }
-    async jwt({ token, user }: { token: JWT; user: User }) {
+    async jwt({
+      token,
+      user,
+      trigger,
+      session,
+    }: {
+      token: JWT;
+      user: User;
+      trigger: any;
+      session: any;
+    }) {
       if (user) {
         // Decode accessToken để lấy iat và exp từ backend
         const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
@@ -148,7 +158,36 @@ export const authOptions: AuthOptions = {
           ...user,
         } as any;
       }
- 
+
+      if (trigger === "update") {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/me`,
+            {
+              headers: {
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+            },
+          );
+
+          if (!response.ok) {
+            throw new Error("Invalid credentials");
+          }
+
+          const data = await response.json();
+
+          token = {
+            ...token,
+            user: data,
+          };
+        } catch (error: any) {
+          const errorMessage =
+            error.response?.data || error.message || "An error occurred";
+
+          throw new Error(errorMessage);
+        }
+      }
+
       console.log(token);
 
       const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
@@ -178,7 +217,6 @@ export const authOptions: AuthOptions = {
 };
 
 async function refreshAccessToken(token: any) {
-  debugger;
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/refresh`,
@@ -203,7 +241,15 @@ async function refreshAccessToken(token: any) {
     return token;
   } catch (error) {
     console.error("Error refreshing access token", error);
-    return { error: "RefreshAccessTokenError" } as any;
+
+    // Force logout by clearing the session
+    return {
+      error: "RefreshAccessTokenError",
+      accessToken: null,
+      refreshToken: null,
+      user: null,
+      expires: 0,
+    } as any;
   }
 }
 

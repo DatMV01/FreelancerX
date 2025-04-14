@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@mui/material";
 import { X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -113,7 +114,7 @@ export default function FreelancerSignupForm() {
   }>();
   const dispatch = useAppDispatch();
   const router = useRouter();
-
+  const { data: session, update } = useSession();
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSkillInput(value);
@@ -206,6 +207,10 @@ export default function FreelancerSignupForm() {
 
     try {
       const data = await dispatch(signUpAsFreelancer(values)).unwrap();
+
+      await update({
+        isUpdate: true,
+      });
 
       setMessage({
         type: "success",
