@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
@@ -110,7 +111,7 @@ export default function FreelancerSignupForm() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [freelancer, setFreelancer] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "errror";
     message: string;
@@ -648,6 +649,33 @@ export default function FreelancerSignupForm() {
                 )}
               </div>
 
+              <div className="col-span-3">
+                <label className="text-gray-700">Socials</label>
+              </div>
+              <div className="col-span-7">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="facebook">Facebook</Label>
+                    <Input
+                      id="facebook"
+                      placeholder="https://facebook.com/yourprofile"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="telegram">Telegram</Label>
+                    <Input id="telegram" placeholder="https://t.me/username" />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="linkedin">LinkedIn</Label>
+                    <Input
+                      id="linkedin"
+                      placeholder="https://linkedin.com/in/yourname"
+                    />
+                  </div>
+                </div>
+              </div>
               {/* Submit Button */}
               <div className="col-span-10 flex justify-center">
                 {/* ✅ Submit Button */}
@@ -687,4 +715,3 @@ export default function FreelancerSignupForm() {
     </div>
   );
 }
- 

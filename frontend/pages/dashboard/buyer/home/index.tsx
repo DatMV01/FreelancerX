@@ -6,7 +6,8 @@ import { ReactElement } from "react";
 import BuyerOverviewWeekly from "@/features/dashboard/buyer/components/BuyerOverviewWeekly";
 import BuyerOverviewMonthly from "@/features/dashboard/buyer/components/BuyerOverviewMonthly";
 import { Divider } from "@mui/material";
-
+import BuyerDashboard from "@/features/dashboard/buyer/components/BuyerDashboard";
+ 
 const chartData = [
   [
     // Completed Orders
@@ -74,9 +75,11 @@ const stats = [
 export default function BuyerDashboardHome() {
   return (
     <div className=" ">
+      <BuyerDashboard />
+
       <BuyerOverviewWeekly />
 
-      <Divider className="py-4"/>
+      <Divider className="py-4" />
       <BuyerOverviewMonthly />
     </div>
   );

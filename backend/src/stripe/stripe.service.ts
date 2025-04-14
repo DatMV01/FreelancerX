@@ -183,7 +183,7 @@ export class StripeService {
     });
 
     await this.orderRepo.update(orderId, {
-      status: OrderStatus.PAID,
+      status: OrderStatus.PENDING,
     });
 
     await this.orderLogRepo.save({

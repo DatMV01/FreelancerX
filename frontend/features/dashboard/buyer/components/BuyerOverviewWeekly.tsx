@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from "recharts";
 import { Card } from "@/components/ui/card";
-import { DollarSign, PackageCheck, Clock, Heart } from "lucide-react";
+import { DollarSign, PackageCheck, Clock, Heart, XCircle } from "lucide-react";
 
 const barChartData = [
   [
@@ -68,6 +68,15 @@ const stats = [
     type: "bar",
     dataIndex: 1,
   },
+
+  {
+    label: "Đã hủy",
+    value: 7,
+    icon: <XCircle className="h-5 w-5 text-pink-500" />,
+    color: "#ec4899",
+    type: "pie",
+  },
+
   {
     label: "Tổng chi tiêu",
     value: "$1,250",
@@ -76,13 +85,7 @@ const stats = [
     type: "bar",
     dataIndex: 2,
   },
-  // {
-  //   label: "Gig đã lưu",
-  //   value: 7,
-  //   icon: <Heart className="h-5 w-5 text-pink-500" />,
-  //   color: "#ec4899",
-  //   type: "pie",
-  // },
+
 ];
 
 export default function BuyerOverviewWeekly() {

@@ -178,3 +178,40 @@ export const fetchOrderById = async (id: any) => {
     }, 1000);
   });
 };
+
+export const fetchTopService = async (id: any) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { name: "Thiết kế logo", orders: 25 },
+        { name: "Viết content SEO", orders: 18 },
+        { name: "Dịch thuật Anh-Việt", orders: 10 },
+      ]);
+    }, 1000);
+  });
+};
+
+export const fetchTopClient = async (id: any) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { name: "Nguyễn Văn A", totalSpent: 400 },
+        { name: "Trần Thị B", totalSpent: 280 },
+        { name: "Lê Văn C", totalSpent: 230 },
+      ]);
+    }, 1000);
+  });
+};
+
+export const fetchStats = async (id: any) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        totalOrders: 48,
+        activeOrders: 7,
+        earnings: 2150,
+        rating: 4.8,
+      });
+    }, 1000);
+  });
+};
