@@ -35,7 +35,7 @@ const axiosConfig = async (config: any) => {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 500));
  
     return config;
   } catch (error) {

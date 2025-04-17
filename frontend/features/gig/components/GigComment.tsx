@@ -35,11 +35,11 @@ const GigSellerResponse = ({ comment, ...props }: { comment: any }) => {
         <div>
           <div className="flex space-x-2">
             <p className="font-semibold">{username}</p>
-            {repeatClient && (
+            {/* {repeatClient && (
               <div className="flex items-center justify-center space-x-1">
                 <Repeat size={16} /> <strong>Repeat Client</strong>
               </div>
-            )}
+            )} */}
           </div>
           <p className="text-sm text-gray-500">{country}</p>
         </div>

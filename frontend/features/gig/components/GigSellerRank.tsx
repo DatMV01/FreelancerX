@@ -54,9 +54,9 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
   const [level, setLevel] = useState(FreelancerRankEnum.NEW);
 
   const [email, setEmail] = useState("email@example.ocm");
-  const [fullName, setFullName] = useState("Mockup Name");
+  const [displayName, setDisplayName] = useState("Mockup Name");
 
-  const [completedRate, setCompletedRate] = useState(0);
+  const [completedRate, setCompletedRate] = useState(5);
   const [freelancerReviewCount, setFreelancerReviewCount] = useState(0);
   const [gigReviewCount, setGigReviewCount] = useState(0);
 
@@ -65,9 +65,10 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
 
     setAvatarUrl(freelancer?.avatar);
     setLevel(freelancer?.level);
-    setFullName(freelancer?.fullName);
-    setCompletedRate(freelancer?.completedRate);
+    setDisplayName(freelancer?.displayName);
+
     setEmail(freelancer?.email);
+    setCompletedRate(freelancer?.completedRate);
     setFreelancerReviewCount(freelancer?.reviewCount);
     setGigReviewCount(gigReviewCount || 0);
   }, []);
@@ -85,7 +86,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
         target="_blank"
         rel="noopener noreferrer"
       >
-        <UserAvatar avatarUrl={avatarUrl} fullName={fullName} />
+        <UserAvatar avatarUrl={avatarUrl} fullName={displayName} />
       </Link>
 
       <div>
@@ -96,7 +97,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
             rel="noopener noreferrer"
             className="text-base font-bold hover:underline"
           >
-            {fullName}
+            {displayName}
           </Link>
 
           <UserRank rankLevel={level} />

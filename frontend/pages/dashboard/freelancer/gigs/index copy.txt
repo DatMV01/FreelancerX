@@ -25,7 +25,6 @@ import { fetchGigs } from "@/features/gig/gig.api";
 import { gigStatus, GigStatus } from "@/features/gig/gig.types";
 import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import { useFilterParams } from "@/hooks/useUrlSync ";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { fi } from "@faker-js/faker";
 
 import { CircularProgress } from "@mui/material";
@@ -124,7 +123,6 @@ const useGigs = ({
     isValidating,
     mutate,
     error,
-    key,
   };
 };
 
@@ -144,17 +142,18 @@ function FreelancerManageGigsPage() {
     useState(false);
 
   const [selectedId, setSelectedId] = useState<string>();
-
+  const [showPublishSelectedIdDialog, setShowPublishSelectedIdDialog] =
+    useState(false);
   const [showDeleteSelectedIdDialog, setShowDeleteSelectedIdDialog] =
     useState(false);
 
   const [processingId, setProcessingId] = useState<string>();
   const page = filters.page || 1;
   const limit = filters.pageSize || 10;
-  const { data, isLoading, isValidating, error, mutate, key } = useGigs({
+  const { data, isLoading, isValidating, error } = useGigs({
     page,
     limit,
-    filters: `status:${filters.status?.toUpperCase()}`,
+    filters: "staus:ACTIVE",
   });
 
   // const { data, isLoading, isValidating, error } = useSWR(
@@ -277,150 +276,56 @@ function FreelancerManageGigsPage() {
     }
   };
 
-  const handleDeleteSelectedIds = async () => {
-    // setDeletingRows(selectedRows);
-    // setShowDeleteSelectedIdsDialog(false);
-
-    // setTimeout(() => {
-    //   if (typeof setGigs === "function") {
-    //     setGigs((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
-    //   }
-    //   setSelectedRows([]);
-    //   setDeletingRows([]);
-    // }, 1000);
-
+  const handleDeleteSelectedIds = () => {
     setDeletingRows(selectedRows);
     setShowDeleteSelectedIdsDialog(false);
 
-    const results = await Promise.all(selectedRows.map(deleteGig));
-    const success = results.every((result) => result === true);
-
-    debugger;
-    if (success) {
-      setGigs((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
-
-      toast.success("handleDeleteSelectedIds", {
-        description: "Thông tin đơn hàng đã được cập nhật.",
-        duration: 3000,
-      });
-    } else {
-      toast.error("handleDeleteSelectedIds", {
-        description: "Có lỗi xảy ra khi xóa dịch vụ.",
-        duration: 3000,
-      });
-    }
-    if (success) {
-    }
-    setSelectedRows([]);
-    setDeletingRows([]);
+    setTimeout(() => {
+      if (typeof setGigs === "function") {
+        setGigs((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
+      }
+      setSelectedRows([]);
+      setDeletingRows([]);
+    }, 1000);
   };
 
-  const handleDeleteSelectedId = async () => {
-    // setProcessingId(selectedId || "");
-    // setShowDeleteSelectedIdDialog(false);
-
-    // setTimeout(() => {
-    //   if (typeof setGigs === "function") {
-    //     setGigs((prev) => prev.filter((o) => o.id !== selectedId));
-    //   }
-
-    //   toast.success("handleDeleteSelectedId", {
-    //     description: "Thông tin đơn hàng đã được cập nhật.",
-    //     duration: 3000,
-    //   });
-
-    //   setSelectedId(undefined);
-    //   setProcessingId(undefined);
-    // }, 1000);
-
+  const handleDeleteSelectedId = () => {
     setProcessingId(selectedId || "");
     setShowDeleteSelectedIdDialog(false);
 
-    const success = await deleteGig(selectedId || "");
-
-    if (success) {
-      setGigs((prev) => prev.filter((o) => o.id !== selectedId));
+    setTimeout(() => {
+      if (typeof setGigs === "function") {
+        setGigs((prev) => prev.filter((o) => o.id !== selectedId));
+      }
 
       toast.success("handleDeleteSelectedId", {
         description: "Thông tin đơn hàng đã được cập nhật.",
         duration: 3000,
       });
-    }
 
-    setSelectedId(undefined);
-    setProcessingId(undefined);
+      setSelectedId(undefined);
+      setProcessingId(undefined);
+    }, 1000);
   };
 
-  const deleteGig = async (gigId: string) => {
-    debugger;
-    try {
-      const response = await axiosInstanceV1.delete(`gig/${gigId}`);
-      if (response.status === 200) {
-        return true;
+  const handlePublishService = () => {
+    setProcessingId(selectedId || "");
+    setShowPublishSelectedIdDialog(false);
+
+    setTimeout(() => {
+      if (typeof setGigs === "function") {
+        setGigs((prev) => prev.filter((o) => o.id !== selectedId));
       }
-      throw new Error(`Failed to delete gig with ID: ${gigId}`);
-    } catch (error) {
-      console.error(error);
-      alert(`Error deleting gig ${gigId}: ${error}`);
-      return false;
-    }
+
+      toast.success("handlePublishService", {
+        description: "Thông tin đơn hàng đã được cập nhật.",
+        duration: 3000,
+      });
+
+      setSelectedId(undefined);
+      setProcessingId(undefined);
+    }, 1000);
   };
-
-  const [showPauseSelectedIdDialog, setShowPauseSelectedIdDialog] =
-    useState(false);
-  const handlePauseService = async () => {
-    setProcessingId(selectedId || "");
-    setShowPauseSelectedIdDialog(false);
-
-    const response = await axiosInstanceV1.patch(`/gig/${selectedId}`, {
-      status: GigStatus.PAUSED,
-    });
-
-    if (response.status === 200) {
-      setGigs((prev) => prev.filter((o) => o.id !== selectedId));
-    }
-
-    setSelectedId(undefined);
-    setProcessingId(undefined);
-  };
-
-  const [showActiveSelectedIdDialog, setShowActiveSelectedIdDialog] =
-    useState(false);
-  const handleActiveService = async () => {
-    setProcessingId(selectedId || "");
-    setShowActiveSelectedIdDialog(false);
-
-    const response = await axiosInstanceV1.patch(`/gig/${selectedId}`, {
-      status: GigStatus.ACTIVE,
-    });
-
-    if (response.status === 200) {
-      setGigs((prev) => prev.filter((o) => o.id !== selectedId));
-    }
-
-    setSelectedId(undefined);
-    setProcessingId(undefined);
-  };
-
-  // const [
-  //   showSubmitForApprovalSelectedIdDialog,
-  //   setShowSubmitForApprovalSelectedIdDialog,
-  // ] = useState(false);
-  // const handleSubmitForApprovalService = async () => {
-  //   setProcessingId(selectedId || "");
-  //   setShowSubmitForApprovalSelectedIdDialog(false);
-
-  //   const response = await axiosInstanceV1.patch(`/gig/${selectedId}`, {
-  //     status: GigStatus.PENDING_APPROVAL,
-  //   });
-
-  //   if (response.status === 200) {
-  //     setGigs((prev) => prev.filter((o) => o.id !== selectedId));
-  //   }
-
-  //   setSelectedId(undefined);
-  //   setProcessingId(undefined);
-  // };
 
   const handleExportCSV = () => {
     const data = gigs.map((_) => {
@@ -680,7 +585,7 @@ function FreelancerManageGigsPage() {
                     <TableCell colSpan={9} className="bg-gray-50">
                       <div className="flex flex-wrap justify-start gap-2 pl-10">
                         <Button variant="outline" asChild>
-                          <Link href={`/gig/${_.slug}`} target="_blank">
+                          <Link href={`/gigs/${_.slug}`} target="_blank">
                             <Eye className="h-4" /> Preview
                           </Link>
                         </Button>
@@ -691,22 +596,27 @@ function FreelancerManageGigsPage() {
                               variant="outline"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setSelectedId(_.id);
-                                setShowPauseSelectedIdDialog(true);
+
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
                               }}
                             >
-                              <PauseCircle className="h-4 text-orange-500" />
+                              <PauseCircle className="h-4 text-orange-500" />{" "}
                               PAUSE
                             </Button>
-
                             <Button
                               variant="outline"
                               onClick={(e) => {
                                 e.preventDefault();
 
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
                               }}
                             >
                               <Pencil className="h-4 text-green-500" /> EDIT
@@ -721,19 +631,21 @@ function FreelancerManageGigsPage() {
                               onClick={(e) => {
                                 e.preventDefault();
                                 setSelectedId(_.id);
-                                setShowActiveSelectedIdDialog(true);
+                                setShowPublishSelectedIdDialog(true);
                               }}
                             >
-                              <Send className="h-4 text-green-500" /> Active
+                              <Send className="h-4 text-green-500" /> Pulish
                             </Button>
                             <Button
                               variant="outline"
                               onClick={(e) => {
                                 e.preventDefault();
 
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
                               }}
                             >
                               <Pencil className="h-4 text-green-500" /> EDIT
@@ -747,21 +659,26 @@ function FreelancerManageGigsPage() {
                               variant="outline"
                               onClick={(e) => {
                                 e.preventDefault();
-                                setSelectedId(_.id);
-                                setShowActiveSelectedIdDialog(true);
+
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
                               }}
                             >
-                              <Send className="h-4 text-green-500" /> Active
+                              <Send className="h-4 text-green-500" /> Resume
                             </Button>
-
                             <Button
                               variant="outline"
                               onClick={(e) => {
                                 e.preventDefault();
 
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
                               }}
                             >
                               <Pencil className="h-4 text-green-500" /> EDIT
@@ -769,18 +686,41 @@ function FreelancerManageGigsPage() {
                           </>
                         )}
 
-                        <Button
-                          variant="outline"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedId(_.id);
-                            setShowDeleteSelectedIdDialog(true);
-                          }}
-                        >
-                          <Ban className="h-4 text-red-500" /> Delete
-                        </Button>
+                        {_.status == GigStatus.REJECTED && (
+                          <>
+                            <Button
+                              variant="outline"
+                              onClick={(e) => {
+                                e.preventDefault();
 
-                        {/* {_.status !== GigStatus.PENDING_APPROVAL && (
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
+                              }}
+                            >
+                              <Send className="h-4 text-green-500" /> Submit for
+                              approval
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={(e) => {
+                                e.preventDefault();
+
+                                toast.success("Đã lưu", {
+                                  description:
+                                    "Thông tin đơn hàng đã được cập nhật.",
+                                  duration: 3000,
+                                });
+                              }}
+                            >
+                              <Pencil className="h-4 text-green-500" /> EDIT
+                            </Button>
+                          </>
+                        )}
+
+                        {_.status !== GigStatus.PENDING_APPROVAL && (
                           <Button
                             variant="outline"
                             onClick={(e) => {
@@ -791,36 +731,7 @@ function FreelancerManageGigsPage() {
                           >
                             <Ban className="h-4 text-red-500" /> Delete
                           </Button>
-                        )} */}
-
-                        {/* {_.status == GigStatus.REJECTED && (
-                          <>
-                            <Button
-                              variant="outline"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setSelectedId(_.id);
-                                setShowSubmitForApprovalSelectedIdDialog(true);
-                              }}
-                            >
-                              <Send className="h-4 text-green-500" /> Submit for
-                              approval
-                            </Button>
-
-                            <Button
-                              variant="outline"
-                              onClick={(e) => {
-                                e.preventDefault();
-
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
-                              }}
-                            >
-                              <Pencil className="h-4 text-green-500" /> EDIT
-                            </Button>
-                          </>
-                        )} */}
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -949,50 +860,25 @@ function FreelancerManageGigsPage() {
       </Dialog>
 
       <Dialog
-        open={showPauseSelectedIdDialog}
-        onOpenChange={setShowPauseSelectedIdDialog}
+        open={showPublishSelectedIdDialog}
+        onOpenChange={setShowPublishSelectedIdDialog}
       >
         <DialogContent>
           <DialogHeader>
-            Are you sure you want to pause this service?
+            Are you sure you want this service publish?
           </DialogHeader>
           <DialogFooter className="mt-4">
             <Button
               variant="outline"
-              onClick={() => setShowPauseSelectedIdDialog(false)}
+              onClick={() => setShowPublishSelectedIdDialog(false)}
             >
               Cancel
             </Button>
             <button
               className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
-              onClick={handlePauseService}
+              onClick={handlePublishService}
             >
-              Confirm Pause
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog
-        open={showActiveSelectedIdDialog}
-        onOpenChange={setShowActiveSelectedIdDialog}
-      >
-        <DialogContent>
-          <DialogHeader>
-            Are you sure you want to active this service?
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowActiveSelectedIdDialog(false)}
-            >
-              Cancel
-            </Button>
-            <button
-              className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
-              onClick={handleActiveService}
-            >
-              Confirm Active
+              Confirm Publish
             </button>
           </DialogFooter>
         </DialogContent>

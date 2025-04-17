@@ -75,7 +75,7 @@ export interface Freelancer {
   bio: string;
   avatar: string;
   phone: string;
-  fullName: string;
+  displayName: string;
   freelancersLanguages: FreelancerLanguage[];
   freelancersSkills: FreelancerSkill[];
   reviewCount: number;

@@ -3,13 +3,27 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
 const API_URL = "/gig";
 
-export const getGigs = async (): Promise<GigDto[]> => {
+export const fetchGigs = async ({
+  page = 1,
+  limit = 10,
+  filters = "",
+}: {
+  page: number;
+  limit: number;
+  filters: string;
+}): Promise<any> => {
   try {
-    const response = await axiosInstanceV1.get(API_URL);
+    const response = await axiosInstanceV1.get(API_URL, {
+      params: {
+        page,
+        limit,
+        filters,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching gigs:", error);
-    throw error;
+   throw error;
   }
 };
 

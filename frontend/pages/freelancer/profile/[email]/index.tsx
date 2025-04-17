@@ -145,11 +145,10 @@ const FreelancerProfile = () => {
             <CardContent className="flex flex-col items-center md:flex-row md:items-start">
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative h-32 w-32 overflow-hidden rounded-full border border-gray-200">
-                  <Image
+                  <img
                     src={freelancer.avatar}
                     alt={freelancer.email}
-                    layout="fill"
-                    objectFit="cover"
+  
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>

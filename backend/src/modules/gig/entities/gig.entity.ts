@@ -150,20 +150,14 @@ export class GigEntity extends BaseEntity {
   /* Overview */
 
   /* Pricing */
-  // @AutoMap()
-  // @Index()
-  // @Column({ type: 'bigint' })
-  // basicPrice: number;
+  @AutoMap()
+  basicPrice: number;
 
-  // @AutoMap()
-  // @Index()
-  // @Column({ type: 'bigint' })
-  // standardPrice: number;
+  @AutoMap()
+  standardPrice: number;
 
-  // @AutoMap()
-  // @Index()
-  // @Column({ type: 'bigint' })
-  // premiumPrice: number;
+  @AutoMap()
+  premiumPrice: number;
 
   @AutoMap(() => [PackageEntity])
   @OneToMany(() => PackageEntity, (pkg) => pkg.gig, {
@@ -232,6 +226,10 @@ export class GigEntity extends BaseEntity {
   ratingCount: number;
 
   @AutoMap()
+  @Column({ type: 'int', default: 0 })
+  viewCount: number;
+
+  @AutoMap()
   userId: string;
 
   @AutoMap(() => Requirement)
@@ -269,6 +267,12 @@ export class GigEntity extends BaseEntity {
     if (this.subCategory) this.subCategoryId = this.subCategory?.id ?? null;
     if (this.nestedSubcategory)
       this.nestedSubcategoryId = this.nestedSubcategory?.id ?? null;
+    this.basicPrice =
+      this.packages.find((pkg) => pkg.type === 'basic')?.price ?? 0;
+    this.standardPrice =
+      this.packages.find((pkg) => pkg.type === 'standard')?.price ?? 0;
+    this.premiumPrice =
+      this.packages.find((pkg) => pkg.type === 'premium')?.price ?? 0;
   }
 
   updateAllCategory() {

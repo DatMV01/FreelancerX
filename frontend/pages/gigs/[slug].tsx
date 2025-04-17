@@ -23,13 +23,9 @@ import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
 import {
   CheckCircle,
   Clock,
-  DollarSign,
   Heart,
   Loader2,
-  Pencil,
-  RefreshCw,
-  Truck,
-  X,
+  RefreshCw
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -181,8 +177,6 @@ const PackageSideBar = ({
 const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
 
-  const router = useRouter();
-
   const [value, setValue] = useState(0);
   const [isFavorite, setFavorite] = useState(false);
   const user = useAppSelector(selectUser);
@@ -240,15 +234,8 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
       {gig?.freelancer?.email === user?.email && (
         <div className="my-2 flex justify-end">
-          <Button
-            variant="outline"
-            onClick={(e) => {
-              e.preventDefault();
-
-              router.push(`/dashboard/freelancer/gigs/edit/?id=${gig.id}`);
-            }}
-          >
-            <Pencil className="h-4 text-green-500" /> Edit
+          <Button asChild>
+            <Link href={`/gig/edit/${gig.slug}`}>Edit Gig</Link>
           </Button>
         </div>
       )}
@@ -382,13 +369,12 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigDescription gig={gig} />
 
-      {/* <GigMetaData /> */}
-
+      {false && <GigMetaData />}
       <GigSellerOverview gig={gig} />
 
-      {/* <GigSellerPortfolio /> */}
+      {true && <GigSellerPortfolio />}
 
-      {/* <GigComparePackage gig={gig} /> */}
+      <GigComparePackage gig={gig} />
 
       <GigComparePackage2 gig={gig} />
 

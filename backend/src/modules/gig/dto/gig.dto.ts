@@ -167,6 +167,9 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   orderCount: number;
 
+  @AutoMap()
+  viewCount: number;
+
   @AutoMap(() => FreelancerDto)
   freelancer?: FreelancerDto | undefined;
 

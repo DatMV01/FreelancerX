@@ -5,6 +5,7 @@ import {
   Between,
   DeepPartial,
   FindManyOptions,
+  FindOneOptions,
   In,
   Repository,
   SelectQueryBuilder,
@@ -71,13 +72,18 @@ export class GigService extends BaseService<GigEntity> {
       data.tags = await this.createTags(data.tags);
     }
 
-    const updateEntity = {
+    const updateEntity: GigEntity = {
       ...gigEntity,
       category: undefined,
       subCategory: undefined,
       nestedSubcategory: undefined,
       ...data,
-    };
+      ratingCount: gigEntity.ratingCount,
+      viewCount: gigEntity.viewCount,
+      orderCount: gigEntity.orderCount,
+      freelancer: gigEntity.freelancer,
+      users: gigEntity.users,
+    } as any;
 
     const save = await super.create(updateEntity);
 
@@ -106,32 +112,40 @@ export class GigService extends BaseService<GigEntity> {
     return allTags;
   }
 
-  protected modifyOptions(
-    options: FindManyOptions<GigEntity>,
-    currentUser?: JwtAccessPayloadType,
-  ): FindManyOptions<GigEntity> {
-    const { where, ...anotherOptions } = options as any;
-    const { day_range, ...anotherWheres } = where;
+  // protected modifyOptions(
+  //   options: FindManyOptions<GigEntity>,
+  //   currentUser?: JwtAccessPayloadType,
+  // ): FindManyOptions<GigEntity> {
+  //   const { where, ...anotherOptions } = options as any;
+  //   const { day_range, ...anotherWheres } = where;
 
-    let whereOptions;
-    if (!Number.isNaN(Number.parseInt(day_range))) {
-      const now = new Date();
-      const manyDaysAgo = new Date();
-      manyDaysAgo.setDate(manyDaysAgo.getDate() - Number(day_range));
+  //   let whereOptions;
+  //   if (!Number.isNaN(Number.parseInt(day_range))) {
+  //     const now = new Date();
+  //     const manyDaysAgo = new Date();
+  //     manyDaysAgo.setDate(manyDaysAgo.getDate() - Number(day_range));
 
-      whereOptions = {
-        ...anotherWheres,
-        updatedAt: Between(manyDaysAgo, now),
-      };
-    } else if (day_range === 'All') {
-      whereOptions = anotherWheres;
-    }
+  //     whereOptions = {
+  //       ...anotherWheres,
+  //       updatedAt: Between(manyDaysAgo, now),
+  //     };
+  //   } else if (day_range === 'All') {
+  //     whereOptions = anotherWheres;
+  //   }
 
-    const finalOptions = {
-      ...anotherOptions,
-      where: whereOptions,
-    };
-    return finalOptions;
+  //   const finalOptions = {
+  //     ...anotherOptions,
+  //     where: whereOptions,
+  //   };
+  //   return finalOptions;
+  // }
+
+  async findOneBySlug(options: FindOneOptions<GigEntity>): Promise<GigEntity> {
+    const entity = await this.findOne(options);
+
+    entity.viewCount = entity.viewCount + 1;
+    this._repository.save(entity);
+    return entity;
   }
 
   protected additionalQuery(

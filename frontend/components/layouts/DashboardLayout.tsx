@@ -198,21 +198,18 @@ export const navItems = [
   ...adminNavItems,
 ];
 
-export const SidebarNav = ({
-  userRole,
-  onNavigate,
-}: {
-  userRole: string;
-  onNavigate?: () => void;
-}) => {
+export const SidebarNav = ({ onNavigate }: { onNavigate?: () => void }) => {
   const pathname = usePathname();
+  let userRole = "buyer";
+  if (pathname.includes("freelancer")) userRole = "freelancer";
+  if (pathname.includes("admin")) userRole = "admin";
 
   return (
     <nav className="space-y-2">
       {navItems.map((item) => {
         if (!item.roles.includes(userRole)) return null;
 
-        const isActive = pathname === item.href;
+        const isActive = pathname.includes(item.href);
         return (
           <Link key={item.href} href={item.href}>
             <div
@@ -271,8 +268,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const userRole = user?.role?.name.toLocaleLowerCase() ?? "buyer";
 
+  const pathname = usePathname();
+
   return (
-    <div className="bg-muted/40 mx-auto flex min-h-screen max-w-[1400px] flex-col">
+    <div className="bg-muted/40 mx-auto flex min-h-screen max-w-screen flex-col">
       {/* Header / Topbar */}
       <header className="flex h-16 items-center justify-between border-b bg-white px-4">
         {/* Left: Mobile Menu Button + Logo */}
@@ -284,10 +283,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] p-4">
-              <SidebarNav
-                userRole={userRole}
-                onNavigate={() => setSheetOpen(false)}
-              />
+              <SidebarNav onNavigate={() => setSheetOpen(false)} />
             </SheetContent>
           </Sheet>
           <div className="flex items-center space-x-2 font-bold">
@@ -312,9 +308,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Sidebar (desktop only) */}
         <aside className="hidden w-[300px] shrink-0 border-r bg-white p-4 lg:block">
           <div className="rounded-lg border p-3 text-center font-bold">
-            {userRole === "buyer" && "Buyer Dashboard"}
-            {userRole === "freelancer" && "Freelancer Dashboard"}
-            {userRole === "admin" && "Admin Dashboard"}
+            {pathname.includes("buyer") && "Buyer Dashboard"}
+            {pathname.includes("freelancer") && "Freelancer Dashboard"}
+            {pathname.includes("admin") && "Admin Dashboard"}
           </div>
 
           <div className="my-2 flex items-center space-x-2">
@@ -325,7 +321,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
           </div>
 
-          <SidebarNav userRole={userRole} />
+          <SidebarNav />
         </aside>
 
         {/* Main Content */}
