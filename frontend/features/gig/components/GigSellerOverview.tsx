@@ -2,6 +2,8 @@ import { GigDto } from "@/dto/dto.type.";
 import { Badge, Divider } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import GigSellerRank from "./GigSellerRank";
+import useSWR from "swr";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
 // "freelancer": {
 //   "createdAt": "Fri, 04 Apr 2025 12:58:29 GMT",
@@ -48,37 +50,54 @@ import GigSellerRank from "./GigSellerRank";
 
 const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
   const [country, setCountry] = useState("");
-
   const [memberSince, setMemberSince] = useState("");
-
   const [languages, setLanguages] = useState<
     { name: string; proficiency: string }[]
   >([]);
-
   const [bio, setBio] = useState("");
 
-  const [responseTime, setResponseTime] = useState(0);
+  const { freelancer } = gig;
+
+  const { data, error, isLoading } = useSWR(
+    `/freelancer/profile/${freelancer.email}`,
+    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  );
 
   useEffect(() => {
-    const { freelancer } = gig;
+    // const { freelancer } = gig;
 
-    const date = new Date(freelancer.createdAt);
-    setMemberSince(
-      `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`,
-    );
+    // const date = new Date(freelancer.createdAt);
+    // setMemberSince(
+    //   `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`,
+    // );
 
-    setLanguages(freelancer?.freelancersLanguages);
+    // setLanguages(freelancer?.freelancersLanguages);
 
-    setBio(freelancer?.bio);
+    // setBio(freelancer?.bio);
 
-    setCountry(freelancer?.country);
+    // setCountry(freelancer?.country);
 
-    setResponseTime(freelancer?.responseTime);
-  }, []);
+    // setResponseTime(freelancer?.responseTime);
+
+    if (data) {
+      console.log("data", data);
+
+      const date = new Date(data.createdAt);
+      setMemberSince(
+        `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`,
+      );
+
+      setLanguages(data?.freelancersLanguages);
+
+      setBio(data?.bio);
+
+      setCountry(data?.country);
+    }
+  }, [data]);
 
   return (
     <div>
-      <div className="w-full space-y-6 rounded-lg border bg-white p-6 shadow-xs">
+      <div className="my-4 w-full space-y-6 rounded-sm border p-4">
         <GigSellerRank gig={gig} />
 
         <div className="grid grid-cols-2 gap-4 text-sm text-gray-800">
@@ -108,10 +127,6 @@ const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
           <p className="text-wrap">{bio}</p>
         </div>
       </div>
-
-      {/* <div className="mt-4 hidden md:flex">
-        <div className="text-gray-700">{about}</div>
-      </div>  */}
     </div>
   );
 };

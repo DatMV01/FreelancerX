@@ -463,8 +463,8 @@ const GigDetail = () => {
             <SideBarContent gig={gig} />
           </div>
 
-          {false && <ServiceAlsoViewed />}
-          {false && <BrowsingHistory />}
+          {/* <ServiceAlsoViewed /> */}
+          {/* <BrowsingHistory /> */}
         </>
       )}
     </div>

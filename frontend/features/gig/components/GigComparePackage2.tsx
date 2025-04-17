@@ -1,5 +1,11 @@
 import { GigDto, GigPackage } from "@/dto/dto.type.";
-import { CheckCircle, Clock, DollarSign, RefreshCw, Truck, X } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  DollarSign,
+  RefreshCw,
+  X
+} from "lucide-react";
 
 const GigComparePackage2 = ({ gig }: { gig: GigDto }) => {
   const orderedTypes = ["basic", "standard", "premium"];
@@ -30,8 +36,8 @@ const GigComparePackage2 = ({ gig }: { gig: GigDto }) => {
   };
 
   return (
-    <div className="overflow-auto rounded-xl border border-gray-200 shadow-md">
-      <table className="min-w-full table-fixed border border-gray-300 text-sm">
+    <div id="compare-packages" className="w-full rounded-sm border">
+      <table className="min-w-full table-fixed text-sm">
         <thead className="bg-gray-100 text-gray-700">
           <tr>
             <th className="px-4 py-2">Features</th>
@@ -103,5 +109,4 @@ const GigComparePackage2 = ({ gig }: { gig: GigDto }) => {
   );
 };
 
-
-export default GigComparePackage2
+export default GigComparePackage2;

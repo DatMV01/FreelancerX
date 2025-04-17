@@ -1,9 +1,11 @@
 import { FreelancerRankEnum, GigDto } from "@/dto/dto.type.";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import UserRank from "@/features/user/components/UserRank";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { Rating } from "@mui/material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 
 // "freelancer": {
 //         "createdAt": "Fri, 04 Apr 2025 12:58:29 GMT",
@@ -60,16 +62,37 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
   const [freelancerReviewCount, setFreelancerReviewCount] = useState(0);
   const [gigReviewCount, setGigReviewCount] = useState(0);
 
+  const { freelancer } = gig;
+  const { data, error, isLoading } = useSWR(
+    `/freelancer/profile/${freelancer.email}`,
+    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  );
+
+  useEffect(() => {
+    if (data) {
+      console.log("data", data);
+
+      setAvatarUrl(data?.avatar);
+      setLevel(data?.level);
+      setDisplayName(data?.displayName);
+
+      setEmail(data?.email);
+      setCompletedRate(data?.completedRate);
+      setFreelancerReviewCount(data?.reviewCount);
+    }
+  }, [data]);
+
   useEffect(() => {
     const { freelancer, reviewCount: gigReviewCount } = gig;
 
-    setAvatarUrl(freelancer?.avatar);
-    setLevel(freelancer?.level);
-    setDisplayName(freelancer?.displayName);
+    //   setAvatarUrl(freelancer?.avatar);
+    // setLevel(freelancer?.level);
+    // setDisplayName(freelancer?.displayName);
 
-    setEmail(freelancer?.email);
-    setCompletedRate(freelancer?.completedRate);
-    setFreelancerReviewCount(freelancer?.reviewCount);
+    // setEmail(freelancer?.email);
+    // setCompletedRate(freelancer?.completedRate);
+    // setFreelancerReviewCount(freelancer?.reviewCount);
+
     setGigReviewCount(gigReviewCount || 0);
   }, []);
 
