@@ -7,6 +7,7 @@ import { TransactionEntity } from 'src/modules/transaction/entities/transaction.
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { OrderStatus } from '../entities/order.entity';
 import { OrderLogEntity } from '../entities/orderLog.entity';
+import { OrderQuestionsAnswersEntity } from '../entities/orderQA.entity';
 
 export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()
@@ -36,13 +37,13 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()
   note: string;
 
-  @AutoMap() 
+  @AutoMap()
   snapshot: any;
 
-  @AutoMap() 
+  @AutoMap()
   price: number;
 
-  @AutoMap() 
+  @AutoMap()
   quantity: number;
 
   @AutoMap()
@@ -70,6 +71,9 @@ export class OrderDto extends BaseDto<OrderDto> {
 
   @AutoMap(() => [OrderLogEntity])
   logs: OrderLogEntity[];
+
+  @AutoMap(() => [OrderQuestionsAnswersEntity])
+  orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
 
   @AutoMap(() => [GigReviewEntity])
   review: GigReviewEntity;

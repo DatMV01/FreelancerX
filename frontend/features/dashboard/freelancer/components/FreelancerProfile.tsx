@@ -8,13 +8,15 @@ import { skills } from "@/data/skill";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   refetchMeAsync,
+  selectFreelancer,
   signUpAsFreelancer,
   updateFreelancerProfile,
 } from "@/lib/redux/features/auth/authSlice";
-import { useAppDispatch } from "@/lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge, CircularProgress } from "@mui/material";
 import { X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { Controller, set, useFieldArray, useForm } from "react-hook-form";
@@ -22,15 +24,7 @@ import { z } from "zod";
 
 type SkillAndLanguage = { id: number; name: string; proficiency: string };
 
-type FormData = {
-  fullName: string;
-  phone: string;
-  bio: string;
-  avatar?: string;
-  country: string;
-  languages: SkillAndLanguage[];
-  skills: SkillAndLanguage[];
-};
+type FormData = z.infer<typeof formSchema>;
 
 const availableSkillsData: Omit<SkillAndLanguage, "proficiency">[] = skills;
 const availableLanguagesData: Omit<SkillAndLanguage, "proficiency">[] =
@@ -39,7 +33,10 @@ const availableCountriesData = countries;
 
 const formSchema = z.object({
   id: z.string().optional(),
-  fullName: z.string().min(3, "Full Name must be at least 3 characters long"),
+  email: z.string().optional(),
+  displayName: z
+    .string()
+    .min(3, "Full Name must be at least 3 characters long"),
   phone: z.string().regex(/^[0-9]{10,15}$/, "Invalid phone number"),
   bio: z.string().min(10, "Bio must be at least 10 characters long"),
   country: z.string().min(1, "Country must be selected"),
@@ -75,7 +72,8 @@ export default function FreelancerSignupForm() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: "",
+      email: "",
+      displayName: "",
       phone: "",
       bio: "",
       avatar: "",
@@ -104,6 +102,8 @@ export default function FreelancerSignupForm() {
     name: "languages",
   });
 
+  const { data: session, update } = useSession();
+
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [skillInput, setSkillInput] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -116,17 +116,20 @@ export default function FreelancerSignupForm() {
     type: "success" | "errror";
     message: string;
   }>();
+  const _freelancer = useAppSelector(selectFreelancer);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   useEffect(() => {
     async function fetchFreelancerData() {
-      const { email } = router.query;
-      if (!email) return;
+      setLoading(true);
+
+      // const { email } = router.query;
+      // if (!email) return;
 
       try {
         const response = await axiosInstanceV1.get(
-          `/freelancer/profile/${email}`,
+          `/freelancer/profile/${_freelancer?.email}`,
         );
 
         const data = response.data;
@@ -147,8 +150,8 @@ export default function FreelancerSignupForm() {
       }
     }
 
-    fetchFreelancerData();
-  }, [router.query, reset]);
+    _freelancer && fetchFreelancerData();
+  }, [router.query, reset, _freelancer]);
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -250,7 +253,7 @@ export default function FreelancerSignupForm() {
     console.log("Form Data Submitted:", values);
 
     if (avatarFile) {
-      const newFileName = `avatar___${avatarFile.name}`;
+      const newFileName = `avatar___${avatarFile.name.replaceAll(" ", "_")}`;
       const newFile = new File([avatarFile], newFileName, {
         type: avatarFile.type,
       });
@@ -284,21 +287,25 @@ export default function FreelancerSignupForm() {
 
       setMessage({
         type: "success",
-        message: "Submit edit freelancer profile successfully !",
+        message: "Update profile successfully!",
       });
 
-      setCountdown(5);
+      await update({
+        isUpdate: true,
+      });
 
-      const countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev === 1) {
-            clearInterval(countdownInterval);
-            router.push(`/freelancer/profile/${data.email}`);
-            return null;
-          }
-          return prev! - 1;
-        });
-      }, 1000);
+      // setCountdown(5);
+
+      // const countdownInterval = setInterval(() => {
+      //   setCountdown((prev) => {
+      //     if (prev === 1) {
+      //       clearInterval(countdownInterval);
+      //       router.push(`/freelancer/profile/${data.email}`);
+      //       return null;
+      //     }
+      //     return prev! - 1;
+      //   });
+      // }, 1000);
     } catch (err) {
       setMessage({
         type: "errror",
@@ -360,14 +367,14 @@ export default function FreelancerSignupForm() {
               </div>
               <div className="col-span-7">
                 <Controller
-                  name="fullName"
+                  name="displayName"
                   control={control}
                   render={({ field }) => (
                     <Input {...field} placeholder="Full Name" required />
                   )}
                 />
-                {errors.fullName && (
-                  <p className="text-red-500">{errors.fullName.message}</p>
+                {errors.displayName && (
+                  <p className="text-red-500">{errors.displayName.message}</p>
                 )}
               </div>
               {/* Phone Number */}
@@ -649,7 +656,7 @@ export default function FreelancerSignupForm() {
                 )}
               </div>
 
-              <div className="col-span-3">
+              {/* <div className="col-span-3">
                 <label className="text-gray-700">Socials</label>
               </div>
               <div className="col-span-7">
@@ -666,7 +673,7 @@ export default function FreelancerSignupForm() {
                     <Label htmlFor="telegram">Telegram</Label>
                     <Input id="telegram" placeholder="https://t.me/username" />
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="linkedin">LinkedIn</Label>
                     <Input
@@ -675,7 +682,8 @@ export default function FreelancerSignupForm() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
+
               {/* Submit Button */}
               <div className="col-span-10 flex justify-center">
                 {/* ✅ Submit Button */}
@@ -684,7 +692,7 @@ export default function FreelancerSignupForm() {
                   className="rounded-md"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Processing..." : "Submit Request"}
+                  {isSubmitting ? "Processing..." : "Update Profile"}
                 </Button>
               </div>
             </form>
@@ -695,6 +703,20 @@ export default function FreelancerSignupForm() {
                 className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
               >
                 {message.message}
+
+                {message?.message === "Update profile successfully!" && (
+                  <div>
+                    <a
+                      href={`/freelancer/profile/${watch("email")}`}
+                      className="font-semibold text-green-600"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Click here&nbsp;
+                    </a>
+                    to review your profile.
+                  </div>
+                )}
               </p>
             )}
 

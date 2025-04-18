@@ -17,7 +17,13 @@ import { GigEntity } from '../gig/entities/gig.entity';
 import { GigService } from '../gig/gig.service';
 import { consoleError } from 'src/utils/common';
 import { TransactionStripeEntity } from '../transaction/entities/transactionStripe.entity';
-import { OrderAction, OrderActor, OrderLogEntity } from './entities/orderLog.entity';
+import {
+  OrderAction,
+  OrderActor,
+  OrderLogEntity,
+} from './entities/orderLog.entity';
+import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -36,6 +42,9 @@ export class OrderService extends BaseService<OrderEntity> {
 
     @InjectRepository(OrderLogEntity)
     private readonly orderLogRepo: Repository<OrderLogEntity>,
+
+    @InjectRepository(OrderQuestionsAnswersEntity)
+    private readonly orderQuestionsAnswersEntityRepo: Repository<OrderQuestionsAnswersEntity>,
 
     private stripeService: StripeService,
   ) {
@@ -148,6 +157,22 @@ export class OrderService extends BaseService<OrderEntity> {
       clientSecret: saveTransactionStripe.clientSecret,
       paymentIntentId: saveTransactionStripe.paymentIntentId,
     } as any;
+  }
+
+  async addQuestionsAnswersToOrder(
+    data: OrderQuestionsAnswersEntity,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<OrderQuestionsAnswersEntity> {
+    const { orderId, question, answer, file } = data;
+
+    const order = await super.findOneById(orderId);
+
+    const createQuestionAnswer = this.orderQuestionsAnswersEntityRepo.create({
+      ...data,
+      order,
+    });
+
+    return this.orderQuestionsAnswersEntityRepo.save(createQuestionAnswer);
   }
 
   getExpectedDate(deliveryTime: number): Date {

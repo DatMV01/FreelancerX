@@ -47,7 +47,7 @@ interface FreelancerSkill {
 }
 
 interface FreelancerProfile {
-  fullName: string;
+  displayName: string;
   createdAt: string;
   id: string;
   email: string;
@@ -132,15 +132,6 @@ const FreelancerProfile = () => {
     <div className="relative">
       {freelancer && (
         <div>
-          {isUser && (
-            <div className="my-2 flex justify-end">
-              <Button asChild>
-                <Link href={`/freelancer/profile/edit/${freelancer.email}`}>
-                  Edit profile
-                </Link>
-              </Button>
-            </div>
-          )}
           <Card className="rounded-lg p-6 shadow-sm">
             <CardContent className="flex flex-col items-center md:flex-row md:items-start">
               <div className="flex flex-col items-center space-y-4">
@@ -148,7 +139,6 @@ const FreelancerProfile = () => {
                   <img
                     src={freelancer.avatar}
                     alt={freelancer.email}
-  
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
@@ -182,9 +172,14 @@ const FreelancerProfile = () => {
               </div>
               <div className="w-full text-center md:ml-6 md:text-left">
                 <h2 className="text-2xl font-semibold">
-                  {freelancer.fullName}
+                  {freelancer.displayName || "Freelancer"}
                 </h2>
                 <p className="mt-1 text-sm text-gray-600">{freelancer.bio}</p>
+
+                <p className="mt-1 text-sm">
+                  <span className="font-bold">From: </span>
+                  {freelancer.country}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <UserRank rankLevel={freelancer.level} />
                 </div>
@@ -219,7 +214,7 @@ const FreelancerProfile = () => {
           {/* My gig */}
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
-              My gig ({freelancer.gigs?.length || 0})
+              My Service ({freelancer.gigs?.length || 0})
             </h3>
             <div className="mt-4 space-y-4"></div>
           </div>

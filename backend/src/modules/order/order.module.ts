@@ -15,6 +15,7 @@ import { FreelancerModule } from '../freelancer/freelancer.module';
 import { GigModule } from '../gig/gig.module';
 import { PackageEntity } from '../gig/entities/package.entity';
 import { OrderLogEntity } from './entities/orderLog.entity';
+import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OrderLogEntity } from './entities/orderLog.entity';
       TransactionEntity,
       GigEntity,
       TransactionStripeEntity,
+      OrderQuestionsAnswersEntity
     ]),
     // TransactionModule,
     StripeModule,

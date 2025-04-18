@@ -158,16 +158,41 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     id: BaseEntity['id'],
     data: DeepPartial<FreelancerEntity>,
   ): Promise<FreelancerEntity> {
+    const userEnity = await this.userService.findOne({
+      select: {
+        id: true,
+        email: true,
+        avatar: true,
+        phone: true,
+        country: true,
+        // roleId: true,
+        // role: {
+        //   id: true,
+        //   name: true,
+        // },
+      },
+      //    relations: ['role'],
+      where: { id: data.userId },
+    });
+
+    if (!userEnity) {
+      throw new NotFoundException('User not found');
+    }
+
+    const freelancerEntity = await this.findOneById(id);
+
+    const { skills, languages, level, email, avatar, phone, country } = data;
+
+    userEnity.avatar = avatar ?? userEnity.avatar;
+    userEnity.phone = phone ?? userEnity.phone;
+    userEnity.country = country ?? userEnity.country;
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       // Find the existing freelancer entity
-      const freelancerEntity = await this.findOneById(id);
-
-      const { skills, languages, level, email, avatar, phone, country } = data;
-
       await queryRunner.manager.delete(FreelancersSkills, { freelancerId: id });
       await queryRunner.manager.delete(FreelancersLanguages, {
         freelancerId: id,
@@ -217,11 +242,17 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
       await queryRunner.manager.save(createdFreelancerSkills);
       await queryRunner.manager.save(createdFreelancerLanguages);
 
+      // Update the user entity
+      await queryRunner.manager.update(UserEntity, userEnity.id, userEnity);
+
       // Commit the transaction
       await queryRunner.commitTransaction();
 
       // Return the updated freelancer entity
       const result = await super.findOneById(id);
+      result.avatar = userEnity.avatar as any;
+      result.phone = userEnity.phone as any;
+      result.country = userEnity.country as any;
       return result;
     } catch (error) {
       // Rollback the transaction in case of an error

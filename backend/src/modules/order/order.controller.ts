@@ -28,8 +28,9 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
 import { OrderService } from './order.service';
+import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
 
-@Controller('order')
+@Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
 export class OrderController extends BaseController<
   OrderEntity,
@@ -76,7 +77,7 @@ export class OrderController extends BaseController<
   }
 
   @Patch(':id')
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
   @ApiOperation({ summary: 'Update an entity' })
   @ApiParam({ name: 'id', type: String, required: false })
@@ -88,5 +89,21 @@ export class OrderController extends BaseController<
   })
   async update(id: string, data: UpdateOrderDto): Promise<OrderDto> {
     return super.update(id, data);
+  }
+
+  @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiResponse({
+    status: 201,
+    description: 'Entity created successfully',
+    type: OrderQuestionsAnswersEntity,
+  })
+  async addQuestionsAnswersToOrder(
+    @Body() data: OrderQuestionsAnswersEntity,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<OrderQuestionsAnswersEntity> {
+    return this._service.addQuestionsAnswersToOrder(data, currentUser);
   }
 }

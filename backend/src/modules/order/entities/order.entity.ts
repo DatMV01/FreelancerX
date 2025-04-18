@@ -17,6 +17,7 @@ import { AutoMap } from '@automapper/classes';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { OrderLogEntity } from './orderLog.entity';
 import { PackageEntity } from 'src/modules/gig/entities/package.entity';
+import { OrderQuestionsAnswersEntity } from './orderQA.entity';
 
 export enum OrderStatus {
   UNPAID = 'UNPAID', // 🟥 Đơn hàng chưa được thanh toán
@@ -141,6 +142,12 @@ export class OrderEntity extends BaseEntity {
   @AutoMap(() => [OrderLogEntity])
   @OneToMany(() => OrderLogEntity, (log) => log.order)
   orderlogs: OrderLogEntity[];
+
+  @AutoMap(() => [OrderQuestionsAnswersEntity])
+  @OneToMany(() => OrderQuestionsAnswersEntity, (_) => _.order, {
+    eager: true,
+  })
+  orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
 
   @AutoMap(() => [GigReviewEntity])
   @OneToOne(() => GigReviewEntity)
