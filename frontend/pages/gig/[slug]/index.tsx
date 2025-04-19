@@ -87,11 +87,11 @@ const PackageSideBar = ({
 
   const onContinueClick = async () => {
     const params = new URLSearchParams(searchParams.toString());
-
+    debugger;
     try {
       setLoading(true);
 
-      const res = await axiosInstanceV1.post("/order", {
+      const res = await axiosInstanceV1.post("/orders", {
         packageId: gigPackage.id,
         gigId: gigId,
         quantity: 1,

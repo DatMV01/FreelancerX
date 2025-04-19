@@ -15,9 +15,10 @@ interface UserDto {
   provider: string;
   fullName: string;
   country: string;
-  phoneNumber: string;
+  phone: string;
   role: RoleDto;
   status: StatusDto;
+  avatar?: string;
   freelancer?: any;
 }
 
@@ -150,16 +151,46 @@ export const authOptions: AuthOptions = {
     }) {
       if (user) {
         // Decode accessToken để lấy iat và exp từ backend
-        const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
+        // const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
 
         token = {
-          expires: user.accessExpires,
-          payload,
-          ...user,
+          // expires: user.accessExpires,
+          // payload,
+          // ...user,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          accessExpires: user.accessExpires,
+          refreshExpires: user.refreshExpires,
+          user: {
+            id: user.user.id,
+            avatar: user.user.avatar,
+            email: user.user.email,
+            provider: user.user.provider,
+            fullName: user.user.fullName,
+            country: user.user.country,
+            phone: user.user.phone,
+            role: {
+              id: user.user.role.id,
+              name: user.user.role.name,
+            },
+            status: {
+              id: user.user.status.id,
+              name: user.user.status.name,
+            },
+            freelancer: user?.user?.freelancer?.id
+              ? {
+                  id: user.user.freelancer?.id || null,
+                  level: user.user.freelancer?.level || null,
+                  displayName: user.user.freelancer?.displayName || null,
+                }
+              : null,
+          },
         } as any;
       }
 
+
       if (trigger === "update") {
+        debugger
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/me`,
@@ -178,7 +209,14 @@ export const authOptions: AuthOptions = {
 
           token = {
             ...token,
-            user: data,
+            user: {
+              ...data,
+              freelancer: {
+                id: data.freelancer?.id || null,
+                level: data.freelancer?.level || null,
+                displayName: data.freelancer?.displayName || null,
+              },
+            },
           };
         } catch (error: any) {
           const errorMessage =
@@ -188,7 +226,10 @@ export const authOptions: AuthOptions = {
         }
       }
 
-      console.log(token);
+      console.log("user", user);
+      console.log("token", token);
+      console.log("trigger", trigger);
+      console.log("session", session);
 
       const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
       if (Date.now() < token.accessExpires - refreshBuffer) {

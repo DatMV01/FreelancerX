@@ -38,7 +38,7 @@ export class OrderQuestionsAnswersEntity extends BaseEntity {
   @IsOptional()
   answer: any;
 
-  @Column({ type: 'varchar', length: 500, nullable: true })
+  @Column({ type: 'json', nullable: true })
   @IsOptional()
-  file: string;
+  file: any;
 }

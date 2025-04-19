@@ -21,7 +21,7 @@ export class FileEntity extends BaseEntity {
   @Column()
   url: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   mimeType?: string;
 
   @Column({

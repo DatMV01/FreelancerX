@@ -108,7 +108,8 @@ export class UserSeeding {
         avatar: faker.image.avatar(),
         country: faker.location.country(),
         phone: faker.phone.number(),
-        roleId: Math.floor(Math.random() * 4 + 1),
+        //roleId: Math.floor(Math.random() * 4 + 1),
+        roleId: 2,
         statusId: Math.floor(Math.random() * 5 + 1),
       });
     }

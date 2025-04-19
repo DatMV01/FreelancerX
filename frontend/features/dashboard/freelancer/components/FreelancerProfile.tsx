@@ -9,6 +9,7 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   refetchMeAsync,
   selectFreelancer,
+  selectUser,
   signUpAsFreelancer,
   updateFreelancerProfile,
 } from "@/lib/redux/features/auth/authSlice";
@@ -116,7 +117,7 @@ export default function FreelancerSignupForm() {
     type: "success" | "errror";
     message: string;
   }>();
-  const _freelancer = useAppSelector(selectFreelancer);
+  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -129,7 +130,7 @@ export default function FreelancerSignupForm() {
 
       try {
         const response = await axiosInstanceV1.get(
-          `/freelancer/profile/${_freelancer?.email}`,
+          `/freelancer/profile/${user?.email}`,
         );
 
         const data = response.data;
@@ -150,8 +151,8 @@ export default function FreelancerSignupForm() {
       }
     }
 
-    _freelancer && fetchFreelancerData();
-  }, [router.query, reset, _freelancer]);
+    user && fetchFreelancerData();
+  }, [router.query, reset, user]);
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

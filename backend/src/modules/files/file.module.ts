@@ -16,6 +16,11 @@ import { FileEntity } from './entities/file.entity';
 import { FileController } from './file.controller';
 import { FileLocalService } from './file.service';
 
+const applicationMimeTypes: string[] = [
+  'application/zip',
+  'application/x-zip-compressed',
+];
+
 const videoMimeTypes: string[] = [
   'video/mp4',
   'video/webm',
@@ -108,6 +113,7 @@ const fileFilter = (
     ...imageMimeTypes,
     ...videoMimeTypes,
     ...documentMimeTypes,
+    ...applicationMimeTypes,
   ];
   // if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
   if (!allowedMimeTypes.includes(file.mimetype)) {
@@ -146,13 +152,19 @@ const destination = (
   file: Express.Multer.File,
   callback: (error: Error | null, destination: string) => void,
 ) => {
-
-  if (!file || !file.originalname ) {
+  if (!file || !file.originalname) {
     return callback(new Error('No file or filename provided'), '');
   }
-  if (file.originalname .startsWith('avatar___')) {
+  if (file.originalname.startsWith('avatar___')) {
     if (!fs.existsSync(`./public/avatars`)) {
       fs.mkdirSync(`./public/avatars`, { recursive: true });
+    }
+
+    return callback(null, `./public/avatars`);
+  }
+  if (file.originalname.startsWith('order___')) {
+    if (!fs.existsSync(`./public/orders`)) {
+      fs.mkdirSync(`./public/orders`, { recursive: true });
     }
 
     return callback(null, `./public/avatars`);

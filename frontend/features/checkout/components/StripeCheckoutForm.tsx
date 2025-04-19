@@ -36,7 +36,7 @@ export const StripeCheckoutForm = ({
     data,
     error,
     isLoading: isFetchingOrder,
-  } = useSWR(orderId ? `/order/checkout/${orderId}` : null, (url: string) =>
+  } = useSWR(orderId ? `/orders/checkout/${orderId}` : null, (url: string) =>
     axiosInstanceV1.get(url).then((res) => res.data),
   );
 

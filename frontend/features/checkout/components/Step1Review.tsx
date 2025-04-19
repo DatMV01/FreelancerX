@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { GigDto, GigPackage } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
@@ -29,7 +31,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
   const [allFeatures, setAllFeatures] = useState<string[]>([]);
 
   const { data, error, isLoading } = useSWR(
-    orderId ? `/order/checkout/${orderId}` : null,
+    orderId ? `/orders/checkout/${orderId}` : null,
     (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
   );
 
@@ -43,25 +45,25 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
 
   useEffect(() => {
     data && setOrder(data);
-  }, [data]);
+  }, [orderId, data]);
 
   useEffect(() => {
     data2 && setGig(data2);
-  }, [data2]);
+  }, [, gigId, data2]);
 
-  if (error) {
-    setMessage({
-      type: "errror",
-      message: "Order not found",
-    });
-  }
-
-  if (error2) {
-    setMessage({
-      type: "errror",
-      message: "Gig not found",
-    });
-  }
+  useEffect(() => {
+    if (error) {
+      setMessage({
+        type: "errror",
+        message: "Order not found",
+      });
+    } else if (error2) {
+      setMessage({
+        type: "errror",
+        message: "Gig not found",
+      });
+    }
+  }, [error, error2]);
 
   // useEffect(() => {
   //   const getPackageInfo = async () => {
@@ -135,7 +137,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
           <div>
             <p className="text-xl">
               <span className="mr-2 font-semibold">OrderNo:</span>
-              {order.id}
+              {order.id.split("-")[4]}
             </p>
           </div>
 

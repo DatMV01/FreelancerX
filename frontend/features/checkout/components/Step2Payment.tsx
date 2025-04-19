@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { CheckoutButton } from "./CheckoutButton";
@@ -30,7 +32,7 @@ export default function Step2Payment({ onNext, onBack }: Props) {
 
   const [order, setOrder] = useState<any>();
   const { data, error, isLoading } = useSWR(
-    orderId ? `/order/checkout/${orderId}` : null,
+    orderId ? `/orders/checkout/${orderId}` : null,
     (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
   );
   useEffect(() => {
@@ -55,8 +57,8 @@ export default function Step2Payment({ onNext, onBack }: Props) {
               <div className="space-y-2 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <span>No:</span>
-                  <span className="text-right font-medium capitalize">
-                    {order.id}
+                  <span className="text-right font-medium">
+                    {order.id.split("-")[4]}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -113,7 +115,6 @@ export default function Step2Payment({ onNext, onBack }: Props) {
         <Button
           className="disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onNext}
- 
         >
           Continue
         </Button>

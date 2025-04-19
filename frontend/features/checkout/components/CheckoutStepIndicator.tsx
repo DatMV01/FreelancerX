@@ -9,7 +9,7 @@ type StepIndicatorProps = {
 const steps = [
   { label: "Review Order", icon: FileText },
   { label: "Cornfirm & Payment", icon: CreditCard },
-  { label: "Submit Requirement", icon: CheckCircle },
+  { label: "Submit Answer", icon: CheckCircle },
 ];
 
 export default function CheckoutStepIndicator({

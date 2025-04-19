@@ -91,7 +91,7 @@ export class OrderController extends BaseController<
     return super.update(id, data);
   }
 
-  @Post()
+  @Post('/questions-answers')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   @ApiOperation({ summary: 'Create a new entity' })

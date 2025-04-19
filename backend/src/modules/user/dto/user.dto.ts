@@ -55,7 +55,7 @@ export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
   @ApiPropertyOptional({ example: '+84901234567', nullable: true })
   // @Transform((params) => undefinedTransformer(params))
-  phoneNumber?: string;
+  phone?: string;
 
   @AutoMap(() => RoleDto)
   @Transform((params) => undefinedTransformer(params, ['id', 'name']))
