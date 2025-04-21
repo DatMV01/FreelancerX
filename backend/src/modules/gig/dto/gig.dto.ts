@@ -28,27 +28,27 @@ export class PricingPackage {
   premium: string;
 }
 
-export class Requirement {
-  @IsString()
-  @AutoMap()
-  id: string;
+// export class Requirement {
+//   @IsString()
+//   @AutoMap()
+//   id: string;
 
-  @IsString()
-  @AutoMap()
-  type: 'text' | 'file' | 'multiple_choice';
+//   @IsString()
+//   @AutoMap()
+//   type: 'text' | 'file' | 'multiple_choice';
 
-  @IsString()
-  @AutoMap()
-  question: string;
+//   @IsString()
+//   @AutoMap()
+//   question: string;
 
-  @IsOptional()
-  @AutoMap()
-  options?: string[];
+//   @IsOptional()
+//   @AutoMap()
+//   options?: string[];
 
-  @IsBoolean()
-  @AutoMap()
-  required: boolean;
-}
+//   @IsBoolean()
+//   @AutoMap()
+//   required: boolean;
+// }
 
 export class FAQ {
   @AutoMap()
@@ -144,6 +144,9 @@ export class GigDto extends BaseDto<GigDto> {
 
   /* Gallery */
 
+  @AutoMap(() => GigFileInfo)
+  thumbnail: GigFileInfo | null;
+
   @AutoMap(() => GigImages)
   images: GigImages;
 
@@ -153,16 +156,11 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap(() => GigFileInfo)
   video: GigFileInfo;
 
-  /* Gallery */
-
   @AutoMap()
   status: GigStatus;
 
-  @AutoMap(() => GigFileInfo)
-  thumbnail?: GigFileInfo | null;
-
-  @AutoMap(() => Requirement)
-  requirements?: Requirement[];
+  // @AutoMap(() => Requirement)
+  // requirements?: Requirement[];
 
   @AutoMap()
   orderCount: number;

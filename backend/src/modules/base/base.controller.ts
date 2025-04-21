@@ -87,13 +87,14 @@ export abstract class BaseController<
     @Query() query: QueryDto<Entity>,
     @CurrentUser() currentUser: any,
   ) {
-    const { page, limit, filters, sorts } = query;
+    const { page, limit, filters, sorts, fields } = query;
 
     const [results, count] = await this.baseService.findAll(
       page,
       limit,
       filters,
       sorts,
+      fields,
       currentUser,
     );
 
@@ -186,7 +187,6 @@ export abstract class BaseController<
   async remove(@Param('id') id: string) {
     return this.baseService.removeOneById(id);
   }
-
   @Delete('/hard/:id')
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Hard delete an entity' })
@@ -206,7 +206,7 @@ export abstract class BaseController<
       : this.transformToDto(entity);
   }
 
-  private transformToDto(item: Entity): Dto {
+  protected transformToDto(item: Entity): Dto {
     const mappedDto = this.mapper.map(item, this.entityType, this.dtoType);
     return this.additionalMapping(mappedDto, item);
   }

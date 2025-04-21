@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, TransformationType, Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Min } from 'class-validator';
-import { FindOptionsOrder, FindOptionsWhere } from 'typeorm';
+import { FindOptionsOrder, FindOptionsSelect, FindOptionsWhere } from 'typeorm';
 import { BaseEntity } from '../entities/base.entity';
 
 export class QueryDto<Entity extends BaseEntity> {
@@ -67,7 +67,6 @@ export class QueryDto<Entity extends BaseEntity> {
   @IsOptional()
   @ApiPropertyOptional({
     type: String,
- 
   })
   @Transform(({ value, key, obj, type, options }) => {
     if (type === TransformationType.PLAIN_TO_CLASS) {
@@ -93,4 +92,24 @@ export class QueryDto<Entity extends BaseEntity> {
     }
   })
   filters?: FindOptionsWhere<Entity>;
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: String,
+    description:
+      'Specify the fields you want to get, for example: id,name,email',
+  })
+  @Transform(({ value, type }) => {
+    if (
+      type === TransformationType.PLAIN_TO_CLASS &&
+      typeof value === 'string'
+    ) {
+      const fields = value
+        .split(',')
+        .map((f) => f.trim())
+        .filter(Boolean);
+      return fields.length > 0 ? fields : undefined;
+    }
+  })
+  fields?: (keyof Entity)[];
 }

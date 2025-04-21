@@ -495,10 +495,10 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
   protected modifyOptions(
     options: FindManyOptions<FreelancerEntity>,
     currentUser?: JwtAccessPayloadType,
-  ): FindManyOptions<FreelancerEntity> {
+  ): Promise<FindManyOptions<FreelancerEntity>> {
     if (currentUser?.role !== RoleEnum[RoleEnum.ADMIN]) {
       options.where = { ...options.where, userId: currentUser?.id };
     }
-    return options;
+    return Promise.resolve(options);
   }
 }

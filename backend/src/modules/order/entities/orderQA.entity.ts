@@ -11,7 +11,7 @@ import { OrderEntity } from './order.entity';
 import { AutoMap } from '@automapper/classes';
 import { IsOptional, IsUUID } from 'class-validator';
 
-@Entity('order_questions_answers')
+@Entity('order_questions')
 export class OrderQuestionsAnswersEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsOptional()
@@ -41,4 +41,6 @@ export class OrderQuestionsAnswersEntity extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   @IsOptional()
   file: any;
+
+  
 }

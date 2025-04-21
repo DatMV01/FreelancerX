@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
   Patch,
   Post,
+  Query,
   SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
@@ -29,6 +31,10 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
 import { OrderService } from './order.service';
 import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
+import { PageDto } from '../base/dto/pagination';
+import { QueryDto } from '../base/dto/query.dto';
+import { OrderDeliveryEntity } from './entities/orderDelivery.entity';
+import { OrderLogEntity } from './entities/orderLog.entity';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -62,7 +68,10 @@ export class OrderController extends BaseController<
     clientSecret: string;
     paymentIntentId: string;
   }> {
-    return this._service.createOrder({ ...data, buyerId: currentUser.id });
+    return this._service.createOrder(
+      { ...data, buyerId: currentUser.id },
+      currentUser,
+    );
   }
 
   @Get('/checkout/:id')
@@ -91,6 +100,50 @@ export class OrderController extends BaseController<
     return super.update(id, data);
   }
 
+  @Get('/buyer')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get all entities' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities',
+    type: PageDto<OrderEntity>,
+  })
+  async findAllBuyerOrders(
+    @Query() query: QueryDto<OrderEntity>,
+    @CurrentUser() currentUser: any,
+  ): Promise<PageDto<OrderDto>> {
+    currentUser = {
+      ...currentUser,
+      role: 'buyer',
+    };
+
+    const results = await super.findAll(query, currentUser);
+    //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
+
+    return results;
+  }
+
+  @Get('/freelancer')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get all entities' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities',
+    type: PageDto<OrderEntity>,
+  })
+  async findAllFreelancerOrders(
+    @Query() query: QueryDto<OrderEntity>,
+    @CurrentUser() currentUser: any,
+  ): Promise<PageDto<OrderDto>> {
+    currentUser = {
+      ...currentUser,
+      role: 'freelancer',
+    };
+    const results = await super.findAll(query, currentUser);
+
+    return results;
+  }
+
   @Post('/questions-answers')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
@@ -105,5 +158,56 @@ export class OrderController extends BaseController<
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderQuestionsAnswersEntity> {
     return this._service.addQuestionsAnswersToOrder(data, currentUser);
+  }
+
+  @Post('/delivery')
+  @UseGuards(AuthGuard('jwt'))
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiResponse({
+    status: 201,
+    description: 'Entity created successfully',
+    type: OrderDeliveryEntity,
+  })
+  async addDeliveryWork(
+    @Body() data: OrderDeliveryEntity,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<OrderDeliveryEntity> {
+    return this._service.addDeliveryWork(data, currentUser);
+  }
+
+  @Post('/log')
+  @UseGuards(AuthGuard('jwt'))
+  @SerializeOptions({ groups: [CREATE_GROUP] })
+  @ApiOperation({ summary: 'Create a new entity' })
+  @ApiResponse({
+    status: 201,
+    description: 'Entity created successfully',
+    type: OrderLogEntity,
+  })
+  async addLog(
+    @Body() data: OrderLogEntity,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<OrderLogEntity> {
+    return this._service.addLog(data, currentUser);
+  }
+
+  @Patch('/questions-answers/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @SerializeOptions({ groups: [UPDATE_GROUP] })
+  @ApiOperation({ summary: 'Update an entity' })
+  @ApiParam({ name: 'id', type: String, required: false })
+  @ApiBody({ type: Object, required: false })
+  @ApiResponse({ status: 200, description: 'Entity updated successfully' })
+  async updateQuestionsAnswersToOrder(
+    @Param('id') id: string | number,
+    @Body() data: OrderQuestionsAnswersEntity,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<any> {
+    if (!Object.keys(data as Record<string, any>).length) {
+      throw new BadRequestException('Update data cannot be empty');
+    }
+
+    return this._service.updateQuestionsAnswersToOrder(data, currentUser);
   }
 }

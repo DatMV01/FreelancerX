@@ -1,15 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  OrderEntity,
-  OrderStatus,
-} from 'src/modules/order/entities/order.entity';
-import {
-  OrderAction,
-  OrderActor,
-  OrderLogEntity,
-} from 'src/modules/order/entities/orderLog.entity';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { OrderLogEntity } from 'src/modules/order/entities/orderLog.entity';
+import { OrderActions, OrderStatus } from 'src/modules/order/order.enum';
 import {
   TransactionEntity,
   TransactionStatus,
@@ -188,9 +182,8 @@ export class StripeService {
 
     await this.orderLogRepo.save({
       orderId,
-      action: OrderAction.PAYMENT_CONFIRMED,
-      actor: OrderActor.SYSTEM,
-      detail: `Pay via Stripe`,
+      userId: buyerId,
+      ...OrderActions.PAY_ORDER,
     });
   }
 

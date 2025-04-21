@@ -1,13 +1,10 @@
+"use client";
+
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -17,180 +14,224 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import AdvancedSearchDialog from "@/features/order/components/AdvancedSearchDialog";
-import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
-import { OrderStatus, orderStatus } from "@/features/order/dto";
-import { fetchFreelancersOrders, fetchOrders } from "@/features/order/fakeApi";
+import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
+
+import CancelOrderDialog from "@/features/order/components/CancelOrderDialog";
+import DeliverWorkDialog from "@/features/order/components/DeliverWorkDialog";
+import { OrderDetailFreelancer } from "@/features/order/components/OrderDetailFreelancer";
+import { OrderFreelancerStatusButton } from "@/features/order/components/OrderFreelancerStatusButton";
+import StartWorkingDialog from "@/features/order/components/StartWorkingDialog";
+import { fetchFreelancerOrders } from "@/features/order/order.api";
+import { useFilterParams } from "@/hooks/useUrlSync ";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { format, formatDate } from "date-fns";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   ArrowUpDown,
   BadgeCheck,
   Ban,
   CalendarCheck,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
-  CircleArrowUp,
   Clock,
-  DollarSign,
-  Download,
+  CreditCard,
   Eye,
-  Loader2,
-  MessageSquare,
-  RotateCcw,
-  Star,
-  Tag,
-  Truck,
-  XCircle,
+  Hammer,
+  Package,
+  RefreshCw,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
+import { VisuallyHidden } from "radix-ui";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import useSWR from "swr";
+import * as XLSX from "xlsx";
 
 export const statusMap = {
+  UNPAID: {
+    label: "Unpaid",
+    color: "bg-orange-100 text-orange-800",
+    icon: <CreditCard className="text-orange-500" />,
+  },
   PENDING: {
     label: "Pending",
     color: "bg-yellow-100 text-yellow-800",
     icon: <Clock className="text-yellow-500" />,
   },
-  PAID: {
-    label: "Paid",
-    color: "bg-indigo-100 text-indigo-800",
-    icon: <DollarSign className="text-indigo-500" />,
+  ACCEPTED: {
+    label: "Accepted",
+    color: "bg-green-100 text-green-800",
+    icon: <CheckCircle className="text-green-500" />,
   },
   IN_PROGRESS: {
     label: "In Progress",
     color: "bg-blue-100 text-blue-800",
-    icon: <Loader2 className="animate-spin text-blue-500" />,
+    icon: <Hammer className="text-blue-500" />,
+  },
+  REVISION_REQUESTED: {
+    label: "Revision Requested",
+    color: "bg-purple-100 text-purple-800",
+    icon: <RefreshCw className="text-purple-500" />,
   },
   DELIVERED: {
     label: "Delivered",
-    color: "bg-green-100 text-green-800",
-    icon: <Truck className="text-green-500" />,
+    color: "bg-indigo-100 text-indigo-800",
+    icon: <Package className="text-indigo-500" />,
   },
   COMPLETED: {
     label: "Completed",
     color: "bg-emerald-100 text-emerald-800",
     icon: <BadgeCheck className="text-emerald-500" />,
   },
-  CANCELED: {
-    label: "Canceled",
+
+  CANCEL: {
+    label: "Cancel",
     color: "bg-red-100 text-red-800",
-    icon: <XCircle className="text-red-500" />,
+    icon: <Ban className="text-red-500" />,
   },
-  REFUNDED: {
-    label: "Refunded",
-    color: "bg-gray-100 text-gray-800",
-    icon: <RotateCcw className="text-gray-500" />,
-  },
+};
+
+const useOrders = ({
+  page = 1,
+  limit = 10,
+  filters = "",
+  config = {},
+}: {
+  page: number;
+  limit: number;
+  filters?: string;
+  config?: any;
+}) => {
+  const key = filters
+    ? [`/orders`, page, limit, filters]
+    : [`/orders`, page, limit];
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    key,
+    () => fetchFreelancerOrders({ page, limit, filters }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 2000,
+      refreshInterval: 0,
+      ...config,
+    },
+  );
+  return {
+    data,
+    isLoading,
+    isValidating,
+    mutate,
+    error,
+    key,
+  };
 };
 
 function FreelancerOrderPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
+  const { filters, updateFilter, resetFilters } = useFilterParams();
   const [orders, setOrders] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1"),
-  );
-  const [pageSize, setPageSize] = useState(
-    parseInt(searchParams.get("pageSize") || "10"),
-  );
-  const [goToPage, setGoToPage] = useState("1");
+
+  const [goToPage, setGoToPage] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingRows, setDeletingRows] = useState<string[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
+
+  const [selectedId, setSelectedId] = useState<string>();
+
+  const [processingId, setProcessingId] = useState<string>();
+
+  const page = filters.page || 1;
+  const limit = filters.pageSize || 10;
+
   const [detailOpen, setDetailOpen] = useState(false);
 
-  const { data, isLoading, error } = useSWR("orders", fetchFreelancersOrders, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    refreshInterval: 0,
+  // const { data, isLoading, error } = useSWR("orders", fetchFreelancersOrders, {
+  //   revalidateOnFocus: false,
+  //   revalidateOnReconnect: false,
+  //   refreshInterval: 0,
+  // });
+
+  const { data, isLoading, isValidating, error, mutate, key } = useOrders({
+    page,
+    limit,
+    filters: `status:${filters.status?.toUpperCase()}`,
   });
 
   useEffect(() => {
     if (data) {
-      setOrders(data as any);
+      setOrders(data.data as any);
     }
+
+    console.log(data, "data");
   }, [data]);
 
-  const keyword = searchParams.get("keyword") || "";
-  const status = searchParams.get("status") || "";
-  const fromDate = searchParams.get("from") || "";
-  const toDate = searchParams.get("to") || "";
-
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-
-    if (filterStatus) params.set("status", filterStatus);
-    else params.delete("status");
-
-    params.set("page", currentPage.toString());
-    params.set("pageSize", pageSize.toString());
-    params.set("keyword", searchQuery);
-
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    router.push(newUrl, undefined, { scroll: false });
-  }, [filterStatus, currentPage, pageSize, searchQuery]);
+    updateFilter({ page: 1 });
+    setGoToPage("");
+  }, [filters.status]);
 
   const filteredOrders = useMemo(() => {
+    const { keyword, status } = filters;
+
     return orders.filter((order: any) => {
-      debugger;
       console.log(order);
       const matchesKeyword = keyword
-        ? order.buyerName.toLowerCase().includes(keyword.toLowerCase()) ||
-          order.gigTitle.toLowerCase().includes(keyword.toLowerCase())
+        ? order.snapshot.gig.title.toLowerCase().includes(keyword.toLowerCase())
         : true;
 
       const matchesStatus = status ? order.status === status : true;
 
-      const matchesFromDate = fromDate
-        ? new Date(order.createdAt) >= new Date(fromDate)
-        : true;
+      // const matchesFromDate = fromDate
+      //   ? new Date(order.createdAt) >= new Date(fromDate)
+      //   : true;
 
-      const matchesToDate = toDate
-        ? new Date(order.createdAt) <= new Date(toDate)
-        : true;
+      // const matchesToDate = toDate
+      //   ? new Date(order.createdAt) <= new Date(toDate)
+      //   : true;
 
       return (
-        matchesKeyword && matchesStatus && matchesFromDate && matchesToDate
+        matchesKeyword && matchesStatus
+        //&& matchesFromDate && matchesToDate
       );
     });
-  }, [orders, keyword, status, fromDate, toDate]);
+  }, [orders, filters]);
 
-  const totalPages = Math.ceil(filteredOrders?.length / pageSize);
+  const totalPages = Math.ceil(filteredOrders?.length / filters.pageSize);
+  const currentPage = filters.page;
 
   const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage((p) => p + 1);
-  };
-
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage((p) => p - 1);
-  };
-
-  const handleGoToPage = () => {
-    const pageNum = parseInt(goToPage);
-    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
-      setCurrentPage(pageNum);
+    if (currentPage < totalPages) {
+      updateFilter({ page: currentPage + 1 });
     }
   };
 
-  const handleInputKeyDown = (e: any) => {
-    if (e.key === "Enter") handleGoToPage();
+  const handlePrev = () => {
+    if (currentPage > 1) updateFilter({ page: currentPage - 1 });
   };
 
+  const handleGoToPage = () => {
+    const pageNum = Number(goToPage);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= totalPages) {
+      updateFilter({ page: pageNum });
+    }
+  };
+
+  // const handleInputKeyDown = (e: any) => {
+  //   if (e.key === "Enter") handleGoToPage();
+  // };
   const handleSort = (key: string) => {
-    setCurrentPage(1);
+    updateFilter({ page: 1 });
+
     setSortConfig((prev) => {
       if (prev?.key === key) {
         return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
@@ -199,6 +240,7 @@ function FreelancerOrderPage() {
       }
     });
   };
+
   const getNestedValue = (obj: any, path: any) => {
     return path.split(".").reduce((acc: any, part: any) => acc?.[part], obj);
   };
@@ -223,8 +265,8 @@ function FreelancerOrderPage() {
   });
 
   const paginatedOrders = sortedOrders.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
+    (currentPage - 1) * filters.pageSize,
+    currentPage * filters.pageSize,
   );
 
   const getSortIcon = (key: string) => {
@@ -248,40 +290,92 @@ function FreelancerOrderPage() {
       setSelectedRows((prev) => [...new Set([...prev, ...idsOnPage])]);
     }
   };
+  const [showDialog, setShowDialog] = useState(false);
 
   const handleDeleteSelected = () => {
-    setDeletingRows(selectedRows);
-    setShowDeleteDialog(false);
-
-    setTimeout(() => {
-      if (typeof setOrders === "function") {
-        setOrders((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
-      }
-      setSelectedRows([]);
-      setDeletingRows([]);
-    }, 1000);
+    // setDeletingRows(selectedRows);
+    // setShowDeleteDialog(false);
+    // setTimeout(() => {
+    //   if (typeof setOrders === "function") {
+    //     setOrders((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
+    //   }
+    //   setSelectedRows([]);
+    //   setDeletingRows([]);
+    // }, 1000);
   };
+
+  const [openDeliver, setOpenDeliver] = useState(false);
+  const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
+  const [cancelOrderDialogOpen, setCancelOrderDialogOpen] = useState(false);
 
   const handleExportCSV = () => {
-    const header = "STT,Khách hàng,Dịch vụ,Trạng thái,Deadline\n";
-    const rows = filteredOrders?.map(
-      (order, index) =>
-        `${index + 1},${order.client},${order.package},${statusMap[order.status as keyof typeof statusMap].label},${order.deadline}`,
-    );
-    const csvContent = header + rows.join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "orders.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const data = orders.map((_) => {
+      return {
+        title: _?.title,
+        basicPrice: _?.basicPrice,
+
+        standardPrice: _?.standardPrice,
+
+        premiumPrice: _?.premiumPrice,
+
+        status: statusMap[_?.status as keyof typeof statusMap].label,
+
+        ratingAverate: _?.ratingAverate,
+        views: _?.views,
+        orderCount: _?.orderCount,
+        createdAt: formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
+        updatedAt: formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
+      };
+    });
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, worksheet, "Earnings");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, `gigs.xlsx`);
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [status]);
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Thu nhập Freelancer", 14, 16);
+    autoTable(doc, {
+      head: [
+        [
+          "title",
+          "basicPrice",
+          "standardPrice",
+          "premiumPrice",
+          "status",
+          "avgRating",
+          "views",
+          "orderCount",
+          "createdAt",
+          "updatedAt",
+        ],
+      ],
+      bodyStyles: { fontSize: 10 },
+      styles: { cellPadding: 2, fontSize: 8 },
+      headStyles: { fillColor: "#00ff88", fontSize: 10 },
+      margin: { top: 20 },
+
+      body: orders.map((_: any) => [
+        _?.title,
+        _?.basicPrice,
+
+        _?.standardPrice,
+
+        _?.premiumPrice,
+
+        statusMap[_?.status as keyof typeof statusMap].label,
+        _?.avgRating,
+        _?.views,
+        _?.orderCount,
+        formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
+        formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
+      ]),
+    });
+    doc.save(`orders.pdf`);
+  };
 
   if (isLoading)
     return (
@@ -298,11 +392,14 @@ function FreelancerOrderPage() {
       <OrderStatsDashboard
         orders={orders}
         requiredStatus={[
+          // OrderStatus.UNPAID,
           OrderStatus.PENDING,
+          OrderStatus.ACCEPTED,
           OrderStatus.IN_PROGRESS,
+          OrderStatus.REVISION_REQUESTED,
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
-          OrderStatus.CANCELED,
+          OrderStatus.CANCEL,
         ]}
       />
 
@@ -314,34 +411,42 @@ function FreelancerOrderPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Input
                 type="text"
-                placeholder="Search by client..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by gig..."
+                value={filters.keyword}
+                onChange={(e) => {
+                  updateFilter({ keyword: e.target.value });
+                }}
                 className="w-48"
               />
               <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
+                value={filters.status}
+                onChange={(e) => updateFilter({ status: e.target.value })}
                 className="rounded border px-2 py-1 text-sm"
               >
                 <option value="">All Statuses</option>
-                {orderStatus.map((_) => (
-                  <option value={_}>{_}</option>
+                {orderFreelancerStatus.map((_) => (
+                  <option key={_} value={_}>
+                    {_}
+                  </option>
                 ))}
               </select>
-
-              <Button variant="outline" onClick={handleExportCSV} size="sm">
+              {/* 
+              <Button variant="outline" onClick={handleExportCSV}>
                 <Download className="mr-1 h-4 w-4" /> Export CSV
               </Button>
 
-              <AdvancedSearchDialog />
+              <Button variant="outline" onClick={handleExportPDF}>
+                <FileDown className="mr-2 h-4 w-4" />
+                Export PDF
+              </Button> */}
+              {/* <AdvancedSearchDialog /> */}
             </div>
           </div>
 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>
+                {/* <TableHead>
                   <input
                     type="checkbox"
                     onChange={toggleSelectAll}
@@ -350,7 +455,7 @@ function FreelancerOrderPage() {
                       paginatedOrders.every((o) => selectedRows.includes(o.id))
                     }
                   />
-                </TableHead>
+                </TableHead> */}
                 <TableHead>#</TableHead>
                 <TableHead
                   onClick={() => handleSort("buyerName")}
@@ -380,126 +485,119 @@ function FreelancerOrderPage() {
                   onClick={() => handleSort("deadline")}
                   className="cursor-pointer"
                 >
-                  Deadline {getSortIcon("deadline")}
+                  Start Date {getSortIcon("deadline")}
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort("deadline")}
+                  className="cursor-pointer"
+                >
+                  End Date {getSortIcon("deadline")}
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedOrders.map((order, index) => (
-                <React.Fragment key={order.id}>
+              {paginatedOrders.map((_, index) => (
+                <React.Fragment key={_.id}>
                   {/* Information */}
                   <TableRow
                     className={clsx(
                       "w-fit",
-                      deletingRows.includes(order.id) &&
+                      deletingRows.includes(_.id) &&
                         "pointer-events-none opacity-50",
                     )}
                   >
-                    <TableCell>
+                    {/* <TableCell>
                       <input
                         type="checkbox"
-                        checked={selectedRows.includes(order.id)}
-                        onChange={() => toggleSelectRow(order.id)}
+                        checked={selectedRows.includes(_.id)}
+                        onChange={() => toggleSelectRow(_.id)}
                       />
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell>
-                      {(currentPage - 1) * pageSize + index + 1}
+                      {(currentPage - 1) * filters.pageSize + index + 1}
                     </TableCell>
 
-                    <TableCell>{order.buyerName}</TableCell>
+                    <TableCell>{_.snapshot.buyer.fullName}</TableCell>
 
-                    <TableCell>{order.gigTitle}</TableCell>
+                    <TableCell>{_.snapshot.gig.title}</TableCell>
 
                     <TableCell>
-                      {order.snapshot.title} -{" "}
-                      {order.snapshot.type.toUpperCase()}
+                      {`${_.snapshot.package.title} - ${_.snapshot.package.type.toUpperCase()}`}
                     </TableCell>
 
                     <TableCell>
                       <Badge
                         className={
-                          statusMap[order.status as keyof typeof statusMap]
-                            .color
+                          statusMap[_.status as keyof typeof statusMap].color
                         }
                       >
-                        {statusMap[order.status as keyof typeof statusMap].icon}
-                        {
-                          statusMap[order.status as keyof typeof statusMap]
-                            .label
-                        }
+                        {statusMap[_.status as keyof typeof statusMap].icon}
+                        {statusMap[_.status as keyof typeof statusMap].label}
                       </Badge>
                     </TableCell>
+                    {_.startDate && (
+                      <TableCell>
+                        <div className="flex">
+                          <CalendarCheck className="h-4 w-4" />
 
-                    <TableCell>
-                      <div className="flex">
-                        <CalendarCheck className="h-4 w-4" />
-                        {order.deadline}
-                      </div>
-                    </TableCell>
+                          {format(_.startDate, "dd/MM/yyyy")}
+                        </div>
+                      </TableCell>
+                    )}
+
+                    {_.endDate && (
+                      <TableCell>
+                        <div className="flex">
+                          <CalendarCheck className="h-4 w-4" />
+
+                          {format(_.endDate, "dd/MM/yyyy")}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
 
                   {/* Action */}
                   <TableRow
                     className={clsx(
                       "w-fit",
-                      deletingRows.includes(order.id) &&
+                      (deletingRows.includes(_.id) || processingId === _.id) &&
                         "pointer-events-none opacity-50",
                     )}
                   >
-                    <TableCell colSpan={7} className="bg-gray-50">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          className="cursor-pointer"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedOrderId(order.id);
-                            setDetailOpen(true);
-                          }}
-                        >
-                          <Eye className="h-4" /> View Details
-                        </Button>
+                    <TableCell colSpan={8} className="bg-gray-50 pl-10">
+                      <Button
+                        onClick={() => {
+                          setSelectedId(_.id);
+                          setDetailOpen(true);
+                        }}
+                        variant="outline"
+                      >
+                        <Eye className="h-4" /> View Details
+                      </Button>
 
-                        <Button
-                          variant="outline"
-                          className="pointer-events-auto cursor-pointer"
-                        >
-                          <CircleArrowUp className="pointer-events-auto h-4 cursor-pointer" />
-                          Deliver Work
-                        </Button>
-
-                        <Button variant="outline">
-                          <MessageSquare className="h-4" /> Send Message
-                        </Button>
-
-                        {/* <Button variant="outline">
-                          <Tag className="h-4" /> Tag / Label
-                        </Button> */}
-
-                        {/* <Button variant="outline">
-                          <Star className="h-4 text-yellow-500" /> Mark as
-                          Priority
-                        </Button> */}
-
-                        {(order.status === OrderStatus.PENDING ||
-                          order.status === OrderStatus.IN_PROGRESS) && (
-                          <Button
-                            variant="outline"
-                            onClick={(e) => {
-                              e.preventDefault();
-
-                              toast.success("Đã lưu", {
-                                description:
-                                  "Thông tin đơn hàng đã được cập nhật.",
-                                duration: 3000,
-                              });
-                            }}
-                          >
-                            <Ban className="h-4 text-red-500" /> Cancel Order
-                          </Button>
-                        )}
-                      </div>
+                      {/* <OrderFreelancerStatusButton
+                        status={_.status}
+                        onViewDetails={() => {
+                          setSelectedId(_.id);
+                          setDetailOpen(true);
+                        }}
+                        onAccept={() => {}}
+                        onDecline={() => {}}
+                        onStart={() => {
+                          setSelectedId(_.id);
+                          setStartWorkDialogOpen(true);
+                        }}
+                        onCancel={() => {
+                          setSelectedId(_.id);
+                          setCancelOrderDialogOpen(true);
+                        }}
+                        onDeliver={() => {
+                          setSelectedId(_.id);
+                          setOpenDeliver(true);
+                        }}
+                        onAskQuestion={() => {}}
+                      /> */}
                     </TableCell>
                   </TableRow>
                 </React.Fragment>
@@ -507,25 +605,15 @@ function FreelancerOrderPage() {
             </TableBody>
           </Table>
 
-          {selectedRows.length > 0 && (
-            <div className="mt-4">
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                Delete {selectedRows.length} item
-              </Button>
-            </div>
-          )}
-
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <div className="flex items-center gap-2">
               <select
-                value={pageSize}
+                value={filters.pageSize}
                 onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setCurrentPage(1);
+                  e.preventDefault();
+                  updateFilter({ page: 1 });
+                  updateFilter({ pageSize: Number(e.target.value) });
+                  setGoToPage("");
                 }}
                 className="rounded border px-2 py-1 text-sm"
               >
@@ -544,7 +632,7 @@ function FreelancerOrderPage() {
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <span className="px-2 text-sm">
-                Trang {currentPage} / {totalPages}
+                Page {currentPage} / {totalPages}
               </span>
               <Button
                 onClick={handleNext}
@@ -554,19 +642,19 @@ function FreelancerOrderPage() {
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
-
-              <span className="text-muted-foreground text-sm">
-                Trang {currentPage} / {totalPages}
-              </span>
             </div>
 
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                placeholder="Trang..."
+                placeholder="Page..."
                 value={goToPage}
                 onChange={(e) => setGoToPage(e.target.value)}
-                onKeyDown={handleInputKeyDown}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleGoToPage();
+                }}
+                min={1}
+                max={totalPages}
                 className="w-24"
               />
               <Button size="sm" onClick={handleGoToPage}>
@@ -577,29 +665,118 @@ function FreelancerOrderPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
-          <DialogHeader>
-            Are you sure you want to delete the selected orders?
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteSelected}>
-              Confirm delete
-            </Button>
-          </DialogFooter>
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="flex h-[90vh] flex-col md:max-w-[90vw]">
+          <VisuallyHidden.Root>
+            <DialogHeader>DialogHeader</DialogHeader>
+          </VisuallyHidden.Root>
+
+          <OrderDetailFreelancer orderId={selectedId} mutateAllOrder={mutate} />
         </DialogContent>
       </Dialog>
 
-      <OrderDetailDialog
-        open={detailOpen}
-        orderId={selectedOrderId}
-        onClose={() => setDetailOpen(false)}
+      <DeliverWorkDialog
+        open={openDeliver}
+        onOpenChange={setOpenDeliver}
+        onSubmit={async ({ message, file }) => {
+          console.log(message);
+          console.log(file);
+
+          const orderId = selectedId;
+
+          const formData = new FormData();
+          formData.append("message", message);
+          if (orderId) {
+            formData.append("orderId", orderId);
+          } else {
+            console.error("Order ID is undefined");
+          }
+
+          if (file) {
+            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+            const newFile = new File([file], newFileName, {
+              type: file.type,
+            });
+
+            const fileForm = new FormData();
+            fileForm.append("file", newFile);
+
+            const { data, status } = await axiosInstanceV1.post(
+              "/file/upload",
+              fileForm,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              },
+            );
+
+            if (status === 201) {
+              console.log("File uploaded successfully", data);
+              formData.append("file", JSON.stringify(data));
+            }
+          }
+          console.log(formData);
+
+          const { data, status } = await axiosInstanceV1.post(
+            `/orders/delivery`,
+            formData,
+          );
+
+          if (status === 201) {
+            mutate();
+          }
+
+          setOpenDeliver(false);
+        }}
+      />
+
+      <StartWorkingDialog
+        open={startWorkDialogOpen}
+        onOpenChange={setStartWorkDialogOpen}
+        handleStartWorkOrder={async () => {
+          setProcessingId(selectedId);
+
+          const response = await axiosInstanceV1.patch(
+            `/orders/${selectedId}`,
+            {
+              status: OrderStatus.IN_PROGRESS,
+            },
+          );
+
+          if (response.status === 200) {
+            //setOrders((prev) => prev.filter((o) => o.id !== selectedId));
+            mutate();
+          }
+
+          setStartWorkDialogOpen(false);
+          setSelectedId(undefined);
+          setProcessingId(undefined);
+        }}
+      />
+
+      <CancelOrderDialog
+        open={cancelOrderDialogOpen}
+        onOpenChange={setCancelOrderDialogOpen}
+        handleCancelOrder={async () => {
+          setProcessingId(selectedId);
+
+          const response = await axiosInstanceV1.patch(
+            `/orders/${selectedId}`,
+            {
+              status: OrderStatus.CANCEL,
+            },
+          );
+
+          if (response.status === 200) {
+            //   setOrders((prev) => prev.filter((o) => o.id !== selectedId));
+            mutate();
+          }
+
+          setCancelOrderDialogOpen(false);
+          setSelectedId(undefined);
+          setProcessingId(undefined);
+        }}
       />
     </div>
   );

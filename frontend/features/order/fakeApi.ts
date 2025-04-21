@@ -152,7 +152,7 @@ export const fetchFreelancersOrders = () => {
           OrderStatus.IN_PROGRESS,
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
-          OrderStatus.CANCELED,
+   
         ]),
       );
 

@@ -13,6 +13,7 @@ const requirementSchema = z.object({
   answer: z.string().min(1, "Answer is required.").max(1000, "Too long."),
   file: z
     .instanceof(File)
+    .nullable()
     .optional()
     .refine(
       (file) => {
@@ -126,7 +127,7 @@ export default function Step3Success() {
         "Do you have an idea of what you want?",
       );
       answerformData.append("answer", answer);
-debugger
+      debugger;
       const { data, status } = await axiosInstanceV1.post(
         "/orders/questions-answers",
         answerformData,
@@ -171,7 +172,7 @@ debugger
 
           <div>
             <label className="mb-2 block text-lg font-semibold">
-              Upload your .zip file (optional, max {MAX_SIZE_MB}MB):
+              Attach .zip file (optional, max {MAX_SIZE_MB}MB):
             </label>
 
             <input

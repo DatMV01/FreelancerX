@@ -11,28 +11,14 @@ import { CircularProgress } from "@mui/material";
 import { Badge } from "@/components/ui/badge";
 import { OrderStatusTimeline } from "./OrderStatusTimeline";
 import { statusMap } from "@/pages/order/manage";
+import { getOrderById } from "../order.api";
+import { OrderDetailBuyer } from "./OrderDetailBuyer";
+import { VisuallyHidden } from "radix-ui";
 
 type OrderDetailModalProps = {
-  orderId: string | null;
+  orderId: string | null | undefined;
   open: boolean;
   onClose: () => void;
-};
-
-export const fetchOrderById = async (id) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id,
-        client: `Nguyễn Văn ${id}`,
-        package: "Professional Logo Design",
-        status: "IN_PROGRESS",
-        deadline: "2025-04-30",
-        description: "Thiết kế logo cao cấp với concept độc đáo.",
-        attachments: [],
-        tags: ["Thiết kế", "Logo"],
-      });
-    }, 1000);
-  });
 };
 
 export const OrderDetailDialog: React.FC<OrderDetailModalProps> = ({
@@ -40,69 +26,35 @@ export const OrderDetailDialog: React.FC<OrderDetailModalProps> = ({
   open,
   onClose,
 }) => {
-  const {
-    data: selectedOrder,
-    isLoading,
-    error,
-  } = useSWR(orderId ? `/api/orders/${orderId}` : null, (_, id) =>
-    fetchOrderById(id),
-  );
+  if (!orderId) return null;
 
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    `/orders/${orderId}`,
+    () => getOrderById(orderId),
+  );
+  console.log("data", data);
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>Chi tiết đơn hàng</DialogHeader>
-
-        {isLoading ? (
-          <CircularProgress />
-        ) : error ? (
-          <p className="text-red-500">Lỗi khi tải dữ liệu</p>
-        ) : selectedOrder ? (
-          <div className="space-y-2 text-sm">
-            <p>
-              <strong>Khách hàng:</strong> {selectedOrder.client}
-            </p>
-            <p>
-              <strong>Dịch vụ:</strong> {selectedOrder.package}
-            </p>
-            <p>
-              <strong>Trạng thái:</strong>{" "}
-              {statusMap[selectedOrder.status]?.label || selectedOrder.status}
-            </p>
-            <p>
-              <strong>Deadline:</strong> {selectedOrder.deadline}
-            </p>
-            <p>
-              <strong>Mô tả:</strong> {selectedOrder.description}
-            </p>
-            <div>
-              <strong>Tags:</strong>{" "}
-              {selectedOrder.tags?.map((tag: string, i: number) => (
-                <Badge key={i} className="mr-1">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Lịch sử trạng thái (có thể lấy từ backend sau) */}
-            <OrderStatusTimeline
-              history={
-                selectedOrder.statusHistory || [
-                  { status: "created", time: "2025-04-10 09:00" },
-                  { status: "accepted", time: "2025-04-10 10:00" },
-                  { status: "in_progress", time: "2025-04-10 13:00" },
-                  { status: "completed", time: "2025-04-11 17:30" },
-                ]
-              }
-            />
+      <DialogContent className="flex h-[95vh] max-w-md flex-col justify-between md:max-w-6xl">
+        <VisuallyHidden.Root>
+          <DialogHeader> </DialogHeader>
+        </VisuallyHidden.Root>
+        {isLoading && (
+          <div className="flex items-center justify-center py-4">
+            <CircularProgress size={24} />
           </div>
-        ) : (
-          <p>Không có dữ liệu</p>
         )}
+        {error && (
+          <div className="flex items-center justify-center py-4 text-red-500">
+            <p>Order is not found.</p>
+          </div>
+        )}
+
+        {data && <OrderDetailBuyer  order={data} />}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Đóng
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

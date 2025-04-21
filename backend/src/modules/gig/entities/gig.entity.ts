@@ -27,7 +27,7 @@ import {
   GigFileInfo,
   GigImages,
   PricingPackage,
-  Requirement,
+ 
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
@@ -182,6 +182,9 @@ export class GigEntity extends BaseEntity {
   /* Description & FAQ */
 
   /* Gallery */
+  @AutoMap(() => GigFileInfo)
+  thumbnail: GigFileInfo | null;
+
   @AutoMap(() => GigImages)
   @Column({ type: 'json', nullable: true })
   images: GigImages | null;
@@ -232,9 +235,9 @@ export class GigEntity extends BaseEntity {
   @AutoMap()
   userId: string;
 
-  @AutoMap(() => Requirement)
-  @Column({ type: 'json', nullable: true })
-  requirements: Requirement[];
+  // @AutoMap(() => Requirement)
+  // @Column({ type: 'json', nullable: true })
+  // requirements: Requirement[];
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -273,6 +276,8 @@ export class GigEntity extends BaseEntity {
       this.packages.find((pkg) => pkg.type === 'standard')?.price ?? 0;
     this.premiumPrice =
       this.packages.find((pkg) => pkg.type === 'premium')?.price ?? 0;
+    this.thumbnail =
+      this.images?.image1 || this.images?.image2 || this.images?.image3 || null;
   }
 
   updateAllCategory() {

@@ -13,6 +13,8 @@ import {
   Send,
   XCircle,
   DollarSign,
+  RefreshCw,
+  Ban,
 } from "lucide-react";
 import { OrderStatus } from "../dto";
 
@@ -24,9 +26,7 @@ export default function OrderStatsDashboard({
   requiredStatus?: string[];
 }) {
   if (!orders) {
-    return (
-      <p className="text-muted-foreground text-sm">Đang tải thống kê...</p>
-    );
+    return <p className="text-muted-foreground text-sm">Loading...</p>;
   }
 
   const totalRevenue = orders
@@ -41,6 +41,14 @@ export default function OrderStatsDashboard({
       icon: FileText,
       color: "text-blue-600",
     },
+
+    {
+      key: OrderStatus.UNPAID,
+      title: "UNPAID",
+      value: orders.filter((o: any) => o.status === OrderStatus.UNPAID).length,
+      icon: CreditCard,
+      color: "text-orange-600",
+    },
     {
       key: OrderStatus.PENDING,
       title: "PENDING",
@@ -49,11 +57,12 @@ export default function OrderStatsDashboard({
       color: "text-yellow-500",
     },
     {
-      key: OrderStatus.PAID,
-      title: "PAID",
-      value: orders.filter((o: any) => o.status === OrderStatus.PAID).length,
-      icon: CreditCard,
-      color: "text-emerald-600",
+      key: OrderStatus.ACCEPTED,
+      title: "ACCEPTED",
+      value: orders.filter((o: any) => o.status === OrderStatus.ACCEPTED)
+        .length,
+      icon: CheckCircle,
+      color: "text-orange-500",
     },
     {
       key: OrderStatus.IN_PROGRESS,
@@ -61,6 +70,15 @@ export default function OrderStatsDashboard({
       value: orders.filter((o: any) => o.status === OrderStatus.IN_PROGRESS)
         .length,
       icon: Hammer,
+      color: "text-orange-500",
+    },
+    {
+      key: OrderStatus.REVISION_REQUESTED,
+      title: "REVISION_REQUESTED",
+      value: orders.filter(
+        (o: any) => o.status === OrderStatus.REVISION_REQUESTED,
+      ).length,
+      icon: RefreshCw,
       color: "text-orange-500",
     },
     {
@@ -76,24 +94,15 @@ export default function OrderStatsDashboard({
       title: "COMPLETED",
       value: orders.filter((o: any) => o.status === OrderStatus.COMPLETED)
         .length,
-      icon: CheckCircle,
+      icon: BadgeCheck,
       color: "text-green-600",
     },
     {
-      key: OrderStatus.CANCELED,
-      title: "CANCELED",
-      value: orders.filter((o: any) => o.status === OrderStatus.CANCELED)
-        .length,
-      icon: XCircle,
+      key: OrderStatus.CANCEL,
+      title: "CANCEL",
+      value: orders.filter((o: any) => o.status === OrderStatus.CANCEL).length,
+      icon: Ban,
       color: "text-red-600",
-    },
-    {
-      key: OrderStatus.REFUNDED,
-      title: "REFUNDED",
-      value: orders.filter((o: any) => o.status === OrderStatus.REFUNDED)
-        .length,
-      icon: RotateCcw,
-      color: "text-gray-500",
     },
     {
       key: "TOTAL_REVENUE",
@@ -112,7 +121,7 @@ export default function OrderStatsDashboard({
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
       {filteredStats.map((stat) => (
         <Card key={stat.key} className="h-fit gap-0">
-          <CardHeader className="flex flex-row items-center justify-between ">
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
             <stat.icon className={cn("h-5 w-5", stat.color)} />
           </CardHeader>

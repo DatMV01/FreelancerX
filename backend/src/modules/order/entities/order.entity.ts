@@ -1,6 +1,7 @@
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import {
+  AfterLoad,
   Column,
   Entity,
   JoinColumn,
@@ -18,24 +19,8 @@ import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity
 import { OrderLogEntity } from './orderLog.entity';
 import { PackageEntity } from 'src/modules/gig/entities/package.entity';
 import { OrderQuestionsAnswersEntity } from './orderQA.entity';
-
-export enum OrderStatus {
-  UNPAID = 'UNPAID', // 🟥 Đơn hàng chưa được thanh toán
-  PENDING = 'PENDING', // 🟡 Đơn hàng đã được tạo, đang chờ freelancer chấp nhận
-  ACCEPTED = 'ACCEPTED', // 🟢 Freelancer đã chấp nhận đơn, chuẩn bị bắt đầu
-  IN_PROGRESS = 'IN_PROGRESS', // 🔨 Freelancer đang thực hiện đơn hàng
-  REVISION_REQUESTED = 'REVISION_REQUESTED', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
-  DELIVERED = 'DELIVERED', // 📦 Freelancer đã gửi sản phẩm (chờ buyer phản hồi)
-  COMPLETED = 'COMPLETED', // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
-
-  // PENDING = 'PENDING',
-  // PAID = 'PAID',
-  // IN_PROGRESS = 'IN_PROGRESS',
-  // DELIVERED = 'DELIVERED',
-  // COMPLETED = 'COMPLETED',
-  // CANCELED = 'CANCELED',
-  // REFUNDED = 'REFUNDED',
-}
+import { OrderDeliveryEntity } from './orderDelivery.entity';
+import { OrderStatus } from '../order.enum';
 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {
@@ -107,23 +92,24 @@ export class OrderEntity extends BaseEntity {
   @Column('int')
   totalAmount: number;
 
-  @AutoMap()
-  @Column('json', { nullable: true })
-  requirements: any; // info bổ sung nếu cần
+  // @AutoMap()
+  // @Column('json', { nullable: true })
+  // requirements: any; // info bổ sung nếu cần
 
   @AutoMap()
   @Column()
   deliveryTime: number; // days
 
-  @AutoMap(() => Date)
-  expectedDeliveryDate: Date;
+  // @AutoMap(() => Date)
+  // expectedDeliveryDate: Date;
 
   @AutoMap()
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
+  @AutoMap(() => Object)
   @Column({ type: 'json', nullable: true })
-  snapshot: any;
+  snapshot: object;
 
   // @AutoMap(() => TransactionEntity)
   // @OneToOne(() => TransactionEntity, (transaction) => transaction.order, {
@@ -140,7 +126,9 @@ export class OrderEntity extends BaseEntity {
   transactions: TransactionEntity[];
 
   @AutoMap(() => [OrderLogEntity])
-  @OneToMany(() => OrderLogEntity, (log) => log.order)
+  @OneToMany(() => OrderLogEntity, (_) => _.order, {
+    eager: true,
+  })
   orderlogs: OrderLogEntity[];
 
   @AutoMap(() => [OrderQuestionsAnswersEntity])
@@ -149,7 +137,32 @@ export class OrderEntity extends BaseEntity {
   })
   orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
 
+  @AutoMap(() => [OrderDeliveryEntity])
+  @OneToMany(() => OrderDeliveryEntity, (_) => _.order, {
+    eager: true,
+  })
+  deliverables: OrderDeliveryEntity[];
+
   @AutoMap(() => [GigReviewEntity])
   @OneToOne(() => GigReviewEntity)
-  review: GigReviewEntity;
+  review: GigReviewEntity[];
+
+  @AutoMap(() => Date)
+  @Column({ nullable: true })
+  startDate: Date;
+
+  @AutoMap(() => Date)
+  endDate: Date;
+
+  @AutoMap()
+  action: string;
+
+  @AfterLoad()
+  afterLoad() {
+    if (this.startDate) {
+      const result = new Date(this.startDate);
+      result.setDate(result.getDate() + this.deliveryTime);
+      this.endDate = result;
+    }
+  }
 }

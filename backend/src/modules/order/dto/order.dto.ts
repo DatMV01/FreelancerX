@@ -5,14 +5,18 @@ import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { OrderStatus } from '../entities/order.entity';
+ 
 import { OrderLogEntity } from '../entities/orderLog.entity';
 import { OrderQuestionsAnswersEntity } from '../entities/orderQA.entity';
+import { PackageEntity } from 'src/modules/gig/entities/package.entity';
+import { OrderDeliveryEntity } from '../entities/orderDelivery.entity';
+import { OrderStatus } from '../order.enum';
 
 export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()
   id: string;
 
+  @AutoMap()
   buyerId: string;
 
   @AutoMap(() => UserEntity)
@@ -32,13 +36,16 @@ export class OrderDto extends BaseDto<OrderDto> {
   gig: GigEntity;
 
   @AutoMap()
+  packageId: string;
+
+  @AutoMap(() => PackageEntity)
+  package: PackageEntity;
+
+  @AutoMap()
   currency: string;
 
   @AutoMap()
   note: string;
-
-  @AutoMap()
-  snapshot: any;
 
   @AutoMap()
   price: number;
@@ -52,29 +59,30 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()
   deliveryTime: number; // days
 
-  @AutoMap(() => Date)
-  expectedDeliveryDate: Date;
-
   @AutoMap()
   status: OrderStatus;
 
-  // @AutoMap(() => TransactionEntity)
-  // @OneToOne(() => TransactionEntity, (transaction) => transaction.order, {
-  //   cascade: true,
-  //   eager: true,
-  // })
-  // @JoinColumn()
-  // transaction: TransactionEntity;
+  @AutoMap(() => Object)
+  snapshot: object;
 
   @AutoMap(() => [TransactionEntity])
   transactions: TransactionEntity[];
 
   @AutoMap(() => [OrderLogEntity])
-  logs: OrderLogEntity[];
+  orderlogs: OrderLogEntity[];
 
   @AutoMap(() => [OrderQuestionsAnswersEntity])
   orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
 
   @AutoMap(() => [GigReviewEntity])
-  review: GigReviewEntity;
+  review: GigReviewEntity[];
+
+  @AutoMap(() => [OrderDeliveryEntity])
+  deliverables: OrderDeliveryEntity[];
+
+  @AutoMap(() => Date)
+  startDate: Date;
+
+  @AutoMap(() => Date)
+  endDate: Date;
 }

@@ -16,7 +16,7 @@ import {
   GigFileInfo,
   GigImages,
   PricingPackage,
-  Requirement,
+ 
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { AutoMap } from '@automapper/classes';
@@ -146,12 +146,12 @@ export class CreateGigDto {
   @IsOptional()
   thumbnail?: GigFileInfo | null;
 
-  @AutoMap(() => [Requirement])
-  @IsArray()
-  @ValidateNested({ each: true })
-  @IsOptional()
-  @Type(() => Requirement)
-  requirements: Requirement[];
+  // @AutoMap(() => [Requirement])
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @IsOptional()
+  // @Type(() => Requirement)
+  // requirements: Requirement[];
 
   // @IsOptional()
   // @IsNumber()

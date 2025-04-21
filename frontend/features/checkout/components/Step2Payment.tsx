@@ -64,21 +64,21 @@ export default function Step2Payment({ onNext, onBack }: Props) {
                 <div className="flex justify-between">
                   <span>Type:</span>
                   <span className="font-medium capitalize">
-                    {order.snapshot.type}
+                    {order.snapshot.package.type}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Package:</span>
-                  <span className="font-medium">{order.snapshot.title}</span>
+                  <span className="font-medium">{order.snapshot.package.title}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Time:</span>
                   <span>{order.deliveryTime} days</span>
                 </div>
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <span>Revisions:</span>
                   <span>{order.snapshot.revisions} times</span>
-                </div>
+                </div> */}
                 <div className="flex justify-between">
                   <span>Quantity:</span>
                   <span>{order.quantity}</span>
@@ -112,12 +112,12 @@ export default function Step2Payment({ onNext, onBack }: Props) {
         >
           Continue
         </Button>
-        <Button
+        {/* <Button
           className="disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onNext}
         >
           Continue
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

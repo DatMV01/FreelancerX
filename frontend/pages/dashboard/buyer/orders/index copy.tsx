@@ -1,5 +1,6 @@
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+"use client";
 
+import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +23,7 @@ import AdvancedSearchDialog from "@/features/order/components/AdvancedSearchDial
 import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
 import { OrderStatus, orderStatus } from "@/features/order/dto";
-import { fetchOrders } from "@/features/order/fakeApi";
+import { fetchFreelancersOrders, fetchOrders } from "@/features/order/fakeApi";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
 import {
@@ -89,7 +90,7 @@ export const statusMap = {
   },
 };
 
-function AdminDashboardOrders() {
+function BuyerOrderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -113,7 +114,7 @@ function AdminDashboardOrders() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
-  const { data, isLoading, error } = useSWR("orders", fetchOrders, {
+  const { data, isLoading, error } = useSWR("orders", fetchFreelancersOrders, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     refreshInterval: 0,
@@ -146,7 +147,7 @@ function AdminDashboardOrders() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order: any) => {
-      debugger;
+ 
       console.log(order);
       const matchesKeyword = keyword
         ? order.buyerName.toLowerCase().includes(keyword.toLowerCase()) ||
@@ -296,7 +297,15 @@ function AdminDashboardOrders() {
     <div className="flex flex-col space-y-6">
       <h1 className="text-2xl font-bold">Manage Order</h1>
 
-      <OrderStatsDashboard orders={orders} />
+      <OrderStatsDashboard
+        orders={orders}
+        requiredStatus={[
+          OrderStatus.PENDING,
+          OrderStatus.IN_PROGRESS,
+          OrderStatus.DELIVERED,
+          OrderStatus.COMPLETED,
+        ]}
+      />
 
       {/* <OrderChart /> */}
 
@@ -404,8 +413,8 @@ function AdminDashboardOrders() {
                     <TableCell>{order.gigTitle}</TableCell>
 
                     <TableCell>
-                      {order.snapshot.package.title} -{" "}
-                      {order.snapshot.package.type.toUpperCase()}
+                      {order.snapshot.title} -{" "}
+                      {order.snapshot.type.toUpperCase()}
                     </TableCell>
 
                     <TableCell>
@@ -465,14 +474,14 @@ function AdminDashboardOrders() {
                           <MessageSquare className="h-4" /> Send Message
                         </Button>
 
-                        <Button variant="outline">
+                        {/* <Button variant="outline">
                           <Tag className="h-4" /> Tag / Label
-                        </Button>
+                        </Button> */}
 
-                        <Button variant="outline">
+                        {/* <Button variant="outline">
                           <Star className="h-4 text-yellow-500" /> Mark as
                           Priority
-                        </Button>
+                        </Button> */}
 
                         {(order.status === OrderStatus.PENDING ||
                           order.status === OrderStatus.IN_PROGRESS) && (
@@ -597,8 +606,8 @@ function AdminDashboardOrders() {
   );
 }
 
-AdminDashboardOrders.getLayout = function getLayout(page: ReactElement) {
+BuyerOrderPage.getLayout = function getLayout(page: ReactElement) {
   return <DashboardLayout>{page}</DashboardLayout>;
 };
 
-export default AdminDashboardOrders;
+export default BuyerOrderPage;

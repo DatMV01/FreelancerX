@@ -11,8 +11,9 @@ import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
 import { GigReviewEntity } from './entities/gigreview.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderEntity, OrderStatus } from '../order/entities/order.entity';
+import { OrderEntity } from '../order/entities/order.entity';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
+import { OrderStatus } from '../order/order.enum';
 
 @Injectable()
 export class GigReviewService extends BaseService<GigReviewEntity> {

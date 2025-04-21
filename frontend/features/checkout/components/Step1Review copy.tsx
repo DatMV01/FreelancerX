@@ -13,9 +13,7 @@ import GigCarousel from "@/features/gig/components/GigCarousel";
 export default function Step1Review({ onNext }: { onNext: () => void }) {
   const searchParams = useSearchParams();
 
-  //const gigId = searchParams.get("gigId");
-  const [gigId, setGigId] = useState<string | null>();
-
+  const gigId = searchParams.get("gigId");
   const orderId = searchParams.get("orderId");
   const transactionId = searchParams.get("transactionId");
   const transactionStripeId = searchParams.get("transactionStripeId");
@@ -46,17 +44,12 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
   );
 
   useEffect(() => {
-    if (data) {
-      setOrder(data);
-      setGigId(data.gigId);
-    }
-
-    //    data && setOrder(data);
+    data && setOrder(data);
   }, [orderId, data]);
 
   useEffect(() => {
     data2 && setGig(data2);
-  }, [gigId, data2]);
+  }, [, gigId, data2]);
 
   useEffect(() => {
     if (error) {
@@ -139,14 +132,12 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
           </div>
         ))}
 
-      {order && order.status !== "UNPAID" && <div>Order has been paided.</div>}
-
-      {order && order.status === "UNPAID"  && packageInfo && gig && (
+      {order && packageInfo && gig && (
         <div className="flex flex-col space-y-2">
           <div>
             <p className="text-xl">
-              <span className="mr-2 font-semibold">OrderNo:</span>#
-              {order.id.split("-")[4]}
+              <span className="mr-2 font-semibold">OrderNo:</span>
+              #{order.id.split("-")[4]}
             </p>
           </div>
 

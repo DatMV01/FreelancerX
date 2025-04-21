@@ -394,14 +394,15 @@ export abstract class BaseService<Entity extends BaseEntity> {
     limit = 10,
     filters?: FindOptionsWhere<Entity>,
     sorts?: FindOptionsOrder<Entity>,
+    fields?: (keyof Entity)[],
     currentUser?: JwtAccessPayloadType,
   ): Promise<[Entity[], number]> {
     try {
       const whereConditions: FindOptionsWhere<Entity> = filters || {};
       const orderConditions: FindOptionsOrder<Entity> = sorts || {};
 
-      // if (currentUser?.role !== 'admin') {
-      //   whereConditions['id']  = currentUser?.id as any;
+      // if (currentUser?.role.toLocaleLowerCase() !== 'admin') {
+      //   whereConditions['id'] = currentUser?.id as any;
       // }
 
       let options: FindManyOptions<Entity> = {
@@ -409,10 +410,10 @@ export abstract class BaseService<Entity extends BaseEntity> {
         order: this.processSorting(orderConditions),
         skip: (page - 1) * limit,
         take: limit,
-        //   relations: ['relatedEntities'],
+        select: fields ? (fields as any) : undefined,
       };
 
-      options = this.modifyOptions(options, currentUser);
+      options = await this.modifyOptions(options, currentUser);
 
       const [data, total] = await this.repository.findAndCount(options);
 
@@ -422,10 +423,10 @@ export abstract class BaseService<Entity extends BaseEntity> {
     }
   }
 
-  protected modifyOptions(
+  protected async modifyOptions(
     options: FindManyOptions<Entity>,
     currentUser?: JwtAccessPayloadType,
-  ): FindManyOptions<Entity> {
+  ): Promise<FindManyOptions<Entity>> {
     // if (currentUser?.role === 'manager') {
     //   options.where = { ...options.where, status: 'active' };
     // }

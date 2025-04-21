@@ -167,7 +167,7 @@ const destination = (
       fs.mkdirSync(`./public/orders`, { recursive: true });
     }
 
-    return callback(null, `./public/avatars`);
+    return callback(null, `./public/orders`);
   } else if (imageMimeTypes.includes(file.mimetype)) {
     if (!fs.existsSync(`./public/images`)) {
       fs.mkdirSync(`./public/images`, { recursive: true });

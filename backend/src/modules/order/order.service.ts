@@ -1,8 +1,21 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, LessThan, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  In,
+  LessThan,
+  Repository,
+} from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { OrderEntity, OrderStatus } from './entities/order.entity';
+import { OrderEntity } from './entities/order.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,13 +30,14 @@ import { GigEntity } from '../gig/entities/gig.entity';
 import { GigService } from '../gig/gig.service';
 import { consoleError } from 'src/utils/common';
 import { TransactionStripeEntity } from '../transaction/entities/transactionStripe.entity';
-import {
-  OrderAction,
-  OrderActor,
-  OrderLogEntity,
-} from './entities/orderLog.entity';
+import { OrderLogEntity } from './entities/orderLog.entity';
 import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { UserEntity } from '../user/entities/user.entity';
+import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
+import { BaseEntity } from '../base/entities/base.entity';
+import { OrderActions, OrderStatus } from './order.enum';
+import { OrderDeliveryEntity } from './entities/orderDelivery.entity';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -44,14 +58,34 @@ export class OrderService extends BaseService<OrderEntity> {
     private readonly orderLogRepo: Repository<OrderLogEntity>,
 
     @InjectRepository(OrderQuestionsAnswersEntity)
-    private readonly orderQuestionsAnswersEntityRepo: Repository<OrderQuestionsAnswersEntity>,
+    private readonly orderQuestionsAnswersRepo: Repository<OrderQuestionsAnswersEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
+
+    @InjectRepository(FreelancerEntity)
+    private readonly freelancerRepo: Repository<FreelancerEntity>,
+
+    @InjectRepository(OrderDeliveryEntity)
+    private readonly orderDeliveryRepo: Repository<OrderDeliveryEntity>,
 
     private stripeService: StripeService,
   ) {
     super(_repository);
   }
 
-  async createOrder(createDto: DeepPartial<OrderEntity>): Promise<{
+  // async findOneById(id: BaseEntity['id']): Promise<OrderEntity> {
+  //   const _ = await super.findOneById(id);
+  //   const logs = await this.orderLogRepo.findBy({ orderId: String(id) });
+  //   _.orderlogs = logs;
+
+  //   return _;
+  // }
+
+  async createOrder(
+    createDto: DeepPartial<OrderEntity>,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<{
     orderId: string;
     transactionId: string;
     transactionStripeId: string;
@@ -68,6 +102,12 @@ export class OrderService extends BaseService<OrderEntity> {
       throw new NotFoundException(`Gig with ID ${packageId} not found`);
     }
 
+    const buyer = await this.userRepo.findOneBy({ id: String(buyerId) });
+    if (!buyer) {
+      consoleError(`Buyer with ID ${buyerId} not found`);
+      throw new NotFoundException(`Buyer with ID ${buyerId} not found`);
+    }
+
     const gigPackage = gig.packages.find((_) => _.id === packageId);
 
     if (!gigPackage) {
@@ -77,7 +117,26 @@ export class OrderService extends BaseService<OrderEntity> {
 
     const { price, deliveryTime } = gigPackage;
 
-    const { createdAt, updatedAt, deletedAt, ...snapshot } = gigPackage;
+    const { createdAt, updatedAt, deletedAt, ...packageInfomation } =
+      gigPackage;
+
+    const snapshot = {
+      buyer: {
+        id: buyerId,
+        fullName: buyer.fullName,
+        email: buyer.email,
+      },
+      freelancer: {
+        id: gig.freelancerId,
+        displayName: gig.freelancer.displayName,
+        email: gig.freelancer.email,
+      },
+      gig: {
+        id: gig.id,
+        title: gig.title,
+      },
+      package: packageInfomation,
+    };
 
     const totalAmount = Number(quantity) * Number(price);
 
@@ -92,7 +151,7 @@ export class OrderService extends BaseService<OrderEntity> {
       quantity,
       totalAmount,
       deliveryTime: deliveryTime,
-      status: status || OrderStatus.PENDING,
+      status: OrderStatus.UNPAID,
       snapshot,
     });
 
@@ -128,14 +187,23 @@ export class OrderService extends BaseService<OrderEntity> {
     });
 
     const createOrderLog = this.orderLogRepo.create({
+      ...OrderActions.CREATE_ORDER,
       id: uuidv4(),
-      order: createOrder,
-      action: OrderAction.ORDER_CREATED,
-      actor: OrderActor.SELLER,
-      detail: `Created order with ${gigPackage.type} package. Price: ${totalAmount}${currency}`,
+      userId: currentUser.id,
+      orderId: createOrder.id,
+      metadata: {
+        paymentUrl: `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`,
+      },
     });
 
-    const saveOrder = await this._repository.save(createOrder);
+    const finalCreateOrder = {
+      ...createOrder,
+      snapshot: {
+        ...createOrder.snapshot,
+        paymentUrl: `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`,
+      },
+    };
+    const saveOrder = await this._repository.save(finalCreateOrder);
 
     const saveTransaction = await this.transactionRepo.save(createTransaction);
 
@@ -167,18 +235,197 @@ export class OrderService extends BaseService<OrderEntity> {
 
     const order = await super.findOneById(orderId);
 
-    const createQuestionAnswer = this.orderQuestionsAnswersEntityRepo.create({
+    const createQuestionAnswer = this.orderQuestionsAnswersRepo.create({
       ...data,
       order,
     });
 
-    return this.orderQuestionsAnswersEntityRepo.save(createQuestionAnswer);
+    return this.orderQuestionsAnswersRepo.save(createQuestionAnswer);
+  }
+
+  async addDeliveryWork(
+    data: OrderDeliveryEntity,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<OrderDeliveryEntity> {
+    const { orderId } = data;
+
+    const order = await super.findOneById(orderId);
+
+    const freelancer = await this.freelancerRepo.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    if (!freelancer) {
+      consoleError(`Freelancer with ID ${currentUser.id} not found`);
+      throw new NotFoundException(
+        `Freelancer with ID ${currentUser.id} not found`,
+      );
+    }
+
+    const createQuestionAnswer = this.orderDeliveryRepo.create({
+      ...data,
+      order,
+      freelancer,
+    });
+
+    await this._repository.save({ ...order, status: OrderStatus.DELIVERED });
+    return this.orderDeliveryRepo.save(createQuestionAnswer);
+  }
+
+  async addLog(
+    data: OrderLogEntity,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<OrderLogEntity> {
+    return this.orderLogRepo.save(data);
+  }
+
+  async updateQuestionsAnswersToOrder(
+    data: OrderQuestionsAnswersEntity,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<OrderQuestionsAnswersEntity> {
+    const { id, answer, file } = data;
+
+    const questionanswer = await this.orderQuestionsAnswersRepo.findOne({
+      where: { id },
+    });
+
+    if (!questionanswer) {
+      consoleError(`Entity with ID ${id} not found`);
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
+    questionanswer.answer = answer;
+    questionanswer.file = file;
+
+    return this.orderQuestionsAnswersRepo.save(questionanswer);
   }
 
   getExpectedDate(deliveryTime: number): Date {
     const now = new Date();
     now.setDate(now.getDate() + deliveryTime);
     return now;
+  }
+
+  async update(
+    id: BaseEntity['id'],
+    data: DeepPartial<OrderEntity>,
+  ): Promise<OrderEntity> {
+    const entity = await this._repository.preload({ id: String(id), ...data });
+
+    if (!entity) {
+      consoleError(`Entity with ID ${id} not found`);
+      throw new NotFoundException(`ID ${id} not found`);
+    }
+
+    // if (data.status === OrderStatus.CANCEL) {
+    //   await this.orderLogRepo.save({
+    //     actor:
+    //       data.buyerId === 'true'
+    //         ? OrderActor.BUYER
+    //         : data.freelancerId === 'true'
+    //           ? OrderActor.FREELANCER
+    //           : OrderActor.ADMIN,
+    //     detail: OrderAction.CANCELLED,
+    //     orderId: entity.id,
+    //   });
+    // }
+
+    // if (
+    //   data.status === OrderStatus.IN_PROGRESS &&
+    //   entity.status === OrderStatus.PENDING
+    // ) {
+    //   entity.startDate = new Date(Date.now());
+    // }
+
+    try {
+      return await this._repository.save(entity);
+    } catch (error) {
+      console.error('Error updating entity:', error);
+      throw new ConflictException('Update failed due to conflict');
+    }
+  }
+
+  // async update(
+  //   id: BaseEntity['id'],
+  //   data: DeepPartial<Entity>,
+  // ): Promise<Entity> {
+  //   const entity = await this.repository.preload({ id, ...data });
+
+  //   if (!entity) {
+  //     consoleError(`Entity with ID ${id} not found`);
+  //     throw new NotFoundException(`ID ${id} not found`);
+  //   }
+
+  //   try {
+  //     return await this.repository.save(entity);
+  //   } catch (error) {
+  //     console.error('Error updating entity:', error);
+  //     throw new ConflictException('Update failed due to conflict');
+  //   }
+  // }
+
+  protected async modifyOptions(
+    options: FindManyOptions<OrderEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<FindManyOptions<OrderEntity>> {
+    if (currentUser?.role.toLocaleLowerCase() === 'freelancer') {
+      const freelancer = await this.freelancerRepo.findOne({
+        where: { userId: currentUser.id },
+        select: { id: true },
+      });
+
+      options.where = {
+        ...options.where,
+        freelancerId: freelancer?.id,
+      };
+    }
+
+    if (currentUser?.role.toLocaleLowerCase() === 'buyer') {
+      options.where = {
+        ...options.where,
+        buyerId: currentUser?.id,
+      };
+    }
+
+    return options;
+  }
+
+  async mappingOrderWithBuyer(results: any) {
+    const { data } = results;
+    const buyerIds = new Set(data.map((item) => item.buyerId));
+    const buyers = await this.userRepo.find({
+      where: {
+        id: In(buyerIds as any),
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        avatar: true,
+      },
+    });
+    const buyerMap = new Map(buyers.map((buyer) => [buyer.id, buyer]));
+
+    for (const order of data) {
+      const buyer = buyerMap.get(order.buyerId);
+      if (buyer) {
+        order.buyer = buyer;
+      }
+    }
+    results.data = data.map((item) => {
+      const { buyer, ...finalItem } = item;
+      return {
+        ...finalItem,
+        buyer: {
+          id: buyer.id,
+          name: buyer.name,
+          email: buyer.email,
+          avatar: buyer.avatar,
+        },
+      };
+    });
+
+    return data;
   }
 
   // @Cron(CronExpression.EVERY_30_MINUTES)

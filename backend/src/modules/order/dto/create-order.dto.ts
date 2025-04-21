@@ -1,13 +1,7 @@
 import { AutoMap } from '@automapper/classes';
-import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
-import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
-import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
-import { OrderLogEntity } from '../entities/orderLog.entity';
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
-import { OrderStatus } from '../entities/order.entity';
-
+import { IsOptional } from 'class-validator';
+import { OrderStatus } from '../order.enum';
+ 
 export class CreateOrderDto {
   @AutoMap()
   @IsOptional()
