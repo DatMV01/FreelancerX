@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
+import OrderStats from "@/features/order/components/OrderStats";
 import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
@@ -389,7 +389,7 @@ function FreelancerOrderPage() {
     <div className="flex flex-col space-y-6">
       <h1 className="text-2xl font-bold">Manage Order</h1>
 
-      <OrderStatsDashboard
+      <OrderStats
         orders={orders}
         requiredStatus={[
           // OrderStatus.UNPAID,
@@ -400,6 +400,8 @@ function FreelancerOrderPage() {
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
           OrderStatus.CANCEL,
+          // "TOTAL_ORDERS",
+          // "TOTAL_REVENUE",
         ]}
       />
 
@@ -457,6 +459,9 @@ function FreelancerOrderPage() {
                   />
                 </TableHead> */}
                 <TableHead>#</TableHead>
+
+                <TableHead className="cursor-pointer">Order</TableHead>
+
                 <TableHead
                   onClick={() => handleSort("buyerName")}
                   className="cursor-pointer"
@@ -491,7 +496,7 @@ function FreelancerOrderPage() {
                   onClick={() => handleSort("deadline")}
                   className="cursor-pointer"
                 >
-                  End Date {getSortIcon("deadline")}
+                  Deadline {getSortIcon("deadline")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -517,6 +522,8 @@ function FreelancerOrderPage() {
                     <TableCell>
                       {(currentPage - 1) * filters.pageSize + index + 1}
                     </TableCell>
+
+                    <TableCell>{_.id.split("-")[4]}</TableCell>
 
                     <TableCell>{_.snapshot.buyer.fullName}</TableCell>
 

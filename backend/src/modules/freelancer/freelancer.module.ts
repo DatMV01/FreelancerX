@@ -13,6 +13,7 @@ import {
 } from './entities/freelancer_languages.entity';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/user.service';
+import { FreelancerAnalyticsEntity } from './entities/freelancer_analytics.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserService } from '../user/user.service';
       LanguageEntity,
       FreelancersLanguages,
       FreelancersSkills,
+      FreelancerAnalyticsEntity,
     ]),
   ],
   controllers: [FreelancerController],

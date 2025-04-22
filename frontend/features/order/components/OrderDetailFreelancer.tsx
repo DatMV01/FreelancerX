@@ -7,7 +7,7 @@ import { FileDown, FileIcon, Upload } from "lucide-react";
 import useSWR, { mutate } from "swr";
 import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import { CircularProgress } from "@mui/material";
-import { getOrderById } from "../order.api";
+import { getOrderById, getOrderReviewById } from "../order.api";
 import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
 import { OrderLogTimeline } from "./OrderLogTimeline";
 import {
@@ -31,6 +31,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import AcceptlOrderDialog from "./AcceptlOrderDialog";
 import AskQuestionDialog from "./AskQuestionDialog";
+import OrderReview from "./OrderReview";
 
 type OrderDetailBuyerProps = {
   orderId: any;
@@ -55,6 +56,17 @@ export const OrderDetailFreelancer = ({
     refreshInterval: 0,
     dedupingInterval: 0,
   });
+
+  const { data: review, mutate: mutetateReview } = useSWR(
+    `reviews/order/${orderId}`,
+    () => getOrderReviewById(orderId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 0,
+    },
+  );
 
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
@@ -211,6 +223,33 @@ export const OrderDetailFreelancer = ({
                 <DeliveryWorkCard key={item.id} delivery={item} />
               ))}
             </div>
+
+            <p className="font-bold"> Review</p>
+
+            {review && (
+              <OrderReview
+                review={review}
+                isFreelancer
+                onReplySubmit={async (reviewId, replyText) => {
+                  try {
+                    const response = await axiosInstanceV1.patch(
+                      `/reviews/${reviewId}`,
+                      {
+                        reply: replyText,
+                        freelancerId: order.freelancerId,
+                      },
+                    );
+
+                    if (response.status === 200) {
+                      mutetateReview();
+                    }
+                  } catch (error: any) {
+                    toast.error("error");
+                  } finally {
+                  }
+                }}
+              />
+            )}
           </div>
 
           <div className="flex-1">
@@ -333,8 +372,8 @@ export const OrderDetailFreelancer = ({
               mutateThisOrder();
               mutateAllOrder && mutateAllOrder();
             }
-          } catch (error) {
-            toast.info(error as any);
+          } catch (error: any) {
+            toast.error("error");
           } finally {
             setStartWorkDialogOpen(false);
           }

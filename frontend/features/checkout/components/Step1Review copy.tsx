@@ -39,11 +39,13 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
     data: data2,
     error: error2,
     isLoading: isLoading2,
-  } = useSWR<GigDto>(orderId ? `/gig/${gigId}` : null, (url: string) =>
+  } = useSWR<GigDto>(gigId ? `/gig/${gigId}` : null, (url: string) =>
     axiosInstanceV1.get(url).then((res) => res.data),
   );
+  
 
   useEffect(() => {
+    debugger
     data && setOrder(data);
   }, [orderId, data]);
 

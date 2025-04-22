@@ -5,10 +5,10 @@ import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
- 
+
 import { OrderLogsEntity } from '../entities/order_logs.entity';
 import { OrderQuestionsEntity } from '../entities/order_questions.entity';
-import { PackageEntity } from 'src/modules/gig/entities/package.entity';
+import { GigPackagesEntity } from 'src/modules/gig/entities/gig_packages.entity';
 import { OrderDeliverablesEntity } from '../entities/order_deliverables.entity';
 import { OrderStatus } from '../order.enum';
 
@@ -38,8 +38,8 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()
   packageId: string;
 
-  @AutoMap(() => PackageEntity)
-  package: PackageEntity;
+  @AutoMap(() => GigPackagesEntity)
+  package: GigPackagesEntity;
 
   @AutoMap()
   currency: string;
@@ -74,8 +74,8 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap(() => [OrderQuestionsEntity])
   orderQuestionsAnswers: OrderQuestionsEntity[];
 
-  @AutoMap(() => [GigReviewEntity])
-  review: GigReviewEntity[];
+  @AutoMap(() => GigReviewEntity)
+  review: GigReviewEntity;
 
   @AutoMap(() => [OrderDeliverablesEntity])
   deliverables: OrderDeliverablesEntity[];

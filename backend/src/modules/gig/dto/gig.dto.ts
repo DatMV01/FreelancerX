@@ -4,7 +4,7 @@ import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { GigTagEntity } from '../entities/gig.entity';
-import { PackageEntity } from '../entities/package.entity';
+import { GigPackagesEntity } from '../entities/gig_packages.entity';
 import { GigStatus } from '../enum/gig.status';
 
 export class PricingPackage {
@@ -123,8 +123,8 @@ export class GigDto extends BaseDto<GigDto> {
   @AutoMap()
   premiumPrice: number;
 
-  @AutoMap(() => [PackageEntity])
-  packages: PackageEntity[];
+  @AutoMap(() => [GigPackagesEntity])
+  packages: GigPackagesEntity[];
 
   @AutoMap(() => PricingPackage)
   pricingPackage: PricingPackage[];
@@ -158,12 +158,6 @@ export class GigDto extends BaseDto<GigDto> {
   // @AutoMap(() => Requirement)
   // requirements?: Requirement[];
 
-  @AutoMap()
-  orderCount: number;
-
-  @AutoMap()
-  viewCount: number;
-
   @AutoMap(() => FreelancerDto)
   freelancer?: FreelancerDto | undefined;
 
@@ -171,8 +165,20 @@ export class GigDto extends BaseDto<GigDto> {
   slug: string;
 
   @AutoMap()
-  ratingAverate: number;
+  ratingAverage: number;
 
   @AutoMap()
   ratingCount: number;
+
+  @AutoMap()
+  viewCount: number;
+
+  @AutoMap()
+  favoriteCount: number;
+
+  @AutoMap()
+  completeOrderCount: number;
+
+  @AutoMap()
+  orderCount: number;
 }

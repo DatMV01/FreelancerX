@@ -17,7 +17,7 @@ import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerService } from '../freelancer/freelancer.service';
 import { RoleEnum } from '../role/enum/role.enum';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
-import { PackageEntity, PackageType } from './entities/package.entity';
+import { GigPackagesEntity, GigPackageType } from './entities/gig_packages.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -28,8 +28,8 @@ export class GigService extends BaseService<GigEntity> {
     @InjectRepository(GigTagEntity)
     private readonly gigTagRepository: Repository<GigTagEntity>,
 
-    @InjectRepository(PackageEntity)
-    private readonly gigPackageRepository: Repository<PackageEntity>,
+    @InjectRepository(GigPackagesEntity)
+    private readonly gigPackageRepository: Repository<GigPackagesEntity>,
 
     private readonly freelancerService: FreelancerService,
   ) {
@@ -213,8 +213,9 @@ export class GigService extends BaseService<GigEntity> {
   transformPackages = (data) => {
     const types = ['basic', 'standard', 'premium'];
 
-    const result = Object.values(PackageType).map((type) => {
-      const obj: Partial<PackageEntity> = {
+    const result = Object.values(GigPackageType).map((type) => {
+      
+      const obj: Partial<GigPackagesEntity> = {
         id: uuidv4(),
         type: type,
         title: '',

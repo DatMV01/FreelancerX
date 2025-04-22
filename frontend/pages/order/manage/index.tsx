@@ -21,7 +21,7 @@ import AdvancedSearchDialog, {
 } from "@/features/order/components/AdvancedSearchDialog";
 import { OrderActions } from "@/features/order/components/OrderActions";
 import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
-import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
+import OrderStats from "@/features/order/components/OrderStats";
 import { StartOrderButton } from "@/features/order/components/StartOrderButton";
 import { OrderStatus, orderStatus } from "@/features/order/dto";
 import { fetchOrders } from "@/features/order/fakeApi";
@@ -302,7 +302,7 @@ export default function FreelancerOrderDashboard() {
     <div className="flex flex-col space-y-6">
       <h1 className="text-2xl font-bold">Manage Order</h1>
 
-      <OrderStatsDashboard orders={orders} />
+      <OrderStats orders={orders} />
 
       {/* <OrderChart /> */}
 

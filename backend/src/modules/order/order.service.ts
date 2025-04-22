@@ -12,6 +12,7 @@ import {
   FindOptionsWhere,
   In,
   LessThan,
+  Not,
   Repository,
 } from 'typeorm';
 import { BaseService } from '../base/base.service';
@@ -153,22 +154,9 @@ export class OrderService extends BaseService<OrderEntity> {
       snapshot,
     });
 
-    const stripePaymentIntent = await this.stripeService.createPaymentIntent({
-      amount: totalAmount,
-      currency,
-      metadata: {
-        orderId: createOrder.id,
-        buyerId,
-        gigId,
-        packageId,
-      },
-    });
-
-    const { client_secret, id: stripePaymentIntentId } = stripePaymentIntent;
-
     const createTransaction = this.transactionRepo.create({
       id: uuidv4(),
-      referenceCode: stripePaymentIntentId,
+      //referenceCode: stripePaymentIntentId,
       amount: totalAmount,
       direction: TransactionDirection.IN,
       method: TransactionMethod.STRIPE,
@@ -177,9 +165,26 @@ export class OrderService extends BaseService<OrderEntity> {
       actorType: ActorType.BUYER,
       actor: buyer,
       orderId: createOrder.id,
-      metadata: stripePaymentIntent,
+      //metadata: stripePaymentIntent,
       currency,
     });
+
+    const stripePaymentIntent = await this.stripeService.createPaymentIntent({
+      amount: totalAmount,
+      currency,
+      metadata: {
+        orderId: createOrder.id,
+        buyerId,
+        gigId,
+        packageId,
+        transactionId: createTransaction.id,
+      },
+    });
+
+    const { client_secret, id: stripePaymentIntentId } = stripePaymentIntent;
+
+    createTransaction.referenceCode = stripePaymentIntentId;
+    createTransaction.metadata = stripePaymentIntent;
 
     const paymentUrl = `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`;
 
@@ -399,6 +404,7 @@ export class OrderService extends BaseService<OrderEntity> {
       options.where = {
         ...options.where,
         freelancerId: freelancer?.id,
+        status: Not(In([OrderStatus.UNPAID])),
       };
     }
 

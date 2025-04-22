@@ -161,7 +161,8 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
         >
           {isSubmitting ? "Logging in..." : "Login"}
         </button>
-        <button
+
+        {/* <button
           type="button"
           className="flex w-full justify-center space-x-2 rounded-md border border-gray-300 py-2 hover:bg-gray-100"
           disabled={isSubmitting}
@@ -174,7 +175,7 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
           />
 
           <span>Login with Google</span>
-        </button>
+        </button> */}
 
         {/* ✅ Success & Error Messages */}
         {message && (

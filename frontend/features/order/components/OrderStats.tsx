@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { OrderStatus } from "../dto";
 
-export default function OrderStatsDashboard({
+export default function OrderStats({
   orders,
   requiredStatus,
 }: {
@@ -34,14 +34,6 @@ export default function OrderStatsDashboard({
     .reduce((sum: number, o: any) => sum + Number(o.totalAmount), 0);
 
   const stats = [
-    {
-      key: "TOTAL_ORDERS",
-      title: "TOTAL ORDERS",
-      value: orders.length,
-      icon: FileText,
-      color: "text-blue-600",
-    },
-
     {
       key: OrderStatus.UNPAID,
       title: "UNPAID",
@@ -105,6 +97,13 @@ export default function OrderStatsDashboard({
       color: "text-red-600",
     },
     {
+      key: "TOTAL_ORDERS",
+      title: "TOTAL ORDERS",
+      value: orders.length,
+      icon: FileText,
+      color: "text-blue-600",
+    },
+    {
       key: "TOTAL_REVENUE",
       title: "TOTAL REVENUE",
       value: `${totalRevenue.toLocaleString()} USD`,
@@ -118,15 +117,15 @@ export default function OrderStatsDashboard({
     : stats;
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-8">
       {filteredStats.map((stat) => (
-        <Card key={stat.key} className="h-fit gap-0">
+        <Card key={stat.key} className="flex h-fit gap-0 gap-y-1 py-3">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
             <stat.icon className={cn("h-5 w-5", stat.color)} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="text-xl font-bold break-all">{stat.value}</div>
           </CardContent>
         </Card>
       ))}

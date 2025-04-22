@@ -17,7 +17,7 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { OrderLogsEntity } from './order_logs.entity';
-import { PackageEntity } from 'src/modules/gig/entities/package.entity';
+import { GigPackagesEntity } from 'src/modules/gig/entities/gig_packages.entity';
 import { OrderQuestionsEntity } from './order_questions.entity';
 import { OrderDeliverablesEntity } from './order_deliverables.entity';
 import { OrderStatus } from '../order.enum';
@@ -69,12 +69,12 @@ export class OrderEntity extends BaseEntity {
   @Column({ name: 'package_id', nullable: true })
   packageId: string;
 
-  @AutoMap(() => PackageEntity)
-  @ManyToOne(() => PackageEntity, (_) => _.orders, {
+  @AutoMap(() => GigPackagesEntity)
+  @ManyToOne(() => GigPackagesEntity, (_) => _.orders, {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'package_id' })
-  package: PackageEntity;
+  package: GigPackagesEntity;
 
   @AutoMap()
   @Column({ type: 'varchar', length: 3, default: 'USD' })
@@ -143,9 +143,9 @@ export class OrderEntity extends BaseEntity {
   })
   deliverables: OrderDeliverablesEntity[];
 
-  @AutoMap(() => [GigReviewEntity])
-  @OneToOne(() => GigReviewEntity)
-  review: GigReviewEntity[];
+  @AutoMap(() => GigReviewEntity)
+  @OneToOne(() => GigReviewEntity, { eager: false })
+  review: GigReviewEntity;
 
   @AutoMap(() => Date)
   @Column({ nullable: true })

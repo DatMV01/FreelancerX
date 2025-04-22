@@ -29,7 +29,6 @@ export const fetchBuyerOrders = async ({
   }
 };
 
-
 export const fetchFreelancerOrders = async ({
   page = 1,
   limit = 10,
@@ -57,14 +56,22 @@ export const fetchFreelancerOrders = async ({
   }
 };
 
-
-
 export const getOrderById = async (id: string): Promise<any> => {
   try {
     const response = await axiosInstanceV1.get(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching order by id:", error);
+    throw error;
+  }
+};
+
+export const getOrderReviewById = async (id: string): Promise<any> => {
+  try {
+    const response = await axiosInstanceV1.get(`/reviews/order/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching order review by id:", error);
     throw error;
   }
 };

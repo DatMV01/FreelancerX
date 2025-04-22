@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import GigsStatsDashboard from "@/features/dashboard/freelancer/components/GigsStatsDashboard";
+import GigsStats from "@/features/gig/components/GigsStats";
 import { fetchFreelancerManageGigs } from "@/features/gig/fakeApi";
 import { fetchGigs } from "@/features/gig/gig.api";
 import { gigStatus, GigStatus } from "@/features/gig/gig.types";
@@ -49,6 +49,7 @@ import {
   Pencil,
   PlayCircle,
   Send,
+  X,
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
@@ -503,7 +504,7 @@ function FreelancerManageGigsPage() {
     <div className="flex flex-col space-y-6">
       <h1 className="text-2xl font-bold">Manage Gigs</h1>
 
-      <GigsStatsDashboard gigs={gigs} />
+      <GigsStats gigs={gigs} />
 
       {/* <OrderChart /> */}
       <Card>
@@ -536,10 +537,10 @@ function FreelancerManageGigsPage() {
                 <Download className="mr-1 h-4 w-4" /> Export CSV
               </Button>
 
-              <Button variant="outline" onClick={handleExportPDF}>
+              {/* <Button variant="outline" onClick={handleExportPDF}>
                 <FileDown className="mr-2 h-4 w-4" />
                 Export PDF
-              </Button>
+              </Button> */}
 
               <button
                 onClick={() => {
@@ -579,9 +580,22 @@ function FreelancerManageGigsPage() {
                   onClick={() => handleSort("basicPrice")}
                   className="cursor-pointer"
                 >
-                  Pricing {getSortIcon("basicPrice")}
+                  Basic Price {getSortIcon("basicPrice")}
                 </TableHead>
 
+                <TableHead
+                  onClick={() => handleSort("standardPrice")}
+                  className="cursor-pointer"
+                >
+                  Standard Price {getSortIcon("standardPrice")}
+                </TableHead>
+
+                <TableHead
+                  onClick={() => handleSort("premiumPrice")}
+                  className="cursor-pointer"
+                >
+                  Premium Price {getSortIcon("premiumPrice")}
+                </TableHead>
                 <TableHead
                   onClick={() => handleSort("status")}
                   className="cursor-pointer"
@@ -589,31 +603,31 @@ function FreelancerManageGigsPage() {
                   Status {getSortIcon("status")}
                 </TableHead>
                 <TableHead
-                  onClick={() => handleSort("ratingAverate")}
+                  onClick={() => handleSort("ratingAverage")}
                   className="cursor-pointer"
                 >
-                  Rating {getSortIcon("ratingAverate")}
+                  Rating {getSortIcon("ratingAverage")}
                 </TableHead>
 
                 <TableHead
                   onClick={() => handleSort("viewCount")}
                   className="cursor-pointer"
                 >
-                  Views {getSortIcon("views")}
+                  Views {getSortIcon("viewCount")}
                 </TableHead>
 
                 <TableHead
-                  onClick={() => handleSort("orderCount")}
+                  onClick={() => handleSort("completeOrderCount")}
                   className="cursor-pointer"
                 >
-                  Orders {getSortIcon("orderCount")}
+                  Orders {getSortIcon("completeOrderCount")}
                 </TableHead>
 
                 <TableHead
-                  onClick={() => handleSort("updatedAt")}
+                  onClick={() => handleSort("favoriteCount")}
                   className="cursor-pointer"
                 >
-                  Date {getSortIcon("updatedAt")}
+                  Favorites {getSortIcon("favoriteCount")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -643,6 +657,8 @@ function FreelancerManageGigsPage() {
                     <TableCell>{_.title}</TableCell>
 
                     <TableCell>{_.basicPrice}</TableCell>
+                    <TableCell>{_.standardPrice}</TableCell>
+                    <TableCell>{_.premiumPrice}</TableCell>
 
                     <TableCell>
                       <Badge
@@ -655,18 +671,13 @@ function FreelancerManageGigsPage() {
                       </Badge>
                     </TableCell>
 
-                    <TableCell>{_.ratingAverate}</TableCell>
+                    <TableCell>{_.ratingAverage}</TableCell>
 
                     <TableCell>{_.viewCount}</TableCell>
 
-                    <TableCell>{_.orderCount}</TableCell>
+                    <TableCell>{_.completeOrderCount}</TableCell>
 
-                    <TableCell>
-                      <div className="flex">
-                        <CalendarCheck className="h-4 w-4" />
-                        {format(_.updatedAt, "dd/MM/yyyy")}
-                      </div>
-                    </TableCell>
+                    <TableCell>{_.favoriteCount}</TableCell>
                   </TableRow>
 
                   {/* Action */}
@@ -677,10 +688,10 @@ function FreelancerManageGigsPage() {
                         "pointer-events-none opacity-50",
                     )}
                   >
-                    <TableCell colSpan={9} className="bg-gray-50">
+                    <TableCell colSpan={11} className="bg-gray-50">
                       <div className="flex flex-wrap justify-start gap-2 pl-10">
                         <Button variant="outline" asChild>
-                          <Link href={`/gig/${_.slug}`} target="_blank">
+                          <Link href={`/gig/${_.slug}?mode=preview`} target="_blank">
                             <Eye className="h-4" /> Preview
                           </Link>
                         </Button>
@@ -777,7 +788,7 @@ function FreelancerManageGigsPage() {
                             setShowDeleteSelectedIdDialog(true);
                           }}
                         >
-                          <Ban className="h-4 text-red-500" /> Delete
+                          <X className="h-4 text-red-500" /> Delete
                         </Button>
 
                         {/* {_.status !== GigStatus.PENDING_APPROVAL && (

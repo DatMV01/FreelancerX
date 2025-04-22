@@ -1,11 +1,13 @@
 import { AutoMap } from '@automapper/classes';
+import * as removeAccents from 'remove-accents';
+import slugify from 'slugify';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import slugify from 'slugify';
-import * as removeAccents from 'remove-accents';
 
+import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   AfterLoad,
   BeforeInsert,
@@ -28,12 +30,10 @@ import {
   PricingPackage,
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { PackageEntity } from './package.entity';
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { GigPackagesEntity, GigPackageType } from './gig_packages.entity';
 
 @Entity('tags')
-export class GigTagEntity   {
+export class GigTagEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -157,16 +157,17 @@ export class GigEntity extends BaseEntity {
   @AutoMap()
   premiumPrice: number;
 
-  @AutoMap(() => [PackageEntity])
-  @OneToMany(() => PackageEntity, (pkg) => pkg.gig, {
+  @AutoMap(() => [GigPackagesEntity])
+  @OneToMany(() => GigPackagesEntity, (pkg) => pkg.gig, {
     cascade: true,
     eager: true,
   })
-  packages: PackageEntity[];
+  packages: GigPackagesEntity[];
 
   @AutoMap(() => PricingPackage)
   @Column({ type: 'json', nullable: true })
   pricingPackage: PricingPackage[];
+
   /* Pricing */
 
   /* Description & FAQ */
@@ -212,7 +213,7 @@ export class GigEntity extends BaseEntity {
     default: 0,
     nullable: false,
   })
-  ratingAverate: number;
+  ratingAverage: number;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -223,16 +224,20 @@ export class GigEntity extends BaseEntity {
   viewCount: number;
 
   @AutoMap()
-  userId: string;
+  @Column({ type: 'int', default: 0 })
+  favoriteCount: number;
 
-  // @AutoMap(() => Requirement)
-  // @Column({ type: 'json', nullable: true })
-  // requirements: Requirement[];
+  @AutoMap()
+  @Column({ type: 'int', default: 0 })
+  completeOrderCount: number;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
   orderCount: number;
 
+  @AutoMap()
+  userId: string;
+  
   @AutoMap()
   @OneToMany(() => OrderEntity, (order) => order.gig)
   orders: OrderEntity[];
@@ -261,11 +266,14 @@ export class GigEntity extends BaseEntity {
     if (this.nestedSubcategory)
       this.nestedSubcategoryId = this.nestedSubcategory?.id ?? null;
     this.basicPrice =
-      this.packages.find((pkg) => pkg.type === 'basic')?.price ?? 0;
+      this.packages.find((pkg) => pkg.type === GigPackageType.BASIC)?.price ??
+      0;
     this.standardPrice =
-      this.packages.find((pkg) => pkg.type === 'standard')?.price ?? 0;
+      this.packages.find((pkg) => pkg.type === GigPackageType.STANDARD)
+        ?.price ?? 0;
     this.premiumPrice =
-      this.packages.find((pkg) => pkg.type === 'premium')?.price ?? 0;
+      this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)?.price ??
+      0;
     this.thumbnail =
       this.images?.image1 || this.images?.image2 || this.images?.image3 || null;
   }

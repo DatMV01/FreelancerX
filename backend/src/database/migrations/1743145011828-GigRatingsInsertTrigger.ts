@@ -5,25 +5,25 @@ export class GigRatingsInsertTrigger1743145011828
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-              DROP TRIGGER IF EXISTS gig_reviews_insert;
+              DROP TRIGGER IF EXISTS user_review_gigs_insert;
         `);
 
     await queryRunner.query(` 
-          CREATE TRIGGER gig_reviews_insert
-          AFTER INSERT ON gig_reviews
+          CREATE TRIGGER user_review_gigs_insert
+          AFTER INSERT ON user_review_gigs
           FOR EACH ROW
           BEGIN
             -- Update the ratingCount and ratingAverage in the gig table
-            UPDATE gig
+            UPDATE gigs
             SET 
-              ratingCount = (SELECT COUNT(*) FROM gig_reviews WHERE gig_id = NEW.gig_id),
-              ratingAverage = (SELECT COALESCE(AVG(rate_number), 0) FROM gig_reviews WHERE gig_id = NEW.gig_id)
+              ratingCount = (SELECT COUNT(*) FROM user_review_gigs WHERE gig_id = NEW.gig_id),
+              ratingAverage = (SELECT COALESCE(AVG(rating), 0) FROM user_review_gigs WHERE gig_id = NEW.gig_id)
             WHERE id = NEW.gig_id;
           END 
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TRIGGER IF EXISTS gig_reviews_insert;`);
+    await queryRunner.query(`DROP TRIGGER IF EXISTS user_review_gigs_insert;`);
   }
 }

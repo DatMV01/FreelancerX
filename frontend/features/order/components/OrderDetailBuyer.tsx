@@ -7,7 +7,7 @@ import { FileDown, FileIcon, Upload } from "lucide-react";
 import useSWR, { mutate } from "swr";
 import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import { CircularProgress } from "@mui/material";
-import { getOrderById } from "../order.api";
+import { getOrderById, getOrderReviewById } from "../order.api";
 import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
 import { OrderLogTimeline } from "./OrderLogTimeline";
 import {
@@ -35,6 +35,7 @@ import { OrderBuyerStatusButton } from "./OrderBuyerStatusButton";
 import RequestRevisionDialog from "./RequestRevisionDialog";
 import CompleteOrderDialog from "./CompleteOrderDialog";
 import { RatingOrderDialog } from "./RatingOrderDialog";
+import OrderReview from "./OrderReview";
 
 type OrderDetailBuyerProps = {
   orderId: any;
@@ -60,15 +61,26 @@ export const OrderDetailBuyer = ({
     dedupingInterval: 0,
   });
 
+  const { data: review, mutate: mutateReview } = useSWR(
+    `reviews/order/${orderId}`,
+    () => getOrderReviewById(orderId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 0,
+    },
+  );
+
+  console.log(!review || review.length === 0);
+
   const [requestRevisionDialogOpen, setRequestRevisionDialogOpen] =
     useState(false);
   const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
   const [deliverWorkDialogOpen, setDeliverWorkDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [askQuestionDialogOpen, setAskQuestionDialogOpen] = useState(false);
-
   const [completeOrderDialogOpen, setCompleteOrderDialogOpen] = useState(false);
-
   const [ratingOrderDialogOpen, setRatingOrderDialogOpen] = useState(false);
 
   if (isLoading || isValidating) {
@@ -112,7 +124,7 @@ export const OrderDetailBuyer = ({
                   <span>Start At: </span>
 
                   {order.startDate
-                    ? format(new Date(order.startDate), "dd/MM/yyyy HH:mm")
+                    ? format(new Date(order.startDate), "dd/MM/yyyy")
                     : "N/A"}
                 </p>
                 <p className="text-muted-foreground text-sm">
@@ -218,6 +230,9 @@ export const OrderDetailBuyer = ({
                 <DeliveryWorkCard key={item.id} delivery={item} />
               ))}
             </div>
+
+            <p className="font-bold"> Review</p>
+            {review && <OrderReview review={review} />}
           </div>
 
           <div className="flex-1">
@@ -282,10 +297,12 @@ export const OrderDetailBuyer = ({
       <div className="flex justify-center">
         <OrderBuyerStatusButton
           status={order.status}
+          showRevisionButton={
+            order.snapshot.package.revisions + 1 > order.deliverables.length
+          }
+          showRateButton={!review || review.length === 0}
           onViewDetails={() => {}}
           onPay={() => {
-            // toast.info("onPay");
-
             window.open(
               `/payment/checkout${order.snapshot.paymentUrl}`,
               "_blank",
@@ -328,11 +345,24 @@ export const OrderDetailBuyer = ({
       <RatingOrderDialog
         open={ratingOrderDialogOpen}
         onOpenChange={setRatingOrderDialogOpen}
-        orderId="12345"
-        handleSubmit={({ rating, review }) => {
-          toast.info("Đánh giá:" + rating + "Nội dung:" + review);
-
-          setRatingOrderDialogOpen(false);
+        orderId={order.id.split("-")[4]}
+        handleSubmit={async ({ rating, review }) => {
+          debugger;
+          try {
+            const response = await axiosInstanceV1.post(`/reviews`, {
+              gigId: order.gigId,
+              orderId,
+              rating,
+              comment: review,
+            });
+            if (response.status === 201) {
+              mutateReview();
+            }
+          } catch (error) {
+            toast.info("error");
+          } finally {
+            setRatingOrderDialogOpen(false);
+          }
         }}
       />
 

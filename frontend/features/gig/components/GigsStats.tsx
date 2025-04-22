@@ -23,7 +23,7 @@ import {
   NotepadTextDashed,
 } from "lucide-react";
 
-export default function GigsStatsDashboard({
+export default function GigsStats({
   gigs,
   requiredStatus,
 }: {

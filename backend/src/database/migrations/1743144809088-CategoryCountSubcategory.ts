@@ -1,29 +1,29 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CategoryCountSubcategory1743144809088
+export class categoriesCountSubcategories1743144809088
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP VIEW IF EXISTS category_count_subcategory;`);
+    await queryRunner.query(`DROP VIEW IF EXISTS categories_count_subcategories;`);
 
     await queryRunner.query(`
-          CREATE VIEW category_count_subcategory AS
+          CREATE VIEW categories_count_subcategories AS
           SELECT
             parent.id,
             parent.title,
-            COUNT(child.id) AS subcategory_count
+            COUNT(child.id) AS subcategories_count
           FROM
-            category AS parent
+            categories AS parent
             LEFT JOIN
-            category AS child ON parent.id = child.parent_id
+            categories AS child ON parent.id = child.parent_id
           WHERE
             parent.deletedAt IS NULL
           GROUP BY parent.id
-          ORDER BY subcategory_count DESC;
+          ORDER BY subcategories_count DESC;
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP VIEW IF EXISTS category_count_subcategory;`);
+    await queryRunner.query(`DROP VIEW IF EXISTS categories_count_subcategories;`);
   }
 }

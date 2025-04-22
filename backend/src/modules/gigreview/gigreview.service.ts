@@ -14,6 +14,7 @@ import { GigEntity } from '../gig/entities/gig.entity';
 import { OrderEntity } from '../order/entities/order.entity';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
 import { OrderStatus } from '../order/order.enum';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Injectable()
 export class GigReviewService extends BaseService<GigReviewEntity> {
@@ -30,17 +31,30 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     super(_repository);
   }
 
-  async createReview(userId: string, orderId: string, dto: CreateGigReviewDto) {
+  async createReview(
+    currentUser: JwtAccessPayloadType,
+
+    dto: CreateGigReviewDto,
+  ) {
+    const { orderId, gigId } = dto;
+
+    const checkReview = await this._repository.findOne({
+      where: { orderId },
+    });
+
+    if (checkReview) {
+      throw new BadRequestException('This order has already been reviewed');
+    }
+
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
-      relations: ['buyer', 'gig', 'review'],
     });
 
     if (!order) {
       throw new NotFoundException('Order not found');
     }
 
-    if (order.buyer.id !== userId) {
+    if (order.buyerId !== currentUser.id) {
       throw new ForbiddenException('You are not the buyer of this order');
     }
 
@@ -50,15 +64,11 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
       );
     }
 
-    if (order.review) {
-      throw new BadRequestException('This order has already been reviewed');
-    }
-
     const review = this._repository.create({
       rating: dto.rating,
       comment: dto.comment,
-      gig: order.gig,
-      reviewer: order.buyer,
+      gigId: order.gigId,
+      reviewerId: currentUser.id,
       order,
     });
 
@@ -67,21 +77,17 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     return review;
   }
 
-  async replyToReview(
-    userId: string,
-    reviewId: string,
-    dto: { reply: string },
-  ) {
+  async replyToReview(id: string, freelancerId: string, reply: string) {
     const review = await this._repository.findOne({
-      where: { id: reviewId },
-      relations: ['gig', 'gig.freelancer'],
+      where: { id },
+      relations: ['gig'],
     });
 
     if (!review) {
       throw new NotFoundException('Review not found');
     }
 
-    if (review.gig.freelancer.id !== userId) {
+    if (review.gig.freelancerId !== freelancerId) {
       throw new ForbiddenException('You are not the owner of this gig');
     }
 
@@ -89,7 +95,8 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
       throw new BadRequestException('You already replied to this review');
     }
 
-    review.reply = dto.reply;
+    review.reply = reply;
+    review.freelancerId = freelancerId;
     review.repliedAt = new Date();
 
     return await this._repository.save(review);
@@ -111,27 +118,15 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     }
 
     return {
-      avgRating: gig.ratingAverate,
+      avgRating: gig.ratingAverage,
       totalReviews: gig.ratingCount,
     };
   }
+  async getReviewByOrder(orderId: string): Promise<any> {
+    return await this._repository.findOne({ where: { orderId } });
+  }
 
-  async replyToRating(ratingId: string, ownerId: string, message: string) {
-    const rating = await this._repository.findOne({
-      where: { id: ratingId },
-      //   relations: ['gig', 'user'],
-    });
-
-    if (!rating) {
-      throw new BadRequestException('Rating not found');
-    }
-
-    if (rating.freelancerId !== ownerId)
-      throw new BadRequestException('Only the gig owner can reply');
-
-    rating.reply = message;
-    rating.repliedAt = new Date();
-
-    return super.update(ratingId, rating);
+  async getReviewsByGig(gigId: string, sort: string) {
+    throw new Error('Method not implemented.');
   }
 }

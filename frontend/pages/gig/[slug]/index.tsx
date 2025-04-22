@@ -35,6 +35,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
@@ -78,6 +79,7 @@ const PackageSideBar = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const { mode } = router.query;
 
   const handleScroll = () => {
     document
@@ -85,9 +87,14 @@ const PackageSideBar = ({
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const onContinueClick = async () => {
+  const handlePlaceAnOrder = async () => {
+    if (mode) {
+      toast.info("Preview mode");
+      return;
+    }
+
     const params = new URLSearchParams(searchParams.toString());
-    debugger;
+
     try {
       setLoading(true);
 
@@ -97,21 +104,14 @@ const PackageSideBar = ({
         quantity: 1,
       });
 
-      const {
-        orderId,
-        transactionId,
-        transactionStripeId,
-        clientSecret,
-        paymentIntentId,
-      } = res.data;
+      const { orderId, transactionId, clientSecret, paymentIntentId } =
+        res.data;
 
       console.log(res.data);
 
       params.set("gigId", gigId);
-
       params.set("orderId", orderId);
       params.set("transactionId", transactionId);
-      params.set("transactionStripeId", transactionStripeId);
       params.set("clientSecret", clientSecret);
       params.set("paymentIntentId", paymentIntentId);
     } catch (error) {
@@ -166,7 +166,7 @@ const PackageSideBar = ({
       <button
         onClick={(e) => {
           e.preventDefault();
-          onContinueClick();
+          handlePlaceAnOrder();
         }}
         className="flex h-8 items-center justify-center space-x-2 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={loading}
@@ -182,6 +182,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
 
   const router = useRouter();
+  const { mode } = router.query;
 
   const [value, setValue] = useState(0);
   const [isFavorite, setFavorite] = useState(false);
@@ -230,15 +231,23 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   const addFavoriteGig = () => {
     setFavorite(true);
+    if (mode) {
+      toast.info("Preview mode");
+      return;
+    }
   };
 
   const removeFavoriteGig = () => {
     setFavorite(false);
+    if (mode) {
+      toast.info("Preview mode");
+      return;
+    }
   };
 
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
-      {gig?.freelancer?.email === user?.email && (
+      {/* {gig?.freelancer?.email === user?.email && (
         <div className="my-2 flex justify-end">
           <Button
             variant="outline"
@@ -251,7 +260,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
             <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </div>
-      )}
+      )} */}
 
       <div className="flex h-8 justify-end">
         {isFavorite ? (

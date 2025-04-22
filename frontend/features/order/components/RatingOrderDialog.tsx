@@ -27,7 +27,7 @@ export function RatingOrderDialog({
   orderId,
   handleSubmit,
 }: Props) {
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState<number>(0);
   const [review, setReview] = useState("");
 
   const onSubmit = () => {

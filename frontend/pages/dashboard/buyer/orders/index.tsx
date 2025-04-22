@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
+import OrderStats from "@/features/order/components/OrderStats";
 import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
@@ -358,15 +358,11 @@ function FreelancerOrderPage() {
       styles: { cellPadding: 2, fontSize: 8 },
       headStyles: { fillColor: "#00ff88", fontSize: 10 },
       margin: { top: 20 },
-
       body: orders.map((_: any) => [
         _?.title,
         _?.basicPrice,
-
         _?.standardPrice,
-
         _?.premiumPrice,
-
         statusMap[_?.status as keyof typeof statusMap].label,
         _?.avgRating,
         _?.views,
@@ -390,14 +386,14 @@ function FreelancerOrderPage() {
     <div className="flex flex-col space-y-6">
       <h1 className="text-2xl font-bold">Manage Order</h1>
 
-      <OrderStatsDashboard
+      <OrderStats
         orders={orders}
         requiredStatus={[
           OrderStatus.UNPAID,
           OrderStatus.PENDING,
           OrderStatus.ACCEPTED,
           OrderStatus.IN_PROGRESS,
-          // OrderStatus.REVISION_REQUESTED,
+          OrderStatus.REVISION_REQUESTED,
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
           OrderStatus.CANCEL,
@@ -458,13 +454,14 @@ function FreelancerOrderPage() {
                   />
                 </TableHead> */}
                 <TableHead>#</TableHead>
-                <TableHead className="cursor-pointer">Orrder</TableHead>
+
+                <TableHead className="cursor-pointer">Order</TableHead>
 
                 <TableHead
                   onClick={() => handleSort("buyerName")}
                   className="cursor-pointer"
                 >
-                  Buyer {getSortIcon("buyerName")}
+                  Freelancer {getSortIcon("buyerName")}
                 </TableHead>
                 <TableHead
                   onClick={() => handleSort("gigTitle")}
@@ -494,7 +491,7 @@ function FreelancerOrderPage() {
                   onClick={() => handleSort("deadline")}
                   className="cursor-pointer"
                 >
-                  End Date {getSortIcon("deadline")}
+                  Deadline {getSortIcon("deadline")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -523,7 +520,7 @@ function FreelancerOrderPage() {
 
                     <TableCell>{_.id.split("-")[4]}</TableCell>
 
-                    <TableCell>{_.snapshot.buyer.fullName}</TableCell>
+                    <TableCell>{_.snapshot.freelancer.displayName}</TableCell>
 
                     <TableCell>{_.snapshot.gig.title}</TableCell>
 

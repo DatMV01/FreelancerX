@@ -47,7 +47,7 @@ export class GigReviewEntity extends BaseEntity {
     type: 'char',
     length: 36,
     name: 'order_id',
-    nullable: true,
+    nullable: false,
     unique: true,
   })
   orderId: string;

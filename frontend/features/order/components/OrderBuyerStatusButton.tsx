@@ -18,6 +18,8 @@ type BuyerOrderActionsProps = {
   onPay?: () => void;
   onCancel?: () => void;
   onComplete?: () => void;
+  showRevisionButton: boolean;
+  showRateButton: boolean;
   onRequestRevision?: () => void;
   onDownload?: () => void;
   onMessage?: () => void;
@@ -31,6 +33,8 @@ export const OrderBuyerStatusButton = ({
   onCancel,
   onComplete,
   onRate,
+  showRevisionButton,
+  showRateButton,
   onRequestRevision,
   onDownload,
   onMessage,
@@ -66,10 +70,13 @@ export const OrderBuyerStatusButton = ({
             <Check className="mr-2 h-4 w-4" />
             Complete
           </Button>
-          <Button onClick={onRequestRevision} variant="outline">
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Request Revision
-          </Button>
+          {showRevisionButton && (
+            <Button onClick={onRequestRevision} variant="outline">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Request Revision
+            </Button>
+          )}
+
           {/* <Button onClick={onCancel} variant="outline">
             <Ban className="h-4 text-red-500" /> Cancel
           </Button> */}
@@ -87,7 +94,7 @@ export const OrderBuyerStatusButton = ({
 
       {status === OrderStatus.COMPLETED && (
         <>
-          {onRate && (
+          {showRateButton && onRate && (
             <Button onClick={onRate} variant="outline">
               <Star className="mr-2 h-4 w-4" />
               Rate

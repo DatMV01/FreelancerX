@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   SerializeOptions,
@@ -19,6 +20,8 @@ import { GigReviewEntity } from './entities/gigreview.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @Controller('reviews')
 export class GigReviewController extends BaseController<
@@ -47,12 +50,13 @@ export class GigReviewController extends BaseController<
     description: 'Entity created successfully',
     type: GigReviewDto,
   })
-  async create(@Body() data: CreateGigReviewDto): Promise<GigReviewDto> {
-    const { gigId, reviewerId: userId, rating, comment } = data;
-    const review = await this._service.createReview(gigId, userId, data);
+  async createReview(
+    @Body() data: CreateGigReviewDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<GigReviewDto> {
+    const review = await this._service.createReview(currentUser, data);
 
     return review as any;
-    //return super.mapFromEntityToDto(review);
   }
 
   @Get('/gig/:gigId')
@@ -60,18 +64,24 @@ export class GigReviewController extends BaseController<
     @Param('gigId') gigId: string,
     @Query('sort') sort: 'newest' | 'highest' | 'lowest' = 'newest',
   ) {
-  //  return this.gigReviewService.getReviewsByGig(gigId, sort);
+    return this._service.getReviewsByGig(gigId, sort);
   }
 
-  @Post('/:id/reply')
+  @Get('/order/:orderId')
+  async getOrderReview(@Param('orderId') orderId: string) {
+    return this._service.getReviewByOrder(orderId);
+  }
+
+  @Patch('/:id')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
-  async editReply(
-    @Param('ratingId') ratingId: string,
-    @Body('ownerId') ownerId: string,
+  async replyToReview(
+    id: string,
+    @Body('freelancerId') freelancerId: string,
     @Body('reply') reply: string,
+    //  @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
-    return this._service.replyToRating(ratingId, ownerId, reply);
+    return this._service.replyToReview(id, freelancerId, reply);
   }
 
   @Post(':ratingId/reply')
@@ -82,7 +92,7 @@ export class GigReviewController extends BaseController<
     @Body('ownerId') ownerId: string,
     @Body('reply') reply: string,
   ) {
-    return this._service.replyToRating(ratingId, ownerId, reply);
+    return this._service.replyToReview(ratingId, ownerId, reply);
   }
 
   @Get('average')

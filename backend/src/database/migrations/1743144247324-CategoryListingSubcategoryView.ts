@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CategoryListingSubcategory1743144247324
+export class categoriesListingSubcategories1743144247324
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP VIEW IF EXISTS category_listing_subcategory;`);
+    await queryRunner.query(`DROP VIEW IF EXISTS categories_listing_subcategories;`);
 
     await queryRunner.query(`
-      CREATE VIEW category_listing_subcategory AS
+      CREATE VIEW categories_listing_subcategories AS
           SELECT 
               parent.id AS parent_id,
               parent.title AS parent_title,
@@ -15,9 +15,9 @@ export class CategoryListingSubcategory1743144247324
                   ORDER BY child.title
                   SEPARATOR ', ') AS subcategories
           FROM
-              category AS parent
+              categories AS parent
                   LEFT JOIN
-              category AS child ON parent.id = child.parent_id
+              categories AS child ON parent.id = child.parent_id
           WHERE
               parent.parent_id IS NULL
                   AND parent.deletedAt IS NULL
@@ -28,6 +28,6 @@ export class CategoryListingSubcategory1743144247324
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP VIEW IF EXISTS category_listing_subcategory;`);
+    await queryRunner.query(`DROP VIEW IF EXISTS categories_listing_subcategories;`);
   }
 }

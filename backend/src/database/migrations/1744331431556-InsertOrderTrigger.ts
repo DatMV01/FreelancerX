@@ -12,7 +12,7 @@ export class InsertOrderTrigger1744331431556 implements MigrationInterface {
           FOR EACH ROW
           BEGIN
             -- Tăng orderCount lên 1 trong bảng gig
-            UPDATE gig
+            UPDATE gigs
             SET orderCount = orderCount + 1
             WHERE id = NEW.gig_id;
           END;

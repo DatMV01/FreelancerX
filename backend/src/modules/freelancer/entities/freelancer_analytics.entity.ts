@@ -10,7 +10,7 @@ import {
 import { FreelancerEntity } from './freelancer.entity';
 
 @Entity('freelancer_analytics')
-export class FreelancerAnalytics {
+export class FreelancerAnalyticsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

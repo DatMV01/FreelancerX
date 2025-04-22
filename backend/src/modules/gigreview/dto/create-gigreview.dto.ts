@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
   Max,
@@ -11,7 +12,7 @@ import {
 
 export class CreateGigReviewDto {
   @AutoMap()
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   @ApiProperty({
     description: 'The unique identifier of the gig being rated',
@@ -23,10 +24,10 @@ export class CreateGigReviewDto {
   @IsNotEmpty()
   @IsUUID()
   @ApiProperty({
-    description: 'The unique identifier of the user giving the rating',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'The unique identifier of the order being rated',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
-  reviewerId: string;
+  orderId: string;
 
   @AutoMap()
   @IsNumber()
@@ -34,7 +35,7 @@ export class CreateGigReviewDto {
   @Max(5)
   @ApiProperty({
     description: 'Rating score from 1 to 5',
-    example: 3.5,
+    example: 3,
     minimum: 1,
     maximum: 5,
   })
@@ -42,7 +43,7 @@ export class CreateGigReviewDto {
 
   @AutoMap()
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @ApiProperty({
     description: 'User review comment about the gig',
     example: 'Great service and fast delivery!',
