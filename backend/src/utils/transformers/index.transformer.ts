@@ -6,8 +6,8 @@ import { RoleEnum } from 'src/modules/role/enum/role.enum';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { MaybeUndefined } from '../types/maybe.type';
-import { FreelancersLanguages } from 'src/modules/freelancer/entities/freelancers_languages.entity';
-import { FreelancersSkills } from 'src/modules/freelancer/entities/freelancers_skills.entity';
+import { FreelancersLanguages } from 'src/modules/freelancer/entities/freelancer_languages.entity';
+import { FreelancersSkills } from 'src/modules/freelancer/entities/freelancer_skills.entity';
 
 const isValuesEmpty = (obj: object) =>
   Object.values(obj).every((v) => v == null || v == undefined);

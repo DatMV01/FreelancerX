@@ -38,11 +38,6 @@ import { CreateOrderDto } from 'src/modules/order/dto/create-order.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UpdateOrderDto } from 'src/modules/order/dto/update-order.dto';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-
-import { CreateRatingDto } from 'src/modules/rating/dto/create-rating.dto';
-import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { UpdateRatingDto } from 'src/modules/rating/dto/update-rating.dto';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { CreateRoleDto } from 'src/modules/role/dto/create-role.dto';
 import { UpdateRoleDto } from 'src/modules/role/dto/update-role.dto';
 import { CreateSessionDto } from 'src/modules/session/dto/create-session.dto';
@@ -68,8 +63,8 @@ import {
   convertNullToUndefined,
   removeUndefinedFields,
 } from 'src/utils/common';
-import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.entity';
-import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancer_skills.entity';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -134,12 +129,7 @@ export class AutoMapper extends AutomapperProfile {
           createDto: CreateNotificationDto,
           updateDto: UpdateNotificationDto,
         },
-        {
-          entity: ReviewEntity,
-          dto: RatingDto,
-          createDto: CreateRatingDto,
-          updateDto: UpdateRatingDto,
-        },
+
         {
           entity: UserEntity,
           dto: UserDto,

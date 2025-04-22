@@ -117,7 +117,7 @@ const orderLogs = [
 ];
 
 @Entity('order_logs')
-export class OrderLogEntity {
+export class OrderLogsEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -144,7 +144,7 @@ export class OrderLogEntity {
   @IsOptional()
   toStatus: OrderStatus;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'nvarchar', nullable: true })
   @IsOptional()
   action: string;
 

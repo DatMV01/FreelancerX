@@ -3,7 +3,6 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import slugify from 'slugify';
 import * as removeAccents from 'remove-accents';
 
@@ -27,15 +26,14 @@ import {
   GigFileInfo,
   GigImages,
   PricingPackage,
- 
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { PackageEntity } from './package.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
-@Entity({ name: 'gig_tags' })
-export class GigTagEntity extends BaseEntity {
+@Entity('tags')
+export class GigTagEntity   {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -43,7 +41,7 @@ export class GigTagEntity extends BaseEntity {
   name: string;
 }
 
-@Entity({ name: 'gig' })
+@Entity('gigs')
 @Index('IDX_gig_search', ['title', 'description', 'slug'], { fulltext: true })
 export class GigEntity extends BaseEntity {
   /* Overview */
@@ -137,7 +135,7 @@ export class GigEntity extends BaseEntity {
     cascade: true,
   })
   @JoinTable({
-    name: 'gigs_tags',
+    name: 'gig_tags',
     joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })
@@ -198,19 +196,11 @@ export class GigEntity extends BaseEntity {
   video: GigFileInfo;
 
   /* Gallery */
-
   @AutoMap()
   @Column({ type: 'enum', enum: GigStatus, default: GigStatus.DRAFT })
   status: GigStatus;
 
-  /* RATING */
-  @AutoMap(() => ReviewEntity)
-  @OneToMany(() => ReviewEntity, (rating) => rating.gig, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  ratings: ReviewEntity[];
-
+  /* REVIEWS */
   @OneToMany(() => GigReviewEntity, (review) => review.gig)
   reviews: GigReviewEntity[];
 

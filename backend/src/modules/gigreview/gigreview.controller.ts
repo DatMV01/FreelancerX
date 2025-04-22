@@ -8,12 +8,12 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { BaseController } from '../base/base.controller';
-import { RatingDto as GigReviewDto } from './dto/gigreview.dto';
+import { GigReviewDto as GigReviewDto } from './dto/gigreview.dto';
 import { GigReviewService } from './gigreview.service';
 
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
-import { UpdateRatingDto as UpdateGigReviewDto } from './dto/update-gigreview.dto';
+import { UpdateGigReviewDto as UpdateGigReviewDto } from './dto/update-gigreview.dto';
 import { GigReviewEntity } from './entities/gigreview.entity';
 
 import { UseGuards } from '@nestjs/common';

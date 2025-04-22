@@ -36,9 +36,7 @@ export class FileLocalService {
 
     const data: Partial<FileEntity> = {
       url: `${file.path}`,
-      user: {
-        id: currentUser.id,
-      } as any,
+      userId: currentUser.id,
       mimeType: file.mimetype,
     };
 
@@ -83,7 +81,7 @@ export class FileLocalService {
 
     if (
       currentUser.role == RoleEnum[RoleEnum.ADMIN] ||
-      entity.user.id === currentUser.id
+      entity.userId === currentUser.id
     ) {
       if (entity.provider === FileDriver.LOCAL) {
         return this.deleteFileLocal(entity);
@@ -107,7 +105,7 @@ export class FileLocalService {
 
     if (
       currentUser.role == RoleEnum[RoleEnum.ADMIN] ||
-      entity.user.id === currentUser.id
+      entity.userId === currentUser.id
     ) {
       if (entity.provider === FileDriver.LOCAL) {
         return this.deleteFileLocal(entity);
@@ -131,6 +129,4 @@ export class FileLocalService {
       return false;
     }
   }
-
-  
 }

@@ -19,25 +19,26 @@ import { OrderEntity } from './entities/order.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  TransactionEntity,
-  TransactionProvider,
-  TransactionStatus,
-  TransactionType,
-} from '../transaction/entities/transaction.entity';
 import { StripeService } from 'src/stripe/stripe.service';
 import { GigEntity } from '../gig/entities/gig.entity';
 import { GigService } from '../gig/gig.service';
 import { consoleError } from 'src/utils/common';
-import { TransactionStripeEntity } from '../transaction/entities/transactionStripe.entity';
-import { OrderLogEntity } from './entities/orderLog.entity';
-import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
+import { OrderLogsEntity } from './entities/order_logs.entity';
+import { OrderQuestionsEntity } from './entities/order_questions.entity';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { UserEntity } from '../user/entities/user.entity';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { BaseEntity } from '../base/entities/base.entity';
 import { OrderActions, OrderStatus } from './order.enum';
-import { OrderDeliveryEntity } from './entities/orderDelivery.entity';
+import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
+import { TransactionEntity } from '../transaction/entities/transaction.entity';
+import {
+  ActorType,
+  TransactionDirection,
+  TransactionMethod,
+  TransactionStatus,
+  TransactionType,
+} from '../transaction/enum/transaction.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -51,14 +52,11 @@ export class OrderService extends BaseService<OrderEntity> {
     @InjectRepository(TransactionEntity)
     private transactionRepo: Repository<TransactionEntity>,
 
-    @InjectRepository(TransactionStripeEntity)
-    private transactionStripeRepo: Repository<TransactionStripeEntity>,
+    @InjectRepository(OrderLogsEntity)
+    private readonly orderLogRepo: Repository<OrderLogsEntity>,
 
-    @InjectRepository(OrderLogEntity)
-    private readonly orderLogRepo: Repository<OrderLogEntity>,
-
-    @InjectRepository(OrderQuestionsAnswersEntity)
-    private readonly orderQuestionsAnswersRepo: Repository<OrderQuestionsAnswersEntity>,
+    @InjectRepository(OrderQuestionsEntity)
+    private readonly orderQuestionsAnswersRepo: Repository<OrderQuestionsEntity>,
 
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
@@ -66,8 +64,8 @@ export class OrderService extends BaseService<OrderEntity> {
     @InjectRepository(FreelancerEntity)
     private readonly freelancerRepo: Repository<FreelancerEntity>,
 
-    @InjectRepository(OrderDeliveryEntity)
-    private readonly orderDeliveryRepo: Repository<OrderDeliveryEntity>,
+    @InjectRepository(OrderDeliverablesEntity)
+    private readonly orderDeliveryRepo: Repository<OrderDeliverablesEntity>,
 
     private stripeService: StripeService,
   ) {
@@ -155,36 +153,35 @@ export class OrderService extends BaseService<OrderEntity> {
       snapshot,
     });
 
+    const stripePaymentIntent = await this.stripeService.createPaymentIntent({
+      amount: totalAmount,
+      currency,
+      metadata: {
+        orderId: createOrder.id,
+        buyerId,
+        gigId,
+        packageId,
+      },
+    });
+
+    const { client_secret, id: stripePaymentIntentId } = stripePaymentIntent;
+
     const createTransaction = this.transactionRepo.create({
       id: uuidv4(),
-      orderId: createOrder.id,
-      userId: createDto.buyerId,
+      referenceCode: stripePaymentIntentId,
       amount: totalAmount,
+      direction: TransactionDirection.IN,
+      method: TransactionMethod.STRIPE,
       type: TransactionType.PAYMENT,
-      provider: TransactionProvider.STRIPE,
       status: TransactionStatus.PENDING,
+      actorType: ActorType.BUYER,
+      actor: buyer,
+      orderId: createOrder.id,
+      metadata: stripePaymentIntent,
       currency,
     });
 
-    const { client_secret, id: stripePaymentIntentId } =
-      await this.stripeService.createPaymentIntent({
-        amount: totalAmount,
-        currency,
-        metadata: {
-          orderId: createOrder.id,
-          buyerId,
-          gigId,
-          packageId,
-          transactionId: createTransaction.id,
-        },
-      });
-
-    const createTransactionStripe = this.transactionStripeRepo.create({
-      id: uuidv4(),
-      transactionId: createTransaction.id,
-      paymentIntentId: stripePaymentIntentId,
-      clientSecret: client_secret || undefined,
-    });
+    const paymentUrl = `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`;
 
     const createOrderLog = this.orderLogRepo.create({
       ...OrderActions.CREATE_ORDER,
@@ -192,7 +189,7 @@ export class OrderService extends BaseService<OrderEntity> {
       userId: currentUser.id,
       orderId: createOrder.id,
       metadata: {
-        paymentUrl: `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`,
+        paymentUrl,
       },
     });
 
@@ -200,16 +197,12 @@ export class OrderService extends BaseService<OrderEntity> {
       ...createOrder,
       snapshot: {
         ...createOrder.snapshot,
-        paymentUrl: `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`,
+        paymentUrl,
       },
     };
     const saveOrder = await this._repository.save(finalCreateOrder);
 
     const saveTransaction = await this.transactionRepo.save(createTransaction);
-
-    const saveTransactionStripe = await this.transactionStripeRepo.save(
-      createTransactionStripe,
-    );
 
     await this.orderLogRepo.save(createOrderLog);
 
@@ -221,16 +214,15 @@ export class OrderService extends BaseService<OrderEntity> {
     return {
       orderId: saveOrder.id,
       transactionId: saveTransaction.id,
-      transactionStripeId: saveTransactionStripe.id,
-      clientSecret: saveTransactionStripe.clientSecret,
-      paymentIntentId: saveTransactionStripe.paymentIntentId,
+      clientSecret: client_secret,
+      paymentIntentId: stripePaymentIntentId,
     } as any;
   }
 
   async addQuestionsAnswersToOrder(
-    data: OrderQuestionsAnswersEntity,
+    data: OrderQuestionsEntity,
     currentUser: JwtAccessPayloadType,
-  ): Promise<OrderQuestionsAnswersEntity> {
+  ): Promise<OrderQuestionsEntity> {
     const { orderId, question, answer, file } = data;
 
     const order = await super.findOneById(orderId);
@@ -244,9 +236,9 @@ export class OrderService extends BaseService<OrderEntity> {
   }
 
   async addDeliveryWork(
-    data: OrderDeliveryEntity,
+    data: OrderDeliverablesEntity,
     currentUser: JwtAccessPayloadType,
-  ): Promise<OrderDeliveryEntity> {
+  ): Promise<OrderDeliverablesEntity> {
     const { orderId } = data;
 
     const order = await super.findOneById(orderId);
@@ -272,17 +264,47 @@ export class OrderService extends BaseService<OrderEntity> {
     return this.orderDeliveryRepo.save(createQuestionAnswer);
   }
 
-  async addLog(
-    data: OrderLogEntity,
+  async addReDeliveryWork(
+    data: OrderDeliverablesEntity,
     currentUser: JwtAccessPayloadType,
-  ): Promise<OrderLogEntity> {
-    return this.orderLogRepo.save(data);
+  ): Promise<OrderDeliverablesEntity> {
+    const { orderId } = data;
+
+    const order = await super.findOneById(orderId);
+
+    const freelancer = await this.freelancerRepo.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    if (!freelancer) {
+      consoleError(`Freelancer with ID ${currentUser.id} not found`);
+      throw new NotFoundException(
+        `Freelancer with ID ${currentUser.id} not found`,
+      );
+    }
+
+    const createQuestionAnswer = this.orderDeliveryRepo.create({
+      ...data,
+      order,
+      freelancer,
+    });
+
+    await this._repository.save({ ...order, status: OrderStatus.DELIVERED });
+    const log = this.orderLogRepo.create({
+      ...OrderActions.RE_DELIVER_WORK,
+
+      orderId: order.id,
+      userId: currentUser.id,
+    } as any);
+    await this.orderLogRepo.save(log);
+
+    return this.orderDeliveryRepo.save(createQuestionAnswer);
   }
 
   async updateQuestionsAnswersToOrder(
-    data: OrderQuestionsAnswersEntity,
+    data: OrderQuestionsEntity,
     currentUser: JwtAccessPayloadType,
-  ): Promise<OrderQuestionsAnswersEntity> {
+  ): Promise<OrderQuestionsEntity> {
     const { id, answer, file } = data;
 
     const questionanswer = await this.orderQuestionsAnswersRepo.findOne({

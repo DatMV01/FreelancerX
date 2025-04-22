@@ -18,7 +18,6 @@ import { FreelancerModule } from './modules/freelancer/freelancer.module';
 import { GigModule } from './modules/gig/gig.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { OrderModule } from './modules/order/order.module';
-import { RatingModule } from './modules/rating/rating.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { StatusModule } from './modules/status/status.module';
@@ -56,7 +55,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     TransactionModule,
     CategoryModule,
     NotificationModule,
-    RatingModule,
     FreelancerModule,
     MailModule,
     StripeModule,

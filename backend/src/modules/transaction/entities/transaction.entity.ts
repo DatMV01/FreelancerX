@@ -5,38 +5,18 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { WithdrawalEntity } from './withdrawalRequest.entity';
-import { TransactionStripeEntity } from './transactionStripe.entity';
-
-export enum TransactionProvider {
-  STRIPE = 'STRIPE',
-  VNPAY = 'VNPAY',
-  PAYPAL = 'PAYPAL',
-  MOMO = 'MOMO',
-  MANUAL = 'MANUAL',
-  TOP_UP = 'TOP_UP',
-  BANK_TRANSFER = 'BANK_TRANSFER',
-}
-
-export enum TransactionStatus {
-  PENDING = 'PENDING',
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
-}
-
-export enum TransactionType {
-  DEPOSIT = 'DEPOSIT',
-  WITHDRAWAL = 'WITHDRAWAL',
-  PAYMENT = 'PAYMENT',
-  REFUND = 'REFUND',
-  EARNING = 'EARNING',
-  PLATFORM_FEE = 'PLATFORM_FEE',
-}
+import {
+  ActorType,
+  TransactionDirection,
+  TransactionMethod,
+  TransactionStatus,
+  TransactionType,
+} from '../enum/transaction.enum';
 
 @Entity('transactions')
 export class TransactionEntity extends BaseEntity {
@@ -44,41 +24,17 @@ export class TransactionEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @AutoMap()
-  @Column({ name: 'user_id', nullable: true })
-  userId?: string;
+  @Column({ type: 'varchar', length: 100, unique: true })
+  referenceCode: string; // Mã tham chiếu duy nhất của giao dịch
 
-  @AutoMap(() => UserEntity)
-  @ManyToOne(() => UserEntity, (user) => user.transactions, {
-    onDelete: 'RESTRICT',
-  })
-  @JoinColumn({ name: 'user_id' })
-  user?: UserEntity;
+  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  amount: number; // Số tiền giao dịch
 
-  // ✅ Liên kết với Order (nếu có)
-  @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'order_id', nullable: true })
-  orderId?: string;
+  @Column({ type: 'enum', enum: TransactionDirection })
+  direction: TransactionDirection; // 'in' or 'out'
 
-  @AutoMap(() => OrderEntity)
-  @ManyToOne(() => OrderEntity, (order) => order.transactions, {
-    onDelete: 'RESTRICT',
-  })
-  @JoinColumn({ name: 'order_id' })
-  order?: OrderEntity;
-
-  // ✅ Liên kết với WithdrawalRequest (nếu có)
-  @AutoMap(() => WithdrawalEntity)
-  @OneToOne(() => WithdrawalEntity, (_) => _.transaction)
-  withdrawal?: WithdrawalEntity;
-
-  @OneToOne(() => TransactionStripeEntity, (_) => _.transaction)
-  @AutoMap(() => TransactionStripeEntity)
-  transactionStripe?: TransactionStripeEntity;
-
-  @AutoMap()
-  @Column('int')
-  amount: number;
+  @Column({ nullable: true })
+  method?: TransactionMethod; // e.g., 'bank', 'paypal', 'momo', 'stripe
 
   @AutoMap()
   @Column({ type: 'enum', enum: TransactionType, nullable: false })
@@ -93,16 +49,37 @@ export class TransactionEntity extends BaseEntity {
   })
   status: TransactionStatus;
 
+  // Actor
   @AutoMap()
-  @Column({
-    type: 'enum',
-    enum: TransactionProvider,
-    nullable: false,
-    default: TransactionProvider.STRIPE,
-  })
-  provider: TransactionProvider;
+  @Column({ type: 'enum', enum: ActorType })
+  actorType: ActorType; // Freelancer or Buyer
 
   @AutoMap()
-  @Column({ type: 'varchar', length: 3, default: 'USD' })
+  @Index()
+  @Column({ type: 'char', length: 36, name: 'actor_id', nullable: false })
+  actorId: string; // Refer to Freelancer or Buyer ID
+
+  @AutoMap(() => UserEntity)
+  @ManyToOne(() => UserEntity, (user) => user.transactions)
+  @JoinColumn({ name: 'actor_id' })
+  actor?: UserEntity;
+
+  // Liên kết với Order (nếu có)
+  @AutoMap()
+  @Index()
+  @Column({ type: 'char', length: 36, name: 'order_id', nullable: true })
+  orderId?: string;
+
+  @AutoMap(() => OrderEntity)
+  @ManyToOne(() => OrderEntity, (order) => order.transactions, {
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'order_id' })
+  order?: OrderEntity;
+
+  @Column({ type: 'json', nullable: true })
+  metadata?: Record<string, any>; // Lưu thêm info như Stripe session, bank ref...
+
+  @Column({ type: 'varchar', length: 10, default: 'USD' })
   currency: string;
 }

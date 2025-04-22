@@ -10,13 +10,14 @@ import {
   Star,
   Eye,
   Ban,
+  Hourglass,
 } from "lucide-react";
 import { OrderStatus } from "../dto";
 type BuyerOrderActionsProps = {
   status: OrderStatus;
   onPay?: () => void;
   onCancel?: () => void;
-  onAccept?: () => void;
+  onComplete?: () => void;
   onRequestRevision?: () => void;
   onDownload?: () => void;
   onMessage?: () => void;
@@ -28,18 +29,18 @@ export const OrderBuyerStatusButton = ({
   status,
   onPay,
   onCancel,
-  onAccept,
+  onComplete,
+  onRate,
   onRequestRevision,
   onDownload,
   onMessage,
   onViewDetails,
-  onRate,
 }: BuyerOrderActionsProps) => {
   return (
     <div className="flex flex-wrap gap-2">
-      <Button onClick={onViewDetails} variant="outline">
+      {/* <Button onClick={onViewDetails} variant="outline">
         <Eye className="h-4" /> View Details
-      </Button>
+      </Button> */}
 
       {status === OrderStatus.UNPAID && (
         <>
@@ -58,27 +59,29 @@ export const OrderBuyerStatusButton = ({
           <Ban className="h-4 text-red-500" /> Cancel
         </Button>
       )}
-{/* 
-      {status === OrderStatus.REVISION_REQUESTED && (
-        <Button disabled variant="secondary">
-          <Info className="h-4" /> Revision Waiting
-        </Button>
-      )} */}
 
       {status === OrderStatus.DELIVERED && (
         <>
-          <Button onClick={onAccept} variant="outline">
+          <Button onClick={onComplete} variant="outline">
             <Check className="mr-2 h-4 w-4" />
-            Accept
+            Complete
           </Button>
           <Button onClick={onRequestRevision} variant="outline">
             <RotateCcw className="mr-2 h-4 w-4" />
             Request Revision
           </Button>
-          {/* <Button onClick={onDownload} variant="ghost">
-            <FileDown className="mr-2 h-4 w-4" />
-            Tải sản phẩm
+          {/* <Button onClick={onCancel} variant="outline">
+            <Ban className="h-4 text-red-500" /> Cancel
           </Button> */}
+        </>
+      )}
+
+      {status === OrderStatus.REVISION_REQUESTED && (
+        <>
+          <Button className="pointer-events-none" variant="outline">
+            <Hourglass className="h-4 text-green-500" /> Waiting for freelancer
+            to re-delivered...
+          </Button>
         </>
       )}
 

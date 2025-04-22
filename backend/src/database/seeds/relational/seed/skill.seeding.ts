@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { skills } from 'data/skill';
-import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.entity';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancer_skills.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

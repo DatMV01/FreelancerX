@@ -53,12 +53,14 @@ export const OrderDetailFreelancer = ({
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
     refreshInterval: 0,
-    dedupingInterval: 1000000,
+    dedupingInterval: 0,
   });
 
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
   const [deliverWorkDialogOpen, setDeliverWorkDialogOpen] = useState(false);
+
+  const [reDeliverWorkDialogOpen, setReDeliverWorkDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [askQuestionDialogOpen, setAskQuestionDialogOpen] = useState(false);
 
@@ -159,6 +161,11 @@ export const OrderDetailFreelancer = ({
               <p className="font-bold">Order Detail</p>
 
               <p>
+                <span className="text-muted-foreground text-sm">Total:</span>
+
+                {order.totalAmount}
+              </p>
+              <p>
                 <span className="text-muted-foreground text-sm">Gig:</span>
 
                 <a href="#"> {`${order.snapshot.gig.title} `}</a>
@@ -169,10 +176,29 @@ export const OrderDetailFreelancer = ({
 
                 {`${order.snapshot.package.title} - ${order.snapshot.package.type}`}
               </p>
-              <p>
-                <span className="text-muted-foreground text-sm">Price:</span>
 
-                {order.price}
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Description:
+                </span>
+
+                {order.snapshot.package.description}
+              </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Delivery Days:
+                </span>
+
+                {order.deliveryTime}
+              </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Revisions:
+                </span>
+
+                {order.snapshot.package.revisions}
               </p>
             </div>
 
@@ -247,7 +273,6 @@ export const OrderDetailFreelancer = ({
           </div> */}
         </div>
       </div>
-
       <div className="flex justify-center">
         <OrderFreelancerStatusButton
           status={order.status}
@@ -268,9 +293,11 @@ export const OrderDetailFreelancer = ({
           onAskQuestion={() => {
             setAskQuestionDialogOpen(true);
           }}
+          onReDeliver={() => {
+            setReDeliverWorkDialogOpen(true);
+          }}
         />
       </div>
-
       <AcceptlOrderDialog
         open={acceptDialogOpen}
         onOpenChange={setAcceptDialogOpen}
@@ -288,7 +315,6 @@ export const OrderDetailFreelancer = ({
           setAcceptDialogOpen(false);
         }}
       />
-
       <StartWorkingDialog
         open={startWorkDialogOpen}
         onOpenChange={setStartWorkDialogOpen}
@@ -314,7 +340,6 @@ export const OrderDetailFreelancer = ({
           }
         }}
       />
-
       <CancelOrderDialog
         open={cancelDialogOpen}
         onOpenChange={setCancelDialogOpen}
@@ -331,7 +356,6 @@ export const OrderDetailFreelancer = ({
           setCancelDialogOpen(false);
         }}
       />
-
       <AskQuestionDialog
         open={askQuestionDialogOpen}
         onOpenChange={setAskQuestionDialogOpen}
@@ -350,6 +374,52 @@ export const OrderDetailFreelancer = ({
           }
 
           setAskQuestionDialogOpen(false);
+        }}
+      />
+      <DeliverWorkDialog
+        open={reDeliverWorkDialogOpen}
+        onOpenChange={setReDeliverWorkDialogOpen}
+        onSubmit={async ({ message, file }) => {
+          const formData = new FormData();
+          formData.append("message", message);
+          formData.append("orderId", orderId);
+
+          if (file) {
+            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+            const newFile = new File([file], newFileName, {
+              type: file.type,
+            });
+
+            const fileForm = new FormData();
+            fileForm.append("file", newFile);
+
+            const { data, status } = await axiosInstanceV1.post(
+              "/file/upload",
+              fileForm,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              },
+            );
+
+            if (status === 201) {
+              console.log("File uploaded successfully", data);
+              formData.append("file", JSON.stringify(data));
+            }
+          }
+
+          const { data, status } = await axiosInstanceV1.post(
+            `/orders/delivery`,
+            formData,
+          );
+
+          if (status === 201) {
+            mutateThisOrder();
+            mutateAllOrder && mutateAllOrder();
+          }
+
+          setReDeliverWorkDialogOpen(false);
         }}
       />
 

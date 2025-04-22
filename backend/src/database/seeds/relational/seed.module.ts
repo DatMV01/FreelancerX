@@ -9,10 +9,10 @@ import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { UserSeeding } from './seed/user.seeding';
 import { CategorySeeding } from './seed/category.seeding';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
-import { SkillEntity } from 'src/modules/freelancer/entities/freelancers_skills.entity';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancer_skills.entity';
 import { SkillSeeding } from './seed/skill.seeding';
 import { LanguageSeeding } from './seed/language.seeding';
-import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 
 @Module({

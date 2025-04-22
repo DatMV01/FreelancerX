@@ -6,11 +6,11 @@ import { FreelancerEntity } from './entities/freelancer.entity';
 import {
   SkillEntity,
   FreelancersSkills,
-} from './entities/freelancers_skills.entity';
+} from './entities/freelancer_skills.entity';
 import {
   LanguageEntity,
   FreelancersLanguages,
-} from './entities/freelancers_languages.entity';
+} from './entities/freelancer_languages.entity';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/user.service';
 

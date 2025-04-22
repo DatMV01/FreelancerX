@@ -1,15 +1,11 @@
-import { BaseDto } from 'src/modules/base/dto/base.dto';
-import { GigStatus } from '../enum/gig.status';
-import { UserDto } from 'src/modules/user/dto/user.dto';
 import { AutoMap } from '@automapper/classes';
-import { CategoryDto } from 'src/modules/category/dto/category.dto';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
-import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { Transform, TransformationType } from 'class-transformer';
+import { BaseDto } from 'src/modules/base/dto/base.dto';
+import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { GigTagEntity } from '../entities/gig.entity';
 import { PackageEntity } from '../entities/package.entity';
+import { GigStatus } from '../enum/gig.status';
 
 export class PricingPackage {
   @AutoMap()

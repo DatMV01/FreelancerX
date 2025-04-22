@@ -1,3 +1,5 @@
+import { AutoMap } from '@automapper/classes';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -5,18 +7,14 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import {
-  FreelancerLanguageProficiency,
-  FreelancerSkillProficiency,
+  FreelancerLanguageProficiency
 } from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
-import { AutoMap } from '@automapper/classes';
-import { ApiProperty } from '@nestjs/swagger';
 
-@Entity('language')
+@Entity('languages')
 export class LanguageEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('increment')
@@ -44,15 +42,17 @@ export class LanguageEntity {
   freelancers?: FreelancersLanguages[];
 }
 
-@Entity('freelancers_languages')
-@Index(['freelancerId', 'languageId'], { unique: true })
+@Entity('freelancer_languages')
 export class FreelancersLanguages {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
   @Index()
-  @PrimaryColumn({ type: 'char', length: 36, name: 'freelancer_id' })
+  @Column({ type: 'char', length: 36, name: 'freelancer_id' })
   freelancerId: string;
 
   @Index()
-  @PrimaryColumn({ type: 'number', name: 'language_id' })
+  @Column({ type: 'number', name: 'language_id' })
   languageId: number;
 
   @ManyToOne(

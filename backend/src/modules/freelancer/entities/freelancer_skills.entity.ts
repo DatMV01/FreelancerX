@@ -13,7 +13,7 @@ import {
 import { FreelancerSkillProficiency } from '../enum/freelancer.enum';
 import { FreelancerEntity } from './freelancer.entity';
 
-@Entity('skill')
+@Entity('skills')
 export class SkillEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('increment')
@@ -35,7 +35,7 @@ export class SkillEntity extends BaseEntity {
   freelancers?: FreelancersSkills[];
 }
 
-@Entity('freelancers_skills')
+@Entity('freelancer_skills')
 @Index(['freelancerId', 'skillId'], { unique: true })
 export class FreelancersSkills {
   @PrimaryGeneratedColumn('increment')

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { languages } from 'data/languages';
-import { LanguageEntity } from 'src/modules/freelancer/entities/freelancers_languages.entity';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

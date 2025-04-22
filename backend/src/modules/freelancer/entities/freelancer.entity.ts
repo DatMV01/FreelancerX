@@ -19,17 +19,16 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { FreelancerRankEnum } from '../enum/freelancer.enum';
 import {
   FreelancersLanguages,
   LanguageEntity,
-} from './freelancers_languages.entity';
-import { FreelancersSkills } from './freelancers_skills.entity';
-import { WithdrawalEntity } from 'src/modules/transaction/entities/withdrawalRequest.entity';
+} from './freelancer_languages.entity';
+import { FreelancersSkills } from './freelancer_skills.entity';
+import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
-@Entity('freelancer')
+@Entity('freelancers')
 export class FreelancerEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
@@ -44,11 +43,11 @@ export class FreelancerEntity extends BaseEntity {
   avatar: string;
 
   @AutoMap()
-//  @Column({ nullable: true })
+  //  @Column({ nullable: true })
   country: string;
 
   @AutoMap()
- // @Column({ nullable: true })
+  // @Column({ nullable: true })
   phone: string;
 
   @AutoMap()
@@ -113,40 +112,6 @@ export class FreelancerEntity extends BaseEntity {
   // })
   // categories?: CategoryEntity[];
 
-  @AutoMap(() => [ReviewEntity])
-  @OneToMany(() => ReviewEntity, (rating) => rating.freelancer, {
-    eager: false,
-    onDelete: 'SET NULL',
-  })
-  ratings: ReviewEntity[];
-
-  @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  reviewCount: number;
-
-  @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  @Index('IDX_freelancer_completed_orders')
-  completedOrderCount: number;
-
-  @AutoMap()
-  @Column({ type: 'int', default: 0 })
-  @Index('IDX_freelancer_response_time')
-  responseTime: number;
-
-  @AutoMap()
-  @Column({ type: 'decimal', precision: 3, scale: 2, default: 0.0 })
-  @Index('IDX_freelancer_rating')
-  completedRate: number;
-
-  @AutoMap()
-  @Column({ type: 'bigint', default: 0 })
-  earnings: number;
-
-  @AutoMap()
-  @Column({ type: 'bigint', default: 0 })
-  withdrawnAmount: number;
-
   @AutoMap(() => [GigEntity])
   @OneToMany(() => GigEntity, (gig) => gig.freelancer, {
     eager: false,
@@ -161,8 +126,9 @@ export class FreelancerEntity extends BaseEntity {
   })
   orders: OrderEntity[];
 
-  @OneToMany(() => WithdrawalEntity, (withdrawal) => withdrawal.user)
-  withdrawals: WithdrawalEntity[];
+  @AutoMap(() => [GigReviewEntity])
+  @OneToMany(() => GigReviewEntity, (gigReview) => gigReview.freelancer)
+  reviews: GigReviewEntity[];
 
   @AfterInsert()
   @AfterUpdate()

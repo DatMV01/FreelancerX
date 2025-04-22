@@ -16,10 +16,10 @@ import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.ent
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
-import { OrderLogEntity } from './orderLog.entity';
+import { OrderLogsEntity } from './order_logs.entity';
 import { PackageEntity } from 'src/modules/gig/entities/package.entity';
-import { OrderQuestionsAnswersEntity } from './orderQA.entity';
-import { OrderDeliveryEntity } from './orderDelivery.entity';
+import { OrderQuestionsEntity } from './order_questions.entity';
+import { OrderDeliverablesEntity } from './order_deliverables.entity';
 import { OrderStatus } from '../order.enum';
 
 @Entity('orders')
@@ -125,23 +125,23 @@ export class OrderEntity extends BaseEntity {
   })
   transactions: TransactionEntity[];
 
-  @AutoMap(() => [OrderLogEntity])
-  @OneToMany(() => OrderLogEntity, (_) => _.order, {
+  @AutoMap(() => [OrderLogsEntity])
+  @OneToMany(() => OrderLogsEntity, (_) => _.order, {
     eager: true,
   })
-  orderlogs: OrderLogEntity[];
+  orderlogs: OrderLogsEntity[];
 
-  @AutoMap(() => [OrderQuestionsAnswersEntity])
-  @OneToMany(() => OrderQuestionsAnswersEntity, (_) => _.order, {
+  @AutoMap(() => [OrderQuestionsEntity])
+  @OneToMany(() => OrderQuestionsEntity, (_) => _.order, {
     eager: true,
   })
-  orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
+  orderQuestionsAnswers: OrderQuestionsEntity[];
 
-  @AutoMap(() => [OrderDeliveryEntity])
-  @OneToMany(() => OrderDeliveryEntity, (_) => _.order, {
+  @AutoMap(() => [OrderDeliverablesEntity])
+  @OneToMany(() => OrderDeliverablesEntity, (_) => _.order, {
     eager: true,
   })
-  deliverables: OrderDeliveryEntity[];
+  deliverables: OrderDeliverablesEntity[];
 
   @AutoMap(() => [GigReviewEntity])
   @OneToOne(() => GigReviewEntity)

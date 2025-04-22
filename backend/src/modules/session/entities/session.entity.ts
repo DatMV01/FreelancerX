@@ -9,9 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity({
-  name: 'session',
-})
+@Entity('sessions')
 export class SessionEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

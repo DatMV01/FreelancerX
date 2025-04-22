@@ -77,8 +77,8 @@ export const OrderFreelancerStatusButton = ({
             <Upload className="h-4 text-green-500" /> Deliver Work
           </Button>
           <Button onClick={onAskQuestion} variant="outline">
-            <MessageCircleQuestion className="h-4 text-orange-500" /> Ask Buyer a
-            Question
+            <MessageCircleQuestion className="h-4 text-orange-500" /> Ask Buyer
+            a Question
           </Button>
           <Button onClick={onCancel} variant="outline">
             <Ban className="h-4 text-red-500" /> Cancel
@@ -105,9 +105,14 @@ export const OrderFreelancerStatusButton = ({
 
       {status === OrderStatus.REVISION_REQUESTED && (
         <>
-          <Button onClick={onReDeliver}>Re-deliver Work</Button>
-          <Button variant="outline" onClick={onAskQuestion}>
-            Ask Buyer a Question
+          <Button variant="outline" onClick={onReDeliver}>
+            <Upload className="h-4 text-green-500" />
+            Re-deliver Work
+          </Button>
+
+          <Button onClick={onAskQuestion} variant="outline">
+            <MessageCircleQuestion className="h-4 text-orange-500" /> Ask Buyer
+            a Question
           </Button>
         </>
       )}

@@ -1,11 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
@@ -26,7 +24,7 @@ import { AuthProvidersEnum } from '../enum/user.provider';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 
-@Entity({ name: 'user' })
+@Entity('users')
 export class UserEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
@@ -59,7 +57,7 @@ export class UserEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'varchar', nullable: true })
-  avatar?: string = undefined;
+  avatar?: string;
 
   @AutoMap()
   @Column({ type: 'varchar', length: 50, nullable: true })
@@ -79,8 +77,6 @@ export class UserEntity extends BaseEntity {
 
   /* STATUS */
   @AutoMap()
-  @AutoMap()
-  @Index()
   @Column({
     name: 'status_id',
     // nullable: true,
@@ -96,7 +92,6 @@ export class UserEntity extends BaseEntity {
   status: StatusEntity;
 
   /* FREELANCER */
-
   @AutoMap(() => FreelancerEntity)
   @OneToOne(() => FreelancerEntity, (freelancer) => freelancer.user, {
     // eager: true,
@@ -108,11 +103,7 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => OrderEntity, (order) => order.buyer)
   buyerorders: OrderEntity[];
 
-  /* RATINGS */
-  @AutoMap(() => [ReviewEntity])
-  @OneToMany(() => ReviewEntity, (ratings) => ratings.user)
-  ratings: ReviewEntity[];
-
+  /* REVIEWS */
   @OneToMany(() => GigReviewEntity, (review) => review.gig)
   reviews: GigReviewEntity[];
 
@@ -121,14 +112,14 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => NotificationEntity, (notification) => notification.user)
   notifications: NotificationEntity[];
 
-  /* FILES */
-  @AutoMap(() => [FileEntity])
-  @OneToMany(() => FileEntity, (file) => file.user)
-  files: FileEntity[];
+  // /* FILES */
+  // @AutoMap(() => [FileEntity])
+  // @OneToMany(() => FileEntity, (file) => file.user)
+  // files: FileEntity[];
 
   /* TRANSACTIONS */
   @AutoMap(() => [TransactionEntity])
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.user, {
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.actor, {
     onDelete: 'RESTRICT', // Ngăn không cho xóa User nếu có Transaction
   })
   transactions: TransactionEntity[];
@@ -144,7 +135,7 @@ export class UserEntity extends BaseEntity {
     eager: false,
   })
   @JoinTable({
-    name: 'user_gigs_favorite',
+    name: 'user_favorite_gigs',
     joinColumn: { name: 'userId', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
   })

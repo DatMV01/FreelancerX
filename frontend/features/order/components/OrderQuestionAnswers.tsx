@@ -106,7 +106,7 @@ export const OrderQuestionAnswers = ({
 
   const sorted = [...items].sort(
     (a: any, b: any) =>
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   const handleAnswerChange = (id: string, value: string) => {

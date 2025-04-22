@@ -30,11 +30,11 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
 import { OrderService } from './order.service';
-import { OrderQuestionsAnswersEntity } from './entities/orderQA.entity';
+import { OrderQuestionsEntity } from './entities/order_questions.entity';
 import { PageDto } from '../base/dto/pagination';
 import { QueryDto } from '../base/dto/query.dto';
-import { OrderDeliveryEntity } from './entities/orderDelivery.entity';
-import { OrderLogEntity } from './entities/orderLog.entity';
+import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
+import { OrderLogsEntity } from './entities/order_logs.entity';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -151,12 +151,12 @@ export class OrderController extends BaseController<
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
-    type: OrderQuestionsAnswersEntity,
+    type: OrderQuestionsEntity,
   })
   async addQuestionsAnswersToOrder(
-    @Body() data: OrderQuestionsAnswersEntity,
+    @Body() data: OrderQuestionsEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
-  ): Promise<OrderQuestionsAnswersEntity> {
+  ): Promise<OrderQuestionsEntity> {
     return this._service.addQuestionsAnswersToOrder(data, currentUser);
   }
 
@@ -167,30 +167,32 @@ export class OrderController extends BaseController<
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
-    type: OrderDeliveryEntity,
+    type: OrderDeliverablesEntity,
   })
   async addDeliveryWork(
-    @Body() data: OrderDeliveryEntity,
+    @Body() data: OrderDeliverablesEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
-  ): Promise<OrderDeliveryEntity> {
-    return this._service.addDeliveryWork(data, currentUser);
+  ): Promise<OrderDeliverablesEntity> {
+    return this._service.addReDeliveryWork(data, currentUser);
   }
 
-  @Post('/log')
+
+  @Post('/re-delivery')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   @ApiOperation({ summary: 'Create a new entity' })
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
-    type: OrderLogEntity,
+    type: OrderDeliverablesEntity,
   })
-  async addLog(
-    @Body() data: OrderLogEntity,
+  async addReDeliveryWork(
+    @Body() data: OrderDeliverablesEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
-  ): Promise<OrderLogEntity> {
-    return this._service.addLog(data, currentUser);
+  ): Promise<OrderDeliverablesEntity> {
+    return this._service.addReDeliveryWork(data, currentUser);
   }
+
 
   @Patch('/questions-answers/:id')
   @UseGuards(AuthGuard('jwt'))
@@ -201,7 +203,7 @@ export class OrderController extends BaseController<
   @ApiResponse({ status: 200, description: 'Entity updated successfully' })
   async updateQuestionsAnswersToOrder(
     @Param('id') id: string | number,
-    @Body() data: OrderQuestionsAnswersEntity,
+    @Body() data: OrderQuestionsEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<any> {
     if (!Object.keys(data as Record<string, any>).length) {

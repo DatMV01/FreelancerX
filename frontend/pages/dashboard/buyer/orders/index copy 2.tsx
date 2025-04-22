@@ -4,7 +4,12 @@ import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -14,21 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import OrderStatsDashboard from "@/features/order/components/OrderStatsDashboard";
-import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
+import { OrderStatus, orderStatus } from "@/features/order/dto";
+import { fetchFreelancersOrders } from "@/features/order/fakeApi";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
 
-import CancelOrderDialog from "@/features/order/components/CancelOrderDialog";
-import DeliverWorkDialog from "@/features/order/components/DeliverWorkDialog";
-import { OrderDetailFreelancer } from "@/features/order/components/OrderDetailFreelancer";
-import { OrderFreelancerStatusButton } from "@/features/order/components/OrderFreelancerStatusButton";
-import StartWorkingDialog from "@/features/order/components/StartWorkingDialog";
-import { fetchFreelancerOrders } from "@/features/order/order.api";
-import { useFilterParams } from "@/hooks/useUrlSync ";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { format, formatDate } from "date-fns";
-import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -36,22 +33,30 @@ import {
   BadgeCheck,
   Ban,
   CalendarCheck,
-  CheckCircle,
   ChevronLeft,
   ChevronRight,
+  CircleArrowUp,
   Clock,
   CreditCard,
+  Download,
   Eye,
-  Hammer,
-  Package,
-  RefreshCw,
+  FileDown,
+  MessageSquare,
+  XCircle,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
-import { VisuallyHidden } from "radix-ui";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
-import { OrderDetailBuyer } from "@/features/order/components/OrderDetailBuyer";
+import { CheckCircle, Hammer, Package, RefreshCw } from "lucide-react";
+import { fetchBuyerOrders } from "@/features/order/order.api";
+import { useFilterParams } from "@/hooks/useUrlSync ";
+import { saveAs } from "file-saver";
+import { addDays, format, formatDate, set } from "date-fns";
+import { OrderBuyerStatusButton } from "@/features/order/components/OrderBuyerStatusButton";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
 export const statusMap = {
   UNPAID: {
@@ -114,7 +119,7 @@ const useOrders = ({
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     key,
-    () => fetchFreelancerOrders({ page, limit, filters }),
+    () => fetchBuyerOrders({ page, limit, filters }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
@@ -133,7 +138,7 @@ const useOrders = ({
   };
 };
 
-function FreelancerOrderPage() {
+function BuyerOrderPage() {
   const router = useRouter();
 
   const { filters, updateFilter, resetFilters } = useFilterParams();
@@ -146,8 +151,13 @@ function FreelancerOrderPage() {
   } | null>(null);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [deletingRows, setDeletingRows] = useState<string[]>([]);
+  const [showDeleteSelectedIdsDialog, setShowDeleteSelectedIdsDialog] =
+    useState(false);
 
   const [selectedId, setSelectedId] = useState<string>();
+
+  const [showDeleteSelectedIdDialog, setShowDeleteSelectedIdDialog] =
+    useState(false);
 
   const [processingId, setProcessingId] = useState<string>();
 
@@ -291,7 +301,6 @@ function FreelancerOrderPage() {
       setSelectedRows((prev) => [...new Set([...prev, ...idsOnPage])]);
     }
   };
-  const [showDialog, setShowDialog] = useState(false);
 
   const handleDeleteSelected = () => {
     // setDeletingRows(selectedRows);
@@ -305,9 +314,24 @@ function FreelancerOrderPage() {
     // }, 1000);
   };
 
-  const [openDeliver, setOpenDeliver] = useState(false);
-  const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
-  const [cancelOrderDialogOpen, setCancelOrderDialogOpen] = useState(false);
+  const [showCancelSelectedIdDialog, setShowCancelSelectedIdDialog] =
+    useState(false);
+  const handleCancelOrder = async () => {
+    setProcessingId(selectedId || "");
+    setShowCancelSelectedIdDialog(false);
+
+    const response = await axiosInstanceV1.patch(`/orders/${selectedId}`, {
+      status: OrderStatus.CANCEL,
+      buyerId: "true",
+    });
+
+    if (response.status === 200) {
+      setOrders((prev) => prev.filter((o) => o.id !== selectedId));
+    }
+
+    setSelectedId(undefined);
+    setProcessingId(undefined);
+  };
 
   const handleExportCSV = () => {
     const data = orders.map((_) => {
@@ -395,7 +419,7 @@ function FreelancerOrderPage() {
         requiredStatus={[
           OrderStatus.UNPAID,
           OrderStatus.PENDING,
-          OrderStatus.ACCEPTED,
+          //   OrderStatus.ACCEPTED,
           OrderStatus.IN_PROGRESS,
           // OrderStatus.REVISION_REQUESTED,
           OrderStatus.DELIVERED,
@@ -425,7 +449,7 @@ function FreelancerOrderPage() {
                 className="rounded border px-2 py-1 text-sm"
               >
                 <option value="">All Statuses</option>
-                {orderFreelancerStatus.map((_) => (
+                {orderStatus.map((_) => (
                   <option key={_} value={_}>
                     {_}
                   </option>
@@ -458,13 +482,11 @@ function FreelancerOrderPage() {
                   />
                 </TableHead> */}
                 <TableHead>#</TableHead>
-                <TableHead className="cursor-pointer">Orrder</TableHead>
-
                 <TableHead
                   onClick={() => handleSort("buyerName")}
                   className="cursor-pointer"
                 >
-                  Buyer {getSortIcon("buyerName")}
+                  Freelancer {getSortIcon("buyerName")}
                 </TableHead>
                 <TableHead
                   onClick={() => handleSort("gigTitle")}
@@ -521,9 +543,7 @@ function FreelancerOrderPage() {
                       {(currentPage - 1) * filters.pageSize + index + 1}
                     </TableCell>
 
-                    <TableCell>{_.id.split("-")[4]}</TableCell>
-
-                    <TableCell>{_.snapshot.buyer.fullName}</TableCell>
+                    <TableCell>{_.snapshot.freelancer.displayName}</TableCell>
 
                     <TableCell>{_.snapshot.gig.title}</TableCell>
 
@@ -571,44 +591,45 @@ function FreelancerOrderPage() {
                     )}
                   >
                     <TableCell colSpan={8} className="bg-gray-50 pl-10">
-                      <Button
-                        onClick={() => {
-                          setSelectedId(_.id);
-                          setDetailOpen(true);
-                        }}
-                        variant="outline"
-                      >
-                        <Eye className="h-4" /> View Details
-                      </Button>
-
-                      {/* <OrderFreelancerStatusButton
+                      <OrderBuyerStatusButton
                         status={_.status}
+                        onPay={() => {
+                          window.open(
+                            `/payment/checkout${_.snapshot.paymentUrl}`,
+                            "_blank",
+                          );
+                        }}
+                        onCancel={() => {
+                          setSelectedId(_.id);
+                          setShowCancelSelectedIdDialog(true);
+                        }}
+                        onAccept={() => {}}
+                        onRequestRevision={() => {}}
+                        onDownload={() => {}}
                         onViewDetails={() => {
                           setSelectedId(_.id);
                           setDetailOpen(true);
                         }}
-                        onAccept={() => {}}
-                        onDecline={() => {}}
-                        onStart={() => {
-                          setSelectedId(_.id);
-                          setStartWorkDialogOpen(true);
-                        }}
-                        onCancel={() => {
-                          setSelectedId(_.id);
-                          setCancelOrderDialogOpen(true);
-                        }}
-                        onDeliver={() => {
-                          setSelectedId(_.id);
-                          setOpenDeliver(true);
-                        }}
-                        onAskQuestion={() => {}}
-                      /> */}
+                        onRate={() => {}}
+                      />
                     </TableCell>
                   </TableRow>
                 </React.Fragment>
               ))}
             </TableBody>
           </Table>
+
+          {selectedRows.length > 0 && (
+            <div className="mt-4">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setShowDeleteSelectedIdsDialog(true)}
+              >
+                Delete {selectedRows.length} item
+              </Button>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
             <div className="flex items-center gap-2">
@@ -670,21 +691,42 @@ function FreelancerOrderPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="flex h-[90vh] flex-col md:max-w-[90vw]">
-          <VisuallyHidden.Root>
-            <DialogHeader>DialogHeader</DialogHeader>
-          </VisuallyHidden.Root>
+      <OrderDetailDialog
+        open={detailOpen}
+        orderId={selectedId}
+        onClose={() => setDetailOpen(false)}
+      />
 
-          <OrderDetailBuyer orderId={selectedId} mutateAllOrder={mutate} />
+      <Dialog
+        open={showCancelSelectedIdDialog}
+        onOpenChange={setShowCancelSelectedIdDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            Are you sure you want to cancel this order?
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelSelectedIdDialog(false)}
+            >
+              Cancel
+            </Button>
+            <button
+              className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
+              onClick={handleCancelOrder}
+            >
+              Confirm Cancel
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
   );
 }
 
-FreelancerOrderPage.getLayout = function getLayout(page: ReactElement) {
+BuyerOrderPage.getLayout = function getLayout(page: ReactElement) {
   return <DashboardLayout>{page}</DashboardLayout>;
 };
 
-export default FreelancerOrderPage;
+export default BuyerOrderPage;

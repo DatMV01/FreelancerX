@@ -1,18 +1,18 @@
-import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { AutoMap } from '@automapper/classes';
+import { IsOptional, IsUUID } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderEntity } from './order.entity';
-import { AutoMap } from '@automapper/classes';
-import { IsOptional, IsUUID } from 'class-validator';
 
 @Entity('order_questions')
-export class OrderQuestionsAnswersEntity extends BaseEntity {
+export class OrderQuestionsEntity {
   @PrimaryGeneratedColumn('uuid')
   @IsOptional()
   id: string;
@@ -42,5 +42,11 @@ export class OrderQuestionsAnswersEntity extends BaseEntity {
   @IsOptional()
   file: any;
 
-  
+  @AutoMap(() => Date)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @AutoMap(() => Date)
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

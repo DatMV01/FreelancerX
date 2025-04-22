@@ -6,13 +6,12 @@ import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
-import { RatingDto } from 'src/modules/rating/dto/rating.dto';
-import { ReviewEntity } from 'src/modules/rating/entities/rating.entity';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/user.provider';
+import { GigReviewDto } from 'src/modules/gigreview/dto/gigreview.dto';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
@@ -49,7 +48,7 @@ export class UserDto extends BaseDto<UserDto> {
     example: 'https://example.com/avatar.jpg',
     nullable: true,
   })
- // // @Transform((params) => undefinedTransformer(params))
+  // // @Transform((params) => undefinedTransformer(params))
   avatar?: string = undefined;
 
   @AutoMap()
@@ -80,10 +79,10 @@ export class UserDto extends BaseDto<UserDto> {
   buyerorders?: OrderDto[];
 
   /* RATINGS */
-  @AutoMap(() => [ReviewEntity])
+  @AutoMap(() => [GigReviewDto])
   // @Transform((params) => undefinedTransformer(params))
-  @ApiPropertyOptional({ type: [RatingDto], example: [], nullable: true })
-  ratings?: RatingDto[];
+  @ApiPropertyOptional({ type: [GigReviewDto], example: [], nullable: true })
+  reviews?: GigReviewDto[];
 
   /* NOTIFICATIONS */
   @AutoMap(() => [NotificationDto])

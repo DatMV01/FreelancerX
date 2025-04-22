@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { FileDriver } from '../config/file.config';
 
-@Entity({ name: 'file' })
+@Entity('files')
 export class FileEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
@@ -33,11 +33,20 @@ export class FileEntity extends BaseEntity {
   provider?: string;
 
   @AutoMap()
-  @Index()
-  @ManyToOne(() => UserEntity, (user) => user.files, {
-    onDelete: 'CASCADE',
-    eager: true,
+  @Column({
+    name: 'user_id',
+    nullable: true,
+    type: 'char',
+    length: 36,
   })
-  @JoinColumn({ name: 'user_id' })
-  user: UserEntity;
+  userId: string;
+
+  // @AutoMap()
+  // @Index()
+  // @ManyToOne(() => UserEntity, (user) => user.files, {
+  //   onDelete: 'CASCADE',
+  //   // eager: true,
+  // })
+  // @JoinColumn({ name: 'user_id' })
+  // user: UserEntity;
 }

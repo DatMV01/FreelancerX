@@ -136,12 +136,12 @@ const filename = (
   file: Express.Multer.File,
   callback: (error: Error | null, filename: string) => void,
 ): void => {
-  const uniqueSuffix = Date.now() + '-' + randomStringGenerator();
+  const uniqueSuffix = `___${Date.now()}-${randomStringGenerator()}`;
 
   const ext = extname(file.originalname);
-  const fileNameUTF8 = Buffer.from(file.originalname, 'latin1').toString(
-    'utf8',
-  );
+  const fileNameUTF8 = Buffer.from(file.originalname, 'latin1')
+    .toString('utf8')
+    .replaceAll(' ', '');
 
   const fileName = basename(fileNameUTF8, ext);
   callback(null, `${fileName}-${uniqueSuffix}${ext}`);

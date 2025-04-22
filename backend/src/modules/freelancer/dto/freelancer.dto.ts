@@ -14,12 +14,11 @@ import { FreelancerRankEnum } from '../enum/freelancer.enum';
 import {
   FreelancersLanguages,
   LanguageEntity,
-} from '../entities/freelancers_languages.entity';
+} from '../entities/freelancer_languages.entity';
 import {
   FreelancersSkills,
   SkillEntity,
-} from '../entities/freelancers_skills.entity';
-import { RatingDto } from 'src/modules/rating/dto/rating.dto';
+} from '../entities/freelancer_skills.entity';
 import { IsOptional } from 'class-validator';
 
 export class FreelancerDto extends BaseDto<FreelancerDto> {
@@ -117,15 +116,6 @@ export class FreelancerDto extends BaseDto<FreelancerDto> {
     description: 'Overall freelancer rating based on customer reviews',
   })
   rating: number;
-
-  @AutoMap(() => [RatingDto])
-  @ApiProperty({
-    description: 'Danh sách đánh giá của freelancer',
-    type: [RatingDto],
-    required: false,
-  })
-  @IsOptional()
-  ratings?: RatingDto[];
 
   @AutoMap()
   @ApiProperty({

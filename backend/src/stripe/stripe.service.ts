@@ -2,13 +2,10 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-import { OrderLogEntity } from 'src/modules/order/entities/orderLog.entity';
+import { OrderLogsEntity } from 'src/modules/order/entities/order_logs.entity';
 import { OrderActions, OrderStatus } from 'src/modules/order/order.enum';
-import {
-  TransactionEntity,
-  TransactionStatus,
-} from 'src/modules/transaction/entities/transaction.entity';
-import { TransactionStripeEntity } from 'src/modules/transaction/entities/transactionStripe.entity';
+import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { TransactionStatus } from 'src/modules/transaction/enum/transaction.enum';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
 
@@ -28,17 +25,14 @@ export class StripeService {
     @Inject('STRIPE_CLIENT') private stripe: Stripe,
     private configService: ConfigService,
 
-    @InjectRepository(TransactionStripeEntity)
-    private readonly transactionStripeRepo: Repository<TransactionStripeEntity>,
-
     @InjectRepository(TransactionEntity)
     private readonly transactionRepo: Repository<TransactionEntity>,
 
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
 
-    @InjectRepository(OrderLogEntity)
-    private readonly orderLogRepo: Repository<OrderLogEntity>,
+    @InjectRepository(OrderLogsEntity)
+    private readonly orderLogRepo: Repository<OrderLogsEntity>,
   ) {}
 
   async createPaymentIntent(params: {

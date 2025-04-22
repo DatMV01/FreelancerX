@@ -1,19 +1,19 @@
-import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { AutoMap } from '@automapper/classes';
+import { IsOptional, IsUUID } from 'class-validator';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderEntity } from './order.entity';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { AutoMap } from '@automapper/classes';
-import { IsOptional, IsUUID } from 'class-validator';
-import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 
-@Entity('order_deliveries')
-export class OrderDeliveryEntity extends BaseEntity {
+@Entity('order_deliverables')
+export class OrderDeliverablesEntity {
   @IsOptional()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -54,4 +54,12 @@ export class OrderDeliveryEntity extends BaseEntity {
   @IsOptional()
   @Column({ type: 'json', nullable: true })
   file: object;
+
+  @AutoMap(() => Date)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @AutoMap(() => Date)
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

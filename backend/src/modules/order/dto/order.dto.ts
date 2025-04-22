@@ -6,10 +6,10 @@ import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity
 import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
  
-import { OrderLogEntity } from '../entities/orderLog.entity';
-import { OrderQuestionsAnswersEntity } from '../entities/orderQA.entity';
+import { OrderLogsEntity } from '../entities/order_logs.entity';
+import { OrderQuestionsEntity } from '../entities/order_questions.entity';
 import { PackageEntity } from 'src/modules/gig/entities/package.entity';
-import { OrderDeliveryEntity } from '../entities/orderDelivery.entity';
+import { OrderDeliverablesEntity } from '../entities/order_deliverables.entity';
 import { OrderStatus } from '../order.enum';
 
 export class OrderDto extends BaseDto<OrderDto> {
@@ -68,17 +68,17 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap(() => [TransactionEntity])
   transactions: TransactionEntity[];
 
-  @AutoMap(() => [OrderLogEntity])
-  orderlogs: OrderLogEntity[];
+  @AutoMap(() => [OrderLogsEntity])
+  orderlogs: OrderLogsEntity[];
 
-  @AutoMap(() => [OrderQuestionsAnswersEntity])
-  orderQuestionsAnswers: OrderQuestionsAnswersEntity[];
+  @AutoMap(() => [OrderQuestionsEntity])
+  orderQuestionsAnswers: OrderQuestionsEntity[];
 
   @AutoMap(() => [GigReviewEntity])
   review: GigReviewEntity[];
 
-  @AutoMap(() => [OrderDeliveryEntity])
-  deliverables: OrderDeliveryEntity[];
+  @AutoMap(() => [OrderDeliverablesEntity])
+  deliverables: OrderDeliverablesEntity[];
 
   @AutoMap(() => Date)
   startDate: Date;

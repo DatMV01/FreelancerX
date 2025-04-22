@@ -13,7 +13,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('gig_reviews')
+@Entity('user_review_gigs')
 export class GigReviewEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @AutoMap()
@@ -25,9 +25,7 @@ export class GigReviewEntity extends BaseEntity {
   gigId: string;
 
   @AutoMap(() => GigEntity)
-  @ManyToOne(() => GigEntity, (gig) => gig.reviews, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => GigEntity, (gig) => gig.reviews, { cascade: true })
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
@@ -59,14 +57,15 @@ export class GigReviewEntity extends BaseEntity {
   order: OrderEntity;
 
   /* RATE NUMBER */
-  @Column({
-    type: 'decimal',
-    precision: 3,
-    scale: 2,
-    default: 0,
-    nullable: false,
-  })
+  // @Column({
+  //   type: 'decimal',
+  //   precision: 3,
+  //   scale: 2,
+  //   default: 0,
+  //   nullable: false,
+  // })
   @AutoMap()
+  @Column({ type: 'int' })
   rating: number;
 
   /* COMMENT */
@@ -80,7 +79,7 @@ export class GigReviewEntity extends BaseEntity {
   freelancerId: string;
 
   @AutoMap()
-  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.ratings, {
+  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.reviews, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'freelancer_id' })

@@ -1,259 +1,465 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
-import { MessageSquare, FileDown } from "lucide-react";
-import { OrderBuyerStatusButton } from "./OrderBuyerStatusButton";
-import { OrderStatus } from "../dto";
-import { OrderStatusTimeline } from "./OrderStatusTimeline";
-import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { FileDown, FileIcon, Upload } from "lucide-react";
 import useSWR, { mutate } from "swr";
+import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
+import { CircularProgress } from "@mui/material";
 import { getOrderById } from "../order.api";
+import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
+import { OrderLogTimeline } from "./OrderLogTimeline";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import React, { useCallback, useState } from "react";
+import { OrderStatus } from "../dto";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import DeliverWorkDialog from "./DeliverWorkDialog";
+import StartWorkingDialog from "./StartWorkingDialog";
+import CancelOrderDialog from "./CancelOrderDialog";
+import { DeliveryWorkCard } from "./DeliveryWorkCard";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import AcceptlOrderDialog from "./AcceptlOrderDialog";
+import AskQuestionDialog from "./AskQuestionDialog";
+import { OrderBuyerStatusButton } from "./OrderBuyerStatusButton";
+import RequestRevisionDialog from "./RequestRevisionDialog";
+import CompleteOrderDialog from "./CompleteOrderDialog";
+import { RatingOrderDialog } from "./RatingOrderDialog";
 
 type OrderDetailBuyerProps = {
-  order: any;
-  mutate?: () => void;
-  onCancel?: () => void;
-  onAccept?: () => void;
-  onRequestRevision?: () => void;
-  onDownload?: () => void;
-  onMessage?: () => void;
-  onRate?: () => void;
+  orderId: any;
+  mutateAllOrder?: any;
 };
 
 export const OrderDetailBuyer = ({
-  order,
-
-  onCancel,
-  onAccept,
-  onRequestRevision,
-  onDownload,
-  onMessage,
-  onRate,
+  orderId,
+  mutateAllOrder,
 }: OrderDetailBuyerProps) => {
-  if (!order) {
+  if (!orderId) return null;
+
+  const {
+    data: order,
+    error,
+    isLoading,
+    isValidating,
+    mutate: mutateThisOrder,
+  } = useSWR(`/orders/${orderId}`, () => getOrderById(orderId), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    refreshInterval: 0,
+    dedupingInterval: 0,
+  });
+
+  const [requestRevisionDialogOpen, setRequestRevisionDialogOpen] =
+    useState(false);
+  const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
+  const [deliverWorkDialogOpen, setDeliverWorkDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [askQuestionDialogOpen, setAskQuestionDialogOpen] = useState(false);
+
+  const [completeOrderDialogOpen, setCompleteOrderDialogOpen] = useState(false);
+
+  const [ratingOrderDialogOpen, setRatingOrderDialogOpen] = useState(false);
+
+  if (isLoading || isValidating) {
     return (
-      <div className="flex items-center justify-center py-4">
-        <p className="text-muted-foreground text-sm">Loading...</p>
+      <div className="flex h-full w-full items-center justify-center">
+        <CircularProgress size={24} />
       </div>
     );
   }
 
-  const orderId = order.id;
+  if (error || !order) {
+    return (
+      <div className="flex items-center justify-center py-4 text-red-500">
+        <p>Order is not found.</p>
+      </div>
+    );
+  }
 
-  //   order.orderQuestionsAnswers = Array.from({ length: 20 }, (_, i) => ({
-  //     createdAt: "2025-04-19T09:42:48.336Z",
-  //     updatedAt: "2025-04-19T09:42:48.336Z",
-  //     id: i,
-  //     orderId: "09ef5b2b-7e08-41a8-8eee-953c967977e4",
-  //     question: "Do you have an idea of what you want?",
-  //     answer: "ok123",
-  //     file: {
-  //       id: "1c06ce6e-3d8f-47f4-9a65-69cb4e6bf8e7",
-  //       url: "http://localhost:3000/public/avatars/order___09ef5b2b-7e08-41a8-8eee-953c967977e4___ventoy-1.1.05-windows-1745055764091-f20de940c82a1c8335820.zip",
-  //       mimeType: "application/x-zip-compressed",
-  //       provider: "local",
-  //     },
-  //   }));
+  const sortedDeliverables = [...order.deliverables].sort(
+    (a: any, b: any) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   return (
-    <div className="flex h-[80vh] gap-4">
-      <div className="flex-1 space-y-2">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Order #{order.id.split("-")[4]}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              Create Date: {new Date(order.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          <Badge variant="outline" className="uppercase">
-            {order.status.replace("_", " ")}
-          </Badge>
-        </div>
+    <div className="flex h-[96%] flex-col gap-2 p-2">
+      <div className="h-full flex-1">
+        <div className="flex h-full gap-4">
+          <div className="flex-1 overflow-x-hidden overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-lg font-semibold text-blue-900">
+                  Order #{order.id.split("-")[4]}
+                </p>
 
-        <Separator />
+                <p className="text-muted-foreground text-sm">
+                  <span>Created At: </span>
+                  {format(new Date(order.createdAt), "dd/MM/yyyy HH:mm")}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  <span>Start At: </span>
 
-        {/* Freelancer info */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <p className="font-bold">Buyer</p>
-              <p className="text-muted-foreground text-sm">
-                Name: {order.snapshot.buyer.fullName}
+                  {order.startDate
+                    ? format(new Date(order.startDate), "dd/MM/yyyy HH:mm")
+                    : "N/A"}
+                </p>
+                <p className="text-muted-foreground text-sm">
+                  <span>Deadline: </span>
+                  {order.endDate
+                    ? format(new Date(order.endDate), "dd/MM/yyyy")
+                    : "N/A"}
+                </p>
+              </div>
+
+              <Badge variant="outline" className="uppercase">
+                {order.status.replace("_", " ")}
+              </Badge>
+            </div>
+
+            <Separator />
+
+            {/* Freelancer info */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col">
+                  <p className="font-bold">Buyer</p>
+                  <p className="text-muted-foreground text-sm">
+                    Name: {order.snapshot.buyer.fullName}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Email:
+                    <a href="#"> {order.snapshot.buyer.email}</a>
+                  </p>
+                </div>
+              </div>
+
+              {/* Freelancer info */}
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col">
+                  <p className="font-bold">Freelancer</p>
+
+                  <p className="text-muted-foreground text-sm">
+                    Name: {order.snapshot.freelancer.displayName}
+                  </p>
+                  <p className="text-muted-foreground text-sm">
+                    Email:
+                    <a href="#"> {order.snapshot.freelancer.email}</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Order content */}
+            <div>
+              <p className="font-bold">Order Detail</p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">Total:</span>
+
+                {order.totalAmount}
               </p>
-              <p className="text-muted-foreground text-sm">
-                Email: {order.snapshot.buyer.email}
+              <p>
+                <span className="text-muted-foreground text-sm">Gig:</span>
+
+                <a href="#"> {`${order.snapshot.gig.title} `}</a>
               </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">Package:</span>
+
+                {`${order.snapshot.package.title} - ${order.snapshot.package.type}`}
+              </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Description:
+                </span>
+
+                {order.snapshot.package.description}
+              </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Delivery Days:
+                </span>
+
+                {order.deliveryTime}
+              </p>
+
+              <p>
+                <span className="text-muted-foreground text-sm">
+                  Revisions:
+                </span>
+
+                {order.snapshot.package.revisions}
+              </p>
+            </div>
+
+            <Separator />
+
+            <p className="font-bold"> Deliverables</p>
+
+            <div className="flex flex-col gap-y-1">
+              {sortedDeliverables?.map((item: any) => (
+                <DeliveryWorkCard key={item.id} delivery={item} />
+              ))}
             </div>
           </div>
 
-          {/* Freelancer info */}
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col">
-              <p className="font-bold">Freelancer</p>
+          <div className="flex-1">
+            <OrderQuestionAnswers
+              items={order.orderQuestionsAnswers}
+              isBuyer
+              onSubmitAnswer={async (id, answer, file) => {
+                // API gửi câu trả lời của buyer
+                console.log("id", id);
+                console.log("answer", answer);
+                console.log("file", file);
 
-              <p className="text-muted-foreground text-sm">
-                Name: {order.snapshot.freelancer.displayName}
-              </p>
-              <p className="text-muted-foreground text-sm">
-                Email: {order.snapshot.freelancer.email}
-              </p>
-            </div>
+                const formData = new FormData();
+                formData.append("id", id);
+                formData.append("orderId", orderId);
+                formData.append("answer", answer);
+
+                if (file) {
+                  const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+                  const newFile = new File([file], newFileName, {
+                    type: file.type,
+                  });
+
+                  const fileForm = new FormData();
+                  fileForm.append("file", newFile);
+
+                  const { data, status } = await axiosInstanceV1.post(
+                    "/file/upload",
+                    fileForm,
+                    {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                      },
+                    },
+                  );
+
+                  if (status === 201) {
+                    console.log("File uploaded successfully", data);
+                    formData.append("file", JSON.stringify(data));
+                  }
+                }
+                console.log(formData);
+
+                const { data, status } = await axiosInstanceV1.patch(
+                  `/orders/questions-answers/${id}`,
+                  formData,
+                );
+
+                if (status === 200) {
+                  mutateThisOrder();
+                }
+              }}
+            />
           </div>
+
+          {/* <div className="flex-1 overflow-y-auto">
+            <OrderLogTimeline logs={order.orderlogs} />
+          </div> */}
         </div>
-        <Separator />
-        {/* Order content */}
-        <div>
-          <h3 className="text-xl font-semibold">Order Detail</h3>
-          <p className="text-muted-foreground">{order.description}</p>
-          <div className="mt-2 space-y-1">
-            <p>
-              Package:{" "}
-              <strong>{`${order.snapshot.package.title} - ${order.snapshot.package.type}`}</strong>
-            </p>
-            <p>Price: {order.price}</p>
-            {order.startDate && (
-              <p>
-                Start date: {new Date(order.startDate).toLocaleDateString()}
-              </p>
-            )}
-
-            {order.endDate && (
-              <p>
-                End date: {new Date(order.endDate).toLocaleDateString()}
-              </p>
-            )}
-
- 
-            {order.attachmentUrl && (
-              <Button
-                variant="ghost"
-                onClick={() => window.open(order.attachmentUrl, "_blank")}
-              >
-                <FileDown className="mr-2 h-4 w-4" />
-                Xem file đính kèm
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Delivery */}
-        {order.deliveryUrl && (
-          <div className="border-t pt-4">
-            <h3 className="text-lg font-semibold">Sản phẩm bàn giao</h3>
-            <Button
-              onClick={() => window.open(order.deliveryUrl, "_blank")}
-              variant="default"
-            >
-              <FileDown className="mr-2 h-4 w-4" />
-              Tải về
-            </Button>
-          </div>
-        )}
-
-        {/* Actions */}
       </div>
 
-      <div className="h-full flex-1">
-        <OrderQuestionAnswers
-          items={order.orderQuestionsAnswers}
-          isBuyer
-          onSubmitAnswer={async (id, answer, file) => {
-            // API gửi câu trả lời của buyer
-            console.log("id", id);
-            console.log("answer", answer);
-            console.log("file", file);
+      <div className="flex justify-center">
+        <OrderBuyerStatusButton
+          status={order.status}
+          onViewDetails={() => {}}
+          onPay={() => {
+            // toast.info("onPay");
 
-            const formData = new FormData();
-            formData.append("id", id);
-            formData.append("orderId", orderId);
-            formData.append("answer", answer);
-
-            if (file) {
-              const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
-              const newFile = new File([file], newFileName, {
-                type: file.type,
-              });
-
-              const fileForm = new FormData();
-              fileForm.append("file", newFile);
-
-              const { data, status } = await axiosInstanceV1.post(
-                "/file/upload",
-                fileForm,
-                {
-                  headers: {
-                    "Content-Type": "multipart/form-data",
-                  },
-                },
-              );
-
-              if (status === 201) {
-                console.log("File uploaded successfully", data);
-                formData.append("file", JSON.stringify(data));
-              }
-            }
-            console.log(formData);
-
-            const { data, status } = await axiosInstanceV1.patch(
-              `/orders/questions-answers/${id}`,
-              formData,
+            window.open(
+              `/payment/checkout${order.snapshot.paymentUrl}`,
+              "_blank",
             );
-
-            if (status === 201) {
-              mutate(`/orders/${orderId}`);
-            }
           }}
-          onAddQuestion={async (question, file) => {
-            console.log("question", question);
-            console.log("file", file);
-
-            const formData = new FormData();
-            formData.append("question", question);
-            formData.append("orderId", orderId);
-
-            if (file) {
-              const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
-              const newFile = new File([file], newFileName, {
-                type: file.type,
-              });
-
-              const fileForm = new FormData();
-              fileForm.append("file", newFile);
-
-              const { data, status } = await axiosInstanceV1.post(
-                "/file/upload",
-                fileForm,
-                {
-                  headers: {
-                    "Content-Type": "multipart/form-data",
-                  },
-                },
-              );
-
-              if (status === 201) {
-                console.log("File uploaded successfully", data);
-                formData.append("file", JSON.stringify(data));
-              }
-            }
-
-            const { data, status } = await axiosInstanceV1.post(
-              "/orders/questions-answers",
-              formData,
-            );
-
-            if (status === 201) {
-              mutate(`/orders/${orderId}`);
-            }
+          onCancel={() => {
+            //  toast.info("onCancel");
+            setCancelDialogOpen(true);
+          }}
+          onComplete={() => {
+            // toast.info("onComplete");
+            setCompleteOrderDialogOpen(true);
+          }}
+          onRate={() => {
+            setRatingOrderDialogOpen(true);
+          }}
+          onRequestRevision={() => {
+            //   toast.info("onRequestRevision");
+            setRequestRevisionDialogOpen(true);
           }}
         />
       </div>
+      <RequestRevisionDialog
+        open={requestRevisionDialogOpen}
+        onOpenChange={setRequestRevisionDialogOpen}
+        handleRequestRevision={async () => {
+          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
+            status: OrderStatus.REVISION_REQUESTED,
+          });
+
+          if (response.status === 200) {
+            mutateThisOrder();
+            mutateAllOrder && mutateAllOrder();
+          }
+
+          setRequestRevisionDialogOpen(false);
+        }}
+      />
+
+      <RatingOrderDialog
+        open={ratingOrderDialogOpen}
+        onOpenChange={setRatingOrderDialogOpen}
+        orderId="12345"
+        handleSubmit={({ rating, review }) => {
+          toast.info("Đánh giá:" + rating + "Nội dung:" + review);
+
+          setRatingOrderDialogOpen(false);
+        }}
+      />
+
+      <CompleteOrderDialog
+        open={completeOrderDialogOpen}
+        onOpenChange={setCompleteOrderDialogOpen}
+        handleCompleteOrder={async () => {
+          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
+            status: OrderStatus.COMPLETED,
+          });
+
+          if (response.status === 200) {
+            mutateThisOrder();
+            mutateAllOrder && mutateAllOrder();
+          }
+
+          setCompleteOrderDialogOpen(false);
+        }}
+      />
+
+      <StartWorkingDialog
+        open={startWorkDialogOpen}
+        onOpenChange={setStartWorkDialogOpen}
+        handleStartWorkOrder={async () => {
+          try {
+            const response = await axiosInstanceV1.patch(
+              `/orders/${order.id}`,
+              {
+                status: OrderStatus.IN_PROGRESS,
+                startDate: new Date(Date.now()),
+                action: "ACCEPT_ORDER",
+              },
+            );
+
+            if (response.status === 200) {
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
+            }
+          } catch (error) {
+            toast.info(error as any);
+          } finally {
+            setStartWorkDialogOpen(false);
+          }
+        }}
+      />
+      <CancelOrderDialog
+        open={cancelDialogOpen}
+        onOpenChange={setCancelDialogOpen}
+        handleCancelOrder={async () => {
+          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
+            status: OrderStatus.CANCEL,
+          });
+
+          if (response.status === 200) {
+            mutateThisOrder();
+            mutateAllOrder && mutateAllOrder();
+          }
+
+          setCancelDialogOpen(false);
+        }}
+      />
+      <AskQuestionDialog
+        open={askQuestionDialogOpen}
+        onOpenChange={setAskQuestionDialogOpen}
+        handleAskQuestion={async (question) => {
+          const formData = new FormData();
+          formData.append("question", question);
+          formData.append("orderId", orderId);
+
+          const response = await axiosInstanceV1.post(
+            "/orders/questions-answers",
+            formData,
+          );
+
+          if (response.status === 201) {
+            mutateThisOrder();
+          }
+
+          setAskQuestionDialogOpen(false);
+        }}
+      />
+      <DeliverWorkDialog
+        open={deliverWorkDialogOpen}
+        onOpenChange={setDeliverWorkDialogOpen}
+        onSubmit={async ({ message, file }) => {
+          const formData = new FormData();
+          formData.append("message", message);
+          formData.append("orderId", orderId);
+
+          if (file) {
+            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+            const newFile = new File([file], newFileName, {
+              type: file.type,
+            });
+
+            const fileForm = new FormData();
+            fileForm.append("file", newFile);
+
+            const { data, status } = await axiosInstanceV1.post(
+              "/file/upload",
+              fileForm,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              },
+            );
+
+            if (status === 201) {
+              console.log("File uploaded successfully", data);
+              formData.append("file", JSON.stringify(data));
+            }
+          }
+
+          const { data, status } = await axiosInstanceV1.post(
+            `/orders/delivery`,
+            formData,
+          );
+
+          if (status === 201) {
+            mutateThisOrder();
+            mutateAllOrder && mutateAllOrder();
+          }
+
+          setDeliverWorkDialogOpen(false);
+        }}
+      />
     </div>
   );
 };

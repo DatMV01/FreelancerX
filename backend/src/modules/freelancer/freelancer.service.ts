@@ -22,7 +22,7 @@ import { FreelancerEntity } from './entities/freelancer.entity';
 import {
   FreelancersSkills,
   SkillEntity,
-} from './entities/freelancers_skills.entity';
+} from './entities/freelancer_skills.entity';
 import { BaseEntity } from '../base/entities/base.entity';
 import { consoleError } from 'src/utils/common';
 import { UserEntity } from '../user/entities/user.entity';
@@ -30,7 +30,7 @@ import { UserService } from '../user/user.service';
 import {
   FreelancersLanguages,
   LanguageEntity,
-} from './entities/freelancers_languages.entity';
+} from './entities/freelancer_languages.entity';
 import { RoleEnum } from '../role/enum/role.enum';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { v4 as uuidv4 } from 'uuid';
