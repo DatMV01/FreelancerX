@@ -137,7 +137,9 @@ function FreelancerOrderPage() {
   const router = useRouter();
 
   const { filters, updateFilter, resetFilters } = useFilterParams();
+
   const [orders, setOrders] = useState<any[]>([]);
+  const [pagingMetadata, setPagingMetadata] = useState<any>();
 
   const [goToPage, setGoToPage] = useState("");
   const [sortConfig, setSortConfig] = useState<{
@@ -171,9 +173,8 @@ function FreelancerOrderPage() {
   useEffect(() => {
     if (data) {
       setOrders(data.data as any);
+      setPagingMetadata(data.meta);
     }
-
-    console.log(data, "data");
   }, [data]);
 
   useEffect(() => {
@@ -207,7 +208,8 @@ function FreelancerOrderPage() {
     });
   }, [orders, filters]);
 
-  const totalPages = Math.ceil(filteredOrders?.length / filters.pageSize);
+  //const totalPages = Math.ceil(filteredOrders?.length / filters.pageSize);
+  const totalPages = pagingMetadata?.pageCount ?? 1;
   const currentPage = filters.page;
 
   const handleNext = () => {
@@ -265,10 +267,12 @@ function FreelancerOrderPage() {
       : String(bVal).localeCompare(String(aVal));
   });
 
-  const paginatedOrders = sortedOrders.slice(
-    (currentPage - 1) * filters.pageSize,
-    currentPage * filters.pageSize,
-  );
+  // const paginatedOrders = sortedOrders.slice(
+  //   (currentPage - 1) * filters.pageSize,
+  //   currentPage * filters.pageSize,
+  // );
+
+  const paginatedOrders = sortedOrders;
 
   const getSortIcon = (key: string) => {
     if (sortConfig?.key !== key)
@@ -334,48 +338,6 @@ function FreelancerOrderPage() {
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, `gigs.xlsx`);
-  };
-
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Thu nhập Freelancer", 14, 16);
-    autoTable(doc, {
-      head: [
-        [
-          "title",
-          "basicPrice",
-          "standardPrice",
-          "premiumPrice",
-          "status",
-          "avgRating",
-          "views",
-          "orderCount",
-          "createdAt",
-          "updatedAt",
-        ],
-      ],
-      bodyStyles: { fontSize: 10 },
-      styles: { cellPadding: 2, fontSize: 8 },
-      headStyles: { fillColor: "#00ff88", fontSize: 10 },
-      margin: { top: 20 },
-
-      body: orders.map((_: any) => [
-        _?.title,
-        _?.basicPrice,
-
-        _?.standardPrice,
-
-        _?.premiumPrice,
-
-        statusMap[_?.status as keyof typeof statusMap].label,
-        _?.avgRating,
-        _?.views,
-        _?.orderCount,
-        formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
-        formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
-      ]),
-    });
-    doc.save(`orders.pdf`);
   };
 
   if (isLoading)
@@ -464,40 +426,59 @@ function FreelancerOrderPage() {
                 <TableHead className="cursor-pointer">Order</TableHead>
 
                 <TableHead
-                  onClick={() => handleSort("buyerName")}
+                  onClick={() => handleSort("snapshot.buyer.fullName")}
                   className="cursor-pointer"
                 >
-                  Buyer {getSortIcon("buyerName")}
+                  Buyer {getSortIcon("snapshot.buyer.fullName")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("gigTitle")}
+                  onClick={() => handleSort("snapshot.gig.title")}
                   className="cursor-pointer"
                 >
-                  Gig {getSortIcon("gigTitle")}
+                  Gig {getSortIcon("snapshot.gig.title")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("snapshot.title")}
+                  onClick={() => handleSort("snapshot.package.type")}
                   className="cursor-pointer"
                 >
-                  Package {getSortIcon("snapshot.title")}
+                  Package {getSortIcon("snapshot.package.title")}
                 </TableHead>
+
+                <TableHead
+                  onClick={() => handleSort("snapshot.package.type")}
+                  className="cursor-pointer"
+                >
+                  Type {getSortIcon("snapshot.package.type")}
+                </TableHead>
+
                 <TableHead
                   onClick={() => handleSort("status")}
                   className="cursor-pointer"
                 >
                   Status {getSortIcon("status")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("deadline")}
+                  onClick={() => handleSort("createdAt")}
                   className="cursor-pointer"
                 >
-                  Start Date {getSortIcon("deadline")}
+                  Create Date {getSortIcon("createdAt")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("deadline")}
+                  onClick={() => handleSort("startDate")}
                   className="cursor-pointer"
                 >
-                  Deadline {getSortIcon("deadline")}
+                  Start Date {getSortIcon("startDate")}
+                </TableHead>
+
+                <TableHead
+                  onClick={() => handleSort("endDate")}
+                  className="cursor-pointer"
+                >
+                  Deadline {getSortIcon("endDate")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -530,41 +511,33 @@ function FreelancerOrderPage() {
 
                     <TableCell>{_.snapshot.gig.title}</TableCell>
 
+                    <TableCell>{_.snapshot.package.title}</TableCell>
+
                     <TableCell>
-                      {`${_.snapshot.package.title} - ${_.snapshot.package.type.toUpperCase()}`}
+                      {_.snapshot.package.type.toUpperCase()}
                     </TableCell>
 
                     <TableCell>
-                      {/* <Badge
-                        className={
-                          statusMap[_.status as keyof typeof statusMap].color
-                        }
-                      >
-                        {statusMap[_.status as keyof typeof statusMap].icon}
-                        {statusMap[_.status as keyof typeof statusMap].label}
-                      </Badge> */}
-
                       <OrderStatusBadge status={_.status} />
                     </TableCell>
-                    {_.startDate && (
-                      <TableCell>
-                        <div className="flex">
-                          <CalendarCheck className="h-4 w-4" />
 
-                          {format(_.startDate, "dd/MM/yyyy")}
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell>
+                      <div className="flex">
+                        {format(_.createdAt, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
 
-                    {_.endDate && (
-                      <TableCell>
-                        <div className="flex">
-                          <CalendarCheck className="h-4 w-4" />
+                    <TableCell>
+                      <div className="flex">
+                        {_.startDate && format(_.startDate, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
 
-                          {format(_.endDate, "dd/MM/yyyy")}
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell>
+                      <div className="flex">
+                        {_.endDate && format(_.endDate, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
                   </TableRow>
 
                   {/* Action */}
@@ -575,7 +548,7 @@ function FreelancerOrderPage() {
                         "pointer-events-none opacity-50",
                     )}
                   >
-                    <TableCell colSpan={8} className="bg-gray-50 pl-10">
+                    <TableCell colSpan={11} className="bg-gray-50 pl-10">
                       <Button
                         onClick={() => {
                           setSelectedId(_.id);

@@ -300,18 +300,21 @@ function BuyerOrderPage() {
                 >
                   Freelancer {getSortIcon("snapshot.freelancer.displayName")}
                 </TableHead>
+
                 <TableHead
                   onClick={() => handleSort("snapshot.gig.title")}
                   className="cursor-pointer"
                 >
                   Gig {getSortIcon("snapshot.gig.title")}
                 </TableHead>
+
                 <TableHead
                   onClick={() => handleSort("snapshot.package.type")}
                   className="cursor-pointer"
                 >
                   Package {getSortIcon("snapshot.package.title")}
                 </TableHead>
+                
                 <TableHead
                   onClick={() => handleSort("snapshot.package.type")}
                   className="cursor-pointer"
