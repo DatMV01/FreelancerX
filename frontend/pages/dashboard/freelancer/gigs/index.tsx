@@ -20,29 +20,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import GigsStats from "@/features/gig/components/GigsStats";
-import { fetchFreelancerManageGigs } from "@/features/gig/fakeApi";
 import { fetchGigs } from "@/features/gig/gig.api";
 import { gigStatus, GigStatus } from "@/features/gig/gig.types";
-import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import { useFilterParams } from "@/hooks/useUrlSync ";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { fi } from "@faker-js/faker";
-
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
-import { format, formatDate, set } from "date-fns";
+import { formatDate } from "date-fns";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
   ArrowUpDown,
-  Ban,
-  CalendarCheck,
   ChevronLeft,
   ChevronRight,
   Download,
   Eye,
-  FileDown,
   Hourglass,
   NotepadTextDashed,
   PauseCircle,
@@ -50,7 +43,7 @@ import {
   PlayCircle,
   Send,
   X,
-  XCircle,
+  XCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -695,7 +688,10 @@ function FreelancerManageGigsPage() {
                     <TableCell colSpan={11} className="bg-gray-50">
                       <div className="flex flex-wrap justify-start gap-2 pl-10">
                         <Button variant="outline" asChild>
-                          <Link href={`/gig/${_.slug}?mode=preview`} target="_blank">
+                          <Link
+                            href={`/gig/${_.slug}?mode=preview`}
+                            target="_blank"
+                          >
                             <Eye className="h-4" /> Preview
                           </Link>
                         </Button>

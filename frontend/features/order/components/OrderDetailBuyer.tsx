@@ -1,41 +1,27 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { FileDown, FileIcon, Upload } from "lucide-react";
-import useSWR, { mutate } from "swr";
-import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import { CircularProgress } from "@mui/material";
-import { getOrderById, getOrderReviewById } from "../order.api";
-import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
-import { OrderLogTimeline } from "./OrderLogTimeline";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import React, { useCallback, useState } from "react";
-import { OrderStatus } from "../dto";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import DeliverWorkDialog from "./DeliverWorkDialog";
-import StartWorkingDialog from "./StartWorkingDialog";
-import CancelOrderDialog from "./CancelOrderDialog";
-import { DeliveryWorkCard } from "./DeliveryWorkCard";
 import { format } from "date-fns";
+import { useState } from "react";
 import { toast } from "sonner";
-import AcceptlOrderDialog from "./AcceptlOrderDialog";
-import AskQuestionDialog from "./AskQuestionDialog";
+import useSWR from "swr";
+import { OrderActions } from "../dto";
+import {
+  getOrderById,
+  getOrderReviewById,
+  updateOrderByAction,
+} from "../order.api";
 import { OrderBuyerStatusButton } from "./OrderBuyerStatusButton";
-import RequestRevisionDialog from "./RequestRevisionDialog";
-import CompleteOrderDialog from "./CompleteOrderDialog";
-import { RatingOrderDialog } from "./RatingOrderDialog";
+import OrderCancelDialog from "./OrderCancelDialog";
+import OrderCompleteDialog from "./OrderCompleteDialog";
+import { OrderDeliveryWork } from "./OrderDeliveryWork";
+import { OrderLogTimeline } from "./OrderLogTimeline";
+import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
+import { OrderRatingDialog } from "./OrderRatingDialog";
 import OrderReview from "./OrderReview";
+import OrderRequestRevisionDialog from "./OrderRequestRevisionDialog";
 
 type OrderDetailBuyerProps = {
   orderId: any;
@@ -72,16 +58,14 @@ export const OrderDetailBuyer = ({
     },
   );
 
-  console.log(!review || review.length === 0);
-
   const [requestRevisionDialogOpen, setRequestRevisionDialogOpen] =
     useState(false);
   const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
-  const [deliverWorkDialogOpen, setDeliverWorkDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [askQuestionDialogOpen, setAskQuestionDialogOpen] = useState(false);
   const [completeOrderDialogOpen, setCompleteOrderDialogOpen] = useState(false);
   const [ratingOrderDialogOpen, setRatingOrderDialogOpen] = useState(false);
+
+  const [processing, setProcessing] = useState(false);
 
   if (isLoading || isValidating) {
     return (
@@ -227,7 +211,7 @@ export const OrderDetailBuyer = ({
 
             <div className="flex flex-col gap-y-1">
               {sortedDeliverables?.map((item: any) => (
-                <DeliveryWorkCard key={item.id} delivery={item} />
+                <OrderDeliveryWork key={item.id} delivery={item} />
               ))}
             </div>
 
@@ -240,11 +224,6 @@ export const OrderDetailBuyer = ({
               items={order.orderQuestionsAnswers}
               isBuyer
               onSubmitAnswer={async (id, answer, file) => {
-                // API gửi câu trả lời của buyer
-                console.log("id", id);
-                console.log("answer", answer);
-                console.log("file", file);
-
                 const formData = new FormData();
                 formData.append("id", id);
                 formData.append("orderId", orderId);
@@ -274,7 +253,6 @@ export const OrderDetailBuyer = ({
                     formData.append("file", JSON.stringify(data));
                   }
                 }
-                console.log(formData);
 
                 const { data, status } = await axiosInstanceV1.patch(
                   `/orders/questions-answers/${id}`,
@@ -288,9 +266,9 @@ export const OrderDetailBuyer = ({
             />
           </div>
 
-          {/* <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             <OrderLogTimeline logs={order.orderlogs} />
-          </div> */}
+          </div>
         </div>
       </div>
 
@@ -325,76 +303,18 @@ export const OrderDetailBuyer = ({
           }}
         />
       </div>
-      <RequestRevisionDialog
+
+      <OrderRequestRevisionDialog
         open={requestRevisionDialogOpen}
+        processing={processing}
         onOpenChange={setRequestRevisionDialogOpen}
         handleRequestRevision={async () => {
-          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
-            status: OrderStatus.REVISION_REQUESTED,
-          });
+          setProcessing(true);
 
-          if (response.status === 200) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
-          }
-
-          setRequestRevisionDialogOpen(false);
-        }}
-      />
-
-      <RatingOrderDialog
-        open={ratingOrderDialogOpen}
-        onOpenChange={setRatingOrderDialogOpen}
-        orderId={order.id.split("-")[4]}
-        handleSubmit={async ({ rating, review }) => {
-          debugger;
           try {
-            const response = await axiosInstanceV1.post(`/reviews`, {
-              gigId: order.gigId,
-              orderId,
-              rating,
-              comment: review,
-            });
-            if (response.status === 201) {
-              mutateReview();
-            }
-          } catch (error) {
-            toast.info("error");
-          } finally {
-            setRatingOrderDialogOpen(false);
-          }
-        }}
-      />
-
-      <CompleteOrderDialog
-        open={completeOrderDialogOpen}
-        onOpenChange={setCompleteOrderDialogOpen}
-        handleCompleteOrder={async () => {
-          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
-            status: OrderStatus.COMPLETED,
-          });
-
-          if (response.status === 200) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
-          }
-
-          setCompleteOrderDialogOpen(false);
-        }}
-      />
-
-      <StartWorkingDialog
-        open={startWorkDialogOpen}
-        onOpenChange={setStartWorkDialogOpen}
-        handleStartWorkOrder={async () => {
-          try {
-            const response = await axiosInstanceV1.patch(
-              `/orders/${order.id}`,
-              {
-                status: OrderStatus.IN_PROGRESS,
-                startDate: new Date(Date.now()),
-                action: "ACCEPT_ORDER",
-              },
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.REQUEST_REVISION.action,
             );
 
             if (response.status === 200) {
@@ -402,92 +322,91 @@ export const OrderDetailBuyer = ({
               mutateAllOrder && mutateAllOrder();
             }
           } catch (error) {
-            toast.info(error as any);
+            toast.error("RequestRevisionDialog Error");
           } finally {
-            setStartWorkDialogOpen(false);
+            setRequestRevisionDialogOpen(false);
+            setProcessing(false);
           }
         }}
       />
-      <CancelOrderDialog
-        open={cancelDialogOpen}
-        onOpenChange={setCancelDialogOpen}
-        handleCancelOrder={async () => {
-          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
-            status: OrderStatus.CANCEL,
-          });
 
-          if (response.status === 200) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
-          }
+      <OrderCompleteDialog
+        open={completeOrderDialogOpen}
+        processing={processing}
+        onOpenChange={setCompleteOrderDialogOpen}
+        handleCompleteOrder={async () => {
+          setProcessing(true);
 
-          setCancelDialogOpen(false);
-        }}
-      />
-      <AskQuestionDialog
-        open={askQuestionDialogOpen}
-        onOpenChange={setAskQuestionDialogOpen}
-        handleAskQuestion={async (question) => {
-          const formData = new FormData();
-          formData.append("question", question);
-          formData.append("orderId", orderId);
-
-          const response = await axiosInstanceV1.post(
-            "/orders/questions-answers",
-            formData,
-          );
-
-          if (response.status === 201) {
-            mutateThisOrder();
-          }
-
-          setAskQuestionDialogOpen(false);
-        }}
-      />
-      <DeliverWorkDialog
-        open={deliverWorkDialogOpen}
-        onOpenChange={setDeliverWorkDialogOpen}
-        onSubmit={async ({ message, file }) => {
-          const formData = new FormData();
-          formData.append("message", message);
-          formData.append("orderId", orderId);
-
-          if (file) {
-            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
-            const newFile = new File([file], newFileName, {
-              type: file.type,
-            });
-
-            const fileForm = new FormData();
-            fileForm.append("file", newFile);
-
-            const { data, status } = await axiosInstanceV1.post(
-              "/file/upload",
-              fileForm,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-              },
+          try {
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.COMPLETE_ORDER.action,
             );
 
-            if (status === 201) {
-              console.log("File uploaded successfully", data);
-              formData.append("file", JSON.stringify(data));
+            if (response.status === 200) {
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
             }
+          } catch (error) {
+            toast.error("OrderCompleteDialog Error");
+          } finally {
+            setCompleteOrderDialogOpen(false);
+            setProcessing(false);
           }
+        }}
+      />
 
-          const { data, status } = await axiosInstanceV1.post(
-            `/orders/delivery`,
-            formData,
-          );
+      <OrderRatingDialog
+        open={ratingOrderDialogOpen}
+        processing={processing}
+        onOpenChange={setRatingOrderDialogOpen}
+        orderId={order.id.split("-")[4]}
+        handleSubmit={async ({ rating, review }) => {
+          setProcessing(true);
 
-          if (status === 201) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
+          try {
+            const response = await axiosInstanceV1.post(`/reviews`, {
+              gigId: order.gigId,
+              orderId,
+              rating,
+              comment: review,
+            });
+
+            if (response.status === 201) {
+              mutateReview();
+            }
+          } catch (error) {
+            toast.error("OrderRatingDialog Error");
+          } finally {
+            setProcessing(false);
+            setRatingOrderDialogOpen(false);
           }
+        }}
+      />
 
-          setDeliverWorkDialogOpen(false);
+      <OrderCancelDialog
+        open={cancelDialogOpen}
+        processing={processing}
+        onOpenChange={setCancelDialogOpen}
+        handleCancelOrder={async () => {
+          setProcessing(true);
+
+          try {
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.CANCEL_ORDER_BUYER.action,
+            );
+
+            if (response.status === 200) {
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
+            }
+          } catch (error) {
+            toast.error("CancelOrderDialog Error");
+          } finally {
+            setProcessing(false);
+            setCancelDialogOpen(false);
+          }
         }}
       />
     </div>

@@ -6,14 +6,17 @@ import {
   DialogHeader,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-const AskQuestionDialog = ({
+const OrderAskQuestionDialog = ({
   open,
+  processing,
   onOpenChange,
   handleAskQuestion,
 }: {
   open: boolean;
+  processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
   handleAskQuestion: (question: string) => void;
 }) => {
@@ -36,10 +39,11 @@ const AskQuestionDialog = ({
             Cancel
           </Button>
           <button
-            className="rounded-sm border border-orange-500 bg-white px-2 py-1 whitespace-nowrap text-orange-500"
+            className="flex items-center gap-2 rounded-sm border border-orange-500 bg-white px-2 py-1 text-orange-500"
             onClick={() => handleAskQuestion(question)}
           >
-            Ask
+            {processing && <Loader2 className="animate-spin" size={18} />}
+            <span> {processing ? "Processing..." : "Ask"}</span>
           </button>
         </DialogFooter>
       </DialogContent>
@@ -47,4 +51,4 @@ const AskQuestionDialog = ({
   );
 };
 
-export default AskQuestionDialog;
+export default OrderAskQuestionDialog;

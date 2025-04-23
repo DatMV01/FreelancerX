@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import AdvancedSearchDialog from "@/features/order/components/AdvancedSearchDialog";
+import OrderAdvancedSearchDialog from "@/features/order/components/OrderAdvancedSearchDialog";
 import { OrderDetailDialog } from "@/features/order/components/OrderDetailDialog";
 import OrderStats from "@/features/order/components/OrderStats";
 import { OrderStatus, orderStatus } from "@/features/order/dto";
@@ -326,7 +326,7 @@ function AdminDashboardOrders() {
                 <Download className="mr-1 h-4 w-4" /> Export CSV
               </Button>
 
-              <AdvancedSearchDialog />
+              <OrderAdvancedSearchDialog />
             </div>
           </div>
 

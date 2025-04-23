@@ -19,7 +19,7 @@ type OrderLog = {
 };
 
 type Props = {
-  logs?: OrderLog[];
+  logs?: any[];
 };
 
 const orderLogs = [
@@ -134,16 +134,23 @@ const iconMap: Record<string, JSX.Element> = {
   REQUEST_REVISION: <Undo2 className="h-4 w-4 text-yellow-500" />,
   COMPLETE_ORDER: <CheckCircle className="h-4 w-4 text-emerald-600" />,
   CANCEL_ORDER: <Ban className="h-4 w-4 text-red-500" />,
+  CANCEL_ORDER_BUYER: <Ban className="h-4 w-4 text-red-500" />,
+  CANCEL_ORDER_FREELANCER: <Ban className="h-4 w-4 text-red-500" />,
 };
 
 export const OrderLogTimeline = ({ logs = orderLogs }: Props) => {
+  const sortedLogs = [...logs].sort(
+    (a: any, b: any) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+
   return (
-    <div className="h-full overflow-y-scroll">
+    <div className="h-full overflow-x-hidden">
       <p className="text-lg font-semibold">Timeline</p>
 
-      <div className="h-full overflow-x-hidden ">
+      <div className="h-full">
         <div className="space-y-6 pt-6">
-          {logs.map((log, idx) => (
+          {sortedLogs.map((log, idx) => (
             <div key={log.id} className="relative pl-8">
               {/* timeline dot */}
               <div className="absolute top-1.5 left-0">
@@ -157,9 +164,7 @@ export const OrderLogTimeline = ({ logs = orderLogs }: Props) => {
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage
-                      src={log.user.avatar}
-                    />
+                    <AvatarImage src={log.user.avatar} />
 
                     <AvatarFallback>{log.user.avatar}</AvatarFallback>
                   </Avatar>

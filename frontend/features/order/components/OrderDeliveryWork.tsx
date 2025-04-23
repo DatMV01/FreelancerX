@@ -18,7 +18,7 @@ interface DeliveryWorkCardProps {
   delivery: DeliveryWork;
 }
 
-export const DeliveryWorkCard: React.FC<DeliveryWorkCardProps> = ({
+export const OrderDeliveryWork: React.FC<DeliveryWorkCardProps> = ({
   delivery,
 }) => {
   const formattedDate = format(

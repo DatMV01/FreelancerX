@@ -34,7 +34,7 @@ export type Filters = {
   status: string;
 };
 
-export default function AdvancedSearchDialog() {
+export default function OrderAdvancedSearchDialog() {
   const router = useRouter();
   const searchParams = useSearchParams();
 

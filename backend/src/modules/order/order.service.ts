@@ -259,14 +259,23 @@ export class OrderService extends BaseService<OrderEntity> {
       );
     }
 
-    const createQuestionAnswer = this.orderDeliveryRepo.create({
+    const deliveryWork = this.orderDeliveryRepo.create({
       ...data,
       order,
       freelancer,
     });
 
-    await this._repository.save({ ...order, status: OrderStatus.DELIVERED });
-    return this.orderDeliveryRepo.save(createQuestionAnswer);
+    const log = this.orderLogRepo.create({
+      order,
+      userId: currentUser.id,
+      ...OrderActions.DELIVER_WORK,
+    });
+
+    await this.orderLogRepo.save(log);
+
+    await this._repository.update(order.id, { status: OrderStatus.DELIVERED });
+
+    return this.orderDeliveryRepo.save(deliveryWork);
   }
 
   async addReDeliveryWork(
@@ -288,22 +297,23 @@ export class OrderService extends BaseService<OrderEntity> {
       );
     }
 
-    const createQuestionAnswer = this.orderDeliveryRepo.create({
+    const reDeliveryWork = this.orderDeliveryRepo.create({
       ...data,
       order,
       freelancer,
     });
 
     await this._repository.save({ ...order, status: OrderStatus.DELIVERED });
-    const log = this.orderLogRepo.create({
-      ...OrderActions.RE_DELIVER_WORK,
 
-      orderId: order.id,
+    const log = this.orderLogRepo.create({
+      order,
       userId: currentUser.id,
-    } as any);
+      ...OrderActions.RE_DELIVER_WORK,
+    });
+
     await this.orderLogRepo.save(log);
 
-    return this.orderDeliveryRepo.save(createQuestionAnswer);
+    return this.orderDeliveryRepo.save(reDeliveryWork);
   }
 
   async updateQuestionsAnswersToOrder(
@@ -333,63 +343,74 @@ export class OrderService extends BaseService<OrderEntity> {
     return now;
   }
 
-  async update(
+  async updateOrderByAction(
+    currentUser: JwtAccessPayloadType,
     id: BaseEntity['id'],
     data: DeepPartial<OrderEntity>,
   ): Promise<OrderEntity> {
-    const entity = await this._repository.preload({ id: String(id), ...data });
+    const order = await this.findOneById(id);
 
-    if (!entity) {
-      consoleError(`Entity with ID ${id} not found`);
-      throw new NotFoundException(`ID ${id} not found`);
+    let log = this.orderLogRepo.create({
+      order,
+      userId: currentUser.id,
+    });
+
+    switch (data.action) {
+      case OrderActions.ACCEPT_ORDER.action:
+        order.status = OrderActions.ACCEPT_ORDER.toStatus;
+        log = { ...log, ...OrderActions.ACCEPT_ORDER };
+        break;
+
+      case OrderActions.START_WORK.action:
+        order.status = OrderActions.START_WORK.toStatus;
+        log = { ...log, ...OrderActions.START_WORK };
+        break;
+
+      case OrderActions.REQUEST_REVISION.action:
+        order.status = OrderActions.REQUEST_REVISION.toStatus;
+        log = { ...log, ...OrderActions.REQUEST_REVISION };
+        break;
+
+      case OrderActions.COMPLETE_ORDER.action:
+        order.status = OrderActions.COMPLETE_ORDER.toStatus;
+        log = { ...log, ...OrderActions.COMPLETE_ORDER };
+        break;
+
+      case OrderActions.CANCEL_ORDER_BUYER.action:
+        log = {
+          ...log,
+          fromStatus: order.status,
+          ...OrderActions.CANCEL_ORDER_BUYER,
+        };
+
+        order.status = OrderActions.CANCEL_ORDER_BUYER.toStatus;
+        break;
+
+      case OrderActions.CANCEL_ORDER_FREELANCER.action:
+        log = {
+          ...log,
+          fromStatus: order.status,
+          ...OrderActions.CANCEL_ORDER_FREELANCER,
+        };
+
+        order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
+        break;
+
+      default:
+        break;
     }
 
-    // if (data.status === OrderStatus.CANCEL) {
-    //   await this.orderLogRepo.save({
-    //     actor:
-    //       data.buyerId === 'true'
-    //         ? OrderActor.BUYER
-    //         : data.freelancerId === 'true'
-    //           ? OrderActor.FREELANCER
-    //           : OrderActor.ADMIN,
-    //     detail: OrderAction.CANCELLED,
-    //     orderId: entity.id,
-    //   });
-    // }
-
-    // if (
-    //   data.status === OrderStatus.IN_PROGRESS &&
-    //   entity.status === OrderStatus.PENDING
-    // ) {
-    //   entity.startDate = new Date(Date.now());
-    // }
-
     try {
-      return await this._repository.save(entity);
+      const updatedOrder = await this._repository.save(order);
+
+      await this.orderLogRepo.save(log);
+
+      return updatedOrder;
     } catch (error) {
       console.error('Error updating entity:', error);
       throw new ConflictException('Update failed due to conflict');
     }
   }
-
-  // async update(
-  //   id: BaseEntity['id'],
-  //   data: DeepPartial<Entity>,
-  // ): Promise<Entity> {
-  //   const entity = await this.repository.preload({ id, ...data });
-
-  //   if (!entity) {
-  //     consoleError(`Entity with ID ${id} not found`);
-  //     throw new NotFoundException(`ID ${id} not found`);
-  //   }
-
-  //   try {
-  //     return await this.repository.save(entity);
-  //   } catch (error) {
-  //     console.error('Error updating entity:', error);
-  //     throw new ConflictException('Update failed due to conflict');
-  //   }
-  // }
 
   protected async modifyOptions(
     options: FindManyOptions<OrderEntity>,

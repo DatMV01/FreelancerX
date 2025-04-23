@@ -45,9 +45,6 @@ export class OrderDto extends BaseDto<OrderDto> {
   currency: string;
 
   @AutoMap()
-  note: string;
-
-  @AutoMap()
   price: number;
 
   @AutoMap()

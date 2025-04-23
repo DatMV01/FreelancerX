@@ -85,10 +85,10 @@ export class OrderController extends BaseController<
     return entity;
   }
 
-  @Patch(':id')
+  @Patch('/action/:id')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })
-  @ApiOperation({ summary: 'Update an entity' })
+  @ApiOperation({ summary: 'Update an entity by action' })
   @ApiParam({ name: 'id', type: String, required: false })
   @ApiBody({ type: UpdateOrderDto, required: false })
   @ApiResponse({
@@ -96,8 +96,12 @@ export class OrderController extends BaseController<
     description: 'Entity updated successfully',
     type: OrderDto,
   })
-  async update(id: string, data: UpdateOrderDto): Promise<OrderDto> {
-    return super.update(id, data);
+  async updateOrderByAction(
+    @Param('id') id: string,
+    @Body() data: UpdateOrderDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<OrderDto> {
+    return this._service.updateOrderByAction(currentUser, id, data);
   }
 
   @Get('/buyer')
@@ -110,7 +114,7 @@ export class OrderController extends BaseController<
   })
   async findAllBuyerOrders(
     @Query() query: QueryDto<OrderEntity>,
-    @CurrentUser() currentUser: any,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser = {
       ...currentUser,
@@ -133,7 +137,7 @@ export class OrderController extends BaseController<
   })
   async findAllFreelancerOrders(
     @Query() query: QueryDto<OrderEntity>,
-    @CurrentUser() currentUser: any,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser = {
       ...currentUser,
@@ -173,9 +177,8 @@ export class OrderController extends BaseController<
     @Body() data: OrderDeliverablesEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderDeliverablesEntity> {
-    return this._service.addReDeliveryWork(data, currentUser);
+    return this._service.addDeliveryWork(data, currentUser);
   }
-
 
   @Post('/re-delivery')
   @UseGuards(AuthGuard('jwt'))
@@ -192,7 +195,6 @@ export class OrderController extends BaseController<
   ): Promise<OrderDeliverablesEntity> {
     return this._service.addReDeliveryWork(data, currentUser);
   }
-
 
   @Patch('/questions-answers/:id')
   @UseGuards(AuthGuard('jwt'))

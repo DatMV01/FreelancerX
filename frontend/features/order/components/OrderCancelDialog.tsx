@@ -5,13 +5,16 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
-const CancelOrderDialog = ({
+const OrderCancelDialog = ({
   open,
+  processing = false,
   onOpenChange,
   handleCancelOrder,
 }: {
   open: boolean;
+  processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
   handleCancelOrder: () => void;
 }) => {
@@ -20,14 +23,12 @@ const CancelOrderDialog = ({
       <DialogContent>
         <DialogHeader>Are you sure you want to cancel this order?</DialogHeader>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
           <button
-            className="rounded-sm border border-red-500 bg-white px-2 py-1 whitespace-nowrap text-red-500"
+            className="flex items-center gap-2 rounded-sm border border-red-500 bg-white px-2 py-1 whitespace-nowrap text-red-500"
             onClick={handleCancelOrder}
           >
-            Confirm Cancel
+            {processing && <Loader2 className="animate-spin" size={18} />}
+            <span> {processing ? "Processing..." : "Cancel"}</span>
           </button>
         </DialogFooter>
       </DialogContent>
@@ -35,4 +36,4 @@ const CancelOrderDialog = ({
   );
 };
 
-export default CancelOrderDialog;
+export default OrderCancelDialog;

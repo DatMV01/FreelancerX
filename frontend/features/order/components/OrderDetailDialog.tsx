@@ -1,19 +1,16 @@
-import React from "react";
-import useSWR from "swr";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { CircularProgress } from "@mui/material";
-import { Badge } from "@/components/ui/badge";
-import { OrderStatusTimeline } from "./OrderStatusTimeline";
-import { statusMap } from "@/pages/order/manage";
+import { VisuallyHidden } from "radix-ui";
+import React from "react";
+import useSWR from "swr";
 import { getOrderById } from "../order.api";
 import { OrderDetailBuyer } from "./OrderDetailBuyer";
-import { VisuallyHidden } from "radix-ui";
 
 type OrderDetailModalProps = {
   orderId: string | null | undefined;

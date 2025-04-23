@@ -9,18 +9,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 
-const DeliverWorkDialog = React.memo(
+const OrderDeliverWorkDialog = React.memo(
   ({
     open,
     onOpenChange,
     onSubmit,
-    loading,
+    processing = false,
   }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSubmit: (payload: { message: string; file?: File }) => void;
-    loading?: boolean;
+    processing?: boolean;
   }) => {
     const [message, setMessage] = useState("");
     const [file, setFile] = useState<File | undefined>();
@@ -70,20 +71,15 @@ const DeliverWorkDialog = React.memo(
 
           <DialogFooter className="mt-4">
             <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
+              className="flex items-center justify-center gap-2"
               onClick={(e) => {
                 e.preventDefault();
                 handleSubmit();
               }}
-              disabled={loading || !message.trim() || !!error}
+              disabled={processing || !message.trim() || !!error}
             >
-              {loading ? "Delivering..." : "Deliver Work"}
+              {processing && <Loader2 className="animate-spin" size={18} />}
+              <span> {processing ? "Processing..." : "Deliver Work"}</span>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -92,4 +88,4 @@ const DeliverWorkDialog = React.memo(
   },
 );
 
-export default DeliverWorkDialog;
+export default OrderDeliverWorkDialog;

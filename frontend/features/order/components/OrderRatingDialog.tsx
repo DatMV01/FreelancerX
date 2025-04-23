@@ -11,18 +11,22 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Rating } from "@mui/material";
+import { toast } from "sonner";
 
 type Props = {
   open: boolean;
+  processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
   orderId: string;
   handleSubmit: (data: { rating: number; review: string }) => void;
 };
 
-export function RatingOrderDialog({
+export function OrderRatingDialog({
   open,
+  processing = false,
   onOpenChange,
   orderId,
   handleSubmit,
@@ -47,21 +51,15 @@ export function RatingOrderDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                size={24}
-                className={cn(
-                  "cursor-pointer transition",
-                  star <= rating
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-gray-300",
-                )}
-                onClick={() => setRating(star)}
-              />
-            ))}
-          </div>
+          <Rating
+            name="half-rating"
+            defaultValue={0}
+            precision={1}
+            value={rating}
+            onChange={(event, newValue) => {
+              setRating(newValue ?? 0);
+            }}
+          />
 
           <Textarea
             placeholder="Your comment..."
@@ -71,11 +69,13 @@ export function RatingOrderDialog({
         </div>
 
         <DialogFooter className="pt-4">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={onSubmit} disabled={rating === 0}>
-            Send
+          <Button
+            className="flex items-center gap-2"
+            onClick={onSubmit}
+            disabled={rating === 0 || processing}
+          >
+            {processing && <Loader2 className="animate-spin" size={18} />}
+            <span> {processing ? "Processing..." : "Send"}</span>
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Rating } from "@mui/material";
 
 interface ReviewProps {
   review: {
@@ -45,17 +46,17 @@ export default function OrderReview({
       <CardContent className="space-y-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-yellow-500">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                fill={i < review.rating ? "currentColor" : "none"}
-              />
-            ))}
+            <Rating
+              value={review.rating}
+              defaultValue={2.5}
+              precision={1}
+              readOnly
+            />
           </div>
+
           <span className="text-muted-foreground text-sm">{formattedDate}</span>
         </div>
-
+        <p className="text-muted-foreground text-xs font-semibold">Comment:</p>
         <p className="text-foreground text-sm">{review.comment}</p>
 
         {review.reply ? (

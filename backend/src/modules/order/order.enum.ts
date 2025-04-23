@@ -1,3 +1,4 @@
+// 🟡 Status Enum
 export enum OrderStatus {
   UNPAID = 'UNPAID', // 🟥 Đơn hàng chưa được thanh toán
   PENDING = 'PENDING', // 🟡 Đơn hàng đã được tạo, đang chờ freelancer chấp nhận
@@ -6,22 +7,19 @@ export enum OrderStatus {
   DELIVERED = 'DELIVERED', // 📦 Freelancer đã gửi sản phẩm (chờ buyer phản hồi)
   REVISION_REQUESTED = 'REVISION_REQUESTED', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
   COMPLETED = 'COMPLETED', // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
-  CANCEL = 'CANCEL',
-  // PENDING = 'PENDING',
-  // PAID = 'PAID',
-  // IN_PROGRESS = 'IN_PROGRESS',
-  // DELIVERED = 'DELIVERED',
-  // COMPLETED = 'COMPLETED',
-  // CANCELED = 'CANCELED',
-  // REFUNDED = 'REFUNDED',
+  CANCEL = 'CANCEL', // ❌ Đơn hàng bị hủy
 }
 
+// 👤 Order Actors
 export const OrderActor = {
   BUYER: 'BUYER',
   FREELANCER: 'FREELANCER',
   SYSTEM: 'SYSTEM',
-};
+} as const;
 
+type OrderActorType = (typeof OrderActor)[keyof typeof OrderActor];
+
+// 🔄 Order Actions Mapping
 export const OrderActions = {
   CREATE_ORDER: {
     action: 'CREATE_ORDER',
@@ -41,104 +39,57 @@ export const OrderActions = {
     action: 'ACCEPT_ORDER',
     actor: OrderActor.FREELANCER,
     fromStatus: OrderStatus.PENDING,
-    toStatus: 'ACCEPTED',
+    toStatus: OrderStatus.ACCEPTED,
     message: 'Freelancer accepted the order.',
   },
   START_WORK: {
     action: 'START_WORK',
     actor: OrderActor.FREELANCER,
-    fromStatus: 'ACCEPTED',
-    toStatus: 'IN_PROGRESS',
+    fromStatus: OrderStatus.ACCEPTED,
+    toStatus: OrderStatus.IN_PROGRESS,
     message: 'Freelancer started working on the order.',
   },
   DELIVER_WORK: {
     action: 'DELIVER_WORK',
     actor: OrderActor.FREELANCER,
-    fromStatus: 'IN_PROGRESS',
-    toStatus: 'DELIVERED',
+    fromStatus: OrderStatus.IN_PROGRESS,
+    toStatus: OrderStatus.DELIVERED,
     message: 'Freelancer delivered the work.',
   },
   REQUEST_REVISION: {
     action: 'REQUEST_REVISION',
     actor: OrderActor.BUYER,
-    fromStatus: 'DELIVERED',
-    toStatus: 'REVISION_REQUESTED',
+    fromStatus: OrderStatus.DELIVERED,
+    toStatus: OrderStatus.REVISION_REQUESTED,
     message: 'Buyer requested a revision.',
   },
   RE_DELIVER_WORK: {
     action: 'RE_DELIVER_WORK',
     actor: OrderActor.FREELANCER,
-    fromStatus: 'REVISION_REQUESTED',
-    toStatus: 'DELIVERED',
+    fromStatus: OrderStatus.REVISION_REQUESTED,
+    toStatus: OrderStatus.DELIVERED,
     message: 'Freelancer re-delivered the work.',
   },
   COMPLETE_ORDER: {
     action: 'COMPLETE_ORDER',
     actor: OrderActor.BUYER,
-    fromStatus: 'DELIVERED',
-    toStatus: 'COMPLETED',
+    fromStatus: OrderStatus.DELIVERED,
+    toStatus: OrderStatus.COMPLETED,
     message: 'Buyer marked the order as completed.',
   },
-  CANCEL_ORDER: {
-    action: 'CANCEL_ORDER',
-    toStatus: 'CANCEL',
+  CANCEL_ORDER_BUYER: {
+    action: 'CANCEL_ORDER_BUYER',
+    actor: OrderActor.BUYER,
+    toStatus: OrderStatus.CANCEL,
     message: 'Buyer canceled the order.',
   },
-};
+  CANCEL_ORDER_FREELANCER: {
+    action: 'CANCEL_ORDER_FREELANCER',
+    actor: OrderActor.FREELANCER,
+    toStatus: OrderStatus.CANCEL,
+    message: 'Freelancer canceled the order.',
+  },
+} as const;
 
-const actionsArr = [
-  {
-    action: 'CREATE_ORDER',
-    fromStatus: null,
-    toStatus: OrderStatus.UNPAID,
-    message: 'Buyer created the order.',
-  },
-  {
-    action: 'PAY_ORDER',
-    fromStatus: OrderStatus.UNPAID,
-    toStatus: OrderStatus.PENDING,
-    message: 'Buyer paid the order. Waiting for freelancer to accept.',
-  },
-  {
-    action: 'ACCEPT_ORDER',
-    fromStatus: 'PENDING',
-    toStatus: 'ACCEPTED',
-    message: 'Freelancer accepted the order.',
-  },
-  {
-    action: 'START_WORK',
-    fromStatus: 'ACCEPTED',
-    toStatus: 'IN_PROGRESS',
-    message: 'Freelancer started working on the order.',
-  },
-  {
-    action: 'DELIVER_WORK',
-    fromStatus: 'IN_PROGRESS',
-    toStatus: 'DELIVERED',
-    message: 'Freelancer delivered the work.',
-  },
-  {
-    action: 'REQUEST_REVISION',
-    fromStatus: 'DELIVERED',
-    toStatus: 'REVISION_REQUESTED',
-    message: 'Buyer requested a revision.',
-  },
-  {
-    action: 'RE_DELIVER_WORK',
-    fromStatus: 'REVISION_REQUESTED',
-    toStatus: 'DELIVERED',
-    message: 'Freelancer re-delivered the work.',
-  },
-  {
-    action: 'COMPLETE_ORDER',
-    fromStatus: 'DELIVERED',
-    toStatus: 'COMPLETED',
-    message: 'Buyer marked the order as completed.',
-  },
-  {
-    action: 'CANCEL_ORDER',
-    fromStatus: 'PENDING',
-    toStatus: 'CANCEL',
-    message: 'Buyer canceled the order.',
-  },
-];
+// Optional: If you still need actions in array form
+export const OrderActionList = Object.values(OrderActions);

@@ -75,3 +75,19 @@ export const getOrderReviewById = async (id: string): Promise<any> => {
     throw error;
   }
 };
+
+export const updateOrderByAction = async (
+  id: string,
+  action: string,
+): Promise<any> => {
+  try {
+    const response = await axiosInstanceV1.patch(`/orders/action/${id}`, {
+      action: action,
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error updateOrderByAction :", error);
+    throw error;
+  }
+};

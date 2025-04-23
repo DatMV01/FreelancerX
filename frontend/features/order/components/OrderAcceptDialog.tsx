@@ -1,17 +1,19 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
-const AcceptlOrderDialog = ({
+const OrderAcceptDialog = ({
   open,
+  processing = false,
   onOpenChange,
   handleAcceptOrder,
 }: {
   open: boolean;
+  processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
   handleAcceptOrder: () => void;
 }) => {
@@ -20,14 +22,12 @@ const AcceptlOrderDialog = ({
       <DialogContent>
         <DialogHeader>Are you sure you want to accept this order?</DialogHeader>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
           <button
-            className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
+            className="flex items-center gap-2 rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
             onClick={handleAcceptOrder}
           >
-            Accept Order
+            {processing && <Loader2 className="animate-spin" size={18} />}
+            <span> {processing ? "Processing..." : "Accept"}</span>
           </button>
         </DialogFooter>
       </DialogContent>
@@ -35,4 +35,4 @@ const AcceptlOrderDialog = ({
   );
 };
 
-export default AcceptlOrderDialog;
+export default OrderAcceptDialog;

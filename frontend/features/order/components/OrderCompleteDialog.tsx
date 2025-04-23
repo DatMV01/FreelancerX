@@ -1,17 +1,19 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
-const CompleteOrderDialog = ({
+const OrderCompleteDialog = ({
   open,
+  processing = false,
   onOpenChange,
   handleCompleteOrder,
 }: {
   open: boolean;
+  processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
   handleCompleteOrder: () => void;
 }) => {
@@ -22,15 +24,12 @@ const CompleteOrderDialog = ({
           Are you sure you want to complete this order?
         </DialogHeader>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-
           <button
-            className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
+            className="flex items-center gap-2 rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
             onClick={handleCompleteOrder}
           >
-            Complete Order
+            {processing && <Loader2 className="animate-spin" size={18} />}
+            <span> {processing ? "Processing..." : "Complete Order"}</span>
           </button>
         </DialogFooter>
       </DialogContent>
@@ -38,4 +37,4 @@ const CompleteOrderDialog = ({
   );
 };
 
-export default CompleteOrderDialog;
+export default OrderCompleteDialog;

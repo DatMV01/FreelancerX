@@ -19,8 +19,8 @@ import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
 import { CircularProgress } from "@mui/material";
 import clsx from "clsx";
 
-import CancelOrderDialog from "@/features/order/components/CancelOrderDialog";
-import DeliverWorkDialog from "@/features/order/components/DeliverWorkDialog";
+import OrderCancelDialog from "@/features/order/components/OrderCancelDialog";
+import OrderDeliverWorkDialog from "@/features/order/components/OrderDeliverWorkDialog";
 import { OrderDetailFreelancer } from "@/features/order/components/OrderDetailFreelancer";
 import { OrderFreelancerStatusButton } from "@/features/order/components/OrderFreelancerStatusButton";
 import StartWorkingDialog from "@/features/order/components/StartWorkingDialog";
@@ -658,7 +658,7 @@ function FreelancerOrderPage() {
         </DialogContent>
       </Dialog>
 
-      <DeliverWorkDialog
+      <OrderDeliverWorkDialog
         open={openDeliver}
         onOpenChange={setOpenDeliver}
         onSubmit={async ({ message, file }) => {
@@ -738,7 +738,7 @@ function FreelancerOrderPage() {
         }}
       />
 
-      <CancelOrderDialog
+      <OrderCancelDialog
         open={cancelOrderDialogOpen}
         onOpenChange={setCancelOrderDialogOpen}
         handleCancelOrder={async () => {

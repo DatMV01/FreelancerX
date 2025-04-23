@@ -1,37 +1,28 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { FileDown, FileIcon, Upload } from "lucide-react";
-import useSWR, { mutate } from "swr";
-import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import { CircularProgress } from "@mui/material";
-import { getOrderById, getOrderReviewById } from "../order.api";
+import { format } from "date-fns";
+import { useState } from "react";
+import { toast } from "sonner";
+import useSWR from "swr";
+import { OrderActions } from "../dto";
+import {
+  getOrderById,
+  getOrderReviewById,
+  updateOrderByAction,
+} from "../order.api";
+import OrderAcceptDialog from "./OrderAcceptDialog";
+import OrderAskQuestionDialog from "./OrderAskQuestionDialog";
+import OrderCancelDialog from "./OrderCancelDialog";
+import { OrderDeliveryWork } from "./OrderDeliveryWork";
+import OrderDeliverWorkDialog from "./OrderDeliverWorkDialog";
 import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
 import { OrderLogTimeline } from "./OrderLogTimeline";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import React, { useCallback, useState } from "react";
-import { OrderStatus } from "../dto";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import DeliverWorkDialog from "./DeliverWorkDialog";
-import StartWorkingDialog from "./StartWorkingDialog";
-import CancelOrderDialog from "./CancelOrderDialog";
-import { DeliveryWorkCard } from "./DeliveryWorkCard";
-import { format } from "date-fns";
-import { toast } from "sonner";
-import AcceptlOrderDialog from "./AcceptlOrderDialog";
-import AskQuestionDialog from "./AskQuestionDialog";
+import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import OrderReview from "./OrderReview";
+import StartWorkingDialog from "./StartWorkingDialog";
 
 type OrderDetailBuyerProps = {
   orderId: any;
@@ -75,6 +66,8 @@ export const OrderDetailFreelancer = ({
   const [reDeliverWorkDialogOpen, setReDeliverWorkDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [askQuestionDialogOpen, setAskQuestionDialogOpen] = useState(false);
+
+  const [processing, setProcessing] = useState(false);
 
   if (isLoading || isValidating) {
     return (
@@ -220,7 +213,7 @@ export const OrderDetailFreelancer = ({
 
             <div className="flex flex-col gap-y-1">
               {sortedDeliverables?.map((item: any) => (
-                <DeliveryWorkCard key={item.id} delivery={item} />
+                <OrderDeliveryWork key={item.id} delivery={item} />
               ))}
             </div>
 
@@ -231,7 +224,7 @@ export const OrderDetailFreelancer = ({
                 review={review}
                 isFreelancer
                 onReplySubmit={async (reviewId, replyText) => {
-                  console.log(review)
+                  console.log(review);
 
                   try {
                     const response = await axiosInstanceV1.patch(
@@ -257,16 +250,7 @@ export const OrderDetailFreelancer = ({
           <div className="flex-1">
             <OrderQuestionAnswers
               items={order.orderQuestionsAnswers}
-              onSubmitAnswer={async (id, answer, file) => {
-                // API gửi câu trả lời của buyer
-                console.log("id", id);
-                console.log("answer", answer);
-                console.log("file", file);
-              }}
               onAddQuestion={async (question, file) => {
-                console.log("question", question);
-                console.log("file", file);
-
                 const formData = new FormData();
                 formData.append("question", question);
                 formData.append("orderId", orderId);
@@ -277,12 +261,9 @@ export const OrderDetailFreelancer = ({
                     type: file.type,
                   });
 
-                  const fileForm = new FormData();
-                  fileForm.append("file", newFile);
-
                   const { data, status } = await axiosInstanceV1.post(
                     "/file/upload",
-                    fileForm,
+                    { file: newFile },
                     {
                       headers: {
                         "Content-Type": "multipart/form-data",
@@ -309,11 +290,12 @@ export const OrderDetailFreelancer = ({
             />
           </div>
 
-          {/* <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             <OrderLogTimeline logs={order.orderlogs} />
-          </div> */}
+          </div>
         </div>
       </div>
+
       <div className="flex justify-center">
         <OrderFreelancerStatusButton
           status={order.status}
@@ -339,175 +321,214 @@ export const OrderDetailFreelancer = ({
           }}
         />
       </div>
-      <AcceptlOrderDialog
+
+      <OrderAcceptDialog
         open={acceptDialogOpen}
         onOpenChange={setAcceptDialogOpen}
         handleAcceptOrder={async () => {
-          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
-            status: OrderStatus.ACCEPTED,
-            action: "ACCEPT_ORDER",
-          });
+          setProcessing(true);
 
-          if (response.status === 200) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
+          try {
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.ACCEPT_ORDER.action,
+            );
+
+            if (response.status === 200) {
+              //mutateThisOrder(response.data, false);
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
+            }
+          } catch (error) {
+            toast.error("AcceptlOrderDialog Error");
+          } finally {
+            setAcceptDialogOpen(false);
+            setProcessing(false);
           }
-
-          setAcceptDialogOpen(false);
         }}
       />
+
       <StartWorkingDialog
         open={startWorkDialogOpen}
+        processing={processing}
         onOpenChange={setStartWorkDialogOpen}
         handleStartWorkOrder={async () => {
+          setProcessing(true);
+
           try {
-            const response = await axiosInstanceV1.patch(
-              `/orders/${order.id}`,
-              {
-                status: OrderStatus.IN_PROGRESS,
-                startDate: new Date(Date.now()),
-                action: "ACCEPT_ORDER",
-              },
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.START_WORK.action,
             );
 
             if (response.status === 200) {
               mutateThisOrder();
               mutateAllOrder && mutateAllOrder();
             }
-          } catch (error: any) {
-            toast.error("error");
+          } catch (error) {
+            toast.error("StartWorkingDialog Error");
           } finally {
             setStartWorkDialogOpen(false);
+            setProcessing(false);
           }
         }}
       />
-      <CancelOrderDialog
+
+      <OrderCancelDialog
         open={cancelDialogOpen}
+        processing={processing}
         onOpenChange={setCancelDialogOpen}
         handleCancelOrder={async () => {
-          const response = await axiosInstanceV1.patch(`/orders/${order.id}`, {
-            status: OrderStatus.CANCEL,
-          });
+          setProcessing(true);
 
-          if (response.status === 200) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
+          try {
+            const response = await updateOrderByAction(
+              order.id,
+              OrderActions.CANCEL_ORDER_FREELANCER.action,
+            );
+
+            if (response.status === 200) {
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
+            }
+          } catch (error) {
+            toast.error("CancelOrderDialog Error");
+          } finally {
+            setCancelDialogOpen(false);
+            setProcessing(false);
           }
-
-          setCancelDialogOpen(false);
         }}
       />
-      <AskQuestionDialog
+
+      <OrderAskQuestionDialog
         open={askQuestionDialogOpen}
+        processing={processing}
         onOpenChange={setAskQuestionDialogOpen}
         handleAskQuestion={async (question) => {
-          const formData = new FormData();
-          formData.append("question", question);
-          formData.append("orderId", orderId);
+          setProcessing(true);
 
-          const response = await axiosInstanceV1.post(
-            "/orders/questions-answers",
-            formData,
-          );
-
-          if (response.status === 201) {
-            mutateThisOrder();
-          }
-
-          setAskQuestionDialogOpen(false);
-        }}
-      />
-      <DeliverWorkDialog
-        open={reDeliverWorkDialogOpen}
-        onOpenChange={setReDeliverWorkDialogOpen}
-        onSubmit={async ({ message, file }) => {
-          const formData = new FormData();
-          formData.append("message", message);
-          formData.append("orderId", orderId);
-
-          if (file) {
-            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
-            const newFile = new File([file], newFileName, {
-              type: file.type,
-            });
-
-            const fileForm = new FormData();
-            fileForm.append("file", newFile);
-
-            const { data, status } = await axiosInstanceV1.post(
-              "/file/upload",
-              fileForm,
+          try {
+            const response = await axiosInstanceV1.post(
+              "/orders/questions-answers",
               {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
+                question,
+                orderId,
               },
             );
 
-            if (status === 201) {
-              console.log("File uploaded successfully", data);
-              formData.append("file", JSON.stringify(data));
+            if (response.status === 201) {
+              mutateThisOrder();
             }
+          } catch (error) {
+            toast.error("StartWorkingDialog Error");
+          } finally {
+            setAskQuestionDialogOpen(false);
+            setProcessing(false);
           }
-
-          const { data, status } = await axiosInstanceV1.post(
-            `/orders/delivery`,
-            formData,
-          );
-
-          if (status === 201) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
-          }
-
-          setReDeliverWorkDialogOpen(false);
         }}
       />
 
-      <DeliverWorkDialog
+      <OrderDeliverWorkDialog
         open={deliverWorkDialogOpen}
+        processing={processing}
         onOpenChange={setDeliverWorkDialogOpen}
         onSubmit={async ({ message, file }) => {
+          setProcessing(true);
+
           const formData = new FormData();
           formData.append("message", message);
           formData.append("orderId", orderId);
 
-          if (file) {
-            const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
-            const newFile = new File([file], newFileName, {
-              type: file.type,
-            });
+          try {
+            if (file) {
+              const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+              const newFile = new File([file], newFileName, {
+                type: file.type,
+              });
 
-            const fileForm = new FormData();
-            fileForm.append("file", newFile);
+              const fileResponse = await axiosInstanceV1.post(
+                "/file/upload",
+                { file: newFile },
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                },
+              );
+
+              if (fileResponse.status === 201) {
+                console.log("File uploaded successfully", fileResponse.data);
+                formData.append("file", JSON.stringify(fileResponse.data));
+              }
+            }
 
             const { data, status } = await axiosInstanceV1.post(
-              "/file/upload",
-              fileForm,
-              {
-                headers: {
-                  "Content-Type": "multipart/form-data",
-                },
-              },
+              `/orders/delivery`,
+              formData,
             );
 
             if (status === 201) {
-              console.log("File uploaded successfully", data);
-              formData.append("file", JSON.stringify(data));
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
             }
+          } catch (error) {
+            toast.error("OrderDeliverWorkDialog Error");
+          } finally {
+            setDeliverWorkDialogOpen(false);
+            setProcessing(false);
           }
+        }}
+      />
 
-          const { data, status } = await axiosInstanceV1.post(
-            `/orders/delivery`,
-            formData,
-          );
+      <OrderDeliverWorkDialog
+        open={reDeliverWorkDialogOpen}
+        processing={processing}
+        onOpenChange={setReDeliverWorkDialogOpen}
+        onSubmit={async ({ message, file }) => {
+          setProcessing(true);
 
-          if (status === 201) {
-            mutateThisOrder();
-            mutateAllOrder && mutateAllOrder();
+          const formData = new FormData();
+          formData.append("message", message);
+          formData.append("orderId", orderId);
+
+          try {
+            if (file) {
+              const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+              const newFile = new File([file], newFileName, {
+                type: file.type,
+              });
+
+              const fileResponse = await axiosInstanceV1.post(
+                "/file/upload",
+                { file: newFile },
+                {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                  },
+                },
+              );
+
+              if (fileResponse.status === 201) {
+                console.log("File uploaded successfully", fileResponse.data);
+                formData.append("file", JSON.stringify(fileResponse.data));
+              }
+            }
+
+            const { data, status } = await axiosInstanceV1.post(
+              `/orders/re-delivery`,
+              formData,
+            );
+
+            if (status === 201) {
+              mutateThisOrder();
+              mutateAllOrder && mutateAllOrder();
+            }
+          } catch (error) {
+            toast.error("ReOrderDeliverWorkDialog Error");
+          } finally {
+            setReDeliverWorkDialogOpen(false);
+            setProcessing(false);
           }
-
-          setDeliverWorkDialogOpen(false);
         }}
       />
     </div>
