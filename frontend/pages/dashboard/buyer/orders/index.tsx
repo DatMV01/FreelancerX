@@ -1,5 +1,6 @@
 "use client";
 
+import CircularProgressCenter from "@/components/CircularProgressCenter";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -79,7 +80,10 @@ function BuyerOrderPage() {
   const router = useRouter();
 
   const { filters, updateFilter, resetFilters } = useFilterParams();
+
   const [orders, setOrders] = useState<any[]>([]);
+  const [pagingMetadata, setPagingMetadata] = useState<any>();
+
   const [goToPage, setGoToPage] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -102,9 +106,8 @@ function BuyerOrderPage() {
   useEffect(() => {
     if (data) {
       setOrders(data.data as any);
+      setPagingMetadata(data.meta);
     }
-
-    console.log(data, "data");
   }, [data]);
 
   useEffect(() => {
@@ -116,7 +119,6 @@ function BuyerOrderPage() {
     const { keyword, status } = filters;
 
     return orders.filter((order: any) => {
-      console.log(order);
       const matchesKeyword = keyword
         ? order.snapshot.gig.title.toLowerCase().includes(keyword.toLowerCase())
         : true;
@@ -138,7 +140,8 @@ function BuyerOrderPage() {
     });
   }, [orders, filters]);
 
-  const totalPages = Math.ceil(filteredOrders?.length / filters.pageSize);
+  //const totalPages = Math.ceil(filteredOrders?.length / filters.pageSize);
+  const totalPages = pagingMetadata?.pageCount ?? 1;
   const currentPage = filters.page;
 
   const handleNext = () => {
@@ -193,10 +196,12 @@ function BuyerOrderPage() {
       : String(bVal).localeCompare(String(aVal));
   });
 
-  const paginatedOrders = sortedOrders.slice(
-    (currentPage - 1) * filters.pageSize,
-    currentPage * filters.pageSize,
-  );
+  // const paginatedOrders = sortedOrders.slice(
+  //   (currentPage - 1) * filters.pageSize,
+  //   currentPage * filters.pageSize,
+  // );
+
+  const paginatedOrders = sortedOrders;
 
   const getSortIcon = (key: string) => {
     if (sortConfig?.key !== key)
@@ -226,12 +231,10 @@ function BuyerOrderPage() {
     saveAs(blob, `gigs.xlsx`);
   };
 
-  if (isLoading)
-    return (
-      <div className="flex items-center justify-center">
-        <CircularProgress />
-      </div>
-    );
+  if (isLoading) {
+    return <CircularProgressCenter fullScreen />;
+  }
+
   if (error) return <div>Failed to load data.</div>;
 
   return (
@@ -292,40 +295,56 @@ function BuyerOrderPage() {
                 <TableHead className="cursor-pointer">Order</TableHead>
 
                 <TableHead
-                  onClick={() => handleSort("buyerName")}
+                  onClick={() => handleSort("snapshot.freelancer.displayName")}
                   className="cursor-pointer"
                 >
-                  Freelancer {getSortIcon("buyerName")}
+                  Freelancer {getSortIcon("snapshot.freelancer.displayName")}
                 </TableHead>
                 <TableHead
-                  onClick={() => handleSort("gigTitle")}
+                  onClick={() => handleSort("snapshot.gig.title")}
                   className="cursor-pointer"
                 >
-                  Gig {getSortIcon("gigTitle")}
+                  Gig {getSortIcon("snapshot.gig.title")}
                 </TableHead>
                 <TableHead
-                  onClick={() => handleSort("snapshot.title")}
+                  onClick={() => handleSort("snapshot.package.type")}
                   className="cursor-pointer"
                 >
-                  Package {getSortIcon("snapshot.title")}
+                  Package {getSortIcon("snapshot.package.title")}
                 </TableHead>
+                <TableHead
+                  onClick={() => handleSort("snapshot.package.type")}
+                  className="cursor-pointer"
+                >
+                  Type {getSortIcon("snapshot.package.type")}
+                </TableHead>
+
                 <TableHead
                   onClick={() => handleSort("status")}
                   className="cursor-pointer"
                 >
                   Status {getSortIcon("status")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("deadline")}
+                  onClick={() => handleSort("createdAt")}
                   className="cursor-pointer"
                 >
-                  Start Date {getSortIcon("deadline")}
+                  Create Date {getSortIcon("createdAt")}
                 </TableHead>
+
                 <TableHead
-                  onClick={() => handleSort("deadline")}
+                  onClick={() => handleSort("startDate")}
                   className="cursor-pointer"
                 >
-                  Deadline {getSortIcon("deadline")}
+                  Start Date {getSortIcon("startDate")}
+                </TableHead>
+
+                <TableHead
+                  onClick={() => handleSort("endDate")}
+                  className="cursor-pointer"
+                >
+                  Deadline {getSortIcon("endDate")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -344,37 +363,38 @@ function BuyerOrderPage() {
 
                     <TableCell>{_.snapshot.gig.title}</TableCell>
 
+                    <TableCell>{_.snapshot.package.title}</TableCell>
+
                     <TableCell>
-                      {`${_.snapshot.package.title} - ${_.snapshot.package.type.toUpperCase()}`}
+                      {_.snapshot.package.type.toUpperCase()}
                     </TableCell>
 
                     <TableCell>
                       <OrderStatusBadge status={_.status} />
                     </TableCell>
-                    {_.startDate && (
-                      <TableCell>
-                        <div className="flex">
-                          <CalendarCheck className="h-4 w-4" />
 
-                          {format(_.startDate, "dd/MM/yyyy")}
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell>
+                      <div className="flex">
+                        {format(_.createdAt, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
 
-                    {_.endDate && (
-                      <TableCell>
-                        <div className="flex">
-                          <CalendarCheck className="h-4 w-4" />
+                    <TableCell>
+                      <div className="flex">
+                        {_.startDate && format(_.startDate, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
 
-                          {format(_.endDate, "dd/MM/yyyy")}
-                        </div>
-                      </TableCell>
-                    )}
+                    <TableCell>
+                      <div className="flex">
+                        {_.endDate && format(_.endDate, "dd/MM/yyyy")}
+                      </div>
+                    </TableCell>
                   </TableRow>
 
                   {/* Action */}
                   <TableRow className="w-fit">
-                    <TableCell colSpan={8} className="bg-gray-50 pl-10">
+                    <TableCell colSpan={11} className="bg-gray-50 pl-10">
                       <Button
                         onClick={() => {
                           setSelectedId(_.id);

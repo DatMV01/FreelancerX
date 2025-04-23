@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { getGigRatingCount } from "../gig.api";
+import { Rating } from "@mui/material";
 
 const ratings = [
   { rating: 5, count: 307 },
@@ -106,21 +107,17 @@ const GigReviewStats = ({ gig }: { gig: any }) => {
       <div className="rounded-lg bg-white p-4">
         <div className="flex items-center justify-between">
           <p className="text-lg font-semibold">
-            {totalCount || gig.ratingCount} reviews for this Gig
+            {totalCount ?? gig.ratingCount} reviews for this Gig
           </p>
 
           <div className="mt-1 flex items-center text-black">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={16}
-                className={
-                  i < ratingAverage || gig.ratingAverage
-                    ? "fill-yellow-500 text-yellow-500"
-                    : "fill-none text-gray-300"
-                }
-              />
-            ))}
+            <Rating
+              name="half-rating-read"
+              defaultValue={ratingAverage ?? gig.ratingAverage}
+              precision={0.2}
+              readOnly
+            />
+
             <span className="ml-2 text-lg font-semibold">
               {gig.ratingAverage}
             </span>

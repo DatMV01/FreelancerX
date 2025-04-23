@@ -13,7 +13,9 @@ import GigCarousel from "@/features/gig/components/GigCarousel";
 export default function Step1Review({ onNext }: { onNext: () => void }) {
   const searchParams = useSearchParams();
 
-  const gigId = searchParams.get("gigId");
+  //const gigId = searchParams.get("gigId");
+  const [gigId, setGigId] = useState<string | null>();
+
   const orderId = searchParams.get("orderId");
   const transactionId = searchParams.get("transactionId");
   const transactionStripeId = searchParams.get("transactionStripeId");
@@ -42,16 +44,19 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
   } = useSWR<GigDto>(gigId ? `/gig/${gigId}` : null, (url: string) =>
     axiosInstanceV1.get(url).then((res) => res.data),
   );
-  
 
   useEffect(() => {
-    debugger
-    data && setOrder(data);
+    if (data) {
+      setOrder(data);
+      setGigId(data.gigId);
+    }
+
+    //    data && setOrder(data);
   }, [orderId, data]);
 
   useEffect(() => {
     data2 && setGig(data2);
-  }, [, gigId, data2]);
+  }, [gigId, data2]);
 
   useEffect(() => {
     if (error) {
@@ -66,32 +71,6 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
       });
     }
   }, [error, error2]);
-
-  // useEffect(() => {
-  //   const getPackageInfo = async () => {
-  //     const packageInfo = gig?.packages.find(
-  //       (_: GigPackage) => _.id === packageId,
-  //     );
-
-  //     if (packageInfo) {
-  //       const allFeatures = Array.from(
-  //         new Set(packageInfo.features.map((f) => f.package)),
-  //       );
-
-  //       console.log(packageInfo);
-
-  //       setPackageInfo(packageInfo);
-  //       setAllFeatures(allFeatures);
-  //     } else {
-  //       setMessage({
-  //         type: "errror",
-  //         message: "Package not found",
-  //       });
-  //     }
-  //   };
-
-  //   gig && packageId && getPackageInfo();
-  // }, [gig, packageId]);
 
   useEffect(() => {
     const getPackageInfo = async () => {
@@ -134,12 +113,14 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
           </div>
         ))}
 
-      {order && packageInfo && gig && (
+      {order && order.status !== "UNPAID" && <div>Order has been paided.</div>}
+
+      {order && order.status === "UNPAID" && packageInfo && gig && (
         <div className="flex flex-col space-y-2">
           <div>
             <p className="text-xl">
-              <span className="mr-2 font-semibold">OrderNo:</span>
-              #{order.id.split("-")[4]}
+              <span className="mr-2 font-semibold">OrderNo:</span>#
+              {order.id.split("-")[4]}
             </p>
           </div>
 

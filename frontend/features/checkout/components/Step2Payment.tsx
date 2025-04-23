@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { CircularProgress } from "@mui/material";
+import { getOrderById } from "@/features/order/order.api";
 
 type Props = {
   onNext: () => void;
@@ -23,35 +25,48 @@ export default function Step2Payment({ onNext, onBack }: Props) {
   const clientSecret = searchParams.get("clientSecret");
   const paymentIntentId = searchParams.get("paymentIntentId");
 
-  const handlePay = () => {
-    setTimeout(() => {
-      onNext();
-    }, 3000);
-  };
   const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
 
-  const [order, setOrder] = useState<any>();
-  const { data, error, isLoading } = useSWR(
-    orderId ? `/orders/checkout/${orderId}` : null,
-    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  const {
+    data: order,
+    error,
+    isLoading,
+    isValidating,
+    mutate: mutateThisOrder,
+  } = useSWR(
+    orderId ? `/orders/${orderId}` : null,
+    () => (orderId ? getOrderById(orderId) : null),
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 0,
+    },
   );
-  useEffect(() => {
-    data && setOrder(data);
-  }, [data]);
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 z-50 flex items-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="flex space-x-6">
-        <div className="w-2/3">
-          <StripeButton
-            paymentSuccesCb={(value: any) => {
-              setPaymentSuccess(value);
-            }}
-          />
-        </div>
-        <div className="w-1/3">
-          {!isLoading && order && (
-            <div className="w-full">
+    <div className="flex flex-col">
+      {order && order.status !== "UNPAID" && <div>Order has been paided.</div>}
+
+      {order && order.status === "UNPAID" && (
+        <div>
+          <div className="flex space-x-6">
+            <div className="w-2/3">
+              <StripeButton
+                paymentSuccesCb={(value: any) => {
+                  setPaymentSuccess(value);
+                }}
+              />
+            </div>
+            <div className="w-1/3">
               <h2 className="mb-6 text-xl font-semibold">Order Summary</h2>
 
               <div className="space-y-2 text-sm text-gray-700">
@@ -69,16 +84,18 @@ export default function Step2Payment({ onNext, onBack }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span>Package:</span>
-                  <span className="font-medium">{order.snapshot.package.title}</span>
+                  <span className="font-medium">
+                    {order.snapshot.package.title}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery Time:</span>
                   <span>{order.deliveryTime} days</span>
                 </div>
-                {/* <div className="flex justify-between">
+                <div className="flex justify-between">
                   <span>Revisions:</span>
-                  <span>{order.snapshot.revisions} times</span>
-                </div> */}
+                  <span>{order.snapshot.package.revisions} times</span>
+                </div>
                 <div className="flex justify-between">
                   <span>Quantity:</span>
                   <span>{order.quantity}</span>
@@ -100,25 +117,24 @@ export default function Step2Payment({ onNext, onBack }: Props) {
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center justify-end">
-        <Button
-          className="disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={onNext}
-          disabled={!paymentSuccess}
-        >
-          Continue
-        </Button>
-        {/* <Button
+          </div>
+          <div className="flex items-center justify-end">
+            <Button
+              className="disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={onNext}
+              disabled={!paymentSuccess}
+            >
+              Continue
+            </Button>
+            {/* <Button
           className="disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onNext}
         >
           Continue
         </Button> */}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

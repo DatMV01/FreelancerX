@@ -207,7 +207,7 @@ export default function Step3Success() {
       {submitted && (
         <div className="mt-6 text-center font-medium text-green-600">
           ✅ Submitted! Redirecting in {countdown} second
-          {countdown !== 1 && "s"}...
+          {countdown >= 1 && "s"}...
         </div>
       )}
     </div>

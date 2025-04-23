@@ -1,7 +1,7 @@
 import { GigDto } from "@/dto/dto.type.";
 import { faker } from "@faker-js/faker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Avatar, Divider } from "@mui/material";
+import { Avatar, Divider, Rating } from "@mui/material";
 
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -77,17 +77,12 @@ const GigSellerResponse = ({ comment }: { comment: any }) => {
       </div>
       <Divider />
       <div className="mt-2 flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            size={16}
-            className={
-              i < comment.rating
-                ? "fill-yellow-500 text-yellow-500"
-                : "fill-none text-gray-300"
-            }
-          />
-        ))}
+        <Rating
+          name="half-rating-read"
+          defaultValue={comment.rating}
+          precision={1}
+          readOnly
+        />
 
         <span className="text-sm text-gray-500">
           {format(new Date(comment.createdAt), "dd/MM/yyyy")}
@@ -115,20 +110,6 @@ const GigSellerResponse = ({ comment }: { comment: any }) => {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      {/* 
-      <Accordion sx={{ boxShadow: "none", border: "none" }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <div className="flex items-center space-x-2">
-            <Avatar alt="freelancer" src={freelancer?.avatar} />
-
-            <strong className="text-[15px]">{freelancer?.displayName}</strong>
-          </div>
-        </AccordionSummary>
-        <AccordionDetails sx={{ paddingLeft: "50px" }}>
-          {comment.reply} <p>{comment.replydAt}</p>
-        </AccordionDetails>
-      </Accordion> */}
     </div>
   );
 };
@@ -164,8 +145,6 @@ const GigComments = ({ gig }: { gig: GigDto }) => {
       setPage(data.page + 1);
     }
   };
-
-  console.log(data);
 
   const reviews = data.reviews;
 
