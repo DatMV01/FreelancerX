@@ -51,6 +51,7 @@ import { VisuallyHidden } from "radix-ui";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
+import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
 
 export const statusMap = {
   UNPAID: {
@@ -65,8 +66,8 @@ export const statusMap = {
   },
   ACCEPTED: {
     label: "Accepted",
-    color: "bg-green-100 text-green-800",
-    icon: <CheckCircle className="text-green-500" />,
+    color: "bg-orange-100 text-orange-800",
+    icon: <CheckCircle className="text-orange-500" />,
   },
   IN_PROGRESS: {
     label: "In Progress",
@@ -534,14 +535,16 @@ function FreelancerOrderPage() {
                     </TableCell>
 
                     <TableCell>
-                      <Badge
+                      {/* <Badge
                         className={
                           statusMap[_.status as keyof typeof statusMap].color
                         }
                       >
                         {statusMap[_.status as keyof typeof statusMap].icon}
                         {statusMap[_.status as keyof typeof statusMap].label}
-                      </Badge>
+                      </Badge> */}
+
+                      <OrderStatusBadge status={_.status} />
                     </TableCell>
                     {_.startDate && (
                       <TableCell>

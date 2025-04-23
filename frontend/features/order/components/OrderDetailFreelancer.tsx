@@ -231,6 +231,8 @@ export const OrderDetailFreelancer = ({
                 review={review}
                 isFreelancer
                 onReplySubmit={async (reviewId, replyText) => {
+                  console.log(review)
+
                   try {
                     const response = await axiosInstanceV1.patch(
                       `/reviews/${reviewId}`,

@@ -23,7 +23,7 @@ export const fetchGigs = async ({
     return response.data;
   } catch (error) {
     console.error("Error fetching gigs:", error);
-   throw error;
+    throw error;
   }
 };
 
@@ -67,6 +67,30 @@ export const deleteGig = async (id: string): Promise<void> => {
     await axiosInstanceV1.delete(`${API_URL}/${id}`);
   } catch (error) {
     console.error("Error deleting gig:", error);
+    throw error;
+  }
+};
+
+export const getGigRatingCount = async (id: string): Promise<any> => {
+  try {
+    const response = await axiosInstanceV1.get(
+      `/reviews/gig/${id}/rating-count`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching getGigRatingCount by id:", error);
+    throw error;
+  }
+};
+
+export const getGigReviews = async (id: string, page: number): Promise<any> => {
+  try {
+    const response = await axiosInstanceV1.get(
+      `/reviews/gig/${id}?page=${page}&limit=10`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching getGigReviews by id:", error);
     throw error;
   }
 };

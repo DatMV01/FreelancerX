@@ -12,7 +12,7 @@ import GigFAQ from "@/features/gig/components/GigFAQ";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
 import GigMetaData from "@/features/gig/components/GigMetaData";
 import GigPrototype from "@/features/gig/components/GigPrototype";
-import GigRatings from "@/features/gig/components/GigReviews";
+import GigReviewStats from "@/features/gig/components/GigReviewStats";
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
@@ -380,7 +380,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigFAQ gig={gig} />
 
-      <GigRatings gig={gig} />
+      <GigReviewStats gig={gig} />
 
       <GigComments gig={gig} />
 

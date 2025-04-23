@@ -33,7 +33,7 @@ export default function OrderReview({
     if (!replyText.trim()) return;
     setIsSubmitting(true);
     try {
-      await onReplySubmit?.(review.id, replyText);
+      onReplySubmit?.(review.id, replyText);
       setReplyText("");
     } finally {
       setIsSubmitting(false);

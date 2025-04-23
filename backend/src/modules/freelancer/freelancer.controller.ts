@@ -93,6 +93,35 @@ export class FreelancerController extends BaseController<
     return this.mapFromEntityToDto(finalEntity as any);
   }
 
+  @Get('/profile/id/:id')
+  @SerializeOptions({ groups: [ADMIN_GROUP] })
+  @ApiOperation({ summary: 'Get freelancer information by email' })
+  @ApiBody({ type: FreelancerDto, required: false })
+  @ApiResponse({
+    status: 200,
+    description: 'Entity found',
+    type: FreelancerDto,
+  })
+  async getFreelancerProfileById(
+    @Param('id') id: string,
+  ): Promise<FreelancerDto> {
+    if (!id) {
+      throw new BadRequestException('Id can not empty');
+    }
+
+    const entity = await this.baseService.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+
+    const { user, ...finalEntity } = entity;
+    finalEntity.avatar = user.avatar as any;
+    finalEntity.country = user.country as any;
+    finalEntity.phone = user.phone as any;
+
+    return this.mapFromEntityToDto(finalEntity as any);
+  }
+
   @Patch(':id')
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [UPDATE_GROUP] })

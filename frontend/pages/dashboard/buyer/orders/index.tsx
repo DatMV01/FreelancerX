@@ -1,7 +1,6 @@
 "use client";
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
@@ -14,88 +13,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { OrderDetailBuyer } from "@/features/order/components/OrderDetailBuyer";
 import OrderStats from "@/features/order/components/OrderStats";
+import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
 import { orderFreelancerStatus, OrderStatus } from "@/features/order/dto";
-import { CircularProgress } from "@mui/material";
-import clsx from "clsx";
-
-import CancelOrderDialog from "@/features/order/components/CancelOrderDialog";
-import DeliverWorkDialog from "@/features/order/components/DeliverWorkDialog";
-import { OrderDetailFreelancer } from "@/features/order/components/OrderDetailFreelancer";
-import { OrderFreelancerStatusButton } from "@/features/order/components/OrderFreelancerStatusButton";
-import StartWorkingDialog from "@/features/order/components/StartWorkingDialog";
-import { fetchFreelancerOrders } from "@/features/order/order.api";
+import {
+  fetchBuyerOrders,
+  fetchFreelancerOrders,
+} from "@/features/order/order.api";
 import { useFilterParams } from "@/hooks/useUrlSync ";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { CircularProgress } from "@mui/material";
 import { format, formatDate } from "date-fns";
 import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
   ArrowUpDown,
-  BadgeCheck,
-  Ban,
   CalendarCheck,
-  CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  CreditCard,
+  Download,
   Eye,
-  Hammer,
-  Package,
-  RefreshCw,
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { VisuallyHidden } from "radix-ui";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
-import { OrderDetailBuyer } from "@/features/order/components/OrderDetailBuyer";
-
-export const statusMap = {
-  UNPAID: {
-    label: "Unpaid",
-    color: "bg-orange-100 text-orange-800",
-    icon: <CreditCard className="text-orange-500" />,
-  },
-  PENDING: {
-    label: "Pending",
-    color: "bg-yellow-100 text-yellow-800",
-    icon: <Clock className="text-yellow-500" />,
-  },
-  ACCEPTED: {
-    label: "Accepted",
-    color: "bg-green-100 text-green-800",
-    icon: <CheckCircle className="text-green-500" />,
-  },
-  IN_PROGRESS: {
-    label: "In Progress",
-    color: "bg-blue-100 text-blue-800",
-    icon: <Hammer className="text-blue-500" />,
-  },
-  REVISION_REQUESTED: {
-    label: "Revision Requested",
-    color: "bg-purple-100 text-purple-800",
-    icon: <RefreshCw className="text-purple-500" />,
-  },
-  DELIVERED: {
-    label: "Delivered",
-    color: "bg-indigo-100 text-indigo-800",
-    icon: <Package className="text-indigo-500" />,
-  },
-  COMPLETED: {
-    label: "Completed",
-    color: "bg-emerald-100 text-emerald-800",
-    icon: <BadgeCheck className="text-emerald-500" />,
-  },
-
-  CANCEL: {
-    label: "Cancel",
-    color: "bg-red-100 text-red-800",
-    icon: <Ban className="text-red-500" />,
-  },
-};
 
 const useOrders = ({
   page = 1,
@@ -114,7 +56,7 @@ const useOrders = ({
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     key,
-    () => fetchFreelancerOrders({ page, limit, filters }),
+    () => fetchBuyerOrders({ page, limit, filters }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: true,
@@ -133,34 +75,23 @@ const useOrders = ({
   };
 };
 
-function FreelancerOrderPage() {
+function BuyerOrderPage() {
   const router = useRouter();
 
   const { filters, updateFilter, resetFilters } = useFilterParams();
   const [orders, setOrders] = useState<any[]>([]);
-
   const [goToPage, setGoToPage] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [deletingRows, setDeletingRows] = useState<string[]>([]);
 
   const [selectedId, setSelectedId] = useState<string>();
-
-  const [processingId, setProcessingId] = useState<string>();
 
   const page = filters.page || 1;
   const limit = filters.pageSize || 10;
 
   const [detailOpen, setDetailOpen] = useState(false);
-
-  // const { data, isLoading, error } = useSWR("orders", fetchFreelancersOrders, {
-  //   revalidateOnFocus: false,
-  //   revalidateOnReconnect: false,
-  //   refreshInterval: 0,
-  // });
 
   const { data, isLoading, isValidating, error, mutate, key } = useOrders({
     page,
@@ -227,9 +158,6 @@ function FreelancerOrderPage() {
     }
   };
 
-  // const handleInputKeyDown = (e: any) => {
-  //   if (e.key === "Enter") handleGoToPage();
-  // };
   const handleSort = (key: string) => {
     updateFilter({ page: 1 });
 
@@ -276,56 +204,18 @@ function FreelancerOrderPage() {
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  const toggleSelectRow = (id: string) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id],
-    );
-  };
-
-  const toggleSelectAll = () => {
-    const idsOnPage = paginatedOrders.map((o) => o.id);
-    const allSelected = idsOnPage.every((id) => selectedRows.includes(id));
-    if (allSelected) {
-      setSelectedRows((prev) => prev.filter((id) => !idsOnPage.includes(id)));
-    } else {
-      setSelectedRows((prev) => [...new Set([...prev, ...idsOnPage])]);
-    }
-  };
-  const [showDialog, setShowDialog] = useState(false);
-
-  const handleDeleteSelected = () => {
-    // setDeletingRows(selectedRows);
-    // setShowDeleteDialog(false);
-    // setTimeout(() => {
-    //   if (typeof setOrders === "function") {
-    //     setOrders((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
-    //   }
-    //   setSelectedRows([]);
-    //   setDeletingRows([]);
-    // }, 1000);
-  };
-
-  const [openDeliver, setOpenDeliver] = useState(false);
-  const [startWorkDialogOpen, setStartWorkDialogOpen] = useState(false);
-  const [cancelOrderDialogOpen, setCancelOrderDialogOpen] = useState(false);
-
   const handleExportCSV = () => {
     const data = orders.map((_) => {
       return {
         title: _?.title,
         basicPrice: _?.basicPrice,
-
         standardPrice: _?.standardPrice,
-
         premiumPrice: _?.premiumPrice,
-
-        status: statusMap[_?.status as keyof typeof statusMap].label,
-
+        status: _?.status,
         ratingAverate: _?.ratingAverate,
         views: _?.views,
         orderCount: _?.orderCount,
         createdAt: formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
-        updatedAt: formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
       };
     });
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -334,44 +224,6 @@ function FreelancerOrderPage() {
     const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, `gigs.xlsx`);
-  };
-
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Thu nhập Freelancer", 14, 16);
-    autoTable(doc, {
-      head: [
-        [
-          "title",
-          "basicPrice",
-          "standardPrice",
-          "premiumPrice",
-          "status",
-          "avgRating",
-          "views",
-          "orderCount",
-          "createdAt",
-          "updatedAt",
-        ],
-      ],
-      bodyStyles: { fontSize: 10 },
-      styles: { cellPadding: 2, fontSize: 8 },
-      headStyles: { fillColor: "#00ff88", fontSize: 10 },
-      margin: { top: 20 },
-      body: orders.map((_: any) => [
-        _?.title,
-        _?.basicPrice,
-        _?.standardPrice,
-        _?.premiumPrice,
-        statusMap[_?.status as keyof typeof statusMap].label,
-        _?.avgRating,
-        _?.views,
-        _?.orderCount,
-        formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
-        formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
-      ]),
-    });
-    doc.save(`orders.pdf`);
   };
 
   if (isLoading)
@@ -400,8 +252,6 @@ function FreelancerOrderPage() {
         ]}
       />
 
-      {/* <OrderChart /> */}
-
       <Card>
         <CardContent className="p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -427,32 +277,16 @@ function FreelancerOrderPage() {
                   </option>
                 ))}
               </select>
-              {/* 
+
               <Button variant="outline" onClick={handleExportCSV}>
                 <Download className="mr-1 h-4 w-4" /> Export CSV
               </Button>
-
-              <Button variant="outline" onClick={handleExportPDF}>
-                <FileDown className="mr-2 h-4 w-4" />
-                Export PDF
-              </Button> */}
-              {/* <AdvancedSearchDialog /> */}
             </div>
           </div>
 
           <Table>
             <TableHeader>
               <TableRow>
-                {/* <TableHead>
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={
-                      paginatedOrders.length > 0 &&
-                      paginatedOrders.every((o) => selectedRows.includes(o.id))
-                    }
-                  />
-                </TableHead> */}
                 <TableHead>#</TableHead>
 
                 <TableHead className="cursor-pointer">Order</TableHead>
@@ -499,21 +333,7 @@ function FreelancerOrderPage() {
               {paginatedOrders.map((_, index) => (
                 <React.Fragment key={_.id}>
                   {/* Information */}
-                  <TableRow
-                    className={clsx(
-                      "w-fit",
-                      deletingRows.includes(_.id) &&
-                        "pointer-events-none opacity-50",
-                    )}
-                  >
-                    {/* <TableCell>
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.includes(_.id)}
-                        onChange={() => toggleSelectRow(_.id)}
-                      />
-                    </TableCell> */}
-
+                  <TableRow className="w-fit">
                     <TableCell>
                       {(currentPage - 1) * filters.pageSize + index + 1}
                     </TableCell>
@@ -529,14 +349,7 @@ function FreelancerOrderPage() {
                     </TableCell>
 
                     <TableCell>
-                      <Badge
-                        className={
-                          statusMap[_.status as keyof typeof statusMap].color
-                        }
-                      >
-                        {statusMap[_.status as keyof typeof statusMap].icon}
-                        {statusMap[_.status as keyof typeof statusMap].label}
-                      </Badge>
+                      <OrderStatusBadge status={_.status} />
                     </TableCell>
                     {_.startDate && (
                       <TableCell>
@@ -560,13 +373,7 @@ function FreelancerOrderPage() {
                   </TableRow>
 
                   {/* Action */}
-                  <TableRow
-                    className={clsx(
-                      "w-fit",
-                      (deletingRows.includes(_.id) || processingId === _.id) &&
-                        "pointer-events-none opacity-50",
-                    )}
-                  >
+                  <TableRow className="w-fit">
                     <TableCell colSpan={8} className="bg-gray-50 pl-10">
                       <Button
                         onClick={() => {
@@ -680,8 +487,8 @@ function FreelancerOrderPage() {
   );
 }
 
-FreelancerOrderPage.getLayout = function getLayout(page: ReactElement) {
+BuyerOrderPage.getLayout = function getLayout(page: ReactElement) {
   return <DashboardLayout>{page}</DashboardLayout>;
 };
 
-export default FreelancerOrderPage;
+export default BuyerOrderPage;

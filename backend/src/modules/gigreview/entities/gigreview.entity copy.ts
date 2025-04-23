@@ -21,24 +21,23 @@ export class GigReviewEntity extends BaseEntity {
 
   /* GIG */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'gig_id' })
+  @Column({ type: 'char', length: 36, name: 'gig_id', nullable: true })
   gigId: string;
 
   @AutoMap(() => GigEntity)
-  @ManyToOne(() => GigEntity, (gig) => gig.reviews, {
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => GigEntity, (gig) => gig.reviews, { cascade: true })
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
   /* REVIEWER */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'reviewer_id' })
+  @Column({ type: 'char', length: 36, name: 'reviewer_id', nullable: true })
   reviewerId: string;
 
   @AutoMap()
-  @ManyToOne(() => UserEntity, (user) => user.reviews, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.reviews, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'reviewer_id' })
   reviewer: UserEntity;
 
@@ -57,7 +56,6 @@ export class GigReviewEntity extends BaseEntity {
   @JoinColumn({ name: 'order_id' })
   order: OrderEntity;
 
-  /* RATING */
   @AutoMap()
   @Column({ type: 'int' })
   rating: number;
@@ -69,7 +67,7 @@ export class GigReviewEntity extends BaseEntity {
 
   /* FREELANCER */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'freelancer_id' })
+  @Column({ type: 'char', length: 36, name: 'freelancer_id', nullable: true })
   freelancerId: string;
 
   @AutoMap()
@@ -86,5 +84,5 @@ export class GigReviewEntity extends BaseEntity {
 
   @AutoMap(() => Date)
   @Column({ type: 'datetime', precision: 6, nullable: true, default: null })
-  replydAt: Date;
+  repliedAt: Date;
 }

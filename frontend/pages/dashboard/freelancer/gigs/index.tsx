@@ -85,7 +85,11 @@ export const statusMap = {
     color: "bg-red-100 text-red-800",
     icon: <XCircle className="text-red-500" />,
   },
-
+  // DELETED: {
+  //   label: "DELETED",
+  //   color: "bg-red-100 text-red-800",
+  //   icon: <X className="text-red-500" />,
+  // },
   PENDING_APPROVAL: {
     label: "PENDING APPROVAL",
     color: "bg-gray-100 text-gray-800",
@@ -342,7 +346,7 @@ function FreelancerManageGigsPage() {
     if (success) {
       setGigs((prev) => prev.filter((o) => o.id !== selectedId));
 
-      toast.success("handleDeleteSelectedId", {
+      toast.success("Delete OK", {
         description: "Thông tin đơn hàng đã được cập nhật.",
         duration: 3000,
       });

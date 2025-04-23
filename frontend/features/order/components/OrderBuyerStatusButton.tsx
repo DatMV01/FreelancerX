@@ -83,6 +83,24 @@ export const OrderBuyerStatusButton = ({
         </>
       )}
 
+      {status === OrderStatus.PENDING && (
+        <>
+          <Button className="pointer-events-none" variant="outline">
+            <Hourglass className="h-4 text-green-500" /> Waiting for freelancer
+            accept...
+          </Button>
+        </>
+      )}
+
+      {status === OrderStatus.ACCEPTED && (
+        <>
+          <Button className="pointer-events-none" variant="outline">
+            <Hourglass className="h-4 text-green-500" /> Waiting for freelancer
+            start work...
+          </Button>
+        </>
+      )}
+
       {status === OrderStatus.REVISION_REQUESTED && (
         <>
           <Button className="pointer-events-none" variant="outline">

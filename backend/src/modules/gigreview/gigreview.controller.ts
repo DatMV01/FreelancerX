@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -59,12 +60,23 @@ export class GigReviewController extends BaseController<
     return review as any;
   }
 
+  @Get('/gig/:gigId/rating-count')
+  async getGigRatingCount(@Param('gigId') gigId: string) {
+    return this._service.getGigRatingCount(gigId);
+  }
+
   @Get('/gig/:gigId')
   async getGigReviews(
     @Param('gigId') gigId: string,
-    @Query('sort') sort: 'newest' | 'highest' | 'lowest' = 'newest',
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
   ) {
-    return this._service.getReviewsByGig(gigId, sort);
+    const reviews = await this._service.getGigReviews({
+      gigId,
+      page,
+      limit,
+    });
+    return reviews;
   }
 
   @Get('/order/:orderId')
@@ -76,24 +88,28 @@ export class GigReviewController extends BaseController<
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   async replyToReview(
-    id: string,
-    @Body('freelancerId') freelancerId: string,
+    @Param('id') id: string,
     @Body('reply') reply: string,
-    //  @CurrentUser() currentUser: JwtAccessPayloadType,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
-    return this._service.replyToReview(id, freelancerId, reply);
+    if (!id) {
+      throw new NotFoundException('Id is required');
+    }
+
+    return this._service.replyToReview(currentUser, id, reply);
   }
 
-  @Post(':ratingId/reply')
-  @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [CREATE_GROUP] })
-  async replyToRating(
-    @Param('ratingId') ratingId: string,
-    @Body('ownerId') ownerId: string,
-    @Body('reply') reply: string,
-  ) {
-    return this._service.replyToReview(ratingId, ownerId, reply);
-  }
+  // @Post(':ratingId/reply')
+  // @UseGuards(AuthGuard('jwt'))
+  // @SerializeOptions({ groups: [CREATE_GROUP] })
+  // async replyToRating(
+  //   @Param('ratingId') ratingId: string,
+  //   @Body('ownerId') ownerId: string,
+  //   @Body('reply') reply: string,
+  //   @CurrentUser() currentUser: JwtAccessPayloadType,
+  // ) {
+  //   return this._service.replyToReview2(ratingId, ownerId, reply);
+  // }
 
   @Get('average')
   async getGigAverageRating(@Param('gigId') gigId: string) {

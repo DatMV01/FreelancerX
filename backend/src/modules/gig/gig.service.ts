@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isNumberParse } from 'src/utils/common';
 import {
@@ -17,7 +17,11 @@ import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerService } from '../freelancer/freelancer.service';
 import { RoleEnum } from '../role/enum/role.enum';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
-import { GigPackagesEntity, GigPackageType } from './entities/gig_packages.entity';
+import {
+  GigPackagesEntity,
+  GigPackageType,
+} from './entities/gig_packages.entity';
+import { GigStatus } from './enum/gig.status';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -214,7 +218,6 @@ export class GigService extends BaseService<GigEntity> {
     const types = ['basic', 'standard', 'premium'];
 
     const result = Object.values(GigPackageType).map((type) => {
-      
       const obj: Partial<GigPackagesEntity> = {
         id: uuidv4(),
         type: type,

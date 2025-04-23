@@ -12,7 +12,8 @@ import GigFAQ from "@/features/gig/components/GigFAQ";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
 import GigMetaData from "@/features/gig/components/GigMetaData";
 import GigPrototype from "@/features/gig/components/GigPrototype";
-import GigRatings from "@/features/gig/components/GigReviews";
+import GigReviewStats from "@/features/gig/components/GigReviewStats";
+
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
@@ -182,7 +183,6 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
 
   const router = useRouter();
-  const { mode } = router.query;
 
   const [value, setValue] = useState(0);
   const [isFavorite, setFavorite] = useState(false);
@@ -225,13 +225,14 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   const standardPackage = gig.packages.find((_) => _.type === "standard");
   const premiumPackage = gig.packages.find((_) => _.type === "premium");
 
+  const isGigOwner = gig?.freelancer?.email === user?.email;
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   const addFavoriteGig = () => {
     setFavorite(true);
-    if (mode) {
+    if (isGigOwner) {
       toast.info("Preview mode");
       return;
     }
@@ -239,7 +240,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   const removeFavoriteGig = () => {
     setFavorite(false);
-    if (mode) {
+    if (isGigOwner) {
       toast.info("Preview mode");
       return;
     }
@@ -247,7 +248,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
-      {/* {gig?.freelancer?.email === user?.email && (
+      {isGigOwner && (
         <div className="my-2 flex justify-end">
           <Button
             variant="outline"
@@ -260,7 +261,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
             <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </div>
-      )} */}
+      )}
 
       <div className="flex h-8 justify-end">
         {isFavorite ? (
@@ -403,7 +404,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigFAQ gig={gig} />
 
-      <GigRatings gig={gig} />
+      <GigReviewStats gig={gig} />
 
       <GigComments gig={gig} />
 

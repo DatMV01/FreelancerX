@@ -15,6 +15,7 @@ import { OrderEntity } from '../order/entities/order.entity';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
 import { OrderStatus } from '../order/order.enum';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 
 @Injectable()
 export class GigReviewService extends BaseService<GigReviewEntity> {
@@ -27,13 +28,15 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
 
     @InjectRepository(OrderEntity)
     private readonly orderRepository: Repository<OrderEntity>,
+
+    @InjectRepository(FreelancerEntity)
+    private readonly freelancerRepository: Repository<FreelancerEntity>,
   ) {
     super(_repository);
   }
 
   async createReview(
     currentUser: JwtAccessPayloadType,
-
     dto: CreateGigReviewDto,
   ) {
     const { orderId, gigId } = dto;
@@ -69,6 +72,7 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
       comment: dto.comment,
       gigId: order.gigId,
       reviewerId: currentUser.id,
+      freelancerId: order.freelancerId,
       order,
     });
 
@@ -77,7 +81,43 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     return review;
   }
 
-  async replyToReview(id: string, freelancerId: string, reply: string) {
+  async replyToReview(
+    currentUser: JwtAccessPayloadType,
+    reviewId: string,
+    reply: string,
+  ) {
+    const review = await this._repository.findOne({
+      where: { id: reviewId },
+      relations: ['gig'],
+    });
+
+    if (!review) {
+      throw new NotFoundException('Review not found');
+    }
+
+    if (review.reply) {
+      throw new BadRequestException('Review was replied');
+    }
+
+    const freelancer = await this.freelancerRepository.findOne({
+      where: { userId: currentUser.id },
+    });
+
+    if (!freelancer) {
+      throw new NotFoundException('Freelancer not found');
+    }
+
+    if (review.gig.freelancerId !== freelancer.id) {
+      throw new ForbiddenException('You are not the owner of this gig');
+    }
+
+    review.reply = reply;
+    review.replydAt = new Date();
+
+    return await this._repository.save(review);
+  }
+
+  async replyToReview2(id: string, freelancerId: string, reply: string) {
     const review = await this._repository.findOne({
       where: { id },
       relations: ['gig'],
@@ -97,7 +137,7 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
 
     review.reply = reply;
     review.freelancerId = freelancerId;
-    review.repliedAt = new Date();
+    review.replydAt = new Date();
 
     return await this._repository.save(review);
   }
@@ -126,7 +166,38 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     return await this._repository.findOne({ where: { orderId } });
   }
 
-  async getReviewsByGig(gigId: string, sort: string) {
-    throw new Error('Method not implemented.');
+  async getGigReviews({
+    gigId,
+    page,
+    limit,
+  }: {
+    gigId: string;
+    page: number;
+    limit: number;
+  }) {
+    const skip = (page - 1) * limit;
+    const [reviews, total] = await this._repository.findAndCount({
+      skip,
+      take: limit,
+      where: { gigId },
+    });
+
+    return {
+      reviews,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async getGigRatingCount(gigId: string) {
+    const result = await this._repository
+      .createQueryBuilder('review')
+      .select('review.rating', 'rating')
+      .addSelect('COUNT(*)', 'count')
+      .where('review.gig_id = :gigId', { gigId })
+      .groupBy('review.rating')
+      .getRawMany();
+    return result;
   }
 }

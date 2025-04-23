@@ -113,7 +113,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
       </Link>
 
       <div>
-        <div className="flex items-center justify-between space-x-2">
+        <div className="flex items-center justify-between flex-col">
           <Link
             href={`/freelancer/profile/${email}`}
             target="_blank"
@@ -126,10 +126,10 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
           <UserRank rankLevel={level} />
         </div>
 
-        <div className="flex items-center text-yellow-500">
+        {/* <div className="flex items-center text-yellow-500">
           {completedRate && (
             <>
-              <Rating defaultValue={completedRate} precision={0.5} readOnly />
+              <Rating defaultValue={completedRate} precision={1} readOnly />
 
               <span className="ml-2 text-sm font-semibold text-black">
                 {completedRate}
@@ -143,7 +143,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
           >
             ({gigReviewCount} reviews)
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

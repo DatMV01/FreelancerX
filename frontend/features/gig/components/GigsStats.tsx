@@ -21,6 +21,7 @@ import {
   Pencil,
   Ban,
   NotepadTextDashed,
+  X,
 } from "lucide-react";
 
 export default function GigsStats({
@@ -56,6 +57,8 @@ export default function GigsStats({
       icon: PauseCircle,
       color: "text-orange-500",
     },
+
+    
     // {
     //   key: GigStatus.PENDING_APPROVAL,
     //   title: "PENDING APPROVAL",
@@ -72,6 +75,13 @@ export default function GigsStats({
     //   ).length,
     //   icon: Pencil,
     //   color: "text-green-600",
+    // },
+    // {
+    //   key: GigStatus.DELETED,
+    //   title: "DELETED",
+    //   value: gigs.filter((o: any) => o.status === GigStatus.DELETED).length,
+    //   icon: X,
+    //   color: "text-red-500",
     // },
     {
       key: GigStatus.REJECTED,
