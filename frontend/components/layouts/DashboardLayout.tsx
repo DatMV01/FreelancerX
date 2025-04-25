@@ -49,6 +49,7 @@ import { ReactNode, useState } from "react";
 import Logo from "../LogoImage";
 import { Badge as BadgeMUI } from "@mui/material";
 import NavbarLeftPopoverAvatar from "@/features/navbar/components/NavbarLeftPopoverAvatar";
+import NavbarLeftPopover from "@/features/navbar/components/NavbarLeftPopover";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -286,9 +287,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <SidebarNav onNavigate={() => setSheetOpen(false)} />
             </SheetContent>
           </Sheet>
-          <div className="flex items-center space-x-2 font-bold">
+
+          <Link href="/" className="flex items-center space-x-2 font-bold">
             <Logo /> <span>FreelancerX</span>
-          </div>
+          </Link>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -299,7 +301,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             Switch to Buying
           </Link>
 
-          {user ? renderUserPopovers() : <NavbarLeftLoginDialog />}
+          {user ? <NavbarLeftPopover /> : <NavbarLeftLoginDialog />}
         </div>
       </header>
 

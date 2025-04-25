@@ -52,7 +52,6 @@ const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
           <div>
             <p className="font-semibold">Languages</p>
             <div className="flex flex-wrap gap-x-2">
-              {languages?.map((_: any) => <p>{_.name}</p>)}
             </div>
           </div>
 

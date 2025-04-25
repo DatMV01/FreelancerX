@@ -22,6 +22,8 @@ import {
   GigPackageType,
 } from './entities/gig_packages.entity';
 import { GigStatus } from './enum/gig.status';
+import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
+import { UserEntity } from '../user/entities/user.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -35,9 +37,77 @@ export class GigService extends BaseService<GigEntity> {
     @InjectRepository(GigPackagesEntity)
     private readonly gigPackageRepository: Repository<GigPackagesEntity>,
 
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
+
     private readonly freelancerService: FreelancerService,
   ) {
     super(_repository);
+  }
+
+  async addFavoriteGig(
+    data: AddFavoriteGigDto,
+    currentUser: JwtAccessPayloadType,
+  ) {
+    const { gigId } = data;
+    const userId = currentUser.id;
+
+    const gig = await super.findOneById(String(gigId));
+
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { favoriteGigs: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const newFavoriteGigs = [...user.favoriteGigs, gig];
+
+    user.favoriteGigs = newFavoriteGigs;
+
+    await this.userRepo.save(user);
+
+    return gig;
+  }
+
+  async removeFavoriteGig(id: string, currentUser: JwtAccessPayloadType) {
+    const gigId = id;
+    const userId = currentUser.id;
+
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { favoriteGigs: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const newFavoriteGigs = user.favoriteGigs.filter((_) => _.id !== gigId);
+
+    user.favoriteGigs = newFavoriteGigs;
+
+    await this.userRepo.save(user);
+
+    return true;
+  }
+
+  async findFovoriteGigs(currentUser: JwtAccessPayloadType) {
+    const userId = currentUser.id;
+
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      relations: { favoriteGigs: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const favoriteGigs = user.favoriteGigs || [];
+    return [favoriteGigs, favoriteGigs.length];
   }
 
   async create(createDto: DeepPartial<GigEntity>): Promise<GigEntity> {

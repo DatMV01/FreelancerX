@@ -59,6 +59,7 @@ const NavbarLeftPopoverMessages = () => {
               height: "21px",
               minWidth: "21px",
               padding: "0px",
+              zIndex: "10",
             },
             "&": {
               borderRadius: "100%",

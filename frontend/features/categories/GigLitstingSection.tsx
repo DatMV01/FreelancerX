@@ -24,7 +24,7 @@ const GigLitstingSection = ({ data }: { data: GigDto[] }) => {
       </div>
     );
   }
-  if (data) console.log(data);
+
   return (
     <div
       className={clsx(

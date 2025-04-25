@@ -9,6 +9,7 @@ import GigComparePackage from "@/features/gig/components/GigComparePackage";
 import GigComparePackage2 from "@/features/gig/components/GigComparePackage2";
 import GigDescription from "@/features/gig/components/GigDescription";
 import GigFAQ from "@/features/gig/components/GigFAQ";
+import GigFavorite from "@/features/gig/components/GigFavorite";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
 import GigMetaData from "@/features/gig/components/GigMetaData";
 import GigPrototype from "@/features/gig/components/GigPrototype";
@@ -19,7 +20,13 @@ import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
-import { useAppSelector } from "@/lib/redux/hooks";
+import {
+  addFavoriteGig,
+  removeFavoriteGig,
+  selectFavoriteGigs,
+  selectFavoriteGigsStatus,
+} from "@/lib/redux/features/gigs/gigsSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
 import {
   CheckCircle,
@@ -185,7 +192,6 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   const router = useRouter();
 
   const [value, setValue] = useState(0);
-  const [isFavorite, setFavorite] = useState(false);
   const user = useAppSelector(selectUser);
 
   const [
@@ -230,22 +236,6 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
     setValue(newValue);
   };
 
-  const addFavoriteGig = () => {
-    setFavorite(true);
-    if (isGigOwner) {
-      toast.info("Preview mode");
-      return;
-    }
-  };
-
-  const removeFavoriteGig = () => {
-    setFavorite(false);
-    if (isGigOwner) {
-      toast.info("Preview mode");
-      return;
-    }
-  };
-
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
       {isGigOwner && (
@@ -264,25 +254,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
       )}
 
       <div className="flex h-8 justify-end">
-        {isFavorite ? (
-          <Tooltip title="Remove" placement="top">
-            <button
-              className="flex items-center justify-center rounded-full bg-transparent"
-              onClick={removeFavoriteGig}
-            >
-              <Heart className="fill-red-500 stroke-none" />
-            </button>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Save to list" placement="top">
-            <button
-              className="flex items-center justify-center rounded-full bg-transparent"
-              onClick={addFavoriteGig}
-            >
-              <Heart className="fill-[#d4dbf8] stroke-none" />
-            </button>
-          </Tooltip>
-        )}
+        <GigFavorite gig={gig} />
       </div>
 
       <div className="rounded-sm border border-gray-200">
@@ -436,8 +408,6 @@ const GigDetail = () => {
         const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
 
         const { data } = response;
-
-        console.log(response.data);
 
         setGig(data);
       } catch (error) {

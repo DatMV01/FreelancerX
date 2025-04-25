@@ -6,8 +6,10 @@ import { GigEntity } from './entities/gig.entity';
 import { GigService } from './gig.service';
 
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -25,6 +27,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { FreelancerDto } from '../freelancer/dto/freelancer.dto';
+import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
+import { PageDto, PageMetaDto } from '../base/dto/pagination';
 
 @Controller('gig')
 export class GigController extends BaseController<
@@ -91,10 +95,45 @@ export class GigController extends BaseController<
   async findOneBySlug(@Param('slug') slug: string) {
     const entity = await this._service.findOneBySlug({
       where: { slug },
-      relations: ['freelancer','freelancer.user'],
+      relations: ['freelancer', 'freelancer.user'],
     });
 
     return this.mapFromEntityToDto(entity);
+  }
+
+  @Post('/favorites')
+  @UseGuards(AuthGuard('jwt'))
+  async addFavoriteGig(
+    @Body() data: AddFavoriteGigDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    const { gigId } = data;
+
+    if (!gigId) throw new BadRequestException('GigID empty');
+
+    return await this._service.addFavoriteGig(data, currentUser);
+  }
+
+  @Delete('/favorites/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Soft delete an entity' })
+  @ApiParam({ name: 'id', type: String })
+  @ApiResponse({ status: 200, description: 'Entity deleted successfully' })
+  async removeFavoriteGig(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    if (!id) throw new BadRequestException('GigID empty');
+
+    return await this._service.removeFavoriteGig(id, currentUser);
+  }
+
+  @Get('/favorites')
+  @UseGuards(AuthGuard('jwt'))
+  async getFovoriteGigs(@CurrentUser() currentUser: JwtAccessPayloadType) {
+    const [results, count] = await this._service.findFovoriteGigs(currentUser);
+
+    return results;
   }
 
   async findOneBySlug2(@Param('slug') slug: string) {

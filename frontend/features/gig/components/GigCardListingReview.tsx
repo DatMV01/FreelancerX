@@ -1,24 +1,19 @@
 "use client";
 
-import { Heart, Loader2, Star } from "lucide-react";
-import { useEffect, useState } from "react";
-import GigCarousel from "@/features/gig/components/GigCarousel";
-import UserAvatar from "@/features/user/components/UserAvatar";
-import UserRank from "@/features/user/components/UserRank";
-import { faker } from "@faker-js/faker";
-import { Tooltip } from "@mui/material";
-import clsx from "clsx";
-import Link from "next/link";
-import { FreelancerRankEnum, GigDto } from "@/dto/dto.type.";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getFirstTwoLetters } from "@/lib/utils";
-import useSWR from "swr";
+import { GigDto } from "@/dto/dto.type.";
 import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import GigCarousel from "@/features/gig/components/GigCarousel";
+import UserRank from "@/features/user/components/UserRank";
+import { getFirstTwoLetters } from "@/lib/utils";
+import clsx from "clsx";
+import { Loader2, Star } from "lucide-react";
+import Link from "next/link";
+import useSWR from "swr";
+import GigFavorite from "./GigFavorite";
 
 const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
   const email = gig?.freelancer.email;
-
-  const [isFavorite, setFavorite] = useState(false);
 
   const {
     data: freelancer,
@@ -43,14 +38,6 @@ const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
       </div>
     );
   }
-
-  const addFavoriteGig = () => {
-    setFavorite(true);
-  };
-
-  const removeFavoriteGig = () => {
-    setFavorite(false);
-  };
 
   return (
     <div className="relative w-full rounded-sm">
@@ -88,13 +75,16 @@ const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
             <UserRank rankLevel={freelancer?.level} />
           </div>
 
-          <Link
-            href={`/gig/${gig?.slug}`}
-            target="_blank"
-            className="text-[17px] hover:underline"
-          >
-            {gig?.title}
-          </Link>
+          <div className="line-clamp-2 max-h-15 w-full overflow-y-hidden">
+            <Link
+              href={`/gig/${gig?.slug}`}
+              target="_blank"
+              className="text-[17px] hover:underline"
+            >
+              {gig?.title}
+            </Link>
+          </div>
+
           <div className="mt-2 flex items-center text-yellow-500">
             <Star
               size={16}
@@ -112,32 +102,7 @@ const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
       </div>
 
       <div className="absolute top-0 right-0 z-10">
-        {!isFavorite && (
-          <Tooltip title="Save to list" placement="top">
-            <button
-              className={clsx(
-                "rounded-full p-2",
-                "bg-gray-100 hover:bg-gray-200",
-              )}
-              onClick={addFavoriteGig}
-            >
-              <Heart size={20} className="stroke-gray-500" />
-            </button>
-          </Tooltip>
-        )}
-        {isFavorite && (
-          <Tooltip title="Remove" placement="top">
-            <button
-              className={clsx(
-                "flex rounded-full p-2",
-                "bg-red-200 hover:bg-red-100",
-              )}
-              onClick={removeFavoriteGig}
-            >
-              <Heart size={20} className="stroke-red-500" />
-            </button>
-          </Tooltip>
-        )}
+        <GigFavorite gig={gig} />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { signIn, signOut } from "next-auth/react";
+import { getSession, signIn, signOut, useSession } from "next-auth/react";
 import { createAppSlice } from "../../createAppSlice";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { RoleEnum } from "@/dto/dto.type.";
@@ -144,6 +144,8 @@ export const authSlice = createAppSlice({
 
     setAuthFromSession: create.reducer(
       (state, action: PayloadAction<AuthState>) => {
+        state.status = "loading";
+
         const {
           accessToken,
           refreshToken,
@@ -162,6 +164,8 @@ export const authSlice = createAppSlice({
         state.refreshExpires = refreshExpires;
         state.payload = payload;
         state.expires = expires;
+
+        state.status = "idle";
       },
     ),
 
@@ -211,6 +215,59 @@ export const authSlice = createAppSlice({
           state.status = "idle";
         },
         rejected: (state) => {
+          state.status = "failed";
+        },
+      },
+    ),
+
+    syncNexthAuthSesion: create.asyncThunk(
+      async () => {
+        debugger;
+        const session = await getSession();
+
+        return session;
+      },
+      {
+        pending: (state) => {
+          state.status = "loading";
+        },
+        fulfilled: (state, action) => {
+          state.status = "idle";
+          debugger;
+
+          const sesion = action.payload;
+
+          if (sesion) {
+            const {
+              accessToken,
+              refreshToken,
+              user,
+              accessExpires,
+              refreshExpires,
+              payload,
+              expires,
+            } = sesion as any;
+
+            state.sesion = sesion as any;
+            state.accessToken = accessToken;
+            state.refreshToken = refreshToken;
+            state.user = user;
+            state.freelancer = state.freelancer ?? (user?.freelancer as any);
+            state.accessExpires = accessExpires;
+            state.refreshExpires = refreshExpires;
+            state.payload = payload;
+            state.expires = expires;
+          }
+
+          state.accessToken = null;
+          state.refreshToken = null;
+          state.user = null;
+          state.accessExpires = null;
+          state.refreshExpires = null;
+          state.payload = null;
+        },
+        rejected: (state) => {
+          debugger;
           state.status = "failed";
         },
       },
@@ -389,6 +446,7 @@ export const {
   loginAsync,
   logoutAsync,
   setAuthFromSession,
+  syncNexthAuthSesion,
   refreshAccessTokenAsync,
   signUpAsFreelancer,
   refetchMeAsync,

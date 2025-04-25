@@ -6,7 +6,11 @@ import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { ReactElement, ReactNode } from "react";
 import { Toaster } from "sonner";
-import SyncSessionToRedux  from "./syncSessionToRedux ";
+import {
+  SyncFavoriteGigsToRedux,
+  SyncSessionToRedux,
+  SyncSessionToRedux2,
+} from "./syncToRedux ";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -28,7 +32,11 @@ export default function App({
       <StoreProvider>
         <Toaster richColors position="top-right" />
 
-        <SyncSessionToRedux  />
+        <SyncSessionToRedux />
+
+        {/* <SyncSessionToRedux2 /> */}
+
+        <SyncFavoriteGigsToRedux />
 
         {getLayout(<Component {...pageProps} />)}
       </StoreProvider>
