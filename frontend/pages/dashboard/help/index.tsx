@@ -1,10 +1,8 @@
-import DashboardLayout from "@/components/layouts/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle } from "lucide-react";
-import { ReactElement } from "react";
 
 export default function HelpAndSupport() {
   return (
@@ -18,9 +16,9 @@ export default function HelpAndSupport() {
             <MessageCircle size={18} />
           </p>
           <form className="space-y-4">
-            <Input placeholder="Response header" />
-            <Textarea placeholder="Response content..." rows={4} />
-            <Button type="submit">Send response</Button>
+            <Input placeholder="Title" />
+            <Textarea placeholder="Content..." rows={4} />
+            <Button type="submit">Send</Button>
           </form>
         </CardContent>
       </Card>
@@ -35,7 +33,3 @@ export default function HelpAndSupport() {
     </div>
   );
 }
-
-HelpAndSupport.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
-};

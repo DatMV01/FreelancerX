@@ -51,3 +51,32 @@ export const stringAvatar = (name: string = "Avatar") => {
     children: `${_name.split(" ")[0][0]}${_name.split(" ")[1][0]}`,
   };
 };
+
+export const getFirstTwoLetters = (name: string = "Avatar") => {
+  const _name = name.toUpperCase();
+  const nameArr = _name.split(" ");
+  if (nameArr.length === 0) {
+    return `${_name}`;
+  }
+
+  if (nameArr.length === 1) {
+    return `${_name.split(" ")[0][0]}`;
+  }
+
+  return `${_name.split(" ")[0][0]}${_name.split(" ")[1][0]}`;
+};
+
+export function parsePriceRange(range?: string) {
+  if (!range) return { priceMin: undefined, priceMax: undefined };
+
+  if (range.includes("+")) {
+    const min = parseInt(range.replace("+", ""), 10);
+    return { priceMin: min, priceMax: undefined };
+  }
+
+  const [min, max] = range.split("-").map(Number);
+  return { priceMin: min, priceMax: max };
+}
+
+// const { query } = useRouter();
+// const { priceMin, priceMax } = parsePriceRange(query.priceRange as string);

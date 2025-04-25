@@ -7,7 +7,7 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="m-auto flex min-h-screen max-w-[1400px] flex-col">
+    <div className="m-auto flex min-h-screen max-w-screen-2xl flex-col">
       <header className="my-2 px-4 md:px-8">
         <NavbarMain />
       </header>

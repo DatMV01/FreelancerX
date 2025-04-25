@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Star } from "lucide-react";
+import { Heart, Loader2, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import UserAvatar from "@/features/user/components/UserAvatar";
@@ -9,26 +9,40 @@ import { faker } from "@faker-js/faker";
 import { Tooltip } from "@mui/material";
 import clsx from "clsx";
 import Link from "next/link";
-import { FreelancerRankEnum } from "@/dto/dto.type.";
+import { FreelancerRankEnum, GigDto } from "@/dto/dto.type.";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getFirstTwoLetters } from "@/lib/utils";
+import useSWR from "swr";
+import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 
-export const GigCard = () => {
-  const [level, setLevel] = useState<number>(0);
-  const [fullName, setFullName] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [ratingCount, setRatingCount] = useState<number>(0);
-  const [reviewCount, setReviewCount] = useState<number>(0);
-  const [price, setPrice] = useState<number>(0);
+const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
+  const email = gig?.freelancer.email;
+
   const [isFavorite, setFavorite] = useState(false);
 
-  useEffect(() => {
-    setLevel(faker.number.int({ min: 0, max: 3 }));
-    setFullName(faker.person.fullName());
-    setTitle(faker.lorem.lines(1));
-    setRatingCount(faker.number.float({ multipleOf: 0.25, min: 0, max: 5 }));
-    setReviewCount(faker.number.int({ min: 100, max: 1000 }));
-    setPrice(faker.number.int({ min: 0, max: 1500 }));
-    setFavorite(faker.datatype.boolean());
-  }, []);
+  const {
+    data: freelancer,
+    error,
+    isLoading,
+    isValidating,
+  } = useSWR(
+    `/profile/email/${email}`,
+    () => getFreelancerProfileByEmail(email),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 300000, // 5 minutes
+    },
+  );
+
+  if (isLoading || isValidating) {
+    return (
+      <div className="h-full w-full">
+        <Loader2 className="m-auto animate-spin" size={18} />
+      </div>
+    );
+  }
 
   const addFavoriteGig = () => {
     setFavorite(true);
@@ -42,6 +56,7 @@ export const GigCard = () => {
     <div className="relative w-full rounded-sm">
       <div className="z-10 flex flex-col">
         <GigCarousel
+          gig={gig}
           pauseVideoOnLeave
           className={clsx(
             "h-full",
@@ -53,43 +68,45 @@ export const GigCard = () => {
         <div className="p-2">
           <div className="mb-2 flex flex-row items-center justify-between">
             <div className="flex flex-row items-center space-x-2">
-              <UserAvatar
-                fullName={fullName}
-                height={30}
-                width={30}
-                fontSize={15}
-              />
+              <Avatar>
+                <AvatarImage src={freelancer?.avatar} />
+                <AvatarFallback className="text-[14px]">
+                  {getFirstTwoLetters(freelancer?.displayName)}
+                </AvatarFallback>
+              </Avatar>
 
               <Link
-                href={`/seller/profile/${fullName.toLowerCase().replaceAll(" ", "-")}`}
+                href={`/freelancer/profile/${freelancer?.email}`}
                 className="text-sm font-bold hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {fullName}
+                {freelancer?.displayName}
               </Link>
             </div>
 
-            <UserRank rankLevel={FreelancerRankEnum.LEVEL3} />
+            <UserRank rankLevel={freelancer?.level} />
           </div>
 
           <Link
-            href="/gig/demo-1234566789"
+            href={`/gig/${gig?.slug}`}
             target="_blank"
             className="text-[17px] hover:underline"
           >
-            {title}
+            {gig?.title}
           </Link>
           <div className="mt-2 flex items-center text-yellow-500">
             <Star
               size={16}
               className="mr-1 fill-yellow-500 stroke-yellow-500"
             />
-            <span className="font-semibold">{ratingCount}</span>
-            <span className="ml-1 text-sm text-gray-500">({reviewCount})</span>
+            <span className="font-semibold">{gig?.ratingAverage}</span>
+            <span className="ml-1 text-sm text-gray-500">
+              ({gig?.ratingCount})
+            </span>
           </div>
           <p className="mt-2 text-[17px] font-semibold text-gray-700">
-            From ${price}
+            From ${gig?.basicPrice}
           </p>
         </div>
       </div>
@@ -125,3 +142,5 @@ export const GigCard = () => {
     </div>
   );
 };
+
+export default GigCardListingReview;

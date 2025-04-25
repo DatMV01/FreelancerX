@@ -17,7 +17,7 @@ const GigFAQ = ({ gig }: { gig: GigDto }) => {
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography component="span">
               <div className="flex items-center justify-center">
-                <span className="pl-4 text-xl">{faq.question}</span>
+                <span className="pl-4 text-base">{faq.question}</span>
               </div>
             </Typography>
           </AccordionSummary>

@@ -3,12 +3,7 @@ import FreelancerProfile from "@/features/dashboard/freelancer/components/Freela
 import { ReactElement } from "react";
 
 export default function FreelancerDashboardProfile() {
-  return (
-    <div  >
- 
-      <FreelancerProfile />
-    </div>
-  );
+  return <FreelancerProfile />;
 }
 
 FreelancerDashboardProfile.getLayout = function getLayout(page: ReactElement) {

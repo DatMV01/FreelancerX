@@ -1,132 +1,39 @@
 import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 import UserRank from "@/features/user/components/UserRank";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { selectUser } from "@/lib/redux/features/auth/authSlice";
-import { useAppSelector } from "@/lib/redux/hooks";
-import { CircularProgress } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-
-enum FreelancerRankEnum {
-  NEW = "NEW",
-  LEVEL1 = "LEVEL1",
-  LEVEL2 = "LEVEL2",
-  LEVEL3 = "LEVEL3",
-}
-
-enum FreelancerSkillProficiency {
-  BEGINNER = "Beginner",
-  INTERMEDIATE = "Intermediate",
-  ADVANCED = "Advanced",
-}
-
-enum FreelancerLanguageProficiency {
-  BEGINNER = "Beginner",
-  INTERMEDIATE = "Intermediate",
-  ADVANCED = "Advanced",
-  FLUENT = "Fluent",
-}
-
-interface FreelancerLanguage {
-  id: number;
-  alpha3: string;
-  name: string;
-  proficiency: FreelancerLanguageProficiency;
-}
-
-interface FreelancerSkill {
-  id: number;
-  name: string;
-  proficiency: FreelancerSkillProficiency;
-}
-
-interface FreelancerProfile {
-  displayName: string;
-  createdAt: string;
-  id: string;
-  email: string;
-  country: string;
-  userId: string;
-  level: FreelancerRankEnum;
-  bio: string;
-  avatar: string;
-  phone: string;
-  freelancersLanguages: FreelancerLanguage[];
-  freelancersSkills: FreelancerSkill[];
-  reviewCount: number;
-  completedOrderCount: number;
-  earnings: string;
-  withdrawnAmount: string;
-  completedRate: string;
-  reviews?: {
-    id: number;
-    username: string;
-    rating: number;
-    comment: string;
-  }[];
-  gigs?: {
-    id: number;
-    title: string;
-    description: string;
-    price: number;
-    deliveryTime: string;
-    revisions: number;
-    rating: number;
-    reviews: number;
-    createdAt: string;
-    updatedAt: string;
-    userId: string;
-    freelancerId: string;
-    status: string;
-  }[];
-}
+import { useState } from "react";
+import useSWR from "swr";
 
 const FreelancerProfile = () => {
-  const searchParams = useSearchParams();
-  const [freelancer, setFreelancer] = useState<FreelancerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isUser, setIsUser] = useState(false);
   const router = useRouter();
   const [message, setMessage] = useState<{
     type: "success" | "errror";
     message: string;
   }>();
 
-  const user = useAppSelector(selectUser);
+  const { email } = router.query ?? "";
+  const {
+    data: freelancer,
+    error,
+    isLoading,
+    isValidating,
+  } = useSWR<FreelancerProfile>(
+    email ? `/profile/email/${email}` : null,
+    () => getFreelancerProfileByEmail(typeof email === "string" ? email : ""),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 300000, // 5 minutes
+    },
+  );
 
-  const dev = false || searchParams.get("dev");
-  const { email } = router.query;
-
-  useEffect(() => {
-    const fetchFreelancer = async () => {
-      if (!email) return;
-      try {
-        const response = await axiosInstanceV1.get(
-          `/freelancer/profile/${email}`,
-        );
-
-        debugger;
-        console.log(response);
-
-        setFreelancer(response.data);
-      } catch (err: any) {
-        setMessage({
-          type: "errror",
-          message: "Freelancer not found",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFreelancer();
-    setIsUser(user?.email === email);
-  }, [email]);
+  if (isLoading || isValidating) {
+    return <CircularProgressCenter fullScreen />;
+  }
 
   return (
     <div className="relative">
@@ -157,7 +64,7 @@ const FreelancerProfile = () => {
                       className="cursor-pointer"
                     />
                   </a>
-                  {dev && (
+                  {
                     <a href="#" target="_blank" rel="noopener noreferrer">
                       <img
                         src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_2019_Logo.svg"
@@ -167,7 +74,7 @@ const FreelancerProfile = () => {
                         className="cursor-pointer"
                       />
                     </a>
-                  )}
+                  }
                 </div>
               </div>
               <div className="w-full text-center md:ml-6 md:text-left">
@@ -214,7 +121,7 @@ const FreelancerProfile = () => {
           {/* My gig */}
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
-              My Service ({freelancer.gigs?.length || 0})
+              My gig ({freelancer.gigs?.length || 0})
             </h3>
             <div className="mt-4 space-y-4"></div>
           </div>
@@ -222,7 +129,7 @@ const FreelancerProfile = () => {
           {/* Reviews section */}
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
-              Reviews ({freelancer.reviewCount})
+              Reviews ({freelancer.reviewCount || 0})
             </h3>
             <div className="mt-4 space-y-4">
               {freelancer.reviews?.map((review) => (
@@ -250,12 +157,6 @@ const FreelancerProfile = () => {
         >
           {message.message}
         </p>
-      )}
-
-      {loading && (
-        <div className="z-50 flex h-full w-full items-center justify-center">
-          <CircularProgress />
-        </div>
       )}
     </div>
   );

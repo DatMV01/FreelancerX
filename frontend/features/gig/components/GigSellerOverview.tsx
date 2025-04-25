@@ -1,33 +1,47 @@
 import { GigDto } from "@/dto/dto.type.";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import { Loader2 } from "lucide-react";
 import useSWR from "swr";
 import GigSellerRank from "./GigSellerRank";
 
 const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
-  const { freelancer } = gig;
+  // const freelancer = gig.freelancer
+  const email = gig.freelancer.email;
 
-  const { data, error, isLoading, isValidating } = useSWR(
-    `/freelancer/profile/${freelancer.email}`,
-    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  const {
+    data: freelancer,
+    error,
+    isLoading,
+    isValidating,
+  } = useSWR(
+    `/profile/email/${email}`,
+    () => getFreelancerProfileByEmail(email),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 300000, // 5 minutes
+    },
   );
 
   if (isLoading || isValidating) {
-    return <div>Loading</div>;
+    return <Loader2 className="animate-spin" size={18} />;
   }
 
-  const date = new Date(data?.createdAt);
+  const date = new Date(freelancer?.createdAt);
   const memberSince = `${date.toLocaleString("en-US", { month: "long" })} ${date.getFullYear()}`;
-  const languages = data?.freelancersLanguages;
+  const languages = freelancer?.freelancersLanguages;
+  const skill = freelancer?.freelancersSkills;
 
   return (
     <div>
       <div className="my-4 w-full space-y-6 rounded-sm border p-4">
         <GigSellerRank gig={gig} />
 
-        <div className="grid grid-cols-2 gap-4 text-sm text-gray-800">
+        <div className="grid grid-cols-4 gap-4 text-sm text-gray-800">
           <div>
             <p className="font-semibold">From</p>
-            <p>{data?.country}</p>
+            <p>{freelancer?.country}</p>
           </div>
 
           <div>
@@ -37,18 +51,21 @@ const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
 
           <div>
             <p className="font-semibold">Languages</p>
+            <div className="flex flex-wrap gap-x-2">
+              {languages?.map((_: any) => <p>{_.name}</p>)}
+            </div>
+          </div>
 
-            {languages &&
-              languages.map((_: any) => (
-                <p>
-                  {_.name} - {_.proficiency}
-                </p>
-              ))}
+          <div>
+            <p className="font-semibold">Skills</p>
+            <div className="flex flex-wrap gap-x-2">
+              {skill?.map((_: any) => <p>{_.name}</p>)}
+            </div>
           </div>
         </div>
 
         <div className="text-sm text-gray-700">
-          <p className="text-wrap">{data?.bio}</p>
+          <p className="text-wrap">{freelancer?.bio}</p>
         </div>
       </div>
     </div>

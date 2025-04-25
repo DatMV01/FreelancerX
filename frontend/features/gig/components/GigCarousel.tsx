@@ -259,7 +259,7 @@ const GigCarousel = ({
         <button
           onClick={() => setFullscreen((prev) => !prev)}
           className={clsx(
-            "absolute right-0 bottom-0 z-10 rounded-full border-none bg-gray-300 p-2",
+            "-none absolute right-0 bottom-0 z-10 rounded-full bg-gray-300 p-2",
             {
               "right-5 bottom-5": isFullScreen,
             },
@@ -296,7 +296,7 @@ const GigCarousel = ({
             clickable: true,
           }}
           loop={false}
-          style={{ height: "100%", width: "100%", paddingBottom: "10px" }}
+          className={`h-full w-full ${isFullScreen && "!pb-[10px]"}`}
         >
           {dataArr.map(
             (item, index) =>
@@ -312,7 +312,7 @@ const GigCarousel = ({
                       <img
                         src={item.url}
                         alt={"alt" in item ? (item.alt as string) : "Image"}
-                        className="h-full w-full object-contain"
+                        className="h-full object-contain"
                         loading="lazy"
                       />
                     )}
@@ -322,7 +322,7 @@ const GigCarousel = ({
                           if (el) videoRefs.current[index] = el;
                         }}
                         controls
-                        className="h-full p-8"
+                        className="h-full"
                       >
                         <source src={item.url} type="video/mp4" />
                       </video>
@@ -340,7 +340,9 @@ const GigCarousel = ({
               ),
           )}
 
-          <div className="custom-pagination flex items-center justify-center space-x-2"></div>
+          <div
+            className={`custom-pagination ${!isFullScreen && "my-2"} flex items-center justify-center space-x-2`}
+          ></div>
         </Swiper>
       </div>
     </>

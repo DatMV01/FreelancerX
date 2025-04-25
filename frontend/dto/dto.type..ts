@@ -144,21 +144,8 @@ export class GigDto extends BaseDto<GigDto> {
   orderCount!: number;
   freelancer!: Freelancer;
   slug!: string;
-  requirements: Requirement[] = [
-    {
-      id: "4bf5a8d2-3935-4064-bc5d-a631ca9e9fd1",
-      question:
-        "Do you have an idea of what you want? or should i surprise you?",
-      type: "text",
-      required: true,
-    },
-    {
-      id: "9be68381-13b7-4353-9b38-5cc9a634041b",
-      question: "Youu can attach the files you want me to do.",
-      type: "file",
-      required: false,
-    },
-  ];
+  ratingAverage?: number;
+  ratingCount?: number;
   packages: GigPackage[] = [];
 }
 

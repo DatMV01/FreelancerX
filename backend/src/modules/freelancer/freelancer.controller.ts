@@ -64,7 +64,7 @@ export class FreelancerController extends BaseController<
     return super.create(data);
   }
 
-  @Get('/profile/:email')
+  @Get('/profile/email/:email')
   @SerializeOptions({ groups: [ADMIN_GROUP] })
   @ApiOperation({ summary: 'Get freelancer information by email' })
   @ApiBody({ type: FreelancerDto, required: false })
@@ -73,7 +73,7 @@ export class FreelancerController extends BaseController<
     description: 'Entity found',
     type: FreelancerDto,
   })
-  async getFreelancerProfile(
+  async getFreelancerProfileByEmail(
     @Param('email') email: string,
   ): Promise<FreelancerDto> {
     if (!email) {

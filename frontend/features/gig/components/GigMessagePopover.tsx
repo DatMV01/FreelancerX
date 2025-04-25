@@ -3,46 +3,38 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 
 import UserAvatar from "@/features/user/components/UserAvatar";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 
 const GigMessagePopover = ({ freelancer }: { freelancer: any }) => {
-  const searchParams = useSearchParams();
-  const dev = false || searchParams.get("dev");
+  const roưter = useRouter();
+  const { dev } = roưter.query;
 
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>();
-  const [displayName, setDisplayName] = useState("DisplayName");
-  const [phone, setPhone] = useState("phone");
-
-  const { data, error, isLoading } = useSWR(
-    `/freelancer/profile/${freelancer.email}`,
-    (url: string) => axiosInstanceV1.get(url).then((res) => res.data),
+  const email = freelancer.email;
+  const { data, error, isLoading, isValidating } = useSWR(
+    `/profile/email/${email}`,
+    () => getFreelancerProfileByEmail(email),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 300000, // 5 minutes
+    },
   );
 
-  useEffect(() => {
-    if (data) {
-      console.log("data", data);
-
-      setAvatarUrl(data?.avatar);
-      setDisplayName(data?.displayName);
-      setPhone(data?.phone);
-    }
-  }, [data]);
-
-  if (isLoading) return null;
+  if (isLoading || isValidating) return null;
 
   return (
     <Popover>
       <PopoverTrigger className="rounded-full bg-green-100 p-2">
         <div className="flex items-center justify-center space-x-2">
-          <UserAvatar avatarUrl={avatarUrl} fullName={displayName} />
+          <UserAvatar avatarUrl={data?.avatar} fullName={data?.displayName} />
 
           <p className="font-semibold">
-            Mesage to {displayName || "Full Name"}
+            Mesage to {data?.displayName || "Full Name"}
           </p>
         </div>
       </PopoverTrigger>
@@ -53,7 +45,7 @@ const GigMessagePopover = ({ freelancer }: { freelancer: any }) => {
       >
         <div className="flex flex-col space-y-2">
           <a
-            href={`https://zalo.me/${phone}`}
+            href={`https://zalo.me/${data?.phone}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex w-full items-center justify-center space-x-2 rounded-full bg-green-200 p-2"
@@ -70,7 +62,7 @@ const GigMessagePopover = ({ freelancer }: { freelancer: any }) => {
 
           {dev && (
             <a
-              href={`https://zalo.me/${phone}`}
+              href={`https://zalo.me/${data?.phone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center space-x-2 rounded-full bg-green-200 p-2"

@@ -16,9 +16,9 @@ export default function HelpAndSupport() {
             <MessageCircle size={18} />
           </p>
           <form className="space-y-4">
-            <Input placeholder="Response header" />
-            <Textarea placeholder="Response content..." rows={4} />
-            <Button type="submit">Send response</Button>
+            <Input placeholder="Title" />
+            <Textarea placeholder="Content..." rows={4} />
+            <Button type="submit">Send</Button>
           </form>
         </CardContent>
       </Card>
