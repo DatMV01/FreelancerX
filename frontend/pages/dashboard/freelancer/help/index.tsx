@@ -1,0 +1,43 @@
+import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageCircle } from "lucide-react";
+import { ReactElement } from "react";
+
+function HelpAndSupport() {
+  return (
+    <div className="space-y-6 p-6">
+      <h1 className="text-2xl font-semibold">Helping Center</h1>
+
+      <Card>
+        <CardContent className="space-y-4 p-4">
+          <p className="flex items-center space-x-2">
+            <span>We always listen to your opinions </span>
+            <MessageCircle size={18} />
+          </p>
+          <form className="space-y-4">
+            <Input placeholder="Title" />
+            <Textarea placeholder="Content..." rows={4} />
+            <Button type="submit">Send</Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="space-y-2 p-4">
+          <p className="text-sm">You can contact us via email:</p>
+          <p className="text-lg font-medium">support@freelancerx.com</p>
+          <p className="text-sm">Or call: 0123 456 789</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+HelpAndSupport.getLayout = function getLayout(page: ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};
+
+export default HelpAndSupport;

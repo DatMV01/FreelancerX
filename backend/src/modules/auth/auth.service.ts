@@ -35,6 +35,7 @@ import { MailConfig } from '../mail/config/mail-config.type';
 import appConfig from 'src/config/app.config';
 import { faker } from '@faker-js/faker/.';
 import { v4 as uuidv4 } from 'uuid';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -124,7 +125,7 @@ export class AuthService {
       user: {
         id: entity.id,
         email: entity.email,
-      },
+      } as any,
       hash,
     });
 
@@ -135,6 +136,7 @@ export class AuthService {
       role: entity.role.name,
       email: entity.email,
       sessionId: session.id,
+      freelancerId: entity.freelancer?.id,
       hash,
     });
 
@@ -189,6 +191,7 @@ export class AuthService {
       role: entity.role.name,
       email: entity.email,
       sessionId: session.id,
+      freelancerId: entity?.freelancer?.id,
       hash: newHash,
     });
 
@@ -205,12 +208,14 @@ export class AuthService {
     role,
     email,
     sessionId,
+    freelancerId,
     hash,
   }: {
     id: string;
     role: string;
     email: string;
     sessionId: string;
+    freelancerId?: string;
     hash: string;
   }) {
     const authConfig = this.configService.get(AUTH_CONFIG_REGISTER as any, {
@@ -228,6 +233,7 @@ export class AuthService {
       email,
       role,
       sessionId,
+      freelancerId,
     };
 
     const refreshPayload: Partial<JwtRefreshPayloadType> = {
@@ -318,5 +324,31 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException('Invalid token');
     }
+  }
+  async changePassword(
+    changePasswordDto: ChangePasswordDto,
+    currentUser: JwtAccessPayloadType,
+  ) {
+    const userId = currentUser.id;
+
+    const entity = await this.usersService.findOne({ where: { id: userId } });
+
+    const { currentPassword, newPassword } = changePasswordDto;
+
+    const isValidPassword = await bcrypt.compare(
+      currentPassword,
+      entity.password,
+    );
+    if (!isValidPassword) {
+      throw new UnprocessableEntityException({
+        password: 'incorrectPassword',
+      });
+    }
+
+    await this.usersService.update(userId, {
+      password: await bcrypt.hash(newPassword, 10),
+    });
+
+    return { message: 'Password change successfully! You can now log in.' };
   }
 }

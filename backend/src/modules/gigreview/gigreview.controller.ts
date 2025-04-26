@@ -41,6 +41,15 @@ export class GigReviewController extends BaseController<
     );
   }
 
+  @Get('/freelancer')
+  @UseGuards(AuthGuard('jwt'))
+  async getAllReviewsOfFreelancer(
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    console.log(currentUser)
+    return this._service.findAllByFreelancerId(currentUser.freelancerId);
+  }
+
   @Post()
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })

@@ -29,7 +29,7 @@ const NavbarLeftLoginDialog = () => {
         <Loader2 className="animate-spin" size={18} />
       )}
 
-      {authStatus === "idle" && !user && (
+      {authStatus === "unauthenticated" && !user && (
         <Dialog open={isShowLoginForm} onOpenChange={setShowLoginForm}>
           <DialogTrigger asChild>
             <button className="rounded-sm border border-green-500 px-2 py-1 whitespace-nowrap text-green-500">

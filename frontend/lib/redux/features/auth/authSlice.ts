@@ -112,7 +112,7 @@ interface AuthState {
   sesion: null;
   freelancer: FreelancerProfile | null;
   expires: Date | null;
-  status: "idle" | "loading" | "failed";
+  status: "loading" | "unauthenticated" | "authenticated";
 }
 
 const initialState: AuthState = {
@@ -125,7 +125,7 @@ const initialState: AuthState = {
   sesion: null,
   freelancer: null,
   expires: null,
-  status: "idle",
+  status: "unauthenticated",
 };
 
 export const authSlice = createAppSlice({
@@ -144,8 +144,6 @@ export const authSlice = createAppSlice({
 
     setAuthFromSession: create.reducer(
       (state, action: PayloadAction<AuthState>) => {
-        state.status = "loading";
-
         const {
           accessToken,
           refreshToken,
@@ -165,7 +163,7 @@ export const authSlice = createAppSlice({
         state.payload = payload;
         state.expires = expires;
 
-        state.status = "idle";
+        state.status = "authenticated";
       },
     ),
 
@@ -212,10 +210,10 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
         },
         rejected: (state) => {
-          state.status = "failed";
+          state.status = "unauthenticated";
         },
       },
     ),
@@ -232,7 +230,7 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
           debugger;
 
           const sesion = action.payload;
@@ -267,8 +265,7 @@ export const authSlice = createAppSlice({
           state.payload = null;
         },
         rejected: (state) => {
-          debugger;
-          state.status = "failed";
+          state.status = "unauthenticated";
         },
       },
     ),
@@ -285,6 +282,8 @@ export const authSlice = createAppSlice({
           state.accessExpires = null;
           state.refreshExpires = null;
           state.payload = null;
+
+          state.status = "unauthenticated";
         },
       },
     ),
@@ -305,13 +304,13 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
           state.accessToken = action.payload.accessToken;
           state.refreshToken = action.payload.refreshToken;
           state.accessExpires = Date.now() + action.payload.expiresIn * 1000;
         },
         rejected: (state) => {
-          state.status = "failed";
+          state.status = "unauthenticated";
           state.accessToken = null;
         },
       },
@@ -338,7 +337,7 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
           state.freelancer = action.payload;
           if (state.user) {
             state.user.freelancer = action.payload;
@@ -352,7 +351,7 @@ export const authSlice = createAppSlice({
           }
         },
         rejected: (state) => {
-          state.status = "failed";
+          state.status = "unauthenticated";
         },
       },
     ),
@@ -382,7 +381,7 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
           if (state.user) {
             state.user.freelancer = action.payload;
             state.user.avatar = action.payload.avatar;
@@ -392,7 +391,7 @@ export const authSlice = createAppSlice({
           }
         },
         rejected: (state) => {
-          state.status = "failed";
+          state.status = "unauthenticated";
         },
       },
     ),
@@ -419,11 +418,11 @@ export const authSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          state.status = "idle";
+          state.status = "authenticated";
           state.user = action.payload.user;
         },
         rejected: (state) => {
-          state.status = "failed";
+          state.status = "unauthenticated";
         },
       },
     ),

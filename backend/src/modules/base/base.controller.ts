@@ -76,7 +76,7 @@ export abstract class BaseController<
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get all entities' })
   @ApiResponse({
     status: 200,

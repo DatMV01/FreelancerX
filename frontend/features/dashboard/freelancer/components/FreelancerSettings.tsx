@@ -82,87 +82,9 @@ export default function FreelancerSettings() {
           </div>
         </div>
       </div>
+ 
 
-      {/* Quản lý bảo mật */}
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">🔐 Quản lý bảo mật</h2>
-        <div className="space-y-4">
-          <div>
-            <Label className="text-sm">Mật khẩu mới</Label>
-            <Input
-              type="password"
-              placeholder="Nhập mật khẩu mới"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <Button onClick={handleUpdatePassword} className="mt-4">
-              Cập nhật mật khẩu
-            </Button>
-          </div>
-          <div>
-            <Label className="text-sm">Xác thực 2 yếu tố (2FA)</Label>
-            <p className="text-muted-foreground text-sm">
-              Thiết lập bảo mật 2FA cho tài khoản của bạn.
-            </p>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>Thiết lập 2FA</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Thiết lập xác thực 2 yếu tố</DialogTitle>
-                </DialogHeader>
-                <p>Hướng dẫn thiết lập 2FA sẽ được hiển thị ở đây.</p>
-                <DialogFooter>
-                  <Button variant="secondary">Hủy</Button>
-                  <Button>Tiếp tục</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-      </div>
-
-      {/* Thiết lập thông báo */}
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">🔔 Thiết lập thông báo</h2>
-        <div className="space-y-4">
-          <div>
-            <Label>Email Notifications</Label>
-            <Select
-              value={emailNotifications ? "enabled" : "disabled"}
-              onValueChange={(val) => setEmailNotifications(val === "enabled")}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Chọn trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="enabled">Bật</SelectItem>
-                <SelectItem value="disabled">Tắt</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Thông báo Push</Label>
-            <Select
-              value={pushNotifications ? "enabled" : "disabled"}
-              onValueChange={(val) => setPushNotifications(val === "enabled")}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Chọn trạng thái" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="enabled">Bật</SelectItem>
-                <SelectItem value="disabled">Tắt</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <Button onClick={handleSaveChanges} className="mt-4">
-          Lưu thay đổi
-        </Button>
-      </div>
+      
     </div>
   );
 }

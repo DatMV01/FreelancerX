@@ -6,4 +6,5 @@ export type JwtAccessPayloadType = Pick<UserDto, 'id' | 'email'> & {
   sessionId: SessionDto['id'];
   iat: number;
   exp: number;
+  freelancerId: string;
 };

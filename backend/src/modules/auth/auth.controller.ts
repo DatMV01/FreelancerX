@@ -23,6 +23,7 @@ import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller({
   path: 'auth',
@@ -87,6 +88,16 @@ export class AuthController {
       resetPasswordDto.token,
       resetPasswordDto.newPassword,
     );
+  }
+
+  @Post('password/change')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  public changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<any> {
+    return this.service.changePassword(changePasswordDto, currentUser);
   }
 
   @Post('logout')

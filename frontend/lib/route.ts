@@ -8,6 +8,7 @@ export const route = {
     favorites: "/dashboard/buyer/favorites",
     payments: "/dashboard/buyer/payments",
     settings: "/dashboard/buyer/settings",
+    help: "/dashboard/buyer/help",
   },
   freelancer: {
     dashboard: "/dashboard/freelancer/home",
@@ -17,8 +18,11 @@ export const route = {
     gigs_edit: (id: string | number) => `/dashboard/freelancer/gigs-edit/${id}`,
     orders: "/dashboard/freelancer/orders",
     earnings: "/dashboard/freelancer/earnings",
+    feebacks: "/dashboard/freelancer/feebacks",
+
     payments: "/dashboard/freelancer/payments",
     settings: "/dashboard/freelancer/settings",
+    help: "/dashboard/freelancer/help",
   },
   admin: {
     dashboard: "/dashboard/admin/home",

@@ -190,6 +190,14 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     };
   }
 
+  async findAllByFreelancerId(freelancerId: string) {
+    return this._repository.find({
+      where: { freelancerId: freelancerId },
+      relations: ['reviewer', 'order'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async getGigRatingCount(gigId: string) {
     const result = await this._repository
       .createQueryBuilder('review')

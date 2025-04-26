@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 import UserRank from "@/features/user/components/UserRank";
+import { formatDate } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import useSWR from "swr";
@@ -33,6 +34,10 @@ const FreelancerProfile = () => {
 
   if (isLoading || isValidating) {
     return <CircularProgressCenter fullScreen />;
+  }
+
+  if (error) {
+    return <div>Not found</div>;
   }
 
   return (
@@ -84,9 +89,16 @@ const FreelancerProfile = () => {
                 <p className="mt-1 text-sm text-gray-600">{freelancer.bio}</p>
 
                 <p className="mt-1 text-sm">
+                  <span className="font-bold">Join Date: </span>
+
+                  {formatDate(freelancer.createdAt, "dd/MM/yyyy")}
+                </p>
+
+                <p className="mt-1 text-sm">
                   <span className="font-bold">From: </span>
                   {freelancer.country}
                 </p>
+
                 <div className="mt-2 flex flex-wrap gap-2">
                   <UserRank rankLevel={freelancer.level} />
                 </div>

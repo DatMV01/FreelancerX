@@ -36,9 +36,6 @@ export class FreelancerAnalyticsEntity {
   @Column({ name: 'review_count', type: 'int', default: 0 })
   reviewCount: number;
 
-  @Column({ name: 'response_time', type: 'int', nullable: true }) // tính bằng phút
-  responseTime: number;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -188,9 +188,7 @@ export const authOptions: AuthOptions = {
         } as any;
       }
 
-
       if (trigger === "update") {
-         
         try {
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/me`,
@@ -226,10 +224,10 @@ export const authOptions: AuthOptions = {
         }
       }
 
-      console.log("user", user);
-      console.log("token", token);
-      console.log("trigger", trigger);
-      console.log("session", session);
+      //  console.log("user", user);
+      console.log("token.user", token.user);
+      // console.log("trigger", trigger);
+      // console.log("session", session);
 
       const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
       if (Date.now() < token.accessExpires - refreshBuffer) {

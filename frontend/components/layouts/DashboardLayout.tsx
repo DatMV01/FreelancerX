@@ -34,6 +34,7 @@ import {
   Home,
   LifeBuoy,
   MessageSquare,
+  MessageSquareText,
   Package,
   Search,
   Settings,
@@ -95,7 +96,7 @@ const buyerNavItems = [
   },
   {
     label: "Help",
-    href: "/dashboard/help",
+    href: route.freelancer.help,
     icon: LifeBuoy,
     roles: ["buyer"],
   },
@@ -120,12 +121,12 @@ const freelancerNavItems = [
     icon: ShoppingBag,
     roles: ["freelancer"],
   },
-  {
-    label: "Payments",
-    href: route.freelancer.payments,
-    icon: CreditCard,
-    roles: ["freelancer"],
-  },
+  // {
+  //   label: "Payments",
+  //   href: route.freelancer.payments,
+  //   icon: CreditCard,
+  //   roles: ["freelancer"],
+  // },
   {
     label: "Gigs",
     href: route.freelancer.gigs,
@@ -139,6 +140,12 @@ const freelancerNavItems = [
     icon: Wallet,
     roles: ["freelancer"],
   },
+  // {
+  //   label: "Feebacks",
+  //   href: route.freelancer.feebacks,
+  //   icon: MessageSquareText,
+  //   roles: ["freelancer"],
+  // },
   {
     label: "Settings",
     href: route.freelancer.settings,
@@ -147,7 +154,7 @@ const freelancerNavItems = [
   },
   {
     label: "Help",
-    href: "/dashboard/help",
+    href: route.freelancer.help,
     icon: LifeBuoy,
     roles: ["freelancer"],
   },
@@ -185,12 +192,12 @@ const adminNavItems = [
     roles: ["admin"],
   },
 
-  {
-    label: "Supports",
-    href: route.admin.supports,
-    icon: LifeBuoy,
-    roles: ["admin"],
-  },
+  // {
+  //   label: "Supports",
+  //   href: route.admin.supports,
+  //   icon: LifeBuoy,
+  //   roles: ["admin"],
+  // },
 ];
 
 export const navItems = [

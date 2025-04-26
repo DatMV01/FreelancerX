@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
+import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   refetchMeAsync,
@@ -21,6 +22,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ChangeEvent, MouseEvent, useEffect, useState } from "react";
 import { Controller, set, useFieldArray, useForm } from "react-hook-form";
+import useSWR from "swr";
 import { z } from "zod";
 
 type SkillAndLanguage = { id: number; name: string; proficiency: string };
@@ -103,56 +105,50 @@ export default function FreelancerSignupForm() {
     name: "languages",
   });
 
-  const { data: session, update } = useSession();
+  const { update } = useSession();
 
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [skillInput, setSkillInput] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedProficiency, setSelectedProficiency] = useState("");
-  const [countdown, setCountdown] = useState<number | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [freelancer, setFreelancer] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [freelancer, setFreelancer] = useState<any>(null);
   const [message, setMessage] = useState<{
     type: "success" | "errror";
     message: string;
   }>();
   const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
-  const router = useRouter();
+
+  const email = user?.email;
+
+  const {
+    data,
+    error,
+    isLoading: loading,
+    isValidating,
+  } = useSWR<FreelancerProfile>(
+    email ? `/profile/email/${email}` : null,
+    () => getFreelancerProfileByEmail(typeof email === "string" ? email : ""),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 300000, // 5 minutes
+    },
+  );
 
   useEffect(() => {
-    async function fetchFreelancerData() {
-      setLoading(true);
+    if (data) {
+      reset({
+        languages: data.freelancersLanguages,
+        skills: data.freelancersSkills,
+        ...data,
+      });
 
-      // const { email } = router.query;
-      // if (!email) return;
-
-      try {
-        const response = await axiosInstanceV1.get(
-          `/freelancer/profile/${user?.email}`,
-        );
-
-        const data = response.data;
-
-        console.log(data);
-
-        reset({
-          languages: data.freelancersLanguages,
-          skills: data.freelancersSkills,
-          ...data,
-        });
-
-        setFreelancer(data);
-      } catch (error) {
-        console.error("Failed to fetch freelancer data:", error);
-      } finally {
-        setLoading(false);
-      }
+      setFreelancer(data as any);
     }
-
-    user && fetchFreelancerData();
-  }, [router.query, reset, user]);
+  }, [reset, data]);
 
   const handleSkillInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -294,370 +290,325 @@ export default function FreelancerSignupForm() {
       await update({
         isUpdate: true,
       });
-
-      // setCountdown(5);
-
-      // const countdownInterval = setInterval(() => {
-      //   setCountdown((prev) => {
-      //     if (prev === 1) {
-      //       clearInterval(countdownInterval);
-      //       router.push(`/freelancer/profile/${data.email}`);
-      //       return null;
-      //     }
-      //     return prev! - 1;
-      //   });
-      // }, 1000);
     } catch (err) {
       setMessage({
         type: "errror",
         message: "An error occurred. Please try again.",
       });
     }
-
-    // try {
-    //   const response = await axiosInstanceV1.post("/freelancer", values);
-
-    //   const { data, status } = response;
-
-    //   if (status === 201) {
-    //     setMessage({
-    //       type: "success",
-    //       message: "Sign Up as a Freelancer successfully !",
-    //     });
-
-    //     setCountdown(5);
-
-    //     const countdownInterval = setInterval(() => {
-    //       setCountdown((prev) => {
-    //         if (prev === 1) {
-    //           clearInterval(countdownInterval);
-    //           router.push(`/freelancer/profile/${data.email}`);
-    //           return null;
-    //         }
-    //         return prev! - 1;
-    //       });
-    //     }, 1000);
-    //   }
-
-    //
-    //   console.log("Form Data Submitted Successfully:", response.data);
-    // } catch (error) {
-    //   setMessage({
-    //     type: "errror",
-    //     message: "An error occurred. Please try again.",
-    //   });
-    // }
   }
 
   return (
-    <div className="relative">
-      <div className="flex w-full flex-col items-center justify-center bg-gray-100">
-        <div className="items-center justify-center p-8 text-black">
-          <h1 className="text-center text-3xl font-bold">Edit Profile</h1>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-center gap-x-2">
+        <p className="text-center text-2xl font-bold"> Profile</p>
+        <a
+          href={`/freelancer/profile/${freelancer?.email}`}
+          target="_blank"
+          className="cursor-pointer hover:underline text-gray-500 text-sm"
+        >
+          (Preview)
+        </a>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-12 gap-6"
+      >
+        {/* Full Name */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Display Name</label>
+        </div>
+        <div className="col-span-9">
+          <Controller
+            name="displayName"
+            control={control}
+            render={({ field }) => (
+              <Input {...field} placeholder="Full Name" required />
+            )}
+          />
+          {errors.displayName && (
+            <p className="text-red-500">{errors.displayName.message}</p>
+          )}
+        </div>
+        {/* Phone Number */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Phone Number</label>
+        </div>
+        <div className="col-span-9">
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                type="tel"
+                placeholder="Phone Number"
+                required
+              />
+            )}
+          />
+          {errors.phone && (
+            <p className="text-red-500">{errors.phone.message}</p>
+          )}
+        </div>
+        {/* Bio */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Bio</label>
+        </div>
+        <div className="col-span-9">
+          <Controller
+            name="bio"
+            control={control}
+            render={({ field }) => (
+              <Textarea
+                {...field}
+                className="h-60"
+                placeholder="Tell us about yourself"
+                required
+              />
+            )}
+          />
+          {errors.bio && <p className="text-red-500">{errors.bio.message}</p>}
         </div>
 
-        <div className="flex h-full w-full shadow-lg">
-          <div className="w-full bg-white p-12">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="grid grid-cols-10 gap-6"
-            >
-              {/* Full Name */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Full Name</label>
-              </div>
-              <div className="col-span-7">
-                <Controller
-                  name="displayName"
-                  control={control}
-                  render={({ field }) => (
-                    <Input {...field} placeholder="Full Name" required />
-                  )}
-                />
-                {errors.displayName && (
-                  <p className="text-red-500">{errors.displayName.message}</p>
-                )}
-              </div>
-              {/* Phone Number */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Phone Number</label>
-              </div>
-              <div className="col-span-7">
-                <Controller
-                  name="phone"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      {...field}
-                      type="tel"
-                      placeholder="Phone Number"
-                      required
-                    />
-                  )}
-                />
-                {errors.phone && (
-                  <p className="text-red-500">{errors.phone.message}</p>
-                )}
-              </div>
-              {/* Bio */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Bio</label>
-              </div>
-              <div className="col-span-7">
-                <Controller
-                  name="bio"
-                  control={control}
-                  render={({ field }) => (
-                    <Textarea
-                      {...field}
-                      className="h-60"
-                      placeholder="Tell us about yourself"
-                      required
-                    />
-                  )}
-                />
-                {errors.bio && (
-                  <p className="text-red-500">{errors.bio.message}</p>
-                )}
-              </div>
-
-              {/* Avatar Upload Section */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Profile Picture</label>
-              </div>
-              <div className="col-span-7">
-                {true && (
-                  <>
-                    <div className="flex items-center space-x-4">
-                      <div
-                        className="relative flex h-40 w-40 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-gray-300"
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
-                      >
-                        <label
-                          htmlFor="avatar-upload"
-                          className="absolute inset-0 cursor-pointer"
-                        >
-                          {watch("avatar") ? (
-                            <img
-                              src={watch("avatar")}
-                              alt="Avatar Preview"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <span className="flex h-full w-full items-center justify-center text-gray-500">
-                              Upload
-                            </span>
-                          )}
-                        </label>
-
-                        {watch("avatar") && isHovered && (
-                          <button
-                            onClick={removeAvatar}
-                            className="bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-full bg-black"
-                          >
-                            <X size={24} className="text-white" />
-                          </button>
-                        )}
-                      </div>
-                      <input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        className="hidden"
+        {/* Avatar Upload Section */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Profile Picture</label>
+        </div>
+        <div className="col-span-9">
+          {true && (
+            <>
+              <div className="flex items-center space-x-4">
+                <div
+                  className="relative flex h-40 w-40 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-gray-300"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <label
+                    htmlFor="avatar-upload"
+                    className="absolute inset-0 cursor-pointer"
+                  >
+                    {watch("avatar") ? (
+                      <img
+                        src={watch("avatar")}
+                        alt="Avatar Preview"
+                        className="h-full w-full object-cover"
                       />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Country Section */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Country</label>
-              </div>
-              <div className="col-span-7">
-                <div className="grid gap-4">
-                  <Controller
-                    name="country"
-                    control={control}
-                    render={({ field }) => (
-                      <select
-                        {...field}
-                        onChange={(e) => {
-                          setValue("country", e.target.value);
-                        }}
-                        className="w-full rounded border p-2"
-                      >
-                        <option value="">Select a country</option>
-                        {availableCountriesData.map((lang) => (
-                          <option key={lang.id} value={lang.name}>
-                            {lang.name}
-                          </option>
-                        ))}
-                      </select>
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center text-gray-500">
+                        Upload
+                      </span>
                     )}
-                  />
-                </div>
-                {errors.country && (
-                  <p className="text-red-500">{errors.country.message}</p>
-                )}
-              </div>
+                  </label>
 
-              {/* Languages Section */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Languages</label>
-              </div>
-              <div className="col-span-7">
-                {/* Add Language Select */}
-                <div className="grid grid-cols-2 gap-4">
-                  <select
-                    id="language-select"
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  >
-                    <option value="">Select a language</option>
-                    {availableLanguagesData.map((lang) => (
-                      <option key={lang.id} value={lang.name}>
-                        {lang.name}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    id="proficiency-select"
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  >
-                    <option value="">Select proficiency level</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                    <option value="Fluent">Fluent</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end py-4">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      const lang = (
-                        document.getElementById(
-                          "language-select",
-                        ) as HTMLSelectElement
-                      ).value;
-                      const prof = (
-                        document.getElementById(
-                          "proficiency-select",
-                        ) as HTMLSelectElement
-                      ).value;
-
-                      handleAddLaguage(lang, prof);
-                    }}
-                  >
-                    Add Language
-                  </Button>
-                </div>
-
-                {/* Render Languages */}
-                <div className="flex flex-wrap gap-2">
-                  {languageFields.map((field, index) => (
-                    <Badge
-                      key={field.id}
-                      className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
+                  {watch("avatar") && isHovered && (
+                    <button
+                      onClick={removeAvatar}
+                      className="bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-full bg-black"
                     >
-                      <span>
-                        {field.name} - {field.proficiency}
-                      </span>
-                      <Button
-                        className="m-0 h-6 w-6 p-0 hover:bg-red-800"
-                        type="button"
-                        variant="destructive"
-                        onClick={() => removeLanguage(index)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </Badge>
+                      <X size={24} className="text-white" />
+                    </button>
+                  )}
+                </div>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Country Section */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Country</label>
+        </div>
+        <div className="col-span-9">
+          <div className="grid gap-4">
+            <Controller
+              name="country"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  onChange={(e) => {
+                    setValue("country", e.target.value);
+                  }}
+                  className="w-full rounded border p-2"
+                >
+                  <option value="">Select a country</option>
+                  {availableCountriesData.map((lang) => (
+                    <option key={lang.id} value={lang.name}>
+                      {lang.name}
+                    </option>
                   ))}
-                </div>
-                {errors.languages && (
-                  <p className="text-red-500">{errors.languages.message}</p>
-                )}
-              </div>
-              {/* Skills Section */}
-              <div className="col-span-3">
-                <label className="text-gray-700">Skills</label>
-              </div>
-              <div className="col-span-7">
-                {/* Skill Input */}
-                <div className="grid grid-cols-2 gap-4">
-                  <input
-                    value={skillInput}
-                    onChange={handleSkillInputChange}
-                    type="text"
-                    placeholder="Enter skill"
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  />
+                </select>
+              )}
+            />
+          </div>
+          {errors.country && (
+            <p className="text-red-500">{errors.country.message}</p>
+          )}
+        </div>
 
-                  <select
-                    value={selectedProficiency}
-                    onChange={(e) => setSelectedProficiency(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 p-2"
-                  >
-                    <option value="">Select proficiency level</option>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
+        {/* Languages Section */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Languages</label>
+        </div>
+        <div className="col-span-9">
+          {/* Add Language Select */}
+          <div className="grid grid-cols-2 gap-4">
+            <select
+              id="language-select"
+              className="w-full rounded-md border border-gray-300 p-2"
+            >
+              <option value="">Select a language</option>
+              {availableLanguagesData.map((lang) => (
+                <option key={lang.id} value={lang.name}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
 
-                {/* Suggestion List */}
-                {suggestions.length > 0 && (
-                  <ul className="mt-2 rounded-md border bg-white shadow-lg">
-                    {suggestions.map((suggestion, index) => (
-                      <li
-                        key={index}
-                        className="cursor-pointer p-2 hover:bg-gray-200"
-                        onClick={() => handleSelectSuggestion(suggestion)}
-                      >
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+            <select
+              id="proficiency-select"
+              className="w-full rounded-md border border-gray-300 p-2"
+            >
+              <option value="">Select proficiency level</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+              <option value="Fluent">Fluent</option>
+            </select>
+          </div>
 
-                <div className="flex justify-end py-4">
-                  <Button type="button" onClick={handleAddSkill}>
-                    Add Skill
-                  </Button>
-                </div>
+          <div className="flex justify-end py-4">
+            <Button
+              type="button"
+              onClick={() => {
+                const lang = (
+                  document.getElementById(
+                    "language-select",
+                  ) as HTMLSelectElement
+                ).value;
+                const prof = (
+                  document.getElementById(
+                    "proficiency-select",
+                  ) as HTMLSelectElement
+                ).value;
 
-                {/* Render Skills */}
-                <div className="flex flex-wrap gap-2">
-                  {skillFields.map((skill, index) => (
-                    <Badge
-                      key={skill.id}
-                      className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
-                    >
-                      <span>
-                        {skill.name} - {skill.proficiency}
-                      </span>
-                      <Button
-                        className="m-0 h-6 w-6 p-0 hover:bg-red-800"
-                        type="button"
-                        variant="destructive"
-                        onClick={() => removeSkill(index)}
-                      >
-                        <X size={20} />
-                      </Button>
-                    </Badge>
-                  ))}
-                </div>
+                handleAddLaguage(lang, prof);
+              }}
+            >
+              Add Language
+            </Button>
+          </div>
 
-                {errors.skills && (
-                  <p className="text-red-500">{errors.skills.message}</p>
-                )}
-              </div>
+          {/* Render Languages */}
+          <div className="flex flex-wrap gap-2">
+            {languageFields.map((field, index) => (
+              <Badge
+                key={field.id}
+                className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
+              >
+                <span>
+                  {field.name} - {field.proficiency}
+                </span>
+                <Button
+                  className="m-0 h-6 w-6 p-0 hover:bg-red-800"
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeLanguage(index)}
+                >
+                  <X size={20} />
+                </Button>
+              </Badge>
+            ))}
+          </div>
+          {errors.languages && (
+            <p className="text-red-500">{errors.languages.message}</p>
+          )}
+        </div>
+        {/* Skills Section */}
+        <div className="col-span-3">
+          <label className="text-gray-700">Skills</label>
+        </div>
+        <div className="col-span-9">
+          {/* Skill Input */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              value={skillInput}
+              onChange={handleSkillInputChange}
+              type="text"
+              placeholder="Enter skill"
+              className="w-full rounded-md border border-gray-300 p-2"
+            />
 
-              {/* <div className="col-span-3">
+            <select
+              value={selectedProficiency}
+              onChange={(e) => setSelectedProficiency(e.target.value)}
+              className="w-full rounded-md border border-gray-300 p-2"
+            >
+              <option value="">Select proficiency level</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
+
+          {/* Suggestion List */}
+          {suggestions.length > 0 && (
+            <ul className="mt-2 rounded-md border bg-white shadow-lg">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="cursor-pointer p-2 hover:bg-gray-200"
+                  onClick={() => handleSelectSuggestion(suggestion)}
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex justify-end py-4">
+            <Button type="button" onClick={handleAddSkill}>
+              Add Skill
+            </Button>
+          </div>
+
+          {/* Render Skills */}
+          <div className="flex flex-wrap gap-2">
+            {skillFields.map((skill, index) => (
+              <Badge
+                key={skill.id}
+                className="flex items-center justify-center space-x-2 rounded-full bg-gray-300 p-2 font-semibold"
+              >
+                <span>
+                  {skill.name} - {skill.proficiency}
+                </span>
+                <Button
+                  className="m-0 h-6 w-6 p-0 hover:bg-red-800"
+                  type="button"
+                  variant="destructive"
+                  onClick={() => removeSkill(index)}
+                >
+                  <X size={20} />
+                </Button>
+              </Badge>
+            ))}
+          </div>
+
+          {errors.skills && (
+            <p className="text-red-500">{errors.skills.message}</p>
+          )}
+        </div>
+
+        {/* <div className="col-span-3">
                 <label className="text-gray-700">Socials</label>
               </div>
               <div className="col-span-7">
@@ -685,51 +636,38 @@ export default function FreelancerSignupForm() {
                 </div>
               </div> */}
 
-              {/* Submit Button */}
-              <div className="col-span-10 flex justify-center">
-                {/* ✅ Submit Button */}
-                <Button
-                  type="submit"
-                  className="rounded-md"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Processing..." : "Update Profile"}
-                </Button>
-              </div>
-            </form>
-
-            {/* ✅ Success & Error Messages */}
-            {message && (
-              <p
-                className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
-              >
-                {message.message}
-
-                {message?.message === "Update profile successfully!" && (
-                  <div>
-                    <a
-                      href={`/freelancer/profile/${watch("email")}`}
-                      className="font-semibold text-green-600"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Click here&nbsp;
-                    </a>
-                    to review your profile.
-                  </div>
-                )}
-              </p>
-            )}
-
-            {/* Hiển thị thời gian đếm ngược nếu có */}
-            {countdown !== null && (
-              <p className="text-center text-sm text-gray-600">
-                Redirecting in {countdown} seconds...
-              </p>
-            )}
-          </div>
+        {/* Submit Button */}
+        <div className="col-span-10 flex justify-center">
+          {/* ✅ Submit Button */}
+          <Button type="submit" className="rounded-md" disabled={isSubmitting}>
+            {isSubmitting ? "Processing..." : "Update Profile"}
+          </Button>
         </div>
-      </div>
+      </form>
+
+      {/* ✅ Success & Error Messages */}
+      {message && (
+        <p
+          className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
+        >
+          {message.message}
+
+          {message?.message === "Update profile successfully!" && (
+            <div>
+              <a
+                href={`/freelancer/profile/${watch("email")}`}
+                className="font-semibold text-green-600"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Click here&nbsp;
+              </a>
+              to review your profile.
+            </div>
+          )}
+        </p>
+      )}
+
       {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-800/50">
           <CircularProgress />

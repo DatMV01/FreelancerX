@@ -45,7 +45,6 @@ const NavbarLeftPopoverFavoriteGig = () => {
             <Link
               className="cursor-pointer text-gray-500 hover:underline"
               href="/dashboard/buyer/favorites"
-          
             >
               (Details)
             </Link>
@@ -62,7 +61,7 @@ const NavbarLeftPopoverFavoriteGig = () => {
                   key={gig.id}
                   className="flex h-25 items-center gap-2 border-b p-2 last:border-none hover:bg-gray-100"
                 >
-                  <div className="relative flex aspect-square w-20 flex-shrink-0 items-center">
+                  <div className="relative w-20 flex-shrink-0">
                     <img
                       src={gig.thumbnail.url}
                       alt="Gig Thumbnail"
