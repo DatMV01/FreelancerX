@@ -239,7 +239,9 @@ function BuyerOrderPage() {
 
   return (
     <div className="flex flex-col space-y-6">
-      <h1 className="text-2xl font-bold">Manage Order</h1>
+      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Manage Order
+      </h1>
 
       <OrderStats
         orders={orders}
@@ -314,7 +316,7 @@ function BuyerOrderPage() {
                 >
                   Package {getSortIcon("snapshot.package.title")}
                 </TableHead>
-                
+
                 <TableHead
                   onClick={() => handleSort("snapshot.package.type")}
                   className="cursor-pointer"

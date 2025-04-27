@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { StripeService } from './stripe.service';
+import { CreatePayoutDto } from './payout.dto';
 
 @Controller('stripe')
 export class StripeController {
@@ -45,5 +47,32 @@ export class StripeController {
     } catch (err) {
       res.status(400).send(`Webhook Error: ${err.message}`);
     }
+  }
+
+  @Post('/payout/transfer-money')
+  async transferMoney(@Body() body: { cardToken: string; amount: number }) {
+    const { cardToken, amount } = body;
+    try {
+      const payout = await this.stripeService.processPayout(cardToken, amount);
+      return { success: true, payout };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  @Get('create-connected-account')
+  async createConnectedAccount(@Query('userId') userId: string) {
+    const account = await this.stripeService.createConnectedAccount(userId);
+
+    const onboardingUrl = await this.stripeService.generateAccountLink(
+      account.id,
+      'https://your-app.com/onboarding-success', // Chỉnh link của bạn
+      'https://your-app.com/onboarding-retry', // Chỉnh link của bạn
+    );
+
+    return {
+      accountId: account.id, // Lưu accountId này vào database
+      onboardingUrl,
+    };
   }
 }

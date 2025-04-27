@@ -5,34 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DeepPartial,
-  FindManyOptions,
-  FindOptionsOrder,
-  FindOptionsWhere,
-  In,
-  LessThan,
-  Not,
-  Repository,
-} from 'typeorm';
+import { DeepPartial, FindManyOptions, In, Not, Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 import { BaseService } from '../base/base.service';
 import { OrderEntity } from './entities/order.entity';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { v4 as uuidv4 } from 'uuid';
 
 import { StripeService } from 'src/stripe/stripe.service';
-import { GigEntity } from '../gig/entities/gig.entity';
-import { GigService } from '../gig/gig.service';
 import { consoleError } from 'src/utils/common';
-import { OrderLogsEntity } from './entities/order_logs.entity';
-import { OrderQuestionsEntity } from './entities/order_questions.entity';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
-import { UserEntity } from '../user/entities/user.entity';
-import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { BaseEntity } from '../base/entities/base.entity';
-import { OrderActions, OrderStatus } from './order.enum';
-import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
-import { TransactionEntity } from '../transaction/entities/transaction.entity';
+import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
+import { GigEntity } from '../gig/entities/gig.entity';
+import { OrderTransactionEntity } from '../transaction/entities/order_transactions.entity';
 import {
   ActorType,
   TransactionDirection,
@@ -40,6 +24,12 @@ import {
   TransactionStatus,
   TransactionType,
 } from '../transaction/enum/transaction.enum';
+import { TransactionService } from '../transaction/transaction.service';
+import { UserEntity } from '../user/entities/user.entity';
+import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
+import { OrderLogsEntity } from './entities/order_logs.entity';
+import { OrderQuestionsEntity } from './entities/order_questions.entity';
+import { OrderActions, OrderStatus } from './order.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -50,8 +40,8 @@ export class OrderService extends BaseService<OrderEntity> {
     @InjectRepository(GigEntity)
     private gigRepo: Repository<GigEntity>,
 
-    @InjectRepository(TransactionEntity)
-    private transactionRepo: Repository<TransactionEntity>,
+    @InjectRepository(OrderTransactionEntity)
+    private orderTransactionRepo: Repository<OrderTransactionEntity>,
 
     @InjectRepository(OrderLogsEntity)
     private readonly orderLogRepo: Repository<OrderLogsEntity>,
@@ -73,15 +63,204 @@ export class OrderService extends BaseService<OrderEntity> {
     super(_repository);
   }
 
-  // async findOneById(id: BaseEntity['id']): Promise<OrderEntity> {
-  //   const _ = await super.findOneById(id);
-  //   const logs = await this.orderLogRepo.findBy({ orderId: String(id) });
-  //   _.orderlogs = logs;
-
-  //   return _;
-  // }
+  private readonly logger = new Logger(OrderService.name);
 
   async createOrder(
+    createDto: DeepPartial<OrderEntity>,
+    currentUser: JwtAccessPayloadType,
+  ): Promise<{
+    orderId: string;
+    transactionId: string;
+    clientSecret: string;
+    paymentIntentId: string;
+  }> {
+    const { gig, buyer, gigPackage } = await this.validateEntities(createDto);
+
+    const snapshot = this.buildSnapshot(buyer, gig, gigPackage);
+
+    const totalAmount = Number(createDto.quantity) * Number(gigPackage.price);
+    const currency = createDto.currency || 'USD';
+
+    const createOrder = this._repository.create({
+      id: uuidv4(),
+      buyerId: buyer.id,
+      freelancerId: gig.freelancerId,
+      gigId: gig.id,
+      packageId: gigPackage.id,
+      currency,
+      price: gigPackage.price,
+      quantity: createDto.quantity,
+      totalAmount,
+      deliveryTime: gigPackage.deliveryTime,
+      status: OrderStatus.UNPAID,
+      snapshot,
+    });
+
+    const orderTx = this.orderTransactionRepo.create({
+      id: uuidv4(),
+      amount: totalAmount,
+      direction: TransactionDirection.IN,
+      method: TransactionMethod.STRIPE,
+      type: TransactionType.PAYMENT,
+      status: TransactionStatus.PENDING,
+      actorType: ActorType.BUYER,
+      actor: buyer,
+      orderId: createOrder.id,
+      currency,
+    });
+
+    const stripePaymentIntent = await this.createStripePaymentIntent({
+      orderId: createOrder.id,
+      buyerId: buyer.id,
+      gigId: gig.id,
+      packageId: gigPackage.id,
+      transactionId: orderTx.id,
+      totalAmount,
+      currency,
+    });
+
+    orderTx.referenceCode = stripePaymentIntent.id;
+    orderTx.metadata = stripePaymentIntent;
+
+    const paymentUrl = `?orderId=${createOrder.id}&transactionId=${orderTx.id}&clientSecret=${stripePaymentIntent.client_secret}&paymentIntentId=${stripePaymentIntent.id}`;
+
+    const createOrderLog = this.orderLogRepo.create({
+      ...OrderActions.CREATE_ORDER,
+      id: uuidv4(),
+      userId: currentUser.id,
+      orderId: createOrder.id,
+      metadata: { paymentUrl },
+    });
+
+    const result = await this.saveOrderWithTransaction(
+      createOrder,
+      orderTx,
+      createOrderLog,
+      paymentUrl,
+    );
+
+    return {
+      orderId: result.saveOrder.id,
+      transactionId: result.saveTransaction.id,
+      clientSecret: stripePaymentIntent.client_secret ?? '',
+      paymentIntentId: stripePaymentIntent.id,
+    };
+  }
+
+  // Validate gig, buyer, package
+  private async validateEntities(createDto: DeepPartial<OrderEntity>) {
+    const { gigId, packageId, buyerId } = createDto;
+
+    const gig = await this.gigRepo.findOneBy({ id: String(gigId) });
+    if (!gig) {
+      consoleError(`Gig with ID ${gigId} not found`);
+      throw new NotFoundException(`Gig with ID ${gigId} not found`);
+    }
+
+    const buyer = await this.userRepo.findOneBy({ id: String(buyerId) });
+    if (!buyer) {
+      consoleError(`Buyer with ID ${buyerId} not found`);
+      throw new NotFoundException(`Buyer with ID ${buyerId} not found`);
+    }
+
+    const gigPackage = gig.packages.find((pkg) => pkg.id === packageId);
+    if (!gigPackage) {
+      consoleError(`Package with ID ${packageId} not found`);
+      throw new NotFoundException(`Package with ID ${packageId} not found`);
+    }
+
+    return { gig, buyer, gigPackage };
+  }
+
+  // Build snapshot
+  private buildSnapshot(buyer: UserEntity, gig: GigEntity, gigPackage: any) {
+    const { createdAt, updatedAt, deletedAt, ...packageInfomation } =
+      gigPackage;
+    return {
+      buyer: {
+        id: buyer.id,
+        fullName: buyer.fullName,
+        email: buyer.email,
+      },
+      freelancer: {
+        id: gig.freelancerId,
+        displayName: gig.freelancer.displayName,
+        email: gig.freelancer.email,
+      },
+      gig: {
+        id: gig.id,
+        title: gig.title,
+      },
+      package: packageInfomation,
+    };
+  }
+
+  // Create Stripe PaymentIntent
+  private async createStripePaymentIntent(params: {
+    orderId: string;
+    buyerId: string;
+    gigId: string;
+    packageId: string;
+    transactionId: string;
+    totalAmount: number;
+    currency: string;
+  }) {
+    return await this.stripeService.createPaymentIntent({
+      amount: params.totalAmount,
+      currency: params.currency,
+      metadata: {
+        orderId: params.orderId,
+        buyerId: params.buyerId,
+        gigId: params.gigId,
+        packageId: params.packageId,
+        transactionId: params.transactionId,
+      },
+    });
+  }
+
+  // Save Order, Transaction, Log in a Transaction
+  private async saveOrderWithTransaction(
+    createOrder: OrderEntity,
+    orderTx: OrderTransactionEntity,
+    createOrderLog: OrderLogsEntity,
+    paymentUrl: string,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const finalCreateOrder = {
+        ...createOrder,
+        snapshot: {
+          ...createOrder.snapshot,
+          paymentUrl,
+        },
+      };
+
+      const saveOrder = await queryRunner.manager.save(
+        OrderEntity,
+        finalCreateOrder,
+      );
+      const saveTransaction = await queryRunner.manager.save(
+        OrderTransactionEntity,
+        orderTx,
+      );
+      await queryRunner.manager.save(OrderLogsEntity, createOrderLog);
+
+      await queryRunner.commitTransaction();
+
+      return { saveOrder, saveTransaction };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      consoleError('Transaction failed:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async createOrderOld(
     createDto: DeepPartial<OrderEntity>,
     currentUser: JwtAccessPayloadType,
   ): Promise<{
@@ -154,7 +333,7 @@ export class OrderService extends BaseService<OrderEntity> {
       snapshot,
     });
 
-    const createTransaction = this.transactionRepo.create({
+    const orderTx = this.orderTransactionRepo.create({
       id: uuidv4(),
       //referenceCode: stripePaymentIntentId,
       amount: totalAmount,
@@ -177,16 +356,16 @@ export class OrderService extends BaseService<OrderEntity> {
         buyerId,
         gigId,
         packageId,
-        transactionId: createTransaction.id,
+        transactionId: orderTx.id,
       },
     });
 
     const { client_secret, id: stripePaymentIntentId } = stripePaymentIntent;
 
-    createTransaction.referenceCode = stripePaymentIntentId;
-    createTransaction.metadata = stripePaymentIntent;
+    orderTx.referenceCode = stripePaymentIntentId;
+    orderTx.metadata = stripePaymentIntent;
 
-    const paymentUrl = `?orderId=${createOrder.id}&transactionId=${createTransaction.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`;
+    const paymentUrl = `?orderId=${createOrder.id}&transactionId=${orderTx.id}&clientSecret=${client_secret}&paymentIntentId=${stripePaymentIntentId}`;
 
     const createOrderLog = this.orderLogRepo.create({
       ...OrderActions.CREATE_ORDER,
@@ -207,7 +386,7 @@ export class OrderService extends BaseService<OrderEntity> {
     };
     const saveOrder = await this._repository.save(finalCreateOrder);
 
-    const saveTransaction = await this.transactionRepo.save(createTransaction);
+    const saveTransaction = await this.orderTransactionRepo.save(orderTx);
 
     await this.orderLogRepo.save(createOrderLog);
 
@@ -513,4 +692,30 @@ export class OrderService extends BaseService<OrderEntity> {
   //     }
   //   }
   // }
+
+  //   @Cron(CronExpression.EVERY_30_MINUTES)
+  //   async handleExpiredOrders() {
+  //     // pseudo code
+  // const cancelledOrders = await Order.find({
+  //   status: 'cancelled',
+  //   isRefunded: false,
+  // });
+
+  // for (const order of cancelledOrders) {
+  //   const payment = await Payment.findOne({ orderId: order.id, status: 'paid' });
+  //   if (!payment) continue;
+
+  //   await UserTransaction.create({
+  //     userId: order.buyerId,
+  //     type: 'refund',
+  //     amount: payment.amount,
+  //     status: 'completed',
+  //     description: `Refund for cancelled order #${order.id}`,
+  //     orderId: order.id,
+  //   });
+
+  //   await UserWallet.increment({ userId: order.buyerId }, payment.amount);
+
+  //   await Order.update({ id: order.id }, { isRefunded: true });
+  //   }
 }

@@ -51,7 +51,7 @@ import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { CreateTransactionDto } from 'src/modules/transaction/dto/create-transaction.dto';
 import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
 import { UpdateTransactionDto } from 'src/modules/transaction/dto/update-transaction.dto';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/user/dto/update-user.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';
@@ -111,7 +111,7 @@ export class AutoMapper extends AutomapperProfile {
           updateDto: UpdateOrderDto,
         },
         {
-          entity: TransactionEntity,
+          entity: OrderTransactionEntity,
           dto: TransactionDto,
           createDto: CreateTransactionDto,
           updateDto: UpdateTransactionDto,

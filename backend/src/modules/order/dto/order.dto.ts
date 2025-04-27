@@ -3,7 +3,7 @@ import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 
 import { OrderLogsEntity } from '../entities/order_logs.entity';
@@ -62,8 +62,8 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap(() => Object)
   snapshot: object;
 
-  @AutoMap(() => [TransactionEntity])
-  transactions: TransactionEntity[];
+  @AutoMap(() => [OrderTransactionEntity])
+  transactions: OrderTransactionEntity[];
 
   @AutoMap(() => [OrderLogsEntity])
   orderlogs: OrderLogsEntity[];

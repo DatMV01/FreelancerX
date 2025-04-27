@@ -299,17 +299,17 @@ export default function FreelancerSignupForm() {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-center gap-x-2">
-        <p className="text-center text-2xl font-bold"> Profile</p>
+    <div className="flex flex-col space-y-6">
+      <h1 className="flex items-center justify-center gap-x-2 rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Profile
         <a
           href={`/freelancer/profile/${freelancer?.email}`}
           target="_blank"
-          className="cursor-pointer hover:underline text-gray-500 text-sm"
+          className="cursor-pointer text-sm text-gray-500 hover:underline"
         >
           (Preview)
         </a>
-      </div>
+      </h1>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
@@ -644,7 +644,6 @@ export default function FreelancerSignupForm() {
           </Button>
         </div>
       </form>
-
       {/* ✅ Success & Error Messages */}
       {message && (
         <p
@@ -667,7 +666,6 @@ export default function FreelancerSignupForm() {
           )}
         </p>
       )}
-
       {loading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-800/50">
           <CircularProgress />

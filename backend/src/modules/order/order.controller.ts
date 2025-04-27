@@ -35,6 +35,8 @@ import { PageDto } from '../base/dto/pagination';
 import { QueryDto } from '../base/dto/query.dto';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderLogsEntity } from './entities/order_logs.entity';
+import { OrderStatus } from './order.enum';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -44,7 +46,10 @@ export class OrderController extends BaseController<
   CreateOrderDto,
   UpdateOrderDto
 > {
-  constructor(protected readonly _service: OrderService) {
+  constructor(
+    protected readonly _service: OrderService,
+    private transactionService: TransactionService,
+  ) {
     super(_service, OrderEntity, OrderDto, CreateOrderDto, UpdateOrderDto);
   }
 
@@ -64,7 +69,6 @@ export class OrderController extends BaseController<
   ): Promise<{
     orderId: string;
     transactionId: string;
-    transactionStripeId: string;
     clientSecret: string;
     paymentIntentId: string;
   }> {
@@ -101,7 +105,17 @@ export class OrderController extends BaseController<
     @Body() data: UpdateOrderDto,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderDto> {
-    return this._service.updateOrderByAction(currentUser, id, data);
+    const updatedOrder = await this._service.updateOrderByAction(
+      currentUser,
+      id,
+      data,
+    );
+
+    if (updatedOrder.status === OrderStatus.COMPLETED) {
+      await this.transactionService.incrementPendingBalance(updatedOrder);
+    }
+
+    return updatedOrder;
   }
 
   @Get('/buyer')

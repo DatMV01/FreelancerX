@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
@@ -119,11 +119,11 @@ export class OrderEntity extends BaseEntity {
   // @JoinColumn()
   // transaction: TransactionEntity;
 
-  @AutoMap(() => [TransactionEntity])
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.order, {
+  @AutoMap(() => [OrderTransactionEntity])
+  @OneToMany(() => OrderTransactionEntity, (transaction) => transaction.order, {
     //   eager: true,
   })
-  transactions: TransactionEntity[];
+  transactions: OrderTransactionEntity[];
 
   @AutoMap(() => [OrderLogsEntity])
   @OneToMany(() => OrderLogsEntity, (_) => _.order, {

@@ -1,9 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -17,14 +17,16 @@ import {
   TransactionStatus,
   TransactionType,
 } from '../enum/transaction.enum';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import { OrderEntity } from 'src/modules/order/entities/order.entity';
 
-@Entity('transactions')
-export class TransactionEntity extends BaseEntity {
+@Entity('freelancer_transactions')
+export class FreelancerTransactionEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ type: 'varchar', length: 100, unique: true, nullable: true })
   referenceCode: string; // Mã tham chiếu duy nhất của giao dịch
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
@@ -49,31 +51,28 @@ export class TransactionEntity extends BaseEntity {
   })
   status: TransactionStatus;
 
-  // Actor
-  @AutoMap()
-  @Column({ type: 'enum', enum: ActorType })
-  actorType: ActorType; // Freelancer or Buyer
-
-  @AutoMap()
+  @Column({
+    name: 'freelancer_id',
+    nullable: false,
+    type: 'char',
+    length: 36,
+  })
   @Index()
-  @Column({ type: 'char', length: 36, name: 'actor_id', nullable: false })
-  actorId: string; // Refer to Freelancer or Buyer ID
+  freelancerId: string;
 
-  @AutoMap(() => UserEntity)
-  @ManyToOne(() => UserEntity, (user) => user.transactions)
-  @JoinColumn({ name: 'actor_id' })
-  actor?: UserEntity;
+  @ManyToOne(() => FreelancerEntity, (_) => _.transactions, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'freelancer_id' })
+  freelancer: FreelancerEntity;
 
   // Liên kết với Order (nếu có)
   @AutoMap()
-  @Index()
   @Column({ type: 'char', length: 36, name: 'order_id', nullable: true })
   orderId?: string;
 
   @AutoMap(() => OrderEntity)
-  @ManyToOne(() => OrderEntity, (order) => order.transactions, {
-    onDelete: 'RESTRICT',
-  })
+  @ManyToOne(() => OrderEntity)
   @JoinColumn({ name: 'order_id' })
   order?: OrderEntity;
 
@@ -82,4 +81,7 @@ export class TransactionEntity extends BaseEntity {
 
   @Column({ type: 'varchar', length: 10, default: 'USD' })
   currency: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

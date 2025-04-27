@@ -28,8 +28,10 @@ export default function FavoriteGigs() {
   if (favoriteGigsStatus === "loading") return <CircularProgressCenter />;
 
   return (
-    <div>
-      <div className="text-2xl font-bold">Fovorites Gigs</div>
+    <div className="flex flex-col space-y-6">
+      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Fovorites
+      </h1>
       <GigLitstingSection data={favoriteGigs} />
     </div>
   );

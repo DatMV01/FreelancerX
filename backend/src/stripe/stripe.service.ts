@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { OrderLogsEntity } from 'src/modules/order/entities/order_logs.entity';
 import { OrderActions, OrderStatus } from 'src/modules/order/order.enum';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import { TransactionStatus } from 'src/modules/transaction/enum/transaction.enum';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
@@ -25,8 +25,8 @@ export class StripeService {
     @Inject('STRIPE_CLIENT') private stripe: Stripe,
     private configService: ConfigService,
 
-    @InjectRepository(TransactionEntity)
-    private readonly transactionRepo: Repository<TransactionEntity>,
+    @InjectRepository(OrderTransactionEntity)
+    private readonly transactionRepo: Repository<OrderTransactionEntity>,
 
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
@@ -84,7 +84,41 @@ export class StripeService {
       throw error;
     }
   }
+  // Liên kết thẻ và tạo payment method
+  async createPaymentMethod(cardToken: string): Promise<Stripe.PaymentMethod> {
+    try {
+      // Tạo payment method từ token
+      const paymentMethod = await this.stripe.paymentMethods.create({
+        type: 'card',
+        card: { token: cardToken }, // Token từ frontend
+      });
+      return paymentMethod;
+    } catch (error) {
+      throw new Error(`Error creating payment method: ${error.message}`);
+    }
+  }
+  // Thực hiện payout vào thẻ của freelancer
+  async processPayout(
+    cardToken: string,
+    amount: number,
+  ): Promise<Stripe.Payout> {
+    try {
+      // Tạo payment method từ token
+      const paymentMethod = await this.createPaymentMethod(cardToken);
 
+      // Thực hiện payout vào thẻ đã liên kết
+      const payout = await this.stripe.payouts.create({
+        amount: amount * 100, // Số tiền (tính bằng cent)
+        currency: 'usd', // Hoặc 'vnd', 'eur', tuỳ vào quốc gia
+        method: 'instant', // Phương thức thanh toán: 'instant' hoặc 'standard'
+        //   payment_method: paymentMethod.id, // Payment method từ token
+      });
+
+      return payout;
+    } catch (error) {
+      throw new Error(`Error processing payout: ${error.message}`);
+    }
+  }
   // 👉 Handle Stripe Webhook
   async handleWebhook(
     payload: Buffer,
@@ -200,5 +234,43 @@ export class StripeService {
       transactionId,
       paymentIntentId: packageId.id,
     });
+  }
+
+  async createConnectedAccount({
+    userId,
+    userEmail,
+  }: {
+    userId: string;
+    userEmail: string;
+  }) {
+    const account = await this.stripe.accounts.create({
+      type: 'express',
+      country: 'US',
+      email: userEmail,
+      business_type: 'individual',
+      capabilities: {
+        transfers: { requested: true },
+      },
+      metadata: {
+        userId,
+      },
+    });
+
+    return account;
+  }
+
+  async generateAccountLink(
+    accountId: string,
+    returnUrl: string,
+    refreshUrl: string,
+  ) {
+    const accountLink = await this.stripe.accountLinks.create({
+      account: accountId,
+      refresh_url: refreshUrl, // Nếu user thất bại có thể quay lại link này để retry
+      return_url: returnUrl, // Sau khi user hoàn thành onboarding
+      type: 'account_onboarding',
+    });
+
+    return accountLink.url;
   }
 }

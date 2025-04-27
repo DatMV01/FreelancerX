@@ -8,9 +8,9 @@ import NavbarLeftPopoverAvatar from "./NavbarLeftPopoverAvatar";
 const NavbarLeftPopover = () => {
   return (
     <>
-      <NavbarLeftPopoverMessages />
-      <NavbarLeftPopoverNotifications />
-      <NavbarLeftPopoverOrder />
+      {/* <NavbarLeftPopoverMessages /> */}
+      {/* <NavbarLeftPopoverNotifications /> */}
+      {/* <NavbarLeftPopoverOrder /> */}
       <NavbarLeftPopoverFavoriteGig />
       <NavbarLeftPopoverAvatar />
     </>

@@ -57,28 +57,22 @@ interface DashboardLayoutProps {
 }
 
 const buyerNavItems = [
-  {
-    label: "Home",
-    href: route.buyer.dashboard,
-    icon: Home,
-    roles: ["buyer"],
-  },
-  {
-    label: "Profile",
-    href: route.buyer.profile,
-    icon: User,
-    roles: ["buyer"],
-  },
+  // {
+  //   label: "Home",
+  //   href: route.buyer.dashboard,
+  //   icon: Home,
+  //   roles: ["buyer"],
+  // },
+  // {
+  //   label: "Profile",
+  //   href: route.buyer.profile,
+  //   icon: User,
+  //   roles: ["buyer"],
+  // },
   {
     label: "Orders",
     href: route.buyer.orders,
     icon: ShoppingBag,
-    roles: ["buyer"],
-  },
-  {
-    label: "Payments",
-    href: route.buyer.payments,
-    icon: CreditCard,
     roles: ["buyer"],
   },
   {
@@ -87,6 +81,12 @@ const buyerNavItems = [
     icon: Heart,
     roles: ["buyer"],
   },
+  // {
+  //   label: "Payments",
+  //   href: route.buyer.payments,
+  //   icon: CreditCard,
+  //   roles: ["buyer"],
+  // },
 
   {
     label: "Settings",
@@ -96,19 +96,19 @@ const buyerNavItems = [
   },
   {
     label: "Help",
-    href: route.freelancer.help,
+    href: route.buyer.help,
     icon: LifeBuoy,
     roles: ["buyer"],
   },
 ];
 
 const freelancerNavItems = [
-  {
-    label: "Home",
-    href: route.freelancer.dashboard,
-    icon: Home,
-    roles: ["freelancer"],
-  },
+  // {
+  //   label: "Home",
+  //   href: route.freelancer.dashboard,
+  //   icon: Home,
+  //   roles: ["freelancer"],
+  // },
   {
     label: "Profile",
     href: route.freelancer.profile,

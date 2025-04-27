@@ -66,7 +66,7 @@ export default function OrderStats({
     },
     {
       key: OrderStatus.REVISION_REQUESTED,
-      title: "REVISION_REQUESTED",
+      title: "REVISION",
       value: orders.filter(
         (o: any) => o.status === OrderStatus.REVISION_REQUESTED,
       ).length,
@@ -117,11 +117,11 @@ export default function OrderStats({
     : stats;
 
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-8">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
       {filteredStats.map((stat) => (
         <Card key={stat.key} className="flex h-fit gap-0 gap-y-1 py-3">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+            <CardTitle className="text-sm font-medium break-all">{stat.title}</CardTitle>
             <stat.icon className={cn("h-5 w-5", stat.color)} />
           </CardHeader>
           <CardContent>

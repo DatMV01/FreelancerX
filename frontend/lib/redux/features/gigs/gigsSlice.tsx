@@ -20,7 +20,6 @@ export const gigSlice = createAppSlice({
   reducers: (create) => ({
     fetchFavoriteGigs: create.asyncThunk(
       async () => {
-        debugger;
         const response = await axiosInstanceV1.get("/gig/favorites");
 
         return response.data;

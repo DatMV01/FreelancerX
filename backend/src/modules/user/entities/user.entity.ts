@@ -6,7 +6,7 @@ import { NotificationEntity } from 'src/modules/notification/entities/notificati
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import {
   Column,
   Entity,
@@ -118,11 +118,11 @@ export class UserEntity extends BaseEntity {
   // files: FileEntity[];
 
   /* TRANSACTIONS */
-  @AutoMap(() => [TransactionEntity])
-  @OneToMany(() => TransactionEntity, (transaction) => transaction.actor, {
+  @AutoMap(() => [OrderTransactionEntity])
+  @OneToMany(() => OrderTransactionEntity, (transaction) => transaction.actor, {
     onDelete: 'RESTRICT', // Ngăn không cho xóa User nếu có Transaction
   })
-  transactions: TransactionEntity[];
+  transactions: OrderTransactionEntity[];
 
   /* FAVORITE GIGS */
   // @AutoMap(() => [UsersFavoriteGigsEntity])

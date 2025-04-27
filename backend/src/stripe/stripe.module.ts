@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { OrderLogsEntity } from 'src/modules/order/entities/order_logs.entity';
-import { TransactionEntity } from 'src/modules/transaction/entities/transaction.entity';
+import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
 import Stripe from 'stripe';
 import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
@@ -11,7 +11,7 @@ import { StripeService } from './stripe.service';
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([TransactionEntity, OrderEntity, OrderLogsEntity]),
+    TypeOrmModule.forFeature([OrderTransactionEntity, OrderEntity, OrderLogsEntity]),
   ],
   controllers: [StripeController],
   providers: [

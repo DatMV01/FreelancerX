@@ -10,9 +10,7 @@ import GigGallaryInput from "@/features/gig/components/GigGallaryInput";
 import GigPricingInput from "@/features/gig/components/GigPricingInput";
 import { useCountdownRedirect } from "@/hooks/useCountdownRedirect";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { signUpAsFreelancer } from "@/lib/redux/features/auth/authSlice";
 import { useAppDispatch } from "@/lib/redux/hooks";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
   InputLabel,
@@ -22,7 +20,7 @@ import {
 } from "@mui/material";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { ReactElement, useEffect, useRef, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -250,7 +248,6 @@ const FreelancerCreateGigPage = () => {
           `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
         );
       }, 7000);
-      
     } catch (error: any) {
       if (
         error.response &&
@@ -273,7 +270,31 @@ const FreelancerCreateGigPage = () => {
   }, [allValues]);
 
   return (
-    <div>
+    <div className="flex flex-col space-y-6">
+      <div className="grid grid-cols-12 items-center rounded-md border border-green-500 p-4 text-2xl font-bold text-green-500">
+        {/* Centered Title */}
+        <h1 className="col-span-4 col-start-5 text-center font-bold">
+          Create New Gig
+        </h1>
+
+        {/* Buttons on the Right */}
+        <div className="col-span-3 col-start-10 flex justify-end space-x-4">
+          <Tooltip title="Save gig and back to gig management page">
+            <button
+              className="flex items-center rounded bg-green-500 px-4 font-bold text-white hover:bg-green-600"
+              onClick={(e) => {
+                e.preventDefault();
+                router.replace(
+                  `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
+                );
+              }}
+            >
+              Back to Manage
+            </button>
+          </Tooltip>
+        </div>
+      </div>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={(e) => {
@@ -283,29 +304,6 @@ const FreelancerCreateGigPage = () => {
         }}
       >
         <div className="grid grid-cols-12 gap-y-6">
-          <div className="col-span-12 grid grid-cols-12 items-center bg-gray-200 p-8 text-green-900">
-            {/* Centered Title */}
-            <h1 className="col-span-4 col-start-5 text-center text-3xl font-bold">
-              Create New Gig
-            </h1>
-
-            {/* Buttons on the Right */}
-            <div className="col-span-3 col-start-10 flex justify-end space-x-4">
-              <Tooltip title="Save gig and back to gig management page">
-                <button
-                  className="flex items-center rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.replace(
-                      `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
-                    );
-                  }}
-                >
-                  Back to Manage
-                </button>
-              </Tooltip>
-            </div>
-          </div>
           <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
             OVERVIEW
           </div>
@@ -441,7 +439,7 @@ const FreelancerCreateGigPage = () => {
           </div>
 
           {/* Search metadata */}
-          <div className="col-span-3">
+          {/* <div className="col-span-3">
             <div>
               <label className="font-semibold text-gray-700">
                 Gig metadata
@@ -450,7 +448,7 @@ const FreelancerCreateGigPage = () => {
           </div>
           <div className="col-span-9">
             <div>Under development</div>
-          </div>
+          </div> */}
 
           {/* PRICING */}
           <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
@@ -584,7 +582,7 @@ const FreelancerCreateGigPage = () => {
                     {message.message}
                   </p>
                 )}
-                
+
                 {/* Hiển thị thời gian đếm ngược nếu có */}
                 {isCounting && (
                   <p className="text-center text-sm text-gray-600">

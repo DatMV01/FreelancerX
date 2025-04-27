@@ -8,9 +8,10 @@ import { ReactElement } from "react";
 
 function HelpAndSupport() {
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">Helping Center</h1>
-
+    <div className="flex flex-col space-y-6">
+      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Help
+      </h1>
       <Card>
         <CardContent className="space-y-4 p-4">
           <p className="flex items-center space-x-2">
@@ -18,6 +19,8 @@ function HelpAndSupport() {
             <MessageCircle size={18} />
           </p>
           <form className="space-y-4">
+            <Input placeholder="Email" />
+
             <Input placeholder="Title" />
             <Textarea placeholder="Content..." rows={4} />
             <Button type="submit">Send</Button>

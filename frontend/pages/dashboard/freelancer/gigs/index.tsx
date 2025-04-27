@@ -43,7 +43,7 @@ import {
   PlayCircle,
   Send,
   X,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -499,7 +499,9 @@ function FreelancerManageGigsPage() {
 
   return (
     <div className="flex flex-col space-y-6">
-      <h1 className="text-2xl font-bold">Manage Gigs</h1>
+      <h1 className="flex items-center justify-center gap-x-2 rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Manage Gigs
+      </h1>
 
       <GigsStats gigs={gigs} />
 
@@ -545,7 +547,7 @@ function FreelancerManageGigsPage() {
                 }}
                 className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
               >
-                Create new service
+                Create new gig
               </button>
 
               {/* <AdvancedSearchDialog /> */}

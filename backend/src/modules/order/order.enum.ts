@@ -8,6 +8,7 @@ export enum OrderStatus {
   REVISION_REQUESTED = 'REVISION_REQUESTED', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
   COMPLETED = 'COMPLETED', // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
   CANCEL = 'CANCEL', // ❌ Đơn hàng bị hủy
+  REFUND = 'REFUND', // ❌ Đơn hàng bị haonf tiền
 }
 
 // 👤 Order Actors
@@ -88,6 +89,12 @@ export const OrderActions = {
     actor: OrderActor.FREELANCER,
     toStatus: OrderStatus.CANCEL,
     message: 'Freelancer canceled the order.',
+  },
+  REFUND_ORDER: {
+    action: 'REFUND_ORDER',
+    actor: OrderActor.SYSTEM,
+    toStatus: OrderStatus.REFUND,
+    message: 'Order has been refund',
   },
 } as const;
 

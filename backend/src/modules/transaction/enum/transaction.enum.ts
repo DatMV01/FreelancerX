@@ -16,8 +16,6 @@ export enum TransactionMethod {
   VNPAY = 'VNPAY',
   MOMO = 'MOMO',
   MANUAL = 'MANUAL',
-  TOP_UP = 'TOP_UP',
-  BANK_TRANSFER = 'BANK_TRANSFER',
 }
 
 export enum TransactionDirection {

@@ -6,8 +6,9 @@ import { ReactElement } from "react";
 function BuyerDashboardSettings() {
   return (
     <div className="flex flex-col space-y-6">
-      <h1 className="text-2xl font-bold">Setting</h1>
-
+      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
+        Settings
+      </h1>
       <UpdatePasswordForm />
     </div>
   );

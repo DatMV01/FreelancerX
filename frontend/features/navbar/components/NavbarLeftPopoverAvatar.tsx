@@ -54,7 +54,7 @@ const NavbarLeftPopoverAvatar = () => {
             {!isAdmin && (
               <>
                 <Link
-                  href={route.buyer.dashboard}
+                  href={route.buyer.profile}
                   target="_blank"
                   className="flex p-4 hover:bg-green-50 hover:text-green-500"
                 >
@@ -63,7 +63,7 @@ const NavbarLeftPopoverAvatar = () => {
 
                 {freelancer && (
                   <Link
-                    href={route.freelancer.dashboard}
+                    href={route.freelancer.profile}
                     target="_blank"
                     className="flex p-4 hover:bg-green-50 hover:text-green-500"
                   >
