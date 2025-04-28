@@ -1,5 +1,21 @@
+import {
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsPositive,
+} from 'class-validator';
+import { TransactionMethod } from '../enum/transaction.enum';
+
 export class CreateWithdrawalDto {
+  @IsNumber()
+  @IsPositive()
   amount: number;
-  payoutMethod: 'bank' | 'paypal' | 'momo' | 'stripe';
-  payoutDetails: string; // e.g., bank info, momo number, etc.
+
+  @IsEnum(TransactionMethod)
+  method: TransactionMethod;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, any>;
 }

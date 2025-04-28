@@ -3,19 +3,19 @@ import { WalletSummary } from "@/features/dashboard/freelancer/components/Wallet
 import { WithdrawModal } from "@/features/dashboard/freelancer/components/WithdrawModal";
 
 import { ChartEarnings } from "@/features/dashboard/freelancer/components/ChartEarnings";
-import { TransactionList } from "@/features/dashboard/freelancer/components/TransactionList";
 import { faker } from "@faker-js/faker";
 import { ReactElement, useEffect, useState } from "react";
-
-export const fakeTransactions = Array.from({ length: 42 }).map((_, idx) => ({
-  id: faker.string.uuid(),
-  amount: faker.number.float({ min: 10, max: 500, fractionDigits: 2 }),
-  type: faker.helpers.arrayElement(["earning", "withdrawal"]),
-  status: faker.helpers.arrayElement(["pending", "completed", "rejected"]),
-  createdAt: faker.date.past({ years: 1 }).toISOString(),
-  referenceCode: faker.string.alphanumeric(8).toUpperCase(),
-  currency: "USD",
-}));
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { toast } from "sonner";
+import { TransactionList } from "@/features/dashboard/freelancer/components/TransactionList";
+import {
+  fetchFreelancerTransactions,
+  getEarningByYear,
+  getWalletByFreelancerId,
+} from "@/features/transactions/transactions.api";
+import useSWR from "swr";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
 
 const earningsDataByYear = {
   "2024": [
@@ -50,54 +50,122 @@ const earningsDataByYear = {
 
 function FreelancerDashboardEarnings() {
   const [openWithdraw, setOpenWithdraw] = useState(false);
+  const [page, setPage] = useState(1);
+  const [year, setYear] = useState(2025);
 
-  const [transactions, setTransactions] = useState();
+  const user = useAppSelector(selectUser);
+  const freelancerId = user?.freelancer?.id;
 
-  useEffect(() => {
-    setTransactions(fakeTransactions);
-  }, []);
-  const [summary, setSummary] = useState({
-    availableBalance: 400.25,
-    pendingBalance: 120.5,
-  });
-  const handleWithdrawSubmit = async (amount: number, method: string) => {
+  const {
+    data: wallet,
+    error: errorWallet,
+    isLoading: isLoadingWallet,
+    isValidating: isValidatingWallet,
+    mutate: mutateWallet,
+  } = useSWR(
+    freelancerId ? `/transaction/wallet/${freelancerId}` : null,
+    () => freelancerId && getWalletByFreelancerId(freelancerId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 0,
+    },
+  );
+
+  const {
+    data: dataTransactions,
+    error: errorTransactions,
+    isLoading: isLoadingTransactions,
+    isValidating: isValidatingTransactions,
+    mutate: mutateTransactions,
+  } = useSWR(
+    freelancerId ? `/transaction/freelancer/${freelancerId}` : null,
+
+    () => fetchFreelancerTransactions({ page }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: true,
+      dedupingInterval: 0,
+      refreshInterval: 0,
+      keepPreviousData: true,
+    },
+  );
+
+  const {
+    data: earnings,
+    error: errorEarnings,
+    isLoading: isLoadingEarnings,
+    isValidating: isValidatingEarnings,
+    mutate: mutateEarnings,
+  } = useSWR(
+    freelancerId ? `/transaction/earnings/${freelancerId}` : null,
+    () => freelancerId && getEarningByYear(year),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshInterval: 0,
+      dedupingInterval: 0,
+    },
+  );
+
+  const handleWithdrawSubmit = async (form: any) => {
     try {
-      await fetch("/api/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, method }),
-      });
-      alert("Withdraw request created!");
+      const res = await axiosInstanceV1.post(
+        "/transaction/withdrawal-request",
+        form,
+      );
+
+      toast.info("Withdraw request created!");
+
+      mutateWallet();
+      mutateTransactions();
     } catch (error) {
       console.error(error);
-      alert("Failed to withdraw");
+      toast.error("Failed to withdraw");
     }
   };
+
+  //transaction/earnings/2025
 
   return (
     <div className="flex flex-col space-y-6">
       <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
         Earnings
       </h1>
+
       <div className="grid grid-cols-3 gap-x-6">
         <div className="col-span-1">
-          <WalletSummary setOpenWithdrawCb={setOpenWithdraw} />
+          <WalletSummary
+            mutate={mutateWallet}
+            wallet={wallet}
+            isLoading={isLoadingWallet || isValidatingWallet}
+            setOpenWithdrawCb={setOpenWithdraw}
+          />
         </div>
         <div className="col-span-2">
-          <ChartEarnings dataByYear={earningsDataByYear} />
+          <ChartEarnings
+            dataByYear={earnings}
+            isLoading={isLoadingEarnings || isValidatingEarnings}
+            setYearCb={setYear}
+          />
         </div>
       </div>
 
-      {transactions && (
-        <TransactionList transactions={transactions} isLoading={false} />
-      )}
+      <TransactionList
+        data={dataTransactions}
+        mutate={mutateTransactions}
+        isLoading={isLoadingTransactions || isValidatingTransactions}
+        setPage={setPage}
+      />
 
       <WithdrawModal
         open={openWithdraw}
         onClose={() => setOpenWithdraw(false)}
         onSubmit={handleWithdrawSubmit}
-        availableBalance={summary.availableBalance}
+        availableBalance={wallet?.availableBalance}
       />
+
       {/* <PaymentMethodForm /> */}
       {/* <FreelancerEarningsStats /> */}
     </div>

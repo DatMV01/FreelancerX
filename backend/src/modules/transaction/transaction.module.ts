@@ -5,6 +5,8 @@ import { FreelancerWalletEntity } from './entities/freelancer_wallet.entity';
 import { OrderTransactionEntity } from './entities/order_transactions.entity';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
+import { MailModule } from '../mail/mail.module';
+import { MailService } from '../mail/mail.service';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { TransactionService } from './transaction.service';
       FreelancerWalletEntity,
       FreelancerTransactionEntity,
     ]),
+    MailModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

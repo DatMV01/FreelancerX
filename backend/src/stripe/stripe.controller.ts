@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
@@ -60,19 +61,19 @@ export class StripeController {
     }
   }
 
-  @Get('create-connected-account')
-  async createConnectedAccount(@Query('userId') userId: string) {
-    const account = await this.stripeService.createConnectedAccount(userId);
+  // @Get('create-connected-account')
+  // async createConnectedAccount(@Query('userId') userId: string) {
+  //   const account = await this.stripeService.createConnectedAccount(userId);
 
-    const onboardingUrl = await this.stripeService.generateAccountLink(
-      account.id,
-      'https://your-app.com/onboarding-success', // Chỉnh link của bạn
-      'https://your-app.com/onboarding-retry', // Chỉnh link của bạn
-    );
+  //   const onboardingUrl = await this.stripeService.generateAccountLink(
+  //     account.id,
+  //     'https://your-app.com/onboarding-success', // Chỉnh link của bạn
+  //     'https://your-app.com/onboarding-retry', // Chỉnh link của bạn
+  //   );
 
-    return {
-      accountId: account.id, // Lưu accountId này vào database
-      onboardingUrl,
-    };
-  }
+  //   return {
+  //     accountId: account.id, // Lưu accountId này vào database
+  //     onboardingUrl,
+  //   };
+  // }
 }

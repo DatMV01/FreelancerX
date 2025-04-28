@@ -10,6 +10,7 @@ import {
 } from 'src/config/config.type';
 import { MailConfig } from './config/mail-config.type';
 import { MailerService } from './mailer.service';
+import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 
 @Injectable()
 export class MailService {
@@ -67,6 +68,102 @@ export class MailService {
         text2,
         text3,
         text4,
+      },
+    });
+  }
+
+  async sendWithdrawalSuccessEmail({
+    to,
+    name,
+    amount,
+    currency,
+    referenceCode,
+  }: {
+    to: string;
+    name: string;
+    amount: string;
+    currency: string;
+    referenceCode: string;
+  }): Promise<void> {
+    const mailConfig = this.configService.get(MAIL_CONFIG_REGISTER as any, {
+      infer: true,
+    }) as MailConfig;
+
+    const appConfig = this.configService.get(APP_CONFIG_REGISTER as any, {
+      infer: true,
+    }) as AppConfig;
+
+    const workingDirectory = appConfig.workingDirectory || __dirname;
+    const appName = appConfig.name;
+    const user = mailConfig.user;
+    const templatePath = path.join(
+      workingDirectory,
+      'src',
+      'modules',
+      'mail',
+      'mail-templates',
+      'withdrawal-success.hbs',
+    );
+
+    await this.mailerService.sendMail({
+      from: `"FreelancerX" ${user}`,
+      to: to,
+      subject: 'Withdrawal Successful',
+      templatePath,
+      context: {
+        app_name: appName,
+        freelancerName: name,
+        amount,
+        currency,
+        referenceCode,
+      },
+    });
+  }
+
+  async sendWithdrawalRejectedEmail({
+    to,
+    name,
+    amount,
+    currency,
+    rejectionReason,
+  }: {
+    to: string;
+    name: string;
+    amount: string;
+    currency: string;
+    rejectionReason: string;
+  }): Promise<void> {
+    const mailConfig = this.configService.get(MAIL_CONFIG_REGISTER as any, {
+      infer: true,
+    }) as MailConfig;
+
+    const appConfig = this.configService.get(APP_CONFIG_REGISTER as any, {
+      infer: true,
+    }) as AppConfig;
+
+    const workingDirectory = appConfig.workingDirectory || __dirname;
+    const appName = appConfig.name;
+    const user = mailConfig.user;
+    const templatePath = path.join(
+      workingDirectory,
+      'src',
+      'modules',
+      'mail',
+      'mail-templates',
+      'withdrawal-rejected.hbs',
+    );
+
+    await this.mailerService.sendMail({
+      from: `"FreelancerX" ${user}`,
+      to: to,
+      subject: 'Withdrawal Rejected',
+      templatePath,
+      context: {
+        app_name: appName,
+        freelancerName: name,
+        amount,
+        currency,
+        rejectionReason,
       },
     });
   }

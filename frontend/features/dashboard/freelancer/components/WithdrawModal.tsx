@@ -141,7 +141,7 @@ const VisaForm = (props: Props) => {
     cardNumber: "123456789123",
   });
 
-  const handleVisaChange = (e) => {
+  const handleVisaChange = (e: any) => {
     const { name, value } = e.target;
     setVisaInfo({ ...visaInfo, [name]: value });
   };
@@ -199,7 +199,7 @@ export function WithdrawModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onSubmit: (amount: number, method: string) => void;
+  onSubmit: (form: any) => void;
   availableBalance: number;
 }) {
   const [amount, setAmount] = useState<number>(0);
@@ -219,18 +219,18 @@ export function WithdrawModal({
   });
 
   const handleConfirm = () => {
+    if (amount <= 0 || amount > availableBalance) {
+      toast.error("Invalid amount");
+      return;
+    }
+
     const form = {
       amount,
       method,
       metatdata: bankInfo,
     };
 
-    console.log(form);
-    if (amount <= 0 || amount > availableBalance) {
-      toast.error("Invalid amount");
-      return;
-    }
-    onSubmit(amount, method);
+    onSubmit(form);
     onClose();
   };
 
@@ -244,7 +244,7 @@ export function WithdrawModal({
         <div className="space-y-4">
           <div>
             <label className="mb-1 block text-sm">
-              Amount (Max: ${availableBalance.toFixed(2)})
+              Amount (Max: ${availableBalance})
             </label>
             <Input
               type="number"

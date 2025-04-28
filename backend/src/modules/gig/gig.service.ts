@@ -106,7 +106,9 @@ export class GigService extends BaseService<GigEntity> {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    const favoriteGigs = user.favoriteGigs || [];
+    const favoriteGigs = user.
+    
+    favoriteGigs || [];
     return [favoriteGigs, favoriteGigs.length];
   }
 

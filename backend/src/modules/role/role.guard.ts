@@ -4,7 +4,7 @@ import { RoleEnum } from './enum/role.enum';
 import { ROLE_KEY } from './role.decorator';
 
 @Injectable()
-export class RolesGuardIncludes implements CanActivate {
+export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -19,6 +19,6 @@ export class RolesGuardIncludes implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request['user'];
-    return requiredRoles.includes(user.role);
+    return requiredRoles.includes(RoleEnum[user.role as keyof RoleEnum]);
   }
 }

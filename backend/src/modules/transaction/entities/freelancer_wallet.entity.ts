@@ -26,7 +26,10 @@ export class FreelancerWalletEntity {
   freelancer: FreelancerEntity;
 
   @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
-  pendingBalance: number;
+  pendingEarrning: number;
+  
+  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
+  pendingWidthdraw: number;
 
   @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
   availableBalance: number;

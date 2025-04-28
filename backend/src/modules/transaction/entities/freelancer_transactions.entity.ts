@@ -21,7 +21,7 @@ import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.ent
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 
 @Entity('freelancer_transactions')
-export class FreelancerTransactionEntity {
+export class FreelancerTransactionEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -66,22 +66,9 @@ export class FreelancerTransactionEntity {
   @JoinColumn({ name: 'freelancer_id' })
   freelancer: FreelancerEntity;
 
-  // Liên kết với Order (nếu có)
-  @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'order_id', nullable: true })
-  orderId?: string;
-
-  @AutoMap(() => OrderEntity)
-  @ManyToOne(() => OrderEntity)
-  @JoinColumn({ name: 'order_id' })
-  order?: OrderEntity;
-
   @Column({ type: 'json', nullable: true })
   metadata?: Record<string, any>; // Lưu thêm info như Stripe session, bank ref...
 
   @Column({ type: 'varchar', length: 10, default: 'USD' })
   currency: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
 }

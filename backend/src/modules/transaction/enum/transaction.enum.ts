@@ -26,7 +26,8 @@ export enum TransactionDirection {
 export enum TransactionStatus {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
+  REJECT = 'REJECT',
+  CANCELLED = 'CANCELLED',
 }
 
 export enum ActorType {

@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { saveAs } from "file-saver";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   Bar,
@@ -32,6 +33,8 @@ interface ChartEarningsProps {
   dataByYear: {
     [year: string]: TransactionSummary[];
   };
+  isLoading: boolean;
+  setYearCb: any;
 }
 const CustomTooltip = ({
   active,
@@ -60,10 +63,22 @@ const CustomTooltip = ({
   }
   return null;
 };
-export function ChartEarnings({ dataByYear }: ChartEarningsProps) {
-  const [year, setYear] = useState<string>(Object.keys(dataByYear)[0]);
+export function ChartEarnings({
+  dataByYear,
+  isLoading,
+  setYearCb,
+}: ChartEarningsProps) {
+  if (isLoading) {
+    return (
+      <div className="h-full w-full">
+        <Loader2 className="m-auto animate-spin" size={18} />
+      </div>
+    );
+  }
 
-  const data = dataByYear[year] || [];
+  if (!dataByYear) {
+    return;
+  }
 
   const handleExportExcel = () => {
     const workbook = XLSX.utils.book_new();
@@ -118,13 +133,21 @@ export function ChartEarnings({ dataByYear }: ChartEarningsProps) {
     saveAs(blob, `earnings_all_years.xlsx`);
   };
 
+  const [year, setYear] = useState<string>(Object.keys(dataByYear)[0]);
+
+  const data = dataByYear[year] || [];
+
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Earnings Summary</h2>
         <div className="flex gap-2">
-          <Select value={year} onValueChange={setYear}>
+          <Select value={year} onValueChange={   () =>{
+            setYear
+            
+            setYearCb()
+            }}>
             <SelectTrigger className="w-[120px]">
               <SelectValue />
             </SelectTrigger>

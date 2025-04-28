@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
-import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import { getFreelancerProfileByEmail, getFreelancerProfileById } from "@/features/freelancer/freelancer.api";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   refetchMeAsync,
@@ -121,6 +121,7 @@ export default function FreelancerSignupForm() {
   const dispatch = useAppDispatch();
 
   const email = user?.email;
+  const userId = user?.freelancer?.id;
 
   const {
     data,
@@ -128,8 +129,8 @@ export default function FreelancerSignupForm() {
     isLoading: loading,
     isValidating,
   } = useSWR<FreelancerProfile>(
-    email ? `/profile/email/${email}` : null,
-    () => getFreelancerProfileByEmail(typeof email === "string" ? email : ""),
+    userId ? `/profile/id/${userId}` : null,
+    () => getFreelancerProfileById(typeof userId === "string" ? userId : ""),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

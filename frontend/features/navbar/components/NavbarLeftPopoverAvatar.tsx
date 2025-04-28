@@ -54,7 +54,7 @@ const NavbarLeftPopoverAvatar = () => {
             {!isAdmin && (
               <>
                 <Link
-                  href={route.buyer.profile}
+                  href={route.buyer.orders}
                   target="_blank"
                   className="flex p-4 hover:bg-green-50 hover:text-green-500"
                 >
