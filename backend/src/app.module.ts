@@ -21,13 +21,13 @@ import { OrderModule } from './modules/order/order.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { StatusModule } from './modules/status/status.module';
-import { TransactionModule } from './modules/transaction/transaction.module';
 import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';
 import { StripeModule } from './stripe/stripe.module';
 import mailConfig from './modules/mail/config/mail.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GigReviewModule } from './modules/gigreview/gigreview.module';
+import { WalletModule } from './modules/wallet/wallet.module';
 
 @Module({
   imports: [
@@ -53,7 +53,7 @@ import { GigReviewModule } from './modules/gigreview/gigreview.module';
     AuthModule,
     GigModule,
     OrderModule,
-    TransactionModule,
+    WalletModule,
     CategoryModule,
     NotificationModule,
     FreelancerModule,

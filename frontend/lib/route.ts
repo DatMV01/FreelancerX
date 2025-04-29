@@ -27,11 +27,13 @@ export const route = {
   admin: {
     dashboard: "/dashboard/admin/home",
     users: "/dashboard/admin/users",
+    orders: "/dashboard/admin/orders",
     gigs: "/dashboard/admin/gigs",
     reports: "/dashboard/admin/reports",
 
     settings: "/dashboard/admin/settings",
     finance: "/dashboard/admin/finance",
+    help: "/dashboard/admin/help",
 
     supports: "/dashboard/admin/supports",
   },

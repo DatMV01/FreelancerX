@@ -28,7 +28,32 @@ export const fetchBuyerOrders = async ({
     throw error;
   }
 };
-
+export const fetchAdminOrders = async ({
+  page = 1,
+  limit = 10,
+  filters = "",
+  fields,
+}: {
+  page: number;
+  limit: number;
+  filters: string;
+  fields?: string;
+}): Promise<any> => {
+  try {
+    const response = await axiosInstanceV1.get(`${API_URL}/admin`, {
+      params: {
+        page,
+        limit,
+        filters,
+        fields,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetchAdminOrders:", error);
+    throw error;
+  }
+};
 export const fetchFreelancerOrders = async ({
   page = 1,
   limit = 10,

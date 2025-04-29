@@ -35,8 +35,10 @@ import { PageDto } from '../base/dto/pagination';
 import { QueryDto } from '../base/dto/query.dto';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderLogsEntity } from './entities/order_logs.entity';
-import { OrderStatus } from './order.enum';
-import { TransactionService } from '../transaction/transaction.service';
+import { OrderActions, OrderStatus } from './order.enum';
+import { WalletService } from '../wallet/wallet.service';
+import { RoleEnum } from '../role/enum/role.enum';
+import { TransactionType } from '../wallet/enum/transaction.enum';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -46,10 +48,7 @@ export class OrderController extends BaseController<
   CreateOrderDto,
   UpdateOrderDto
 > {
-  constructor(
-    protected readonly _service: OrderService,
-    private transactionService: TransactionService,
-  ) {
+  constructor(protected readonly _service: OrderService) {
     super(_service, OrderEntity, OrderDto, CreateOrderDto, UpdateOrderDto);
   }
 
@@ -105,14 +104,16 @@ export class OrderController extends BaseController<
     @Body() data: UpdateOrderDto,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderDto> {
-    const updatedOrder = await this._service.updateOrderByAction(
-      currentUser,
-      id,
-      data,
-    );
+    let updatedOrder;
 
-    if (updatedOrder.status === OrderStatus.COMPLETED) {
-      await this.transactionService.incrementPendingBalance(updatedOrder);
+    if (data.action === OrderActions.COMPLETE_ORDER.action) {
+      updatedOrder = await this._service.completeOrder(currentUser, id);
+    } else {
+      updatedOrder = await this._service.updateOrderByAction(
+        currentUser,
+        id,
+        data,
+      );
     }
 
     return updatedOrder;
@@ -158,6 +159,29 @@ export class OrderController extends BaseController<
       role: 'freelancer',
     };
     const results = await super.findAll(query, currentUser);
+
+    return results;
+  }
+
+  @Get('/admin')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Get all entities' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities',
+    type: PageDto<OrderEntity>,
+  })
+  async findAllOrders(
+    @Query() query: QueryDto<OrderEntity>,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<PageDto<OrderDto>> {
+    currentUser = {
+      ...currentUser,
+      role: RoleEnum[RoleEnum.ADMIN],
+    };
+
+    const results = await super.findAll(query, currentUser);
+    //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
 
     return results;
   }

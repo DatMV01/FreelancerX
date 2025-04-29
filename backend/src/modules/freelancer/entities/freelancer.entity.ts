@@ -27,8 +27,8 @@ import {
 } from './freelancer_languages.entity';
 import { FreelancersSkills } from './freelancer_skills.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
-import { FreelancerTransactionEntity } from 'src/modules/transaction/entities/freelancer_transactions.entity';
-import { FreelancerWalletEntity } from 'src/modules/transaction/entities/freelancer_wallet.entity';
+import { WalletTransactionEntity } from 'src/modules/wallet/entities/wallet_transactions.entity';
+import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 
 @Entity('freelancers')
 export class FreelancerEntity extends BaseEntity {
@@ -132,14 +132,10 @@ export class FreelancerEntity extends BaseEntity {
   @OneToMany(() => GigReviewEntity, (gigReview) => gigReview.freelancer)
   reviews: GigReviewEntity[];
 
-  @AutoMap(() => [FreelancerTransactionEntity])
-  @OneToMany(() => FreelancerTransactionEntity, (_) => _.freelancer)
-  transactions: FreelancerTransactionEntity[];
-
-  @AutoMap(() => FreelancerWalletEntity)
+  @AutoMap(() => WalletEntity)
   @OneToOne(() => FreelancerEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'wallet_id' })
-  wallet: FreelancerWalletEntity;
+  wallet: WalletEntity;
 
   @AfterInsert()
   @AfterUpdate()

@@ -4,8 +4,8 @@ import { StripeModule } from 'src/stripe/stripe.module';
 import { StripeService } from 'src/stripe/stripe.service';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderTransactionEntity } from '../transaction/entities/order_transactions.entity';
-import { TransactionModule } from '../transaction/transaction.module';
+import { OrderTransactionEntity } from '../wallet/entities/order_transactions.entity';
+import { WalletModule } from '../wallet/wallet.module';
 import { UserEntity } from '../user/entities/user.entity';
 import { OrderEntity } from './entities/order.entity';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
@@ -26,7 +26,7 @@ import { OrderService } from './order.service';
       FreelancerEntity,
       OrderDeliverablesEntity,
     ]),
-    TransactionModule,
+    WalletModule,
     StripeModule,
   ],
   controllers: [OrderController],

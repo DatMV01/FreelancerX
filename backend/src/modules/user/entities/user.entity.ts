@@ -6,7 +6,7 @@ import { NotificationEntity } from 'src/modules/notification/entities/notificati
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
 import {
   Column,
   Entity,
@@ -23,6 +23,7 @@ import { AuthProvidersEnum } from '../enum/user.provider';
 
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -97,6 +98,13 @@ export class UserEntity extends BaseEntity {
     // eager: true,
   })
   freelancer?: FreelancerEntity;
+
+  /* FREELANCER */
+  @AutoMap(() => WalletEntity)
+  @OneToOne(() => WalletEntity, (_) => _.user, {
+    // eager: true,
+  })
+  wallet?: WalletEntity;
 
   /* ORDERS */
   @AutoMap(() => [OrderEntity])

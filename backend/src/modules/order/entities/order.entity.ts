@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';

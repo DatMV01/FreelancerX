@@ -1,10 +1,11 @@
 export enum TransactionType {
   DEPOSIT = 'DEPOSIT',
-  WITHDRAWAL = 'WITHDRAWAL',
+  WITHDRAW = 'WITHDRAW',
   PAYMENT = 'PAYMENT',
   REFUND = 'REFUND',
   EARNING = 'EARNING',
   PLATFORM_FEE = 'PLATFORM_FEE',
+  ADJUSTMENT = 'ADJUSTMENT', // admin cộng/trừ tay
 }
 
 export enum TransactionMethod {
@@ -27,11 +28,12 @@ export enum TransactionStatus {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
   REJECT = 'REJECT',
-  CANCELLED = 'CANCELLED',
+  CANCELED = 'CANCELED',
 }
 
 export enum ActorType {
   FREELANCER = 'FREELANCER',
   BUYER = 'BUYER',
   SYSTEM = 'SYSTEM',
+  ADMIN = 'ADMIN',
 }

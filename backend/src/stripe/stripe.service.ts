@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { OrderLogsEntity } from 'src/modules/order/entities/order_logs.entity';
 import { OrderActions, OrderStatus } from 'src/modules/order/order.enum';
-import { OrderTransactionEntity } from 'src/modules/transaction/entities/order_transactions.entity';
-import { TransactionStatus } from 'src/modules/transaction/enum/transaction.enum';
+import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
+import { TransactionStatus } from 'src/modules/wallet/enum/transaction.enum';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
 

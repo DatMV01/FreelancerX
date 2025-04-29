@@ -126,12 +126,14 @@ export class MailService {
     amount,
     currency,
     rejectionReason,
+    referenceCode,
   }: {
     to: string;
     name: string;
     amount: string;
     currency: string;
     rejectionReason: string;
+    referenceCode: string;
   }): Promise<void> {
     const mailConfig = this.configService.get(MAIL_CONFIG_REGISTER as any, {
       infer: true,
@@ -164,6 +166,7 @@ export class MailService {
         amount,
         currency,
         rejectionReason,
+        referenceCode,
       },
     });
   }

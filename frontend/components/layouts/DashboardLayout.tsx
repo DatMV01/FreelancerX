@@ -161,12 +161,12 @@ const freelancerNavItems = [
 ];
 
 const adminNavItems = [
-  {
-    label: "Home",
-    href: route.admin.dashboard,
-    icon: Home,
-    roles: ["admin"],
-  },
+  // {
+  //   label: "Home",
+  //   href: route.admin.dashboard,
+  //   icon: Home,
+  //   roles: ["admin"],
+  // },
   {
     label: "Manage Users",
     href: route.admin.users,
@@ -174,19 +174,37 @@ const adminNavItems = [
     roles: ["admin"],
   },
   {
-    label: "Orders Report",
-    href: "/dashboard/admin/orders",
-    icon: FileBarChart,
+    label: "Manage Orders",
+    href: route.admin.orders,
+    icon: ShoppingBag,
     roles: ["admin"],
   },
   {
-    label: "Finance",
-    href: route.admin.finance,
-    icon: DollarSign,
+    label: "Manage Gigs",
+    href: route.admin.gigs,
+    icon: Package,
+    roles: ["admin"],
+  },
+  // {
+  //   label: "Finance",
+  //   href: route.admin.finance,
+  //   icon: DollarSign,
+  //   roles: ["admin"],
+  // },
+  {
+    label: "Manage Earnings",
+    href: route.freelancer.earnings,
+    icon: Wallet,
     roles: ["admin"],
   },
   {
-    label: "System Settings",
+    label: "Help",
+    href: route.admin.help,
+    icon: LifeBuoy,
+    roles: ["admin"],
+  },
+  {
+    label: "Settings",
     href: route.admin.settings,
     icon: Settings,
     roles: ["admin"],

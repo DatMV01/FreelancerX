@@ -24,7 +24,7 @@ import { FreelancerAnalyticsEntity } from './entities/freelancer_analytics.entit
       LanguageEntity,
       FreelancersLanguages,
       FreelancersSkills,
-      FreelancerAnalyticsEntity,
+     // FreelancerAnalyticsEntity,
     ]),
   ],
   controllers: [FreelancerController],

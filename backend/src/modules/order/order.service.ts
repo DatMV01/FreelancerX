@@ -16,15 +16,15 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderTransactionEntity } from '../transaction/entities/order_transactions.entity';
+import { OrderTransactionEntity } from '../wallet/entities/order_transactions.entity';
 import {
   ActorType,
   TransactionDirection,
   TransactionMethod,
   TransactionStatus,
   TransactionType,
-} from '../transaction/enum/transaction.enum';
-import { TransactionService } from '../transaction/transaction.service';
+} from '../wallet/enum/transaction.enum';
+import { WalletService } from '../wallet/wallet.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderLogsEntity } from './entities/order_logs.entity';
@@ -57,7 +57,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     @InjectRepository(OrderDeliverablesEntity)
     private readonly orderDeliveryRepo: Repository<OrderDeliverablesEntity>,
-
+    private transactionService: WalletService,
     private stripeService: StripeService,
   ) {
     super(_repository);
@@ -536,26 +536,61 @@ export class OrderService extends BaseService<OrderEntity> {
 
     switch (data.action) {
       case OrderActions.ACCEPT_ORDER.action:
+        if (order.status !== OrderActions.ACCEPT_ORDER.fromStatus) {
+          throw new Error(
+            `Only ${OrderActions.ACCEPT_ORDER.fromStatus} orders can be completed.`,
+          );
+        }
+
         order.status = OrderActions.ACCEPT_ORDER.toStatus;
         log = { ...log, ...OrderActions.ACCEPT_ORDER };
         break;
 
       case OrderActions.START_WORK.action:
+        if (order.status !== OrderActions.START_WORK.fromStatus) {
+          throw new Error(
+            `Only ${OrderActions.START_WORK.fromStatus} orders can be completed.`,
+          );
+        }
+
         order.status = OrderActions.START_WORK.toStatus;
         log = { ...log, ...OrderActions.START_WORK };
         break;
 
       case OrderActions.REQUEST_REVISION.action:
+        if (order.status !== OrderActions.REQUEST_REVISION.fromStatus) {
+          throw new Error(
+            `Only ${OrderActions.REQUEST_REVISION.fromStatus} orders can be completed.`,
+          );
+        }
+
         order.status = OrderActions.REQUEST_REVISION.toStatus;
         log = { ...log, ...OrderActions.REQUEST_REVISION };
         break;
 
       case OrderActions.COMPLETE_ORDER.action:
+        if (order.status !== OrderActions.COMPLETE_ORDER.fromStatus) {
+          throw new Error(
+            `Only ${OrderActions.COMPLETE_ORDER.fromStatus} orders can be completed.`,
+          );
+        }
+
         order.status = OrderActions.COMPLETE_ORDER.toStatus;
         log = { ...log, ...OrderActions.COMPLETE_ORDER };
         break;
 
       case OrderActions.CANCEL_ORDER_BUYER.action:
+        if (
+          order.status !== OrderStatus.UNPAID &&
+          order.status !== OrderStatus.PENDING &&
+          order.status !== OrderStatus.ACCEPTED &&
+          order.status !== OrderStatus.IN_PROGRESS
+        ) {
+          throw new Error(
+            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.IN_PROGRESS} orders can be canceled.`,
+          );
+        }
+
         log = {
           ...log,
           fromStatus: order.status,
@@ -566,6 +601,17 @@ export class OrderService extends BaseService<OrderEntity> {
         break;
 
       case OrderActions.CANCEL_ORDER_FREELANCER.action:
+        if (
+          order.status !== OrderStatus.UNPAID &&
+          order.status !== OrderStatus.PENDING &&
+          order.status !== OrderStatus.ACCEPTED &&
+          order.status !== OrderStatus.IN_PROGRESS
+        ) {
+          throw new Error(
+            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.IN_PROGRESS} orders can be canceled.`,
+          );
+        }
+
         log = {
           ...log,
           fromStatus: order.status,
@@ -588,6 +634,55 @@ export class OrderService extends BaseService<OrderEntity> {
     } catch (error) {
       console.error('Error updating entity:', error);
       throw new ConflictException('Update failed due to conflict');
+    }
+  }
+  async completeOrder(currentUser: JwtAccessPayloadType, orderId: string) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const order = await queryRunner.manager.findOne(OrderEntity, {
+        where: { id: orderId },
+        //   relations: ['freelancer'],
+      });
+
+      if (!order) {
+        throw new Error('Order not found.');
+      }
+      if (order.status !== OrderActions.COMPLETE_ORDER.fromStatus) {
+        throw new Error(
+          `Only ${OrderActions.COMPLETE_ORDER.fromStatus} orders can be completed.`,
+        );
+      }
+
+      const log = queryRunner.manager.create(OrderLogsEntity, {
+        order,
+        userId: currentUser.id,
+        ...OrderActions.COMPLETE_ORDER,
+      });
+
+      await queryRunner.manager.save(log);
+
+      order.status = OrderActions.COMPLETE_ORDER.toStatus;
+
+      order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
+
+      const updatedOrder = await queryRunner.manager.save(order);
+
+      await this.transactionService.addPendingEarning(updatedOrder);
+
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+      return updatedOrder;
+    } catch (error) {
+      // Rollback nếu có lỗi
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      // Kết thúc transaction
+      await queryRunner.release();
     }
   }
 

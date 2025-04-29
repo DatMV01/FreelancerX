@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { TransactionMethod } from '../enum/transaction.enum';
 
-export class CreateWithdrawalDto {
+export class RequestWithdrawalDto {
   @IsNumber()
   @IsPositive()
   amount: number;
@@ -17,5 +17,5 @@ export class CreateWithdrawalDto {
 
   @IsOptional()
   @IsObject()
-  metadata?: Record<string, any>;
+  methodMetadata?: Record<string, any>;
 }

@@ -8,7 +8,7 @@ import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
-import { TransactionDto } from 'src/modules/transaction/dto/transaction.dto';
+import { TransactionDto } from 'src/modules/wallet/dto/transaction.dto';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/user.provider';
 import { GigReviewDto } from 'src/modules/gigreview/dto/gigreview.dto';
