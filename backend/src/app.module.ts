@@ -28,6 +28,7 @@ import mailConfig from './modules/mail/config/mail.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GigReviewModule } from './modules/gigreview/gigreview.module';
 import { WalletModule } from './modules/wallet/wallet.module';
+import { SupportModule } from './modules/support/support.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     MailModule,
     StripeModule,
     GigReviewModule,
+    SupportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
