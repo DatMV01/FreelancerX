@@ -1,6 +1,4 @@
 import { AutoMap } from '@automapper/classes';
-import { BaseEntity } from 'src/modules/base/entities/base.entity';
-import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import {
   Column,
   CreateDateColumn,
@@ -8,8 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import {
   ActorType,
@@ -21,7 +18,7 @@ import {
 import { WalletEntity } from './wallet.entity';
 
 @Entity('wallet_transactions')
-export class WalletTransactionEntity extends BaseEntity {
+export class WalletTransactionEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -77,6 +74,10 @@ export class WalletTransactionEntity extends BaseEntity {
   @Column('decimal', { precision: 20, scale: 8 })
   balanceAfter: number;
 
+  @AutoMap()
+  @Column({ type: 'enum', enum: TransactionDirection })
+  direction: TransactionDirection;
+
   @Column({ nullable: true })
   method?: TransactionMethod; // e.g., 'bank', 'paypal', 'momo', 'stripe
 
@@ -100,4 +101,7 @@ export class WalletTransactionEntity extends BaseEntity {
   @AutoMap(() => Date)
   @Column({ type: 'timestamp', nullable: true })
   rejectedAt: Date | null;
+
+  @Column({ type: 'char', length: 36, nullable: true })
+  processedBy: string | null;
 }

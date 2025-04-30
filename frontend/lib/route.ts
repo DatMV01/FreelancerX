@@ -4,6 +4,7 @@ export const route = {
   buyer: {
     dashboard: "/dashboard/buyer/home",
     profile: "/dashboard/buyer/profile",
+    wallet: "/dashboard/buyer/wallet",
     orders: "/dashboard/buyer/orders",
     favorites: "/dashboard/buyer/favorites",
     payments: "/dashboard/buyer/payments",

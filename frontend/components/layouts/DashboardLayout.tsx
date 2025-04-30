@@ -70,6 +70,12 @@ const buyerNavItems = [
   //   roles: ["buyer"],
   // },
   {
+    label: "Wallet",
+    href: route.buyer.wallet,
+    icon: Wallet,
+    roles: ["buyer"],
+  },
+  {
     label: "Orders",
     href: route.buyer.orders,
     icon: ShoppingBag,

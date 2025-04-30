@@ -103,20 +103,23 @@ export class WalletController {
   }
 
   // --- 9. Lấy thông tin ví user ---
-  @Get(':userId')
+  @Get('/infomation')
   @UseGuards(AuthGuard('jwt'))
-  async getWalletInfo(@Param('userId') userId: string) {
+  async getWalletInfo(@CurrentUser() currentUser: JwtAccessPayloadType) {
+    const userId = currentUser.id;
     return this.service.getWalletInfo(userId);
   }
 
   // --- 10. Lấy lịch sử giao dịch ví ---
-  @Get(':userId/transactions')
+  @Get('/transactions')
   @UseGuards(AuthGuard('jwt'))
-  async getWalletTransactionHistory(
-    @Param('userId') userId: string,
+  async getWalletTransactions(
+    @CurrentUser() currentUser: JwtAccessPayloadType,
     @Query() filter: FilterTransactionDto,
   ) {
-    return this.service.getWalletTransactionHistory(userId, filter as any);
+    const userId = currentUser.id;
+
+    return this.service.getWalletTransactions(userId, filter as any);
   }
 
   // @Get('/freelancer')

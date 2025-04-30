@@ -281,7 +281,7 @@ export class WalletService {
       wallet.availableBalance = balanceBefore.plus(refundAmount).toNumber();
 
       // Cập nhật transaction thành CANCELED
-      transaction.status = TransactionStatus.CANCELED;
+      transaction.status = TransactionStatus.FAILED;
 
       await queryRunner.manager.save(WalletEntity, wallet);
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
@@ -474,7 +474,7 @@ export class WalletService {
     };
   }
 
-  async getWalletTransactionHistory(
+  async getWalletTransactions(
     userId: string,
     filter: {
       page?: number;
