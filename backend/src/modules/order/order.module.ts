@@ -4,7 +4,7 @@ import { StripeModule } from 'src/stripe/stripe.module';
 import { StripeService } from 'src/stripe/stripe.service';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderTransactionEntity } from '../wallet/entities/order_transactions.entity';
+import { OrderTransactionEntity } from './entities/order_transactions.entity';
 import { WalletModule } from '../wallet/wallet.module';
 import { UserEntity } from '../user/entities/user.entity';
 import { OrderEntity } from './entities/order.entity';

@@ -51,7 +51,7 @@ import { StatusEntity } from 'src/modules/status/entities/status.entity';
 import { CreateTransactionDto } from 'src/modules/wallet/dto/create-transaction.dto';
 import { TransactionDto } from 'src/modules/wallet/dto/transaction.dto';
 import { UpdateTransactionDto } from 'src/modules/wallet/dto/update-transaction.dto';
-import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/user/dto/update-user.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';

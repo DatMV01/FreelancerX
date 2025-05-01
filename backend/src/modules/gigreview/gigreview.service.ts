@@ -13,9 +13,9 @@ import { GigReviewEntity } from './entities/gigreview.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
 import { OrderEntity } from '../order/entities/order.entity';
 import { CreateGigReviewDto } from './dto/create-gigreview.dto';
-import { OrderStatus } from '../order/order.enum';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
+import { OrderStatus } from '../order/enum/order.enum';
 
 @Injectable()
 export class GigReviewService extends BaseService<GigReviewEntity> {

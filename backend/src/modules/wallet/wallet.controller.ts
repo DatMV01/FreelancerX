@@ -31,7 +31,7 @@ export class WalletController {
   @Post('earning/pending')
   @UseGuards(AuthGuard('jwt'))
   async addPendingEarning(@Body('order') order: any) {
-    return this.service.addPendingEarning(order);
+    return this.service.addPendingEarningToFreelancer(order);
   }
 
   // --- 2. Duyệt thu nhập Pending ---

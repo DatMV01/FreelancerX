@@ -1,18 +1,17 @@
-import { BaseEntity } from 'src/modules/base/entities/base.entity';
+import { AutoMap } from '@automapper/classes';
+import { IsOptional } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { ActorType, OrderStatus } from '../enum/order.enum';
 import { OrderEntity } from './order.entity';
-import { AutoMap } from '@automapper/classes';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { OrderStatus } from '../order.enum';
-import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
-import { IsOptional } from 'class-validator';
 
 const orderLogs = [
   {
@@ -148,9 +147,20 @@ export class OrderLogsEntity {
   @IsOptional()
   action: string;
 
-  @Column({ type: 'nvarchar', nullable: true })
+  @AutoMap()
+  @Index()
   @IsOptional()
-  actor: string;
+  @Column({ type: 'char', length: 36, name: 'actor_id', nullable: true })
+  actorId: string;
+
+  @AutoMap(() => UserEntity)
+  @ManyToOne(() => UserEntity, { eager: true })
+  @JoinColumn({ name: 'actor_id' })
+  actor?: UserEntity;
+
+  @AutoMap()
+  @Column({ type: 'enum', enum: ActorType })
+  actorType: ActorType;
 
   @Column({ type: 'text', nullable: true })
   @IsOptional()
@@ -159,23 +169,6 @@ export class OrderLogsEntity {
   @Column({ type: 'json', nullable: true })
   @IsOptional()
   metadata: any;
-
-  @AutoMap()
-  @IsOptional()
-  @Column({
-    name: 'user_id',
-    type: 'char',
-    length: 36,
-    nullable: true,
-  })
-  userId: string;
-
-  @ManyToOne(() => UserEntity, {
-    eager: true,
-  })
-  @JoinColumn({ name: 'user_id' })
-  @IsOptional()
-  user: UserEntity;
 
   @AutoMap(() => Date)
   @CreateDateColumn()

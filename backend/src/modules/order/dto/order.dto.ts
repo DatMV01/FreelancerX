@@ -3,14 +3,14 @@ import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
-import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 
 import { OrderLogsEntity } from '../entities/order_logs.entity';
 import { OrderQuestionsEntity } from '../entities/order_questions.entity';
 import { GigPackagesEntity } from 'src/modules/gig/entities/gig_packages.entity';
 import { OrderDeliverablesEntity } from '../entities/order_deliverables.entity';
-import { OrderStatus } from '../order.enum';
+import { OrderStatus } from '../enum/order.enum';
 
 export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap()

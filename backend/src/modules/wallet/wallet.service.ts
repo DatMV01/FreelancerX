@@ -1,47 +1,24 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DataSource,
-  FindManyOptions,
-  FindOptionsOrder,
-  FindOptionsWhere,
-  In,
-  IsNull,
-  Like,
-  MoreThan,
-  Repository,
-} from 'typeorm';
+import Decimal from 'decimal.js';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
+import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
+import { MailService } from '../mail/mail.service';
 import { OrderEntity } from '../order/entities/order.entity';
-import { OrderStatus } from '../order/order.enum';
-import { WalletTransactionEntity } from './entities/wallet_transactions.entity';
+import { UserEntity } from '../user/entities/user.entity';
+import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { WalletEntity } from './entities/wallet.entity';
-import { OrderTransactionEntity } from './entities/order_transactions.entity';
+import { WalletTransactionEntity } from './entities/wallet_transactions.entity';
 import {
   ActorType,
-  TransactionDirection,
   TransactionMethod,
   TransactionStatus,
   TransactionType,
 } from './enum/transaction.enum';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
-import Decimal from 'decimal.js';
-import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
-import { BaseService } from '../base/base.service';
-import { MailService } from '../mail/mail.service';
-import { UserEntity } from '../user/entities/user.entity';
 
 @Injectable()
 export class WalletService {
   constructor(
-    @InjectRepository(OrderTransactionEntity)
-    private readonly orderTransactionRepo: Repository<OrderTransactionEntity>,
-
     @InjectRepository(WalletTransactionEntity)
     private readonly walletTransactionRepo: Repository<WalletTransactionEntity>,
 
@@ -54,7 +31,7 @@ export class WalletService {
   ) {}
   // @Inject(DataSource) protected readonly dataSource: DataSource;
 
-  async addPendingEarning(order: OrderEntity) {
+  async addPendingEarningToFreelancer(order: OrderEntity) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -89,6 +66,31 @@ export class WalletService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async addPendingEarningWithTx(order: OrderEntity, queryRunner: QueryRunner) {
+    const user = await queryRunner.manager.findOneOrFail(UserEntity, {
+      where: { freelancer: { id: order.freelancerId } },
+    });
+
+    const wallet = await queryRunner.manager.findOneByOrFail(WalletEntity, {
+      userId: user.id,
+    });
+
+    const transaction = new WalletTransactionEntity();
+    transaction.walletId = wallet.id;
+    transaction.type = TransactionType.EARNING;
+    transaction.status = TransactionStatus.PENDING;
+    transaction.amount = order.totalAmount;
+    transaction.balanceBefore = wallet.availableBalance;
+    transaction.balanceAfter = wallet.availableBalance;
+    transaction.referenceCode = order.id;
+    transaction.actorId = order.freelancerId;
+    transaction.actorType = ActorType.FREELANCER;
+    transaction.method = TransactionMethod.WALLET;
+    transaction.description = `Pending earning for order #${order.id}`;
+
+    await queryRunner.manager.save(WalletTransactionEntity, transaction);
   }
 
   async approvePendingEarning({
@@ -142,8 +144,7 @@ export class WalletService {
       transaction.status = TransactionStatus.SUCCESS;
       transaction.balanceBefore = balanceBefore.toNumber();
       transaction.balanceAfter = wallet.availableBalance;
-      transaction.approvedAt = new Date();
-      transaction.rejectedAt = null;
+      transaction.processedAt = new Date();
 
       await queryRunner.manager.save(WalletEntity, wallet);
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
@@ -226,8 +227,7 @@ export class WalletService {
       );
 
       transaction.status = TransactionStatus.SUCCESS;
-      transaction.approvedAt = new Date();
-      transaction.rejectedAt = null;
+      transaction.processedAt = new Date();
 
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
       await queryRunner.commitTransaction();
@@ -310,6 +310,37 @@ export class WalletService {
     }
   }
 
+  async refundToBuyerWithTx(order: OrderEntity, queryRunner: QueryRunner) {
+    const user = await queryRunner.manager.findOneOrFail(UserEntity, {
+      where: { id: order.buyerId },
+    });
+
+    const wallet = await queryRunner.manager.findOneByOrFail(WalletEntity, {
+      userId: user.id,
+    });
+
+    const balanceBefore = new Decimal(wallet.availableBalance);
+    const refundAmount = new Decimal(order.totalAmount);
+
+    wallet.availableBalance = balanceBefore.plus(refundAmount).toNumber();
+
+    await queryRunner.manager.save(WalletEntity, wallet);
+
+    const refundTransaction = new WalletTransactionEntity();
+    refundTransaction.referenceCode = order.id;
+    refundTransaction.walletId = wallet.id;
+    refundTransaction.type = TransactionType.REFUND;
+    refundTransaction.status = TransactionStatus.SUCCESS;
+    refundTransaction.amount = refundAmount.toNumber();
+    refundTransaction.balanceBefore = balanceBefore.toNumber();
+    refundTransaction.balanceAfter = wallet.availableBalance;
+    //  refundTransaction.actorId = order.buyerId;
+    refundTransaction.actorType = ActorType.SYSTEM;
+    refundTransaction.description = `Refund ${order.currency}${order.totalAmount} for canceled order #${order.id}`;
+
+    await queryRunner.manager.save(WalletTransactionEntity, refundTransaction);
+  }
+
   async refundToBuyer(order: OrderEntity) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -317,7 +348,7 @@ export class WalletService {
 
     try {
       const user = await queryRunner.manager.findOneOrFail(UserEntity, {
-        where: { freelancer: { id: order.freelancerId } },
+        where: { id: order.buyerId },
       });
 
       const wallet = await queryRunner.manager.findOneByOrFail(WalletEntity, {

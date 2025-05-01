@@ -1,7 +1,7 @@
 import { AutoMap } from '@automapper/classes';
 import { IsOptional } from 'class-validator';
-import { OrderStatus } from '../order.enum';
- 
+import { OrderStatus } from '../enum/order.enum';
+
 export class CreateOrderDto {
   @AutoMap()
   @IsOptional()

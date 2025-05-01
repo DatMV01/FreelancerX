@@ -6,7 +6,7 @@ import { NotificationEntity } from 'src/modules/notification/entities/notificati
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import {
   Column,
   Entity,

@@ -22,23 +22,21 @@ import {
   CREATE_GROUP,
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
-import { BaseController } from '../base/base.controller';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { OrderDto } from './dto/order.dto';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { OrderEntity } from './entities/order.entity';
-import { OrderService } from './order.service';
-import { OrderQuestionsEntity } from './entities/order_questions.entity';
+import { BaseController } from '../base/base.controller';
 import { PageDto } from '../base/dto/pagination';
 import { QueryDto } from '../base/dto/query.dto';
-import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
-import { OrderLogsEntity } from './entities/order_logs.entity';
-import { OrderActions, OrderStatus } from './order.enum';
-import { WalletService } from '../wallet/wallet.service';
 import { RoleEnum } from '../role/enum/role.enum';
-import { TransactionType } from '../wallet/enum/transaction.enum';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { OrderDto } from './dto/order.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrderEntity } from './entities/order.entity';
+import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
+import { OrderQuestionsEntity } from './entities/order_questions.entity';
+import { OrderActions, OrderStatus } from './enum/order.enum';
+import { OrderService } from './order.service';
+import { WalletService } from '../wallet/wallet.service';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -48,7 +46,10 @@ export class OrderController extends BaseController<
   CreateOrderDto,
   UpdateOrderDto
 > {
-  constructor(protected readonly _service: OrderService) {
+  constructor(
+    protected readonly _service: OrderService,
+    private readonly walletService: WalletService,
+  ) {
     super(_service, OrderEntity, OrderDto, CreateOrderDto, UpdateOrderDto);
   }
 
@@ -104,16 +105,16 @@ export class OrderController extends BaseController<
     @Body() data: UpdateOrderDto,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderDto> {
-    let updatedOrder;
+    const updatedOrder = await this._service.updateOrderByAction(
+      currentUser,
+      id,
+      data,
+    );
 
-    if (data.action === OrderActions.COMPLETE_ORDER.action) {
-      updatedOrder = await this._service.completeOrder(currentUser, id);
-    } else {
-      updatedOrder = await this._service.updateOrderByAction(
-        currentUser,
-        id,
-        data,
-      );
+    if (updatedOrder.status === OrderStatus.COMPLETED) {
+      await this._service.addPendingEarningToFreelancer(updatedOrder.id);
+    } else if (updatedOrder.status === OrderStatus.CANCEL) {
+      await this._service.refundToBuyer(updatedOrder.id);
     }
 
     return updatedOrder;

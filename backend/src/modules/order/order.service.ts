@@ -5,7 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, FindManyOptions, In, Not, Repository } from 'typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  In,
+  Not,
+  QueryRunner,
+  Repository,
+} from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { BaseService } from '../base/base.service';
 import { OrderEntity } from './entities/order.entity';
@@ -16,20 +23,23 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
-import { OrderTransactionEntity } from '../wallet/entities/order_transactions.entity';
-import {
-  ActorType,
-  TransactionDirection,
-  TransactionMethod,
-  TransactionStatus,
-  TransactionType,
-} from '../wallet/enum/transaction.enum';
+import { OrderTransactionEntity } from './entities/order_transactions.entity';
+
 import { WalletService } from '../wallet/wallet.service';
 import { UserEntity } from '../user/entities/user.entity';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderLogsEntity } from './entities/order_logs.entity';
 import { OrderQuestionsEntity } from './entities/order_questions.entity';
-import { OrderActions, OrderStatus } from './order.enum';
+import {
+  ActorType,
+  OrderActions,
+  OrderStatus,
+  TransactionDirection,
+  TransactionMethod,
+  TransactionStatus,
+  TransactionType,
+} from './enum/order.enum';
+import { WalletEntity } from '../wallet/entities/wallet.entity';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -57,8 +67,8 @@ export class OrderService extends BaseService<OrderEntity> {
 
     @InjectRepository(OrderDeliverablesEntity)
     private readonly orderDeliveryRepo: Repository<OrderDeliverablesEntity>,
-    private transactionService: WalletService,
-    private stripeService: StripeService,
+    private readonly walletService: WalletService,
+    private readonly stripeService: StripeService,
   ) {
     super(_repository);
   }
@@ -127,7 +137,7 @@ export class OrderService extends BaseService<OrderEntity> {
     const createOrderLog = this.orderLogRepo.create({
       ...OrderActions.CREATE_ORDER,
       id: uuidv4(),
-      userId: currentUser.id,
+      actorId: currentUser.id,
       orderId: createOrder.id,
       metadata: { paymentUrl },
     });
@@ -370,7 +380,7 @@ export class OrderService extends BaseService<OrderEntity> {
     const createOrderLog = this.orderLogRepo.create({
       ...OrderActions.CREATE_ORDER,
       id: uuidv4(),
-      userId: currentUser.id,
+      actorId: currentUser.id,
       orderId: createOrder.id,
       metadata: {
         paymentUrl,
@@ -446,7 +456,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     const log = this.orderLogRepo.create({
       order,
-      userId: currentUser.id,
+      actorId: currentUser.id,
       ...OrderActions.DELIVER_WORK,
     });
 
@@ -486,7 +496,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     const log = this.orderLogRepo.create({
       order,
-      userId: currentUser.id,
+      actorId: currentUser.id,
       ...OrderActions.RE_DELIVER_WORK,
     });
 
@@ -521,8 +531,168 @@ export class OrderService extends BaseService<OrderEntity> {
     now.setDate(now.getDate() + deliveryTime);
     return now;
   }
-
   async updateOrderByAction(
+    currentUser: JwtAccessPayloadType,
+    id: BaseEntity['id'],
+    data: DeepPartial<OrderEntity>,
+  ): Promise<OrderEntity> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const orderRepo = queryRunner.manager.getRepository(OrderEntity);
+      const logRepo = queryRunner.manager.getRepository(OrderLogsEntity);
+
+      const order = await orderRepo.findOneOrFail({
+        where: { id: String(id) },
+      });
+
+      const ACTION_MAP = new Map<string, any>([
+        [OrderActions.ACCEPT_ORDER.action, OrderActions.ACCEPT_ORDER],
+        [OrderActions.START_WORK.action, OrderActions.START_WORK],
+        [OrderActions.REQUEST_REVISION.action, OrderActions.REQUEST_REVISION],
+        [OrderActions.COMPLETE_ORDER.action, OrderActions.COMPLETE_ORDER],
+        [
+          OrderActions.CANCEL_ORDER_BUYER.action,
+          OrderActions.CANCEL_ORDER_BUYER,
+        ],
+        [
+          OrderActions.CANCEL_ORDER_FREELANCER.action,
+          OrderActions.CANCEL_ORDER_FREELANCER,
+        ],
+      ]);
+
+      const actionData = ACTION_MAP.get(data.action!);
+
+      if (!actionData) {
+        throw new Error('Invalid action.');
+      }
+
+      // Kiểm tra điều kiện hủy đơn riêng biệt
+      if (
+        [
+          OrderActions.CANCEL_ORDER_BUYER.action,
+          OrderActions.CANCEL_ORDER_FREELANCER.action,
+        ].includes(data.action! as any)
+      ) {
+        const cancellableStatuses = [
+          OrderStatus.UNPAID,
+          OrderStatus.PENDING,
+          OrderStatus.ACCEPTED,
+          OrderStatus.IN_PROGRESS,
+        ];
+        if (!cancellableStatuses.includes(order.status)) {
+          throw new Error(
+            `Only ${cancellableStatuses.join(', ')} orders can be canceled.`,
+          );
+        }
+      } else {
+        // Kiểm tra trạng thái chuyển tiếp hợp lệ
+        if (order.status !== actionData.fromStatus) {
+          throw new Error(
+            `Only ${actionData.fromStatus} orders can be ${actionData.action}.`,
+          );
+        }
+      }
+
+      // Cập nhật trạng thái và ghi log
+      const log = logRepo.create({
+        order,
+        actorId: currentUser.id,
+        fromStatus:
+          data.action === OrderActions.CANCEL_ORDER_BUYER.action ||
+          data.action === OrderActions.CANCEL_ORDER_FREELANCER.action
+            ? order.status
+            : actionData.fromStatus,
+        toStatus: actionData.toStatus,
+        action: actionData.action,
+        message: actionData.message,
+        actorType: actionData.actorType,
+      });
+
+      order.status = actionData.toStatus;
+
+      const updatedOrder = await orderRepo.save(order);
+      await logRepo.save(log);
+
+      await queryRunner.commitTransaction();
+      return updatedOrder;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Transaction failed:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async refundToBuyer(id: String) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const orderRepo = queryRunner.manager.getRepository(OrderEntity);
+      const logRepo = queryRunner.manager.getRepository(OrderLogsEntity);
+
+      const order = await orderRepo.findOneOrFail({
+        where: { id: String(id) },
+      });
+
+      await this.walletService.refundToBuyerWithTx(order, queryRunner);
+
+      const refundOrderLog = logRepo.create({
+        order,
+        ...OrderActions.REFUND_ORDER,
+        message: `Refund ${order.totalAmount} ${order.currency} for buyer.`,
+      });
+
+      order.status = OrderActions.REFUND_ORDER.toStatus;
+
+      const updatedOrder = await orderRepo.save(order);
+      await logRepo.save(refundOrderLog);
+
+      await queryRunner.commitTransaction();
+
+      return updatedOrder;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Transaction failed:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async addPendingEarningToFreelancer(id: String) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const orderRepo = queryRunner.manager.getRepository(OrderEntity);
+      const logRepo = queryRunner.manager.getRepository(OrderLogsEntity);
+
+      const order = await orderRepo.findOneOrFail({
+        where: { id: String(id) },
+      });
+
+      await this.walletService.addPendingEarningWithTx(order, queryRunner);
+
+      await queryRunner.commitTransaction();
+
+      return order;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      console.error('Transaction failed:', error);
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async updateOrderByActionOld(
     currentUser: JwtAccessPayloadType,
     id: BaseEntity['id'],
     data: DeepPartial<OrderEntity>,
@@ -531,7 +701,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     let log = this.orderLogRepo.create({
       order,
-      userId: currentUser.id,
+      actorId: currentUser.id,
     });
 
     switch (data.action) {
@@ -574,7 +744,6 @@ export class OrderService extends BaseService<OrderEntity> {
             `Only ${OrderActions.COMPLETE_ORDER.fromStatus} orders can be completed.`,
           );
         }
-
         order.status = OrderActions.COMPLETE_ORDER.toStatus;
         log = { ...log, ...OrderActions.COMPLETE_ORDER };
         break;
@@ -636,54 +805,29 @@ export class OrderService extends BaseService<OrderEntity> {
       throw new ConflictException('Update failed due to conflict');
     }
   }
-  async completeOrder(currentUser: JwtAccessPayloadType, orderId: string) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
-    try {
-      const order = await queryRunner.manager.findOne(OrderEntity, {
-        where: { id: orderId },
-        //   relations: ['freelancer'],
-      });
+  async completeOrder(
+    currentUser: JwtAccessPayloadType,
+    orderId: string,
+    queryRunner: QueryRunner,
+  ) {
+    const order = await queryRunner.manager.findOne(OrderEntity, {
+      where: { id: orderId },
+    });
 
-      if (!order) {
-        throw new Error('Order not found.');
-      }
-      if (order.status !== OrderActions.COMPLETE_ORDER.fromStatus) {
-        throw new Error(
-          `Only ${OrderActions.COMPLETE_ORDER.fromStatus} orders can be completed.`,
-        );
-      }
-
-      const log = queryRunner.manager.create(OrderLogsEntity, {
-        order,
-        userId: currentUser.id,
-        ...OrderActions.COMPLETE_ORDER,
-      });
-
-      await queryRunner.manager.save(log);
-
-      order.status = OrderActions.COMPLETE_ORDER.toStatus;
-
-      order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
-
-      const updatedOrder = await queryRunner.manager.save(order);
-
-      await this.transactionService.addPendingEarning(updatedOrder);
-
-      // Commit transaction
-      await queryRunner.commitTransaction();
-
-      return updatedOrder;
-    } catch (error) {
-      // Rollback nếu có lỗi
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      // Kết thúc transaction
-      await queryRunner.release();
+    if (!order) {
+      throw new Error('Order not found.');
     }
+
+    order.status = OrderActions.COMPLETE_ORDER.toStatus;
+
+    order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
+
+    const updatedOrder = await queryRunner.manager.save(order);
+
+    await this.walletService.addPendingEarningToFreelancer(updatedOrder);
+
+    return updatedOrder;
   }
 
   protected async modifyOptions(

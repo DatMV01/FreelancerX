@@ -6,7 +6,7 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import {
   ActorType,
@@ -61,8 +61,7 @@ export class WalletTransactionEntity {
   actorType: ActorType; // Freelancer or Buyer
 
   @AutoMap()
-  @Index()
-  @Column({ type: 'char', length: 36, name: 'actor_id', nullable: false })
+  @Column({ type: 'char', length: 36, name: 'actor_id', nullable: true })
   actorId: string; // Refer to Freelancer or Buyer ID
 
   @Column({ type: 'varchar', length: 100, unique: true, nullable: true })
@@ -96,11 +95,7 @@ export class WalletTransactionEntity {
 
   @AutoMap(() => Date)
   @Column({ type: 'timestamp', nullable: true })
-  approvedAt: Date | null;
-
-  @AutoMap(() => Date)
-  @Column({ type: 'timestamp', nullable: true })
-  rejectedAt: Date | null;
+  processedAt: Date | null;
 
   @Column({ type: 'char', length: 36, nullable: true })
   processedBy: string | null;

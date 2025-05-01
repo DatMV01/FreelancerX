@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { OrderTransactionEntity } from 'src/modules/wallet/entities/order_transactions.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
@@ -20,7 +20,7 @@ import { OrderLogsEntity } from './order_logs.entity';
 import { GigPackagesEntity } from 'src/modules/gig/entities/gig_packages.entity';
 import { OrderQuestionsEntity } from './order_questions.entity';
 import { OrderDeliverablesEntity } from './order_deliverables.entity';
-import { OrderStatus } from '../order.enum';
+import { OrderStatus } from '../enum/order.enum';
 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {

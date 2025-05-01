@@ -103,8 +103,8 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
     isLoading: isLoading2,
     isValidating: isValidating2,
   } = useSWR(
-    gigId ? `/gig/${gigId}` : null,
-    () => (gigId ? getGigById(gigId) : null),
+    order?.gigId ? `/gig/${order.gigId}` : null,
+    () => (order?.gigId ? getGigById(order.gigId) : null),
     {
       revalidateOnFocus: true,
       revalidateOnReconnect: false,

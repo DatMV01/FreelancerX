@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress } from "@mui/material";
 import { getOrderById } from "@/features/order/order.api";
+import StripePayment from "./StripePayment";
 
 type Props = {
   onNext: () => void;
@@ -60,7 +61,13 @@ export default function Step2Payment({ onNext, onBack }: Props) {
         <div>
           <div className="flex space-x-6">
             <div className="w-2/3">
-              <StripeButton
+              {/* <StripeButton
+                paymentSuccesCb={(value: any) => {
+                  setPaymentSuccess(value);
+                }}
+              /> */}
+
+              <StripePayment
                 paymentSuccesCb={(value: any) => {
                   setPaymentSuccess(value);
                 }}

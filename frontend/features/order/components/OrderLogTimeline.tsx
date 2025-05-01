@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Clock, CheckCircle, Undo2, File, Ban, Hourglass } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getFirstTwoLetters, stringAvatar } from "@/lib/utils";
 import { format } from "date-fns";
 import { JSX } from "react";
 
@@ -164,11 +164,11 @@ export const OrderLogTimeline = ({ logs = orderLogs }: Props) => {
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={log.user.avatar} />
+                    <AvatarImage src={log?.actor?.avatar} />
 
-                    <AvatarFallback>{log.user.avatar}</AvatarFallback>
+                    <AvatarFallback>{getFirstTwoLetters(log?.actorType)} </AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{log.actor}</span>
+                  <span className="font-medium">{log.actorType}</span>
                   <span className="text-muted-foreground text-xs">
                     {format(new Date(log.createdAt), "HH:mm dd/MM/yyyy")}
                   </span>

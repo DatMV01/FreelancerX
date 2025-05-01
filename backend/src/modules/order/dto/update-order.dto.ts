@@ -2,7 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { CreateOrderDto } from './create-order.dto';
 import { IsOptional } from 'class-validator';
 import { AutoMap } from '@automapper/classes';
-import { OrderStatus } from '../order.enum';
+import { OrderStatus } from '../enum/order.enum';
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @AutoMap()
