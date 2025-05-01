@@ -77,18 +77,22 @@ export class WalletService {
       userId: user.id,
     });
 
+    const balanceBefore = new Decimal(wallet.availableBalance);
+    const amount = new Decimal(order.totalAmount);
+    wallet.availableBalance = balanceBefore.plus(amount).toNumber();
+
     const transaction = new WalletTransactionEntity();
     transaction.walletId = wallet.id;
     transaction.type = TransactionType.EARNING;
     transaction.status = TransactionStatus.PENDING;
     transaction.amount = order.totalAmount;
-    transaction.balanceBefore = wallet.availableBalance;
+    transaction.balanceBefore = balanceBefore.toNumber();
     transaction.balanceAfter = wallet.availableBalance;
     transaction.referenceCode = order.id;
-    transaction.actorId = order.freelancerId;
-    transaction.actorType = ActorType.FREELANCER;
+    //transaction.actorId = order.freelancerId;
+    transaction.actorType = ActorType.SYSTEM;
     transaction.method = TransactionMethod.WALLET;
-    transaction.description = `Pending earning for order #${order.id}`;
+    transaction.description = `Pending earning ${order.totalAmount} ${order.currency} for order #${order.id}`;
 
     await queryRunner.manager.save(WalletTransactionEntity, transaction);
   }

@@ -28,14 +28,14 @@ export class WalletController {
   constructor(protected readonly service: WalletService) {}
 
   // --- 1. Thêm thu nhập Pending ---
-  @Post('earning/pending')
+  @Post('/earning/pending')
   @UseGuards(AuthGuard('jwt'))
   async addPendingEarning(@Body('order') order: any) {
     return this.service.addPendingEarningToFreelancer(order);
   }
 
   // --- 2. Duyệt thu nhập Pending ---
-  @Patch('earning/approve')
+  @Patch('/earning/approve')
   @UseGuards(AuthGuard('jwt'))
   async approvePendingEarning(
     @Body() dto: { transactionId: string; orderId: string },
@@ -56,7 +56,8 @@ export class WalletController {
 
   // --- 4. Admin duyệt rút tiền ---
   @Patch('withdraw/approve/:transactionId')
-  @UseGuards(AuthGuard('jwt'))
+  @Roles(RoleEnum.ADMIN)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   async approveWithdraw(@Param('transactionId') transactionId: string) {
     return this.service.approveWithdraw(transactionId);
   }

@@ -13,7 +13,7 @@ import {
   getOrderReviewById,
   updateOrderByAction,
 } from "../order.api";
-import { OrderBuyerStatusButton } from "./OrderBuyerStatusButton";
+import { OrderStatusButtonBuyer } from "./OrderStatusButtonBuyer";
 import OrderCancelDialog from "./OrderCancelDialog";
 import OrderCompleteDialog from "./OrderCompleteDialog";
 import { OrderDeliveryWork } from "./OrderDeliveryWork";
@@ -273,7 +273,7 @@ export const OrderDetailBuyer = ({
       </div>
 
       <div className="flex justify-center">
-        <OrderBuyerStatusButton
+        <OrderStatusButtonBuyer
           status={order.status}
           showRevisionButton={
             order.snapshot.package.revisions + 1 > order.deliverables.length
@@ -300,6 +300,9 @@ export const OrderDetailBuyer = ({
           onRequestRevision={() => {
             //   toast.info("onRequestRevision");
             setRequestRevisionDialogOpen(true);
+          }}
+          onRefresh={() => {
+            mutateThisOrder();
           }}
         />
       </div>

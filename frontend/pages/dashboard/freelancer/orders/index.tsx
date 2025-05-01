@@ -22,7 +22,7 @@ import clsx from "clsx";
 import OrderCancelDialog from "@/features/order/components/OrderCancelDialog";
 import OrderDeliverWorkDialog from "@/features/order/components/OrderDeliverWorkDialog";
 import { OrderDetailFreelancer } from "@/features/order/components/OrderDetailFreelancer";
-import { OrderFreelancerStatusButton } from "@/features/order/components/OrderFreelancerStatusButton";
+import { OrderStatusButtonFreelancer } from "@/features/order/components/OrderStatusButtonFreelancer";
 import StartWorkingDialog from "@/features/order/components/StartWorkingDialog";
 import { fetchFreelancerOrders } from "@/features/order/order.api";
 import { useFilterParams } from "@/hooks/useUrlSync ";
@@ -353,7 +353,7 @@ function FreelancerOrderPage() {
       <h1 className="flex items-center justify-center gap-x-2 rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
         Manage Order
       </h1>
-      
+
       <OrderStats
         orders={orders}
         requiredStatus={[
@@ -365,6 +365,7 @@ function FreelancerOrderPage() {
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
           OrderStatus.CANCEL,
+          // OrderStatus.REFUND,
           // "TOTAL_ORDERS",
           // "TOTAL_REVENUE",
         ]}

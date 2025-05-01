@@ -73,9 +73,9 @@ export class WalletTransactionEntity {
   @Column('decimal', { precision: 20, scale: 8 })
   balanceAfter: number;
 
-  @AutoMap()
-  @Column({ type: 'enum', enum: TransactionDirection })
-  direction: TransactionDirection;
+  // @AutoMap()
+  // @Column({ type: 'enum', enum: TransactionDirection })
+  // direction: TransactionDirection;
 
   @Column({ nullable: true })
   method?: TransactionMethod; // e.g., 'bank', 'paypal', 'momo', 'stripe

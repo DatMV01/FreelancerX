@@ -11,7 +11,7 @@ import { TransactionList } from "@/features/dashboard/freelancer/components/Tran
 import {
   fetchFreelancerTransactions,
   getEarningByYear,
-  getWalletByUserId,
+  getWalletByFreelancerId,
 } from "@/features/transactions/transactions.api";
 import useSWR from "swr";
 import { useAppSelector } from "@/lib/redux/hooks";
@@ -64,7 +64,7 @@ function FreelancerDashboardEarnings() {
     mutate: mutateWallet,
   } = useSWR(
     freelancerId ? `/transaction/wallet/${freelancerId}` : null,
-    () => freelancerId && getWalletByUserId(freelancerId),
+    () => freelancerId && getWalletByFreelancerId(freelancerId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

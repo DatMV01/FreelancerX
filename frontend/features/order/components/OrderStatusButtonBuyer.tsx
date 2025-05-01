@@ -11,6 +11,7 @@ import {
   Eye,
   Ban,
   Hourglass,
+  RefreshCcw,
 } from "lucide-react";
 import { OrderStatus } from "../dto";
 type BuyerOrderActionsProps = {
@@ -21,13 +22,13 @@ type BuyerOrderActionsProps = {
   showRevisionButton: boolean;
   showRateButton: boolean;
   onRequestRevision?: () => void;
-  onDownload?: () => void;
+  onRefresh?: () => void;
   onMessage?: () => void;
   onViewDetails?: () => void;
   onRate?: () => void;
 };
 
-export const OrderBuyerStatusButton = ({
+export const OrderStatusButtonBuyer = ({
   status,
   onPay,
   onCancel,
@@ -36,7 +37,7 @@ export const OrderBuyerStatusButton = ({
   showRevisionButton,
   showRateButton,
   onRequestRevision,
-  onDownload,
+  onRefresh,
   onMessage,
   onViewDetails,
 }: BuyerOrderActionsProps) => {
@@ -56,12 +57,6 @@ export const OrderBuyerStatusButton = ({
             <Ban className="h-4 text-red-500" /> Cancel
           </Button>
         </>
-      )}
-
-      {status === OrderStatus.PENDING && (
-        <Button onClick={onCancel} variant="outline">
-          <Ban className="h-4 text-red-500" /> Cancel
-        </Button>
       )}
 
       {status === OrderStatus.DELIVERED && (
@@ -120,6 +115,16 @@ export const OrderBuyerStatusButton = ({
           )}
         </>
       )}
+
+      {status === OrderStatus.PENDING && (
+        <Button onClick={onCancel} variant="outline">
+          <Ban className="h-4 text-red-500" /> Cancel
+        </Button>
+      )}
+
+      <Button variant="outline" onClick={onRefresh}>
+        <RefreshCcw />
+      </Button>
     </div>
   );
 };

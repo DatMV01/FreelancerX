@@ -18,7 +18,7 @@ import OrderAskQuestionDialog from "./OrderAskQuestionDialog";
 import OrderCancelDialog from "./OrderCancelDialog";
 import { OrderDeliveryWork } from "./OrderDeliveryWork";
 import OrderDeliverWorkDialog from "./OrderDeliverWorkDialog";
-import { OrderFreelancerStatusButton } from "./OrderFreelancerStatusButton";
+import { OrderStatusButtonFreelancer } from "./OrderStatusButtonFreelancer";
 import { OrderLogTimeline } from "./OrderLogTimeline";
 import { OrderQuestionAnswers } from "./OrderQuestionAnswers";
 import OrderReview from "./OrderReview";
@@ -297,13 +297,12 @@ export const OrderDetailFreelancer = ({
       </div>
 
       <div className="flex justify-center">
-        <OrderFreelancerStatusButton
+        <OrderStatusButtonFreelancer
           status={order.status}
           onViewDetails={() => {}}
           onAccept={() => {
             setAcceptDialogOpen(true);
           }}
-          onDecline={() => {}}
           onStart={() => {
             setStartWorkDialogOpen(true);
           }}
@@ -318,6 +317,9 @@ export const OrderDetailFreelancer = ({
           }}
           onReDeliver={() => {
             setReDeliverWorkDialogOpen(true);
+          }}
+          onRefresh={() => {
+            mutateThisOrder();
           }}
         />
       </div>

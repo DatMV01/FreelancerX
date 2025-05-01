@@ -254,6 +254,7 @@ function BuyerOrderPage() {
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
           OrderStatus.CANCEL,
+          OrderStatus.REFUND,
         ]}
       />
 

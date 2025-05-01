@@ -8,6 +8,7 @@ export enum OrderStatus {
   REVISION_REQUESTED = "REVISION_REQUESTED", // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
   COMPLETED = "COMPLETED", // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
   CANCEL = "CANCEL", // ❌ Đơn hàng bị hủy
+  REFUND = "REFUND",
 }
 
 // 👤 Order Actors

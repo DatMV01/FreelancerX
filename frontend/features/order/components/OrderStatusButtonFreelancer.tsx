@@ -16,15 +16,15 @@ import {
   MessageCircleQuestion,
   Hourglass,
   Smile,
+  RefreshCcw,
 } from "lucide-react";
 import { OrderStatus } from "../dto";
+
 type BuyerOrderActionsProps = {
   status: OrderStatus;
-
   onViewDetails?: () => void;
-
   onAccept?: () => void;
-  onDecline?: () => void;
+  onRefresh?: () => void;
   onStart?: () => void;
   onCancel?: () => void;
   onDeliver?: () => void;
@@ -32,11 +32,11 @@ type BuyerOrderActionsProps = {
   onReDeliver?: () => void;
 };
 
-export const OrderFreelancerStatusButton = ({
+export const OrderStatusButtonFreelancer = ({
   status,
   onViewDetails,
   onAccept,
-  onDecline,
+  onRefresh,
   onStart,
   onCancel,
   onDeliver,
@@ -116,6 +116,10 @@ export const OrderFreelancerStatusButton = ({
           </Button>
         </>
       )}
+
+      <Button variant="outline" onClick={onRefresh}>
+        <RefreshCcw />
+      </Button>
     </div>
   );
 };

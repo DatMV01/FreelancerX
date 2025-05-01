@@ -38,7 +38,7 @@ const requirementSchema = z.object({
 export default function Step3Success() {
   const searchParams = useSearchParams();
 
-  const [showConfetti, setShowConfetti] = useState(true);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [answer, setAnswer] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
