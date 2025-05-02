@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -1015,7 +1016,7 @@ function FreelancerManageGigsPage() {
 }
 
 FreelancerManageGigsPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
 export default FreelancerManageGigsPage;

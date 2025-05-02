@@ -52,6 +52,7 @@ import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import * as XLSX from "xlsx";
 import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 
 export const statusMap = {
   UNPAID: {
@@ -769,7 +770,7 @@ function FreelancerOrderPage() {
 }
 
 FreelancerOrderPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
 export default FreelancerOrderPage;

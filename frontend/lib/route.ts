@@ -1,6 +1,15 @@
 // lib/route.ts
 
 export const route = {
+  dashboard: {
+    wallet: "/dashboard/wallet",
+    orders: "/dashboard/buyer/orders",
+    favorites: "/dashboard/buyer/favorites",
+    
+    settings: "/dashboard/settings",
+    help: "/dashboard/help",
+  },
+
   buyer: {
     dashboard: "/dashboard/buyer/home",
     profile: "/dashboard/buyer/profile",

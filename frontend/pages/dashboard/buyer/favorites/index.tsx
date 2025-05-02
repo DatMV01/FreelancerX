@@ -2,6 +2,7 @@
 
 import CircularProgressCenter from "@/components/CircularProgressCenter";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import GigLitstingSection from "@/features/categories/GigLitstingSection";
 import {
   fetchFavoriteGigs,
@@ -38,5 +39,5 @@ export default function FavoriteGigs() {
 }
 
 FavoriteGigs.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };

@@ -14,7 +14,7 @@ const CircularProgressCenter = ({
     );
 
   return (
-    <div className="absolute inset-0  flex items-center justify-center bg-white/10">
+    <div className="flex items-center justify-center bg-white/50">
       <CircularProgress />
     </div>
   );

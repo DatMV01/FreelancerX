@@ -2,7 +2,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LogoutButton from "@/features/auth/components/LogoutButton";
@@ -52,34 +52,42 @@ const NavbarLeftPopoverAvatar = () => {
             )}
 
             {!isAdmin && (
-              <>
-                <Link
-                  href={route.buyer.orders}
-                  target="_blank"
-                  className="flex p-4 hover:bg-green-50 hover:text-green-500"
-                >
-                  Buyer Dashboarđ
-                </Link>
+              <Link
+                href={route.dashboard.wallet}
+                target="_blank"
+                className="flex p-4 hover:bg-green-50 hover:text-green-500"
+              >
+                My Dashboarđ
+              </Link>
+            )}
 
-                {freelancer && (
-                  <Link
-                    href={route.freelancer.profile}
-                    target="_blank"
-                    className="flex p-4 hover:bg-green-50 hover:text-green-500"
-                  >
-                    Freelancer Dashboarđ
-                  </Link>
-                )}
+            {/* {!isAdmin && (
+              <Link
+                href={route.buyer.orders}
+                target="_blank"
+                className="flex p-4 hover:bg-green-50 hover:text-green-500"
+              >
+                Buyer Dashboarđ
+              </Link>
+            )} */}
 
-                {!freelancer && (
-                  <Link
-                    href={route.public.freelancer_signup}
-                    className="flex p-4 text-green-500 hover:bg-green-50 hover:text-green-500"
-                  >
-                    Become a Freelancer
-                  </Link>
-                )}
-              </>
+            {/* {!isAdmin && freelancer && (
+              <Link
+                href={route.freelancer.profile}
+                target="_blank"
+                className="flex p-4 hover:bg-green-50 hover:text-green-500"
+              >
+                Freelancer Dashboarđ
+              </Link>
+            )} */}
+
+            {!isAdmin && !freelancer && (
+              <Link
+                href={route.public.freelancer_signup}
+                className="flex p-4 text-green-500 hover:bg-green-50 hover:text-green-500"
+              >
+                Become a Freelancer
+              </Link>
             )}
 
             {/* Profile Links */}
