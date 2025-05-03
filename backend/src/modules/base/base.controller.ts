@@ -87,11 +87,11 @@ export abstract class BaseController<
     @Query() query: QueryDto<Entity>,
     @CurrentUser() currentUser: any,
   ) {
-    const { page, limit, filters, sorts, fields } = query;
+    const { page, pageSize, filters, sorts, fields } = query;
 
     const [results, count] = await this.baseService.findAll(
       page,
-      limit,
+      pageSize,
       filters,
       sorts,
       fields,
@@ -102,7 +102,7 @@ export abstract class BaseController<
       this.mapFromEntityToDto(results),
       new PageMetaDto({
         itemCount: count,
-        pageOptionsDto: { limit, page, filters, sorts },
+        pageOptionsDto: { pageSize, page, filters, sorts },
       }),
     );
   }
@@ -120,11 +120,11 @@ export abstract class BaseController<
     @Query() query: QueryDto<Entity>,
     @CurrentUser() currentUser: any,
   ) {
-    const { page, limit, filters, sorts } = query;
+    const { page, pageSize, filters, sorts } = query;
 
     const [results, count] = await this.baseService.findAll2(
       page,
-      limit,
+      pageSize,
       filters,
       sorts,
       currentUser,
@@ -134,7 +134,7 @@ export abstract class BaseController<
       this.mapFromEntityToDto(results),
       new PageMetaDto({
         itemCount: count,
-        pageOptionsDto: { limit, page, filters, sorts },
+        pageOptionsDto: { pageSize, page, filters, sorts },
       }),
     );
   }

@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DashboardMainContent, DashboardMainContentHeader } from "@/features/dashboard/components/DashboardMainContent";
 import { OrderDetailBuyer } from "@/features/order/components/OrderDetailBuyer";
 import OrderStats from "@/features/order/components/OrderStats";
 import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
@@ -34,6 +35,7 @@ import {
   ChevronRight,
   Download,
   Eye,
+  RefreshCcw,
 } from "lucide-react";
 import { useRouter } from "next/router";
 import { VisuallyHidden } from "radix-ui";
@@ -232,17 +234,25 @@ function BuyerOrderPage() {
     saveAs(blob, `gigs.xlsx`);
   };
 
-  if (isLoading) {
+  if (isLoading || isValidating) {
     return <CircularProgressCenter />;
   }
 
   if (error) return <div>Failed to load data.</div>;
 
   return (
-    <div className="flex flex-col space-y-6">
-      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
-        Manage Order
-      </h1>
+    <DashboardMainContent>
+      <DashboardMainContentHeader>
+        <p>Manage Orders</p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            mutate();
+          }}
+        >
+          <RefreshCcw />
+        </Button>
+      </DashboardMainContentHeader>
 
       <OrderStats
         orders={orders}
@@ -510,7 +520,7 @@ function BuyerOrderPage() {
           <OrderDetailBuyer orderId={selectedId} mutateAllOrder={mutate} />
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardMainContent>
   );
 }
 

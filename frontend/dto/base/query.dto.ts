@@ -1,15 +1,11 @@
-export class QueryDto<T> {
+export class QueryDto<Entity> {
   page: number = 1;
-  limit: number = 10;
 
-  get _limit(): number {
-    return Math.min(this.limit || 10, 50);
-  }
+  pageSize: number = 10;
 
-  sort?: Record<keyof T, "asc" | "desc"> = {} as Record<
-    keyof T,
-    "asc" | "desc"
-  >;
+  sorts?: any;
 
-  filters?: string;
+  filters?: any;
+
+  fields?: (keyof Entity)[];
 }

@@ -16,7 +16,7 @@ export class PageOptionsDto {
   @Max(50)
   @IsOptional()
   @ApiPropertyOptional()
-  readonly limit: number = 10;
+  readonly pageSize: number = 10;
 
   @IsOptional()
   @ApiPropertyOptional()

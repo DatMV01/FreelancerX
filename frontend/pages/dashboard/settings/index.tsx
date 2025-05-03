@@ -1,22 +1,25 @@
-import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import UpdatePasswordForm from "@/features/auth/components/UpdatePasswordForm";
-import FreelancerSettings from "@/features/dashboard/freelancer/components/FreelancerSettings";
+import {
+  DashboardMainContent,
+  DashboardMainContentHeader,
+} from "@/features/dashboard/components/DashboardMainContent";
 import { ReactElement } from "react";
 
-function FreelancerDashboardSettings() {
+function DashboardSettings() {
   return (
-    <div className="flex flex-col space-y-6">
-      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
-        Settings
-      </h1>
+    <DashboardMainContent>
+      <DashboardMainContentHeader>
+        <p>Settings</p>
+      </DashboardMainContentHeader>
+      
       <UpdatePasswordForm />
-    </div>
+    </DashboardMainContent>
   );
 }
 
-FreelancerDashboardSettings.getLayout = function getLayout(page: ReactElement) {
+DashboardSettings.getLayout = function getLayout(page: ReactElement) {
   return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
-export default FreelancerDashboardSettings;
+export default DashboardSettings;

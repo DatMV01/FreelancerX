@@ -4,7 +4,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { selectFavoriteGigs } from "@/lib/redux/features/gigs/gigsSlice";
+import { selectFavoriteGigs } from "@/lib/redux/features/gigs/gigsSlice2";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { Badge, Divider, Tooltip } from "@mui/material";
 import { Heart, Star } from "lucide-react";

@@ -17,7 +17,7 @@ import {
   TransactionMethod,
   TransactionStatus,
   TransactionType,
-} from '../../wallet/enum/transaction.enum';
+} from '../enum/order.enum';
 
 @Entity('order_transactions')
 export class OrderTransactionEntity {

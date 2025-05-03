@@ -1,7 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
-import { DataSource, QueryRunner, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindManyOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  Like,
+  QueryRunner,
+  Repository,
+} from 'typeorm';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { MailService } from '../mail/mail.service';
 import { OrderEntity } from '../order/entities/order.entity';
@@ -15,12 +25,15 @@ import {
   TransactionStatus,
   TransactionType,
 } from './enum/transaction.enum';
+import { GetTransactionsDto } from './dto/get-transaction.dto';
+import { buildOrderClause, buildWhereClause } from 'src/utils/typeorm-utils';
+import { RoleEnum } from '../role/enum/role.enum';
 
 @Injectable()
 export class WalletService {
   constructor(
     @InjectRepository(WalletTransactionEntity)
-    private readonly walletTransactionRepo: Repository<WalletTransactionEntity>,
+    private readonly walletTxRepo: Repository<WalletTransactionEntity>,
 
     @InjectRepository(WalletEntity)
     private readonly walletRepo: Repository<WalletEntity>,
@@ -97,13 +110,16 @@ export class WalletService {
     await queryRunner.manager.save(WalletTransactionEntity, transaction);
   }
 
-  async approvePendingEarning({
-    transactionId,
-    orderId,
-  }: {
-    transactionId?: string;
-    orderId?: string;
-  }) {
+  async approvePendingEarning(
+    {
+      transactionId,
+      orderId,
+    }: {
+      transactionId?: string;
+      orderId?: string;
+    },
+    currentUser: JwtAccessPayloadType,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -149,6 +165,7 @@ export class WalletService {
       transaction.balanceBefore = balanceBefore.toNumber();
       transaction.balanceAfter = wallet.availableBalance;
       transaction.processedAt = new Date();
+      transaction.processedBy = currentUser.id;
 
       await queryRunner.manager.save(WalletEntity, wallet);
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
@@ -213,7 +230,10 @@ export class WalletService {
     }
   }
 
-  async approveWithdraw(transactionId: string) {
+  async approveWithdraw(
+    transactionId: string,
+    currentUser: JwtAccessPayloadType,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -232,19 +252,21 @@ export class WalletService {
 
       transaction.status = TransactionStatus.SUCCESS;
       transaction.processedAt = new Date();
+      transaction.processedBy = currentUser.id;
 
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
       await queryRunner.commitTransaction();
 
-      const user = await queryRunner.manager.findOne(UserEntity, {
+      const user = await queryRunner.manager.findOneOrFail(UserEntity, {
         where: { id: transaction.actorId },
       });
 
       if (user?.email) {
         await this.mailService.sendWithdrawalSuccessEmail({
-          to: user.email,
+          // to: user.email,
+          to: 'mamotgio@gmail.com',
           name: user.fullName,
-          amount: transaction.amount.toString(),
+          amount: new Decimal(transaction.amount).toFixed(2),
           currency: transaction.currency,
           referenceCode: transaction.referenceCode,
         });
@@ -257,7 +279,11 @@ export class WalletService {
     }
   }
 
-  async rejectWithdraw(transactionId: string, reason: string) {
+  async rejectWithdraw(
+    transactionId: string,
+    reason: string,
+    currentUser: JwtAccessPayloadType,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -281,26 +307,30 @@ export class WalletService {
       const balanceBefore = new Decimal(wallet.availableBalance);
       const refundAmount = new Decimal(transaction.amount);
 
-      // Hoàn trả tiền về available balance
       wallet.availableBalance = balanceBefore.plus(refundAmount).toNumber();
 
-      // Cập nhật transaction thành CANCELED
-      transaction.status = TransactionStatus.FAILED;
+      transaction.status = TransactionStatus.REJECT;
+      transaction.processedBy = currentUser.id;
+      transaction.metadata = {
+        ...transaction.metadata,
+        reason,
+      };
 
       await queryRunner.manager.save(WalletEntity, wallet);
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
 
       await queryRunner.commitTransaction();
 
-      const user = await queryRunner.manager.findOne(UserEntity, {
+      const user = await queryRunner.manager.findOneOrFail(UserEntity, {
         where: { id: transaction.actorId },
       });
 
       if (user?.email) {
         await this.mailService.sendWithdrawalRejectedEmail({
-          to: user.email,
+          // to: user.email,
+          to: 'mamotgio@gmail.com',
           name: user.fullName,
-          amount: transaction.amount.toString(),
+          amount: new Decimal(transaction.amount).toFixed(2),
           currency: wallet.currency,
           rejectionReason: reason.toString(),
           referenceCode: transaction.referenceCode,
@@ -524,7 +554,7 @@ export class WalletService {
     const limit = filter.limit || 20;
     const skip = (page - 1) * limit;
 
-    const query = this.walletTransactionRepo
+    const query = this.walletTxRepo
       .createQueryBuilder('transaction')
       .where('transaction.actorId = :userId', { userId })
       .andWhere('transaction.actorType = :actorType', {
@@ -570,6 +600,129 @@ export class WalletService {
     };
   }
 
+  async findAll2(
+    page = 1,
+    limit = 10,
+    filters?: FindOptionsWhere<WalletTransactionEntity>,
+    sorts?: FindOptionsOrder<WalletTransactionEntity>,
+    fields?: (keyof WalletTransactionEntity)[],
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[WalletTransactionEntity[], number]> {
+    try {
+      const queryBuilder = this.walletTxRepo.createQueryBuilder('transaction');
+
+      // Nếu người dùng không phải là admin, thêm điều kiện lọc theo ví của người dùng
+      if (currentUser?.role.toLocaleLowerCase() !== 'admin') {
+        const wallet = await this.walletRepo.findOne({
+          where: { userId: currentUser?.id },
+        });
+
+        if (!wallet) throw new Error('Wallet not found');
+
+        queryBuilder.andWhere('transaction.walletId = :walletId', {
+          walletId: wallet.id,
+        });
+      }
+
+      // Áp dụng các điều kiện lọc
+      if (filters) {
+        Object.keys(filters).forEach((key) => {
+          const value = filters[key];
+          if (value === undefined || value === null) return;
+
+          if (Array.isArray(value)) {
+            queryBuilder.andWhere(`transaction.${key} IN (:...values)`, {
+              values: value,
+            });
+          } else if (typeof value === 'string') {
+            const normalizedValue = value.trim().toLowerCase();
+            if (normalizedValue.startsWith('like_')) {
+              queryBuilder.andWhere(`LOWER(transaction.${key}) LIKE :value`, {
+                value: `%${normalizedValue.replace('like_', '')}%`,
+              });
+            } else if (/^(>|>=|<|<=|=)_/.test(normalizedValue)) {
+              const operator = normalizedValue.slice(
+                0,
+                normalizedValue.indexOf('_'),
+              );
+              const actualValue = normalizedValue
+                .slice(normalizedValue.indexOf('_') + 1)
+                .trim();
+              queryBuilder.andWhere(`transaction.${key} ${operator} :value`, {
+                value: actualValue,
+              });
+            } else {
+              queryBuilder.andWhere(`transaction.${key} = :value`, { value });
+            }
+          } else {
+            queryBuilder.andWhere(`transaction.${key} IS NULL`);
+          }
+        });
+      }
+
+      // Áp dụng các điều kiện sắp xếp
+      if (sorts) {
+        Object.entries(sorts).forEach(([key, order]) => {
+          queryBuilder.addOrderBy(
+            `transaction.${key}`,
+            (order as string).toUpperCase() as 'ASC' | 'DESC',
+          );
+        });
+      }
+
+      // Lấy tổng số bản ghi
+      const [data, total] = await queryBuilder
+        .skip((page - 1) * limit)
+        .take(limit)
+        .select(fields ? fields.map((field) => `transaction.${field}`) : [])
+        .getManyAndCount();
+
+      return [data, total];
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error.message}`);
+    }
+  }
+
+  async findAll(
+    page = 1,
+    pageSize = 10,
+    filters?: FindOptionsWhere<WalletTransactionEntity>,
+    sorts?: FindOptionsOrder<WalletTransactionEntity>,
+    fields?: (keyof WalletTransactionEntity)[],
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[WalletTransactionEntity[], number]> {
+    try {
+      if (currentUser?.role.toUpperCase() !== RoleEnum[RoleEnum.ADMIN]) {
+        const wallet = await this.walletRepo.findOne({
+          where: { userId: currentUser?.id },
+        });
+
+        if (!wallet) {
+          throw new Error('Wallet not found');
+        }
+
+        filters = {
+          ...filters,
+          walletId: wallet.id,
+        };
+      }
+
+      let options: FindManyOptions<WalletTransactionEntity> = {
+        where: buildWhereClause(filters),
+        order: buildOrderClause(sorts),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: fields as any,
+      };
+
+      const [data, total] = await this.walletTxRepo.findAndCount(options);
+
+      return [data, total];
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error.message}`);
+    }
+  }
+
   generateReferenceCode(transactionType: TransactionType): string {
     let prefix = 'TX'; // default nếu không match type
 
@@ -609,17 +762,27 @@ export class WalletService {
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year, 11, 31, 23, 59, 59, 999);
 
-    const rawData = await this.walletTransactionRepo
+    const wallet = await this.walletRepo.findOne({
+      where: { userId: currentUser?.id },
+    });
+
+    if (!wallet) {
+      throw new Error('Wallet not found');
+    }
+
+    const rawData = await this.walletTxRepo
       .createQueryBuilder('transaction')
       .select([
         'EXTRACT(MONTH FROM transaction.createdAt) AS month',
         `COALESCE(SUM(CASE WHEN transaction.type = :earning THEN transaction.amount ELSE 0 END), 0) AS "totalEarnings"`,
         `COALESCE(SUM(CASE WHEN transaction.type = :withdrawal THEN transaction.amount ELSE 0 END), 0) AS "totalWithdrawals"`,
+        `COALESCE(SUM(CASE WHEN transaction.type = :refund THEN transaction.amount ELSE 0 END), 0) AS "totalRefunds"`,
       ])
-      .where('transaction.actorId = :actorId', { actorId: currentUser.id })
-      .andWhere('transaction.actorType = :actorType', {
-        actorType: ActorType.FREELANCER,
-      })
+
+      .where('transaction.walletId = :walletId', { walletId: wallet.id })
+      // .andWhere('transaction.actorType = :actorType', {
+      //   actorType: ActorType.FREELANCER,
+      // })
       .andWhere('transaction.createdAt BETWEEN :startDate AND :endDate', {
         startDate,
         endDate,
@@ -632,6 +795,7 @@ export class WalletService {
       .setParameters({
         earning: TransactionType.EARNING,
         withdrawal: TransactionType.WITHDRAW,
+        refund: TransactionType.REFUND,
       })
       .getRawMany();
 
@@ -654,13 +818,15 @@ export class WalletService {
       const found = rawData.find((item) => Number(item.month) === index + 1);
       const totalEarnings = found ? Number(found.totalEarnings) : 0;
       const totalWithdrawals = found ? Number(found.totalWithdrawals) : 0;
-      const netEarnings = totalEarnings - totalWithdrawals;
+      const totalRefunds = found ? Number(found.totalRefunds) : 0;
+      //  const netEarnings = totalEarnings - totalWithdrawals;
 
       return {
         month: name,
         totalEarnings,
         totalWithdrawals,
-        netEarnings,
+        totalRefunds,
+        //  netEarnings,
       };
     });
 

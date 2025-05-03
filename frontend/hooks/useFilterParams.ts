@@ -41,6 +41,19 @@ export function useFilterParams() {
     );
   };
 
+  const setQuery = (query: any) => {
+    const newQuery = query;
+
+    router.push(
+      {
+        pathname: router.pathname,
+        query: newQuery,
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
   const resetParams = () => {
     const query: Record<string, any> = {};
 
@@ -70,6 +83,7 @@ export function useFilterParams() {
   return {
     params,
     setParam,
+    setQuery,
     resetParams,
     countActiveParams,
   };

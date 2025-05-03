@@ -2,6 +2,7 @@
 
 import CircularProgressCenter from "@/components/CircularProgressCenter";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
@@ -513,7 +514,7 @@ function AdminOrdersPage() {
 }
 
 AdminOrdersPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
 export default AdminOrdersPage;

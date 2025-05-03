@@ -2,86 +2,35 @@
 
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NavbarLeftLoginDialog from "@/features/navbar/components/NavbarLeftLoginDialog";
-import NavbarLeftPopoverMessages from "@/features/navbar/components/NavbarLeftPopoverMessages";
-import NavbarLeftPopoverNotifications from "@/features/navbar/components/NavbarLeftPopoverNotifications";
-import NavbarLeftPopoverOrder from "@/features/navbar/components/NavbarLeftPopoverOrder";
+import NavbarLeftPopover from "@/features/navbar/components/NavbarLeftPopover";
 import UserAvatar from "@/features/user/components/UserAvatar";
-import {
-  selectFreelancer,
-  selectUser,
-} from "@/lib/redux/features/auth/authSlice";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { route } from "@/lib/route";
-import { motion } from "framer-motion";
 import {
   AlignJustify,
-  Badge,
-  CreditCard,
-  DollarSign,
-  FileBarChart,
-  Folder,
   Heart,
-  Home,
   LifeBuoy,
-  MessageSquare,
-  MessageSquareText,
   Package,
-  Search,
   Settings,
   ShoppingBag,
   User,
   Users,
-  UserSearch,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useState } from "react";
 import Logo from "../LogoImage";
-import { Badge as BadgeMUI } from "@mui/material";
-import NavbarLeftPopoverAvatar from "@/features/navbar/components/NavbarLeftPopoverAvatar";
-import NavbarLeftPopover from "@/features/navbar/components/NavbarLeftPopover";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Separator } from "@/components/ui/separator";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 const buyerNavItems = [
-  // {
-  //   label: "Home",
-  //   href: route.buyer.dashboard,
-  //   icon: Home,
-  //   roles: ["buyer"],
-  // },
-  // {
-  //   label: "Profile",
-  //   href: route.buyer.profile,
-  //   icon: User,
-  //   roles: ["buyer"],
-  // },
-  // {
-  //   label: "Wallet",
-  //   href: route.dashboard.wallet,
-  //   icon: Wallet,
-  //   roles: ["buyer"],
-  // },
   {
     label: "Orders",
     href: route.dashboard.orders,
@@ -94,34 +43,9 @@ const buyerNavItems = [
     icon: Heart,
     roles: ["buyer"],
   },
-  // {
-  //   label: "Payments",
-  //   href: route.buyer.payments,
-  //   icon: CreditCard,
-  //   roles: ["buyer"],
-  // },
-
-  // {
-  //   label: "Settings",
-  //   href: route.buyer.settings,
-  //   icon: Settings,
-  //   roles: ["buyer"],
-  // },
-  // {
-  //   label: "Help",
-  //   href: route.buyer.help,
-  //   icon: LifeBuoy,
-  //   roles: ["buyer"],
-  // },
 ];
 
 const freelancerNavItems = [
-  // {
-  //   label: "Home",
-  //   href: route.freelancer.dashboard,
-  //   icon: Home,
-  //   roles: ["freelancer"],
-  // },
   {
     label: "Profile",
     href: route.freelancer.profile,
@@ -129,57 +53,20 @@ const freelancerNavItems = [
     roles: ["freelancer"],
   },
   {
-    label: "Orders",
-    href: route.freelancer.orders,
+    label: "Taks",
+    href: route.freelancer.tasks,
     icon: ShoppingBag,
     roles: ["freelancer"],
   },
-  // {
-  //   label: "Payments",
-  //   href: route.freelancer.payments,
-  //   icon: CreditCard,
-  //   roles: ["freelancer"],
-  // },
   {
     label: "Gigs",
     href: route.freelancer.gigs,
     icon: Package,
     roles: ["freelancer"],
   },
-
-  // {
-  //   label: "Earnings",
-  //   href: route.freelancer.earnings,
-  //   icon: Wallet,
-  //   roles: ["freelancer"],
-  // },
-  // {
-  //   label: "Feebacks",
-  //   href: route.freelancer.feebacks,
-  //   icon: MessageSquareText,
-  //   roles: ["freelancer"],
-  // },
-  // {
-  //   label: "Settings",
-  //   href: route.freelancer.settings,
-  //   icon: Settings,
-  //   roles: ["freelancer"],
-  // },
-  // {
-  //   label: "Help",
-  //   href: route.freelancer.help,
-  //   icon: LifeBuoy,
-  //   roles: ["freelancer"],
-  // },
 ];
 
 const adminNavItems = [
-  // {
-  //   label: "Home",
-  //   href: route.admin.dashboard,
-  //   icon: Home,
-  //   roles: ["admin"],
-  // },
   {
     label: "Manage Users",
     href: route.admin.users,
@@ -199,51 +86,31 @@ const adminNavItems = [
     icon: Package,
     roles: ["admin"],
   },
-  // {
-  //   label: "Finance",
-  //   href: route.admin.finance,
-  //   icon: DollarSign,
-  //   roles: ["admin"],
-  // },
   {
     label: "Manage Transactions",
-    href: route.freelancer.earnings,
+    href: route.admin.transactions,
     icon: Wallet,
     roles: ["admin"],
   },
-  // {
-  //   label: "Help",
-  //   href: route.admin.help,
-  //   icon: LifeBuoy,
-  //   roles: ["admin"],
-  // },
-  // {
-  //   label: "Settings",
-  //   href: route.admin.settings,
-  //   icon: Settings,
-  //   roles: ["admin"],
-  // },
-
-  // {
-  //   label: "Supports",
-  //   href: route.admin.supports,
-  //   icon: LifeBuoy,
-  //   roles: ["admin"],
-  // },
-];
-
-const allNavItems = [
   {
-    label: "Wallet",
-    href: route.dashboard.wallet,
+    label: "Manage Supports",
+    href: route.admin.supports,
     icon: Wallet,
-    roles: ["all"],
+    roles: ["admin"],
   },
-
   {
     label: "Settings",
     href: route.dashboard.settings,
     icon: Settings,
+    roles: ["admin"],
+  },
+];
+
+const generalNavItems = [
+  {
+    label: "Wallet",
+    href: route.dashboard.wallet,
+    icon: Wallet,
     roles: ["all"],
   },
   {
@@ -252,13 +119,19 @@ const allNavItems = [
     icon: LifeBuoy,
     roles: ["all"],
   },
+  {
+    label: "Settings",
+    href: route.dashboard.settings,
+    icon: Settings,
+    roles: ["all"],
+  },
 ];
 
 export const navItems = [
   ...buyerNavItems,
   ...freelancerNavItems,
   ...adminNavItems,
-  ...allNavItems,
+  ...generalNavItems,
 ];
 
 export const SidebarNav = ({
@@ -310,37 +183,32 @@ const Menu = ({ onNavigate }: { onNavigate?: () => void }) => {
         </div>
       </div>
 
-      <div>
-        <p className="border p-2 text-center font-bold">General Menu</p>
-        <SidebarNav userRole="all" onNavigate={onNavigate} />
-      </div>
+      {userRole !== "ADMIN" && (
+        <div>
+          <p className="border p-2 text-center font-bold">General Menu</p>
+          <SidebarNav userRole="all" onNavigate={onNavigate} />
+        </div>
+      )}
 
       {userRole === "ADMIN" && (
-        <>
-          <Separator />
-          <div>
-            <p className="p-2 text-center font-bold">Admin Menu</p>
-            <SidebarNav userRole="admin" onNavigate={onNavigate} />
-          </div>
-        </>
+        <div>
+          <p className="border p-2 text-center font-bold">Admin Menu</p>
+          <SidebarNav userRole="admin" onNavigate={onNavigate} />
+        </div>
       )}
 
       {userRole !== "ADMIN" && (
-        <>
-          <div>
-            <p className="border p-2 text-center font-bold">Buyer Menu</p>
-            <SidebarNav userRole="buyer" onNavigate={onNavigate} />
-          </div>
-        </>
+        <div>
+          <p className="border p-2 text-center font-bold">Buyer Menu</p>
+          <SidebarNav userRole="buyer" onNavigate={onNavigate} />
+        </div>
       )}
 
       {userRole === "FREELANCER" && (
-        <>
-          <div>
-            <p className="border p-2 text-center font-bold">Freelancer Menu</p>
-            <SidebarNav userRole="freelancer" onNavigate={onNavigate} />
-          </div>
-        </>
+        <div>
+          <p className="border p-2 text-center font-bold">Freelancer Menu</p>
+          <SidebarNav userRole="freelancer" onNavigate={onNavigate} />
+        </div>
       )}
     </div>
   );

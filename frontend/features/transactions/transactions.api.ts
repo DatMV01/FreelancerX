@@ -8,10 +8,6 @@ export const getWalletByFreelancerId = async (id: string): Promise<any> => {
   return response.data;
 };
 
-export const getEarningByYear = async (year: number): Promise<any> => {
-  const response = await axiosInstanceV1.get(`${API_URL}/earnings/${year}`);
-  return response.data;
-};
 
 export const fetchFreelancerTransactions = async ({
   page = 1,

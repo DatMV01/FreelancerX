@@ -14,8 +14,8 @@ export enum TransactionMethod {
   WALLET = 'WALLET',
   CRYPTO = 'CRYPTO',
   STRIPE = 'STRIPE',
-  VNPAY = 'VNPAY',
-  MOMO = 'MOMO',
+  // VNPAY = 'VNPAY',
+  // MOMO = 'MOMO',
   MANUAL = 'MANUAL',
 }
 

@@ -1,6 +1,5 @@
-// components/WalletCard.tsx
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -16,49 +15,47 @@ import {
   Wallet,
 } from "lucide-react";
 import { WalletEntity } from "../wallet.type";
+
 interface WalletCardProps {
   wallet: WalletEntity;
-  isLoading: any;
-  mutate: any;
+  isLoading: boolean;
+  mutate: () => void;
   setOpenWithdrawCb: any;
 }
 
 export default function WalletInfo({
   wallet,
-  mutate,
   isLoading,
+  mutate,
   setOpenWithdrawCb,
 }: WalletCardProps) {
-  if (!wallet) {
-    return;
-  }
-
   if (isLoading) {
     return (
-      <Card className="w-full max-w-xl rounded-2xl shadow-md">
-        <Loader2 className="m-auto animate-spin" size={18} />
+      <Card className="flex h-[200px] w-full max-w-xl items-center justify-center rounded-xl">
+        <Loader2 className="animate-spin text-blue-500" size={24} />
       </Card>
     );
   }
 
+  if (!wallet) return null;
+
   return (
-    <Card className="w-full rounded-2xl shadow-md">
-      <CardHeader className="flex flex-col gap-2">
-        <div className="inline-flex items-center gap-x-2">
-          <Wallet />
-          <div className="text-xl font-semibold">Wallet</div>
-          <button className="inline-flex" onClick={() => mutate()}>
-            <RefreshCcw size={18} />
-          </button>
+    <Card className="w-full max-w-xl rounded-xl border-none">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Wallet className="text-blue-600" />
+          <CardTitle className="text-base font-semibold">My Wallet</CardTitle>
         </div>
+        <Button variant="ghost" size="icon" onClick={() => mutate()}>
+          <RefreshCcw className="h-4 w-4" />
+        </Button>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
           <div className="rounded-full bg-blue-100 p-3 text-blue-700">
-            <Banknote />
+            <Banknote className="h-6 w-6" />
           </div>
-
           <div className="flex flex-col">
             <div className="text-muted-foreground flex items-center gap-1 text-sm">
               Available Balance
@@ -67,74 +64,27 @@ export default function WalletInfo({
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 cursor-pointer text-gray-400" />
                   </TooltipTrigger>
-                  <TooltipContent side="top">
-                    <p>Available Balance</p>
+                  <TooltipContent>
+                    This is the amount you can withdraw now.
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="text-xl font-semibold text-blue-600">
-              ${wallet?.availableBalance}
+            <div className="text-2xl font-bold text-blue-600">
+              ${Number(wallet.availableBalance).toLocaleString()}
             </div>
           </div>
         </div>
+
         <Button
           onClick={setOpenWithdrawCb}
-          className="gap-2"
+          className="w-full gap-2"
           disabled={wallet.availableBalance <= 0}
         >
-          <ArrowDownCircle />
-          Withdraw
+          <ArrowDownCircle className="h-5 w-5" />
+          Withdraw Funds
         </Button>
       </CardContent>
-
-      {/* <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <Hash className="h-4 w-4" />
-            <span>Wallet ID:</span>
-          </div>
-          <span className="text-right font-mono text-sm break-all">
-            {wallet.id}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <User2 className="h-4 w-4" />
-            <span>User ID:</span>
-          </div>
-          <span className="text-right font-mono text-sm">{wallet.userId}</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            <span>Balance:</span>
-          </div>
-          <span className="font-semibold text-green-600">
-            {Number(wallet.availableBalance).toLocaleString()} {wallet.currency}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            <span>Currency:</span>
-          </div>
-          <Badge variant="outline">{wallet.currency}</Badge>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-muted-foreground flex items-center gap-2">
-            <CalendarClock className="h-4 w-4" />
-            <span>Created At:</span>
-          </div>
-          <span className="text-sm">
-            {format(new Date(wallet.createdAt), "PPPp")}
-          </span>
-        </div>
-      </CardContent> */}
     </Card>
   );
 }

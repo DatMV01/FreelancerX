@@ -1,17 +1,21 @@
 import { GigDto } from "@/dto/dto.type.";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import {
+  selectFavoriteGigs,
   addFavoriteGig,
   removeFavoriteGig,
-  selectFavoriteGigs,
   selectFavoriteGigsStatus,
-} from "@/lib/redux/features/gigs/gigsSlice";
+} from "@/lib/redux/features/gigs/gigsSlice2";
+
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { Tooltip } from "@mui/material";
 import { Heart, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
- 
+import {
+  addFavoriteGig as addFavoriteGigAPI,
+  removeFavoriteGig as removeFavoriteGigAPI,
+} from "../gig.api";
 
 const GigFavorite = ({ gig }: { gig: GigDto }) => {
   const dispatch = useAppDispatch();
@@ -19,26 +23,41 @@ const GigFavorite = ({ gig }: { gig: GigDto }) => {
   const user = useAppSelector(selectUser);
   const isGigOwner = gig?.freelancer?.email === user?.email;
 
+  const [isLoading, setLoading] = useState(false);
   const [isFavorite, setFavorite] = useState(false);
   const favoriteGigs = useAppSelector(selectFavoriteGigs);
   const favoriteGigsStatus = useAppSelector(selectFavoriteGigsStatus);
 
   const handleAddFavoriteGig = async () => {
-    if (isGigOwner) {
-      toast.info("Preview mode");
-      return;
-    }
+    // if (isGigOwner) {
+    //   toast.info("Preview mode");
+    //   return;
+    // }
 
-    await dispatch(addFavoriteGig({ gigId: gig.id })).unwrap();
+    try {
+      setLoading(true);
+      await addFavoriteGigAPI(gig.id);
+      dispatch(addFavoriteGig(gig));
+      setLoading(false);
+    } catch (error) {
+      console.error("Add failed", error);
+    }
   };
 
   const handleRemoveFavoriteGig = async () => {
-    if (isGigOwner) {
-      toast.info("Preview mode");
-      return;
-    }
+    // if (isGigOwner) {
+    //   toast.info("Preview mode");
+    //   return;
+    // }
 
-    await dispatch(removeFavoriteGig({ gigId: gig.id })).unwrap();
+    try {
+      setLoading(true);
+      await removeFavoriteGigAPI(gig.id);
+      dispatch(removeFavoriteGig(gig));
+      setLoading(false);
+    } catch (error) {
+      console.error("Add failed", error);
+    }
   };
 
   useEffect(() => {
@@ -47,12 +66,12 @@ const GigFavorite = ({ gig }: { gig: GigDto }) => {
     setFavorite(isFavorite);
   }, [favoriteGigs]);
 
+  const loading = isLoading || favoriteGigsStatus;
   return (
     <>
-      {favoriteGigsStatus === "loading" && (
-        <Loader2 className="animate-spin" size={18} />
-      )}
-      {favoriteGigsStatus === "idle" && isFavorite && (
+      {loading && <Loader2 className="animate-spin" size={18} />}
+
+      {!loading && isFavorite && (
         <Tooltip title="Remove" placement="top">
           <button
             className="flex items-center justify-center rounded-full bg-transparent"
@@ -62,7 +81,8 @@ const GigFavorite = ({ gig }: { gig: GigDto }) => {
           </button>
         </Tooltip>
       )}
-      {favoriteGigsStatus === "idle" && !isFavorite && (
+
+      {!loading && !isFavorite && (
         <Tooltip title="Save to list" placement="top">
           <button
             className="flex items-center justify-center rounded-full bg-transparent"

@@ -9,10 +9,41 @@ export interface WalletEntity {
 
 // WalletTransactionEntity
 
-export type TransactionType = "DEPOSIT" | "WITHDRAW" | "TRANSFER";
-export type TransactionStatus = "PENDING" | "SUCCESS" | "REJECT" | "FAILED";
-export type ActorType = "FREELANCER" | "BUYER";
-export type TransactionMethod = "paypal" | "bank" | "momo" | "stripe";
+export enum TransactionType {
+  DEPOSIT = "DEPOSIT",
+  WITHDRAW = "WITHDRAW",
+  PAYMENT = "PAYMENT",
+  REFUND = "REFUND",
+  EARNING = "EARNING",
+  PLATFORM_FEE = "PLATFORM_FEE",
+  ADJUSTMENT = "ADJUSTMENT", // admin cộng/trừ tay
+}
+
+export enum TransactionStatus {
+  PENDING = "PENDING",
+  SUCCESS = "SUCCESS",
+  REJECT = "REJECT",
+  FAILED = "FAILED",
+}
+export const transactionStatus = Object.values(TransactionStatus);
+
+export enum ActorType {
+  FREELANCER = "FREELANCER",
+  BUYER = "BUYER",
+  SYSTEM = "SYSTEM",
+  ADMIN = "ADMIN",
+}
+
+export enum TransactionMethod {
+  BANK = "BANK",
+  PAYPAL = "PAYPAL",
+  WALLET = "WALLET",
+  CRYPTO = "CRYPTO",
+  STRIPE = "STRIPE",
+  // VNPAY = 'VNPAY',
+  // MOMO = 'MOMO',
+  MANUAL = "MANUAL",
+}
 
 export interface WalletTransactionEntity {
   id: string;

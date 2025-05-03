@@ -1,5 +1,6 @@
 "use client";
 
+import { useFavoriteGigs } from "@/features/gig/hooks/useFavoriteGigs";
 import {
   selectUser,
   setAuthFromSession,
@@ -61,18 +62,20 @@ export function SyncFavoriteGigsToRedux() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const favoriteGigs = await dispatch(fetchFavoriteGigs()).unwrap();
+  useFavoriteGigs();
 
-      console.log("====================================");
-      console.log("SyncFavoriteGigsToRedux");
-      console.log(favoriteGigs);
-      console.log("====================================");
-    };
+  // useEffect(() => {
+  //   const fetch = async () => {
+  //     const favoriteGigs = await dispatch(fetchFavoriteGigs()).unwrap();
 
-    user && fetch();
-  }, [user?.id]);
+  //     console.log("====================================");
+  //     console.log("SyncFavoriteGigsToRedux");
+  //     console.log(favoriteGigs);
+  //     console.log("====================================");
+  //   };
+
+  //   user && fetch();
+  // }, [user?.id]);
 
   return null;
 }

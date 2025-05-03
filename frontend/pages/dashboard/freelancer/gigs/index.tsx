@@ -20,6 +20,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DashboardMainContent,
+  DashboardMainContentHeader,
+} from "@/features/dashboard/components/DashboardMainContent";
 import GigsStats from "@/features/gig/components/GigsStats";
 import { fetchGigs } from "@/features/gig/gig.api";
 import { gigStatus, GigStatus } from "@/features/gig/gig.types";
@@ -42,6 +46,7 @@ import {
   PauseCircle,
   Pencil,
   PlayCircle,
+  RefreshCcw,
   Send,
   X,
   XCircle,
@@ -499,14 +504,21 @@ function FreelancerManageGigsPage() {
   if (error) return <div>Failed to load data.</div>;
 
   return (
-    <div className="flex flex-col space-y-6">
-      <h1 className="flex items-center justify-center gap-x-2 rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
-        Manage Gigs
-      </h1>
+    <DashboardMainContent>
+      <DashboardMainContentHeader>
+        <p>Manage Gigs</p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            mutate();
+          }}
+        >
+          <RefreshCcw />
+        </Button>
+      </DashboardMainContentHeader>
 
       <GigsStats gigs={gigs} />
 
-      {/* <OrderChart /> */}
       <Card>
         <CardContent className="p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -1011,7 +1023,7 @@ function FreelancerManageGigsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardMainContent>
   );
 }
 

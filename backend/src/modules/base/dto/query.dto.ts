@@ -26,7 +26,7 @@ export class QueryDto<Entity extends BaseEntity> {
       // This means the transformation is happening when sending a response
     }
   })
-  limit: number = 10;
+  pageSize: number = 10;
 
   @IsOptional()
   @ApiPropertyOptional({

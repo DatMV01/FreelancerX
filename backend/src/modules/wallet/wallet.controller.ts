@@ -27,20 +27,20 @@ import { AdjustBalanceDto, FilterTransactionDto } from './dto/wallet.dto';
 export class WalletController {
   constructor(protected readonly service: WalletService) {}
 
-  // --- 1. Thêm thu nhập Pending ---
-  @Post('/earning/pending')
-  @UseGuards(AuthGuard('jwt'))
-  async addPendingEarning(@Body('order') order: any) {
-    return this.service.addPendingEarningToFreelancer(order);
-  }
+  // @Post('/earning/pending')
+  // @UseGuards(AuthGuard('jwt'))
+  // async addPendingEarning(@Body('order') order: any) {
+  //   return this.service.addPendingEarningToFreelancer(order);
+  // }
 
-  // --- 2. Duyệt thu nhập Pending ---
-  @Patch('/earning/approve')
-  @UseGuards(AuthGuard('jwt'))
+  @Post('/earning/approve')
+  @Roles(RoleEnum.ADMIN)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   async approvePendingEarning(
     @Body() dto: { transactionId: string; orderId: string },
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
-    return this.service.approvePendingEarning(dto);
+    return this.service.approvePendingEarning(dto, currentUser);
   }
 
   // --- 3. Freelancer yêu cầu rút tiền ---
@@ -58,18 +58,23 @@ export class WalletController {
   @Patch('withdraw/approve/:transactionId')
   @Roles(RoleEnum.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  async approveWithdraw(@Param('transactionId') transactionId: string) {
-    return this.service.approveWithdraw(transactionId);
+  async approveWithdraw(
+    @Param('transactionId') transactionId: string,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    return this.service.approveWithdraw(transactionId, currentUser);
   }
 
   // --- 5. Admin từ chối rút tiền ---
   @Patch('withdraw/reject/:transactionId')
-  @UseGuards(AuthGuard('jwt'))
+  @Roles(RoleEnum.ADMIN)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   async rejectWithdraw(
     @Param('transactionId') transactionId: string,
     @Body('reason') reason: string,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
-    return this.service.rejectWithdraw(transactionId, reason);
+    return this.service.rejectWithdraw(transactionId, reason, currentUser);
   }
 
   // --- 6. Hoàn tiền cho Buyer ---
@@ -111,49 +116,37 @@ export class WalletController {
     return this.service.getWalletInfo(userId);
   }
 
-  // --- 10. Lấy lịch sử giao dịch ví ---
   @Get('/transactions')
   @UseGuards(AuthGuard('jwt'))
-  async getWalletTransactions(
+  @ApiOperation({ summary: 'Get all entities' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities',
+    type: PageDto<WalletTransactionEntity>,
+  })
+  async findAll(
+    @Query() query: QueryDto<any>,
     @CurrentUser() currentUser: JwtAccessPayloadType,
-    @Query() filter: FilterTransactionDto,
   ) {
-    const userId = currentUser.id;
+    const { page, pageSize, filters, sorts, fields } = query;
 
-    return this.service.getWalletTransactions(userId, filter as any);
+    const [results, count] = await this.service.findAll(
+      page,
+      pageSize,
+      filters,
+      sorts,
+      fields as any,
+      currentUser,
+    );
+
+    return new PageDto<any>(
+      results,
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: { pageSize, page, filters, sorts },
+      }),
+    );
   }
-
-  // @Get('/freelancer')
-  // @UseGuards(AuthGuard('jwt'))
-  // @ApiOperation({ summary: 'Get all entities' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'List of entities',
-  //   type: PageDto<WalletTransactionEntity>,
-  // })
-  // async findAll(
-  //   @Query() query: QueryDto<any>,
-  //   @CurrentUser() currentUser: JwtAccessPayloadType,
-  // ) {
-  //   const { page, limit, filters, sorts, fields } = query;
-
-  //   const [results, count] = await this.service.findAll(
-  //     page,
-  //     limit,
-  //     filters,
-  //     sorts,
-  //     fields as any,
-  //     currentUser,
-  //   );
-
-  //   return new PageDto<any>(
-  //     results,
-  //     new PageMetaDto({
-  //       itemCount: count,
-  //       pageOptionsDto: { limit, page, filters, sorts },
-  //     }),
-  //   );
-  // }
 
   // @Post('/withdrawal-request')
   // @UseGuards(AuthGuard('jwt'))
@@ -199,17 +192,17 @@ export class WalletController {
   //   });
   // }
 
-  // @Get('/earnings/:year')
-  // @UseGuards(AuthGuard('jwt'))
-  // async getEarningsDataByYear(
-  //   @Param('year') year: string,
-  //   @CurrentUser() currentUser: JwtAccessPayloadType,
-  // ): Promise<any> {
-  //   const result = await this.service.getEarningsDataByYear(
-  //     currentUser.freelancerId,
-  //     Number(year),
-  //   );
+  @Get('/earnings/:year')
+  @UseGuards(AuthGuard('jwt'))
+  async getEarningsDataByYear(
+    @Param('year') year: string,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ): Promise<any> {
+    const result = await this.service.getEarningsDataByYear(
+      currentUser,
+      Number(year),
+    );
 
-  //   return result;
-  // }
+    return result;
+  }
 }

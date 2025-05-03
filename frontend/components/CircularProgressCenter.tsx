@@ -9,13 +9,13 @@ const CircularProgressCenter = ({
   if (fullScreen)
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-white/10 backdrop-blur-xs">
-        <CircularProgress />
+        <CircularProgress size={30} />
       </div>
     );
 
   return (
     <div className="flex items-center justify-center bg-white/50">
-      <CircularProgress />
+      <CircularProgress size={30} />
     </div>
   );
 };

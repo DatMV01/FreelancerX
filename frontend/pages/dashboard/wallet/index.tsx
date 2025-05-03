@@ -1,19 +1,129 @@
-import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
-import UpdatePasswordForm from "@/features/auth/components/UpdatePasswordForm";
-import BuyerAccountSettings from "@/features/dashboard/buyer/components/BuyerAccountSettings";
-import WalletPage from "@/features/wallet/components/WalletPage";
-import { ReactElement } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  DashboardMainContent,
+  DashboardMainContentHeader,
+} from "@/features/dashboard/components/DashboardMainContent";
+import WithdrawModal from "@/features/dashboard/freelancer/components/WithdrawModal";
+import { WalletChart } from "@/features/wallet/components/WalletChart";
+import WalletInfo from "@/features/wallet/components/WalletInfo";
+import WalletTransactionTable from "@/features/wallet/components/WalletTransactionTable";
+import { useGetEarningsDataByYear } from "@/features/wallet/hooks/useGetEarningsDataByYear";
+import { useGetWalletInfo } from "@/features/wallet/hooks/useGetWalletInfo";
+import { defaultWalletTransactionQuery, useGetWalletTransactions } from "@/features/wallet/hooks/useGetWalletTransactions";
+
+import {
+  requestWithdraw
+} from "@/features/wallet/wallet.api";
+import { WalletTransactionEntity } from "@/features/wallet/wallet.type";
+import { useQuerySync } from "@/hooks/useQuerySync";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { RefreshCcw } from "lucide-react";
+import { ReactElement, useState } from "react";
+import { toast } from "sonner";
 
 function WalletDashboard() {
-  return (
-    <div className="flex flex-col space-y-6">
-      <h1 className="rounded-md border border-green-500 p-4 text-center text-2xl font-bold text-green-500">
-        Wallet
-      </h1>
+  const [openWithdraw, setOpenWithdraw] = useState(false);
+  const [year, setYear] = useState(2025);
 
-      <WalletPage />
-    </div>
+  const user = useAppSelector(selectUser);
+  const userId = user?.id || "";
+
+  const { query, queryString, setQuery, removeFilter, resetQuery } =
+    useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
+  console.log(query);
+  console.log(queryString);
+
+  const {
+    data: wallet,
+    error: errorWallet,
+    isLoading: isLoadingWallet,
+    isValidating: isValidatingWallet,
+    mutate: mutateWallet,
+  } = useGetWalletInfo(userId);
+
+  const {
+    data: earningsData,
+    error: errorEarnings,
+    isLoading: isLoadingEarnings,
+    isValidating: isValidatingEarnings,
+    mutate: mutateEarnings,
+  } = useGetEarningsDataByYear(year);
+
+  const {
+    data: walletTransactions,
+    isLoading: isLoadingTransactions,
+    isValidating: isValidatingTransactions,
+    error: errorWalletTransactions,
+    mutate: mutateWalletTransactions,
+  } = useGetWalletTransactions(queryString);
+
+  const handleWithdrawSubmit = async (form: any) => {
+    try {
+      await requestWithdraw(form);
+
+      mutateWallet();
+      mutateWalletTransactions();
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to withdraw");
+    }
+  };
+
+  const mutateAll = () => {
+    mutateWallet();
+    mutateWalletTransactions();
+    mutateEarnings();
+  };
+
+  return (
+    <DashboardMainContent>
+      <DashboardMainContentHeader>
+        <p> Wallet</p>
+        <Button
+          variant="outline"
+          onClick={() => {
+            mutateAll();
+          }}
+        >
+          <RefreshCcw />
+        </Button>
+      </DashboardMainContentHeader>
+      <div className="flex gap-x-4">
+        <div className="flex-2 pt-14">
+          <WalletInfo
+            mutate={mutateWallet}
+            wallet={wallet}
+            isLoading={isLoadingWallet || isValidatingWallet}
+            setOpenWithdrawCb={setOpenWithdraw}
+          />
+        </div>
+
+        <div className="flex-10">
+          <WalletChart
+            dataByYear={earningsData}
+            isLoading={isLoadingEarnings || isValidatingEarnings}
+            setYearCb={(year: string) => setYear(Number(year))}
+            mutate={mutateEarnings}
+          />
+        </div>
+      </div>
+
+      <WalletTransactionTable
+        response={walletTransactions}
+        isLoading={isLoadingTransactions || isValidatingTransactions}
+        error={errorWalletTransactions}
+        mutate={mutateWalletTransactions}
+      />
+
+      <WithdrawModal
+        open={openWithdraw}
+        onClose={() => setOpenWithdraw(false)}
+        onSubmit={handleWithdrawSubmit}
+        availableBalance={wallet?.availableBalance}
+      />
+    </DashboardMainContent>
   );
 }
 

@@ -26,10 +26,15 @@ export const getFreelancerProfileById = async (id: string): Promise<any> => {
 export const getFreelancerProfileByEmail = async (
   email: string,
 ): Promise<any> => {
-  const response = await axiosInstanceV1.get(
-    `${API_URL}/profile/email/${email}`,
-  );
-  return response.data;
+  try {
+    const response = await axiosInstanceV1.get(
+      `${API_URL}/profile/email/${email}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("getFreelancerProfileByEmail", JSON.stringify(error));
+    throw error;
+  }
 };
 
 // export const fetchGigs = async ({

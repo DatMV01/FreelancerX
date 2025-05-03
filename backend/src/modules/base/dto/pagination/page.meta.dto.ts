@@ -6,7 +6,7 @@ export class PageMetaDto {
   readonly page: number;
 
   @ApiProperty()
-  readonly limit: number;
+  readonly pageSize: number;
 
   @ApiProperty()
   readonly itemCount: number;
@@ -28,11 +28,11 @@ export class PageMetaDto {
 
   constructor({ pageOptionsDto, itemCount }: PageMetaDtoParameters) {
     this.page = pageOptionsDto.page;
-    this.limit = pageOptionsDto.limit;
+    this.pageSize = pageOptionsDto.pageSize;
     this.sorts = pageOptionsDto.sorts;
     this.filter = pageOptionsDto.filters;
     this.itemCount = itemCount;
-    this.pageCount = Math.ceil(this.itemCount / this.limit);
+    this.pageCount = Math.ceil(this.itemCount / this.pageSize);
     this.hasPreviousPage = this.page > 1;
     this.hasNextPage = this.page < this.pageCount;
   }

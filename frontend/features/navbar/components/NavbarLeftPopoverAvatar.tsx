@@ -44,7 +44,7 @@ const NavbarLeftPopoverAvatar = () => {
 
             {isAdmin && (
               <Link
-                href={route.admin.dashboard}
+                href={route.admin.users}
                 className="flex p-4 hover:bg-green-50 hover:text-green-500"
               >
                 Admin Dashboard

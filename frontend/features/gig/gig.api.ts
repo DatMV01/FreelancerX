@@ -27,6 +27,38 @@ export const fetchGigs = async ({
   }
 };
 
+export const fetchFavoritesGigs = async (): Promise<GigDto[]> => {
+  try {
+    const response = await axiosInstanceV1.get(`${API_URL}/favorites`);
+    return response.data;
+  } catch (error) {
+    console.error("fetchFavoritesGigs", JSON.stringify(error));
+    throw error;
+  }
+};
+
+export const addFavoriteGig = async (id: string): Promise<GigDto> => {
+  try {
+    const response = await axiosInstanceV1.post(`${API_URL}/favorites`, {
+      gigId: id,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("addFavoriteGig", JSON.stringify(error));
+    throw error;
+  }
+};
+
+export const removeFavoriteGig = async (id: string): Promise<GigDto> => {
+  try {
+    const response = await axiosInstanceV1.delete(`${API_URL}/favorites/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("fetchFavoritesGigs", JSON.stringify(error));
+    throw error;
+  }
+};
+
 export const getGigById = async (id: string): Promise<GigDto> => {
   try {
     const response = await axiosInstanceV1.get(`${API_URL}/${id}`);

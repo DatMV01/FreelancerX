@@ -57,8 +57,6 @@ export default function GigsStats({
       icon: PauseCircle,
       color: "text-orange-500",
     },
-
-    
     // {
     //   key: GigStatus.PENDING_APPROVAL,
     //   title: "PENDING APPROVAL",
@@ -104,7 +102,7 @@ export default function GigsStats({
     : stats;
 
   return (
-    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
       {filteredStats.map((stat) => (
         <Card key={stat.key} className="h-full gap-0">
           <CardContent>

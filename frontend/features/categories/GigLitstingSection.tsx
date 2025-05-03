@@ -1,30 +1,8 @@
+import { GigDto } from "@/dto/dto.type.";
 import clsx from "clsx";
 import GigCardListingReview from "../gig/components/GigCardListingReview";
-import { useRouter } from "next/router";
-import { GigDto } from "@/dto/dto.type.";
-import { GigCard } from "@/components/gig_card";
 
 const GigLitstingSection = ({ data }: { data: GigDto[] }) => {
-  const router = useRouter();
-  const { demo } = router.query;
-
-  if (demo) {
-    return (
-      <div
-        className={clsx(
-          "mt-4 grid grid-cols-1 gap-4",
-          "md:grid-cols-2",
-          "lg:grid-cols-3",
-          "xl:grid-cols-4",
-        )}
-      >
-        {Array.from({ length: 9 }, (_, i) => (
-          <GigCard key={i} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div
       className={clsx(

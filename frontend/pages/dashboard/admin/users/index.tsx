@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { ReactElement } from "react";
 
 export default function AdminDashboardManageUsers() {
@@ -10,5 +11,5 @@ export default function AdminDashboardManageUsers() {
 }
 
 AdminDashboardManageUsers.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
