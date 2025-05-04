@@ -13,6 +13,8 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
+import { nanoid } from 'nanoid';
+
 import { v4 as uuidv4 } from 'uuid';
 import { BaseService } from '../base/base.service';
 import { OrderEntity } from './entities/order.entity';
@@ -93,6 +95,7 @@ export class OrderService extends BaseService<OrderEntity> {
 
     const createOrder = this._repository.create({
       id: uuidv4(),
+      orderNo: this.generateOrderNo(),
       buyerId: buyer.id,
       freelancerId: gig.freelancerId,
       gigId: gig.id,
@@ -835,15 +838,15 @@ export class OrderService extends BaseService<OrderEntity> {
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<OrderEntity>> {
     if (currentUser?.role.toLocaleLowerCase() === 'freelancer') {
-      const freelancer = await this.freelancerRepo.findOne({
-        where: { userId: currentUser.id },
-        select: { id: true },
-      });
+      // const freelancer = await this.freelancerRepo.findOne({
+      //   where: { userId: currentUser.id },
+      //   select: { id: true },
+      // });
 
       options.where = {
         ...options.where,
-        freelancerId: freelancer?.id,
-        status: Not(In([OrderStatus.UNPAID])),
+        freelancerId: currentUser?.freelancerId,
+      //  status: Not(In([OrderStatus.UNPAID])),
       };
     }
 
@@ -893,6 +896,15 @@ export class OrderService extends BaseService<OrderEntity> {
     });
 
     return data;
+  }
+
+  private generateOrderNo(): string {
+    let prefix = 'ORD';
+
+    return `${prefix}-${new Date()
+      .toISOString()
+      .replace(/[-:T.]/g, '')
+      .slice(0, 14)}-${nanoid(12)}`;
   }
 
   // @Cron(CronExpression.EVERY_30_MINUTES)

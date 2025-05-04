@@ -294,7 +294,7 @@ function WalletTransactionTable({
 
   const pageSize = Number(query?.pageSize);
   const page = Number(query?.page ?? 1);
-  const totalPages = pagingMetadata?.itemCount ?? 1;
+  const totalItems = pagingMetadata?.itemCount ?? 1;
 
   useEffect(() => {
     if (response) {
@@ -484,7 +484,7 @@ function WalletTransactionTable({
                 ))}
               </TableBody>
             </Table>
-            <PaginationWithPageSize totalItems={totalPages} />;
+            <PaginationWithPageSize totalItems={totalItems} />;
           </CardContent>
         </Card>
       )}

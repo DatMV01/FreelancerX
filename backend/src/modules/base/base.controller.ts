@@ -6,7 +6,6 @@ import {
   ClassSerializerInterceptor,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -33,13 +32,13 @@ import {
 } from 'src/common/constant/serialize.group';
 
 import { CurrentUser } from 'src/common/decorators';
-import { consoleError, removeUndefinedFields } from 'src/utils/common';
+import { removeUndefinedFields } from 'src/utils/common';
+import { buildObjectFromQuery } from 'src/utils/typeorm-utils';
 import { SelectQueryBuilder } from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import { QueryDto } from './dto/query.dto';
 import { BaseEntity } from './entities/base.entity';
-import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiExtraModels(PageDto, PageMetaDto)
@@ -108,36 +107,64 @@ export abstract class BaseController<
   }
 
   @Get()
-  @Version('2')
-  @UseGuards(AuthGuard('jwt'))
+  @Version('3')
+  //@UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get all entities' })
   @ApiResponse({
     status: 200,
     description: 'List of entities',
-    type: PageDto<Dto>,
+    type: PageDto<any>,
   })
-  async findAll2(
-    @Query() query: QueryDto<Entity>,
-    @CurrentUser() currentUser: any,
-  ) {
-    const { page, pageSize, filters, sorts } = query;
+  async findAll3(@Query() query: any, @CurrentUser() currentUser: any) {
+    const { page, pageSize, keyword, filters, sorts, fields } = query;
 
-    const [results, count] = await this.baseService.findAll2(
-      page,
-      pageSize,
-      filters,
-      sorts,
+    const queryObj = buildObjectFromQuery(query as any);
+
+    const [results, count] = await this.baseService.findAll3(
+      queryObj,
       currentUser,
     );
 
-    return new PageDto<Dto>(
-      this.mapFromEntityToDto(results),
+    return new PageDto<any>(
+      results,
       new PageMetaDto({
         itemCount: count,
         pageOptionsDto: { pageSize, page, filters, sorts },
       }),
     );
   }
+
+  // @Get()
+  // @Version('2')
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiOperation({ summary: 'Get all entities' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'List of entities',
+  //   type: PageDto<Dto>,
+  // })
+  // async findAll2(
+  //   @Query() query: QueryDto<Entity>,
+  //   @CurrentUser() currentUser: any,
+  // ) {
+  //   const { page, pageSize, filters, sorts } = query;
+
+  //   const [results, count] = await this.baseService.findAll2(
+  //     page,
+  //     pageSize,
+  //     filters,
+  //     sorts,
+  //     currentUser,
+  //   );
+
+  //   return new PageDto<Dto>(
+  //     this.mapFromEntityToDto(results),
+  //     new PageMetaDto({
+  //       itemCount: count,
+  //       pageOptionsDto: { pageSize, page, filters, sorts },
+  //     }),
+  //   );
+  // }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))

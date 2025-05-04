@@ -42,7 +42,7 @@ export const OrderStatusButtonBuyer = ({
   onViewDetails,
 }: BuyerOrderActionsProps) => {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-x-2">
       {/* <Button onClick={onViewDetails} variant="outline">
         <Eye className="h-4" /> View Details
       </Button> */}

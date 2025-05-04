@@ -4,6 +4,7 @@ import {
   AfterLoad,
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -27,6 +28,11 @@ export class OrderEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @AutoMap()
+  @Column()
+  @Index()
+  orderNo: string;
 
   /* BUYER */
   @AutoMap()

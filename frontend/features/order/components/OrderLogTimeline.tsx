@@ -1,9 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Clock, CheckCircle, Undo2, File, Ban, Hourglass } from "lucide-react";
-import { cn, getFirstTwoLetters, stringAvatar } from "@/lib/utils";
+import { getFirstTwoLetters } from "@/lib/utils";
 import { format } from "date-fns";
+import { Ban, CheckCircle, Clock, File, Hourglass, Undo2 } from "lucide-react";
 import { JSX } from "react";
 
 type OrderLog = {
@@ -145,43 +144,42 @@ export const OrderLogTimeline = ({ logs = orderLogs }: Props) => {
   );
 
   return (
-    <div className="h-full overflow-x-hidden">
-      <p className="text-lg font-semibold">Timeline</p>
+    <div className="flex h-full flex-col gap-y-2">
+      <p className="text-center text-lg font-semibold">Timeline</p>
 
-      <div className="h-full">
-        <div className="space-y-6 pt-6">
-          {sortedLogs.map((log, idx) => (
-            <div key={log.id} className="relative pl-8">
-              {/* timeline dot */}
-              <div className="absolute top-1.5 left-0">
-                <div className="rounded-full border bg-white p-1 shadow-sm">
-                  {iconMap[log.action] || (
-                    <Clock className="h-4 w-4 text-gray-400" />
-                  )}
-                </div>
+      <div className="flex h-full flex-col gap-y-4 overflow-y-auto">
+        {sortedLogs.map((log, idx) => (
+          <div key={log.id}>
+            <div className="flex items-center gap-x-4">
+              <div className="rounded-full border bg-white p-1 shadow-sm">
+                {iconMap[log.action] || (
+                  <Clock className="h-4 w-4 text-gray-400" />
+                )}
               </div>
 
-              <div className="space-y-1 text-sm">
+              <div className="w-full text-sm">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={log?.actor?.avatar} />
 
-                    <AvatarFallback>{getFirstTwoLetters(log?.actorType)} </AvatarFallback>
+                    <AvatarFallback>
+                      {getFirstTwoLetters(log?.actorType)}{" "}
+                    </AvatarFallback>
                   </Avatar>
+
                   <span className="font-medium">{log.actorType}</span>
+
                   <span className="text-muted-foreground text-xs">
                     {format(new Date(log.createdAt), "HH:mm dd/MM/yyyy")}
                   </span>
                 </div>
                 <p className="text-muted-foreground">{log.message}</p>
               </div>
-
-              {idx !== logs.length - 1 && (
-                <Separator className="bg-muted absolute top-6 left-[11px] h-full w-[2px]" />
-              )}
             </div>
-          ))}
-        </div>
+
+            <Separator />
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -24,6 +24,13 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 import { BaseEntity } from './entities/base.entity';
 import { throwUnprocessableEntityException } from 'src/common/exception/thowException';
 import { consoleError } from 'src/utils/common';
+import {
+  buildObjectFromQuery,
+  buildOrderClause,
+  buildOrderClause2,
+  buildWhereClause,
+  QueryInput,
+} from 'src/utils/typeorm-utils';
 
 @Injectable()
 export abstract class BaseService<Entity extends BaseEntity> {
@@ -31,7 +38,6 @@ export abstract class BaseService<Entity extends BaseEntity> {
 
   @Inject(DataSource) protected readonly dataSource: DataSource;
 
-  // CREATE
   async create(createDto: DeepPartial<Entity>): Promise<Entity> {
     try {
       const entity = this.repository.create(createDto);
@@ -42,7 +48,6 @@ export abstract class BaseService<Entity extends BaseEntity> {
     }
   }
 
-  // READ (Find All with Pagination)
   async findAll2(
     page = 1,
     limit = 10,
@@ -134,31 +139,17 @@ export abstract class BaseService<Entity extends BaseEntity> {
     });
   }
 
-  // READ (Find One by ID)
   async findOneById(id: BaseEntity['id']): Promise<Entity> {
-    const entity = await this.repository.findOne({
+    const entity = await this.repository.findOneOrFail({
       where: { id } as FindOptionsWhere<Entity>,
     });
-
-    if (!entity) {
-      consoleError(`Entity with ID ${id} not found`);
-      throw new NotFoundException(`ID ${id} not found`);
-    }
 
     return entity;
   }
 
   async findOne(options: FindOneOptions<Entity>): Promise<Entity> {
-    const entity = await this.repository.findOne(options);
+    const entity = await this.repository.findOneOrFail(options);
 
-    if (!entity) {
-      consoleError(
-        `Entity with options:  ${JSON.stringify(options)} not found`,
-      );
-      throw new NotFoundException(
-        `Entity with: ${JSON.stringify(options)} not found`,
-      );
-    }
     return entity;
   }
 
@@ -270,109 +261,6 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return queryBuilder.getRawMany();
   }
 
-  /*===*/
-
-  async findAllOld(
-    page = 1,
-    limit = 10,
-    filters?: FindOptionsWhere<Entity>,
-    sorts?: FindOptionsOrder<Entity>,
-    currentUser?: JwtAccessPayloadType,
-  ): Promise<[Entity[], number]> {
-    const _queryBuilder: SelectQueryBuilder<Entity> =
-      this.repository.createQueryBuilder();
-
-    const appliedFilters = new Set<string>();
-
-    const queryBuilder = this.additionalQuery(
-      _queryBuilder,
-      appliedFilters,
-      filters,
-      sorts,
-      currentUser,
-    );
-
-    if (filters && Object.keys(filters).length > 0) {
-      Object.keys(filters).forEach((key) => {
-        if (appliedFilters.has(key)) return;
-
-        const _value = filters[key];
-
-        if (!_value) return;
-
-        if (Array.isArray(_value)) {
-          queryBuilder.andWhere(
-            `${queryBuilder.alias}.${key} IN (:...${key})`,
-            {
-              [key]: _value,
-            },
-          );
-        } else if (typeof _value === 'string') {
-          const value = String(_value).trim().toLowerCase();
-
-          if (value.startsWith('like_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key} LIKE ${key}`, {
-              [key]: `%${value.replace('like_', '').trim()}%`,
-            });
-          }
-          // larger than
-          else if (value.startsWith('>_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key}  > ${key}`, {
-              [key]: value.replace('>_', '').trim(),
-            });
-          }
-          // larger than or equal
-          else if (value.startsWith('>=_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key} >= ${key}`, {
-              [key]: value.replace('>=_', '').trim(),
-            });
-          }
-          // smaller than
-          else if (value.startsWith('<_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key}  < ${key}`, {
-              [key]: value.replace('<_', '').trim(),
-            });
-          }
-          // smaller than or equal
-          else if (value.startsWith('<=_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key} <= ${key}`, {
-              [key]: value.replace('<=_', '').trim(),
-            });
-          }
-          // equal
-          else if (value.startsWith('=_')) {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key} = ${key}`, {
-              [key]: value.replace('=_', '').trim(),
-            });
-          } else {
-            queryBuilder.andWhere(`${queryBuilder.alias}.${key} =:${key}`, {
-              [key]: value,
-            });
-          }
-        } else if (!_value) {
-          queryBuilder.andWhere(`${queryBuilder.alias}.${key} IS NULL`);
-        }
-        appliedFilters.add(key);
-      });
-    }
-
-    if (sorts && Object.keys(sorts).length > 0) {
-      Object.keys(sorts).forEach((key) => {
-        if (appliedFilters.has(key)) return;
-
-        queryBuilder.addOrderBy(
-          `${queryBuilder.alias}.${key}`,
-          sorts[key].toUpperCase(),
-        );
-        appliedFilters.add(key);
-      });
-    }
-
-    queryBuilder.skip((page - 1) * limit).take(limit);
-
-    return queryBuilder.getManyAndCount();
-  }
-
   protected additionalQuery(
     queryBuilder: SelectQueryBuilder<Entity>,
     appliedFilters: Set<string>,
@@ -387,7 +275,72 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return this.repository.createQueryBuilder();
   }
 
-  /* ================== */
+  async findAll3(
+    queryObj: QueryInput<Entity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[Entity[], number]> {
+    const { page, pageSize, sorts, filters, fields } = queryObj;
+
+    try {
+      let options: FindManyOptions<Entity> = {
+        where: buildWhereClause(filters),
+        order: buildOrderClause2(sorts),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: fields ? (fields as any) : undefined,
+      };
+
+      options = await this.modifyOptions(options, currentUser);
+
+      const result = await this.repository.findAndCount(options);
+
+      return result;
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error.message}`);
+    }
+  }
+  async findAll3_V2(
+    queryObj: QueryInput<Entity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[Entity[], number]> {
+    const { page, pageSize, sorts, filters, fields } = queryObj;
+
+    try {
+      // Sử dụng buildWhereClause để tạo điều kiện WHERE
+      const whereClause = buildWhereClause(filters);
+
+      // Sử dụng buildOrderClause2 để tạo điều kiện ORDER BY
+      const orderClause = buildOrderClause2(sorts);
+
+      const queryBuilder =
+        this.repository.createQueryBuilder() as SelectQueryBuilder<Entity>;
+
+      // Áp dụng WHERE và ORDER BY
+      queryBuilder.where(whereClause).orderBy(orderClause as any);
+
+      // Phân trang
+      if (page && pageSize) {
+        queryBuilder.skip((page - 1) * pageSize).take(pageSize);
+      }
+
+      // Lựa chọn các trường cần lấy (fields)
+      if (fields) {
+        queryBuilder.select(fields as any);
+      }
+
+      // Sử dụng findAndCount để lấy dữ liệu và tổng số bản ghi
+      const result = await queryBuilder.getManyAndCount();
+
+      if (!Array.isArray(result)) {
+        throw new Error('findAndCount must return an array');
+      }
+      const [data, totalCount] = result;
+
+      return result as any;
+    } catch (error) {
+      throw new Error(`Error fetching data: ${error.message}`);
+    }
+  }
 
   async findAll(
     page = 1,

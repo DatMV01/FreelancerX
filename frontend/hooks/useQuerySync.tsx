@@ -1,65 +1,51 @@
+"use client";
+
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo } from "react";
-import useSWR from "swr";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  buildObjectFromQuery,
   buildQueryFromObject,
   QueryInput,
 } from "@/lib/fitlers/buildQueryFromObject";
 
 export function parseQueryFromRouter<Entity>(
-  routerQuery: Record<string, string | string[] | undefined>,
+  routerQuery: string,
   defaultQuery: QueryInput<Entity>,
 ): QueryInput<Entity> {
   const query: QueryInput<Entity> = { ...defaultQuery };
 
-  if (routerQuery.page) query.page = parseInt(routerQuery.page as string);
-  if (routerQuery.pageSize)
-    query.pageSize = parseInt(routerQuery.pageSize as string);
+  const buildQuery = buildObjectFromQuery(routerQuery);
 
-  if (routerQuery.sorts) {
-    const sortObj: Record<string, "ASC" | "DESC"> = {};
-    for (const s of (routerQuery.sorts as string).split(",")) {
-      const [k, v] = s.split(":");
-      sortObj[k] = v as "ASC" | "DESC";
-    }
-    query.sorts = sortObj as any;
-  }
-
-  if (routerQuery.filters) {
-    const filterObj: Record<string, any> = {};
-    for (const f of (routerQuery.filters as string).split(",")) {
-      const [k, v] = f.split(":");
-      if (v?.startsWith("[") && v.endsWith("]")) {
-        filterObj[k] = v.slice(1, -1).split(";");
-      } else {
-        filterObj[k] = v;
-      }
-    }
-    query.filters = filterObj as any;
-  }
-
-  if (routerQuery.fields) {
-    query.fields = (routerQuery.fields as string).split(
-      ",",
-    ) as (keyof Entity)[];
-  }
+  if (buildQuery.page) query.page = buildQuery.page;
+  if (buildQuery.pageSize) query.pageSize = buildQuery.pageSize;
+  if (buildQuery.sorts) query.sorts = buildQuery.sorts;
+  if (buildQuery.filters) query.filters = buildQuery.filters;
+  if (buildQuery.fields) query.fields = buildQuery.fields;
 
   return query;
 }
 
 export function useQuerySync<Entity>(defaultQuery: QueryInput<Entity>) {
   const router = useRouter();
+  const [query, setQueryState] = useState<QueryInput<Entity>>(defaultQuery);
 
-  const query = useMemo(() => {
-    return parseQueryFromRouter<Entity>(router.query, defaultQuery);
-  }, [router.query]);
+  useEffect(() => {
+    if (router.isReady) {
+      const searchParams = router.asPath.split("?")[1] || "";
+      const parsedQuery = parseQueryFromRouter<Entity>(
+        searchParams,
+        defaultQuery,
+      );
+      setQueryState(parsedQuery);
+    }
+  }, [router.isReady, router.asPath, defaultQuery]);
 
   const queryString = buildQueryFromObject(query);
 
   const setQuery = useCallback(
     (newQuery: Partial<QueryInput<Entity>>) => {
       const merged = { ...query, ...newQuery };
-
+      debugger;
       if (merged.filters) {
         const cleanedFilters = Object.entries(merged.filters).reduce(
           (acc, [key, val]) => {
@@ -117,19 +103,3 @@ export function useQuerySync<Entity>(defaultQuery: QueryInput<Entity>) {
     resetQuery,
   };
 }
-
-// const {
-//      query,
-//      setQuery,
-//      removeFilter,
-//      resetQuery,
-//    } = useQuerySync<OrderEntity>(defaultQuery)
-
-//    // Thêm filter:
-//    setQuery({ filters: { status: "FAILED" } })
-
-//    // Xóa filter 'status':
-//    removeFilter("status")
-
-//    // Reset toàn bộ query:
-//    resetQuery()

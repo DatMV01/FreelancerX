@@ -1,4 +1,4 @@
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { axiosInstanceV1, axiosInstanceV3 } from "@/lib/axios/axiosInstance";
 
 const API_URL = "/orders";
 
@@ -54,6 +54,70 @@ export const fetchAdminOrders = async ({
     throw error;
   }
 };
+
+export const fetchOrdersByFreelancer = async (
+  queryStr: string,
+): Promise<any> => {
+  const response = await axiosInstanceV1.get(
+    `${API_URL}/freelancer?${queryStr}`,
+  );
+  return response;
+};
+
+export const fetchOrdersByBuyer = async (queryStr: string): Promise<any> => {
+  const response = await axiosInstanceV1.get(`${API_URL}/buyer?${queryStr}`);
+  return response;
+};
+
+export const fetchOrdersByAdmin = async (queryStr: string): Promise<any> => {
+  const response = await axiosInstanceV1.get(`${API_URL}/admin?${queryStr}`);
+  return response;
+};
+
+export const submitOrderAnswer = async (
+  orderId: string,
+  questionId: string,
+  answer: string,
+  file: any,
+): Promise<any> => {
+  const formData = new FormData();
+  formData.append("id", questionId);
+  formData.append("orderId", orderId);
+  formData.append("answer", answer);
+
+  if (file) {
+    const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+    const newFile = new File([file], newFileName, {
+      type: file.type,
+    });
+
+    const fileForm = new FormData();
+    fileForm.append("file", newFile);
+
+    const { data, status } = await axiosInstanceV1.post(
+      "/file/upload",
+      fileForm,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    if (status === 201) {
+      console.log("File uploaded successfully", data);
+      formData.append("file", JSON.stringify(data));
+    }
+  }
+
+  const response = await axiosInstanceV1.patch(
+    `/orders/questions-answers/${questionId}`,
+    formData,
+  );
+
+  return response;
+};
+
 export const fetchFreelancerOrders = async ({
   page = 1,
   limit = 10,

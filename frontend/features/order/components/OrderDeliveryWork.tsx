@@ -18,39 +18,48 @@ interface DeliveryWorkCardProps {
   delivery: DeliveryWork;
 }
 
+const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
+  return (
+    <p className="flex w-full items-center gap-x-1 text-sm">
+      <span className="w-22 max-w-22">{k}</span>
+      <span>:</span>
+      {typeof v === "string" ? (
+        <span className="text-muted-foreground">{v}</span>
+      ) : (
+        v
+      )}
+    </p>
+  );
+};
+
 export const OrderDeliveryWork: React.FC<DeliveryWorkCardProps> = ({
   delivery,
 }) => {
-  const formattedDate = format(
-    new Date(delivery.createdAt),
-    "dd/MM/yyyy HH:mm ",
-  );
+  if (!delivery) return;
+
+  const deliveryDate = new Date(delivery.createdAt);
+  const formattedDate = format(deliveryDate, "dd/MM/yyyy HH:mm");
 
   return (
-    <div className="w-full rounded-sm border px-2 py-2">
-      <div className="flex w-full items-center justify-between overflow-x-hidden">
-        <div className="text-muted-foreground w-[80px] text-center text-sm">
-          {formattedDate}
-        </div>
+    <div className="flex w-full flex-col gap-y-2 rounded-xs border p-2">
+      <RenderKeyValue k="Date" v={formattedDate} />
 
-        {delivery.file && (
-          <div className="bg-muted flex items-center justify-between gap-x-2 rounded-sm px-2 py-2">
-            <a href={delivery.file.url} className="w-fit" download>
-              <Button variant="outline" size="icon">
-                <Download className="h-4 w-4" />
-              </Button>
+      <RenderKeyValue
+        k="Attachment"
+        v={
+          <a href={delivery?.file?.url}>
+            <Button variant="outline" size="icon">
+              <Download className="h-4 w-4" />
+            </Button>
 
-              <span> Download attachment</span>
-            </a>
+            <span className="text-muted-foreground ml-1 truncate text-sm">
+              {decodeURIComponent(delivery?.file?.url.split("___").pop() || "")}
+            </span>
+          </a>
+        }
+      />
 
-            {/* <div className="truncate text-sm">
-              {decodeURIComponent(delivery.file.url.split("___").pop() || "")}
-            </div> */}
-          </div>
-        )}
-      </div>
-
-      <div className="px-2 break-all">{delivery.message}</div>
+      <RenderKeyValue k="Message" v={delivery.message} />
     </div>
   );
 };

@@ -3,8 +3,8 @@ import { AlertTriangle, FileQuestion, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ErrorOrEmptyStateProps {
-  isError: boolean;
-  isLoading: boolean;
+  isError?: boolean;
+  isLoading?: boolean;
   isEmpty?: boolean;
   errorMessage?: string;
   emptyMessage?: string;
@@ -23,7 +23,7 @@ export const ErrorOrEmptyState: React.FC<ErrorOrEmptyStateProps> = ({
 
   if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center text-red-600">
+      <div className="m-auto flex flex-col items-center justify-center py-10 text-center text-red-600">
         <AlertTriangle className="mb-2 h-10 w-10" />
         <p className="mb-2 font-medium">{errorMessage}</p>
         {retry && (
@@ -37,7 +37,7 @@ export const ErrorOrEmptyState: React.FC<ErrorOrEmptyStateProps> = ({
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500">
+      <div className="m-auto flex flex-col items-center justify-center py-10 text-center text-gray-500">
         <FileQuestion className="mb-2 h-10 w-10" />
         <p className="font-medium">{emptyMessage}</p>
         {retry && (

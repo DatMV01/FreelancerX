@@ -28,6 +28,7 @@ import {
 import { GetTransactionsDto } from './dto/get-transaction.dto';
 import { buildOrderClause, buildWhereClause } from 'src/utils/typeorm-utils';
 import { RoleEnum } from '../role/enum/role.enum';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class WalletService {
@@ -755,7 +756,7 @@ export class WalletService {
     return `${prefix}-${new Date()
       .toISOString()
       .replace(/[-:T.]/g, '')
-      .slice(0, 14)}-${Math.floor(Math.random() * 1000)}`;
+      .slice(0, 14)}-${nanoid(12)}`;
   }
 
   async getEarningsDataByYear(currentUser: JwtAccessPayloadType, year: number) {

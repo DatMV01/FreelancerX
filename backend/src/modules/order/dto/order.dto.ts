@@ -17,6 +17,9 @@ export class OrderDto extends BaseDto<OrderDto> {
   id: string;
 
   @AutoMap()
+  orderNo: string;
+
+  @AutoMap()
   buyerId: string;
 
   @AutoMap(() => UserEntity)

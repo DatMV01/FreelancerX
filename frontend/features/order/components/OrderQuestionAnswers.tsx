@@ -185,8 +185,9 @@ export const OrderQuestionAnswers = ({
   const defaultOpenItems = sorted.map((item) => item.id);
 
   return (
-    <div className="flex h-full flex-col">
-      <p className="text-lg font-semibold">Questions & Answers</p>
+    <div className="flex h-full flex-col gap-y-2 border-r">
+      <p className="text-center text-lg font-semibold">Questions & Answers</p>
+
       {!isBuyer && false && (
         <div className="bg-muted/40 space-y-3 rounded-lg border p-4">
           <Textarea
@@ -231,7 +232,8 @@ export const OrderQuestionAnswers = ({
           </Button>
         </div>
       )}
-      <div className="flex-1 overflow-x-hidden overflow-y-scroll">
+
+      <div className="flex-1 overflow-x-hidden overflow-y-auto pr-2">
         <Accordion
           type="multiple"
           defaultValue={defaultOpenItems}

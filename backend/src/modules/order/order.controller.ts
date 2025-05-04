@@ -23,20 +23,21 @@ import {
   UPDATE_GROUP,
 } from 'src/common/constant/serialize.group';
 import { CurrentUser } from 'src/common/decorators';
+import { QueryInput } from 'src/utils/typeorm-utils';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { BaseController } from '../base/base.controller';
 import { PageDto } from '../base/dto/pagination';
 import { QueryDto } from '../base/dto/query.dto';
 import { RoleEnum } from '../role/enum/role.enum';
+import { WalletService } from '../wallet/wallet.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderDto } from './dto/order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderEntity } from './entities/order.entity';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderQuestionsEntity } from './entities/order_questions.entity';
-import { OrderActions, OrderStatus } from './enum/order.enum';
+import { OrderStatus } from './enum/order.enum';
 import { OrderService } from './order.service';
-import { WalletService } from '../wallet/wallet.service';
 
 @Controller('orders')
 @ApiExtraModels(OrderDto, CreateOrderDto, UpdateOrderDto)
@@ -128,8 +129,8 @@ export class OrderController extends BaseController<
     description: 'List of entities',
     type: PageDto<OrderEntity>,
   })
-  async findAllBuyerOrders(
-    @Query() query: QueryDto<OrderEntity>,
+  async findAllOrdersByBuyer(
+    @Query() query: any,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser = {
@@ -137,7 +138,7 @@ export class OrderController extends BaseController<
       role: 'buyer',
     };
 
-    const results = await super.findAll(query, currentUser);
+    const results = await super.findAll3(query, currentUser);
     //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
 
     return results;
@@ -151,15 +152,15 @@ export class OrderController extends BaseController<
     description: 'List of entities',
     type: PageDto<OrderEntity>,
   })
-  async findAllFreelancerOrders(
-    @Query() query: QueryDto<OrderEntity>,
+  async findAllOrdersByFreelancer(
+    @Query() query: any,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser = {
       ...currentUser,
       role: 'freelancer',
     };
-    const results = await super.findAll(query, currentUser);
+    const results = await super.findAll3(query, currentUser);
 
     return results;
   }
@@ -172,16 +173,16 @@ export class OrderController extends BaseController<
     description: 'List of entities',
     type: PageDto<OrderEntity>,
   })
-  async findAllOrders(
-    @Query() query: QueryDto<OrderEntity>,
+  async findAllOrdersByAdmin(
+    @Query() query: any,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser = {
       ...currentUser,
-      role: RoleEnum[RoleEnum.ADMIN],
+      role: 'admin',
     };
 
-    const results = await super.findAll(query, currentUser);
+    const results = await super.findAll3(query, currentUser);
     //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
 
     return results;

@@ -121,105 +121,19 @@ export default function OrderStats({
     },
   ];
 
-  const stats2 = [
-    {
-      key: OrderStatus.UNPAID,
-      title: "UNPAID",
-      value: orders.filter((o: any) => o.status === OrderStatus.UNPAID).length,
-      icon: CreditCard,
-      color: "text-orange-600",
-    },
-    {
-      key: OrderStatus.PENDING,
-      title: "PENDING",
-      value: orders.filter((o: any) => o.status === OrderStatus.PENDING).length,
-      icon: Clock,
-      color: "text-yellow-500",
-    },
-    {
-      key: OrderStatus.ACCEPTED,
-      title: "ACCEPTED",
-      value: orders.filter((o: any) => o.status === OrderStatus.ACCEPTED)
-        .length,
-      icon: CheckCircle,
-      color: "text-orange-500",
-    },
-    {
-      key: OrderStatus.IN_PROGRESS,
-      title: "IN PROGRESS",
-      value: orders.filter((o: any) => o.status === OrderStatus.IN_PROGRESS)
-        .length,
-      icon: Hammer,
-      color: "text-orange-500",
-    },
-    {
-      key: OrderStatus.REVISION_REQUESTED,
-      title: "REVISION",
-      value: orders.filter(
-        (o: any) => o.status === OrderStatus.REVISION_REQUESTED,
-      ).length,
-      icon: RefreshCw,
-      color: "text-orange-500",
-    },
-    {
-      key: OrderStatus.DELIVERED,
-      title: "DELIVERED",
-      value: orders.filter((o: any) => o.status === OrderStatus.DELIVERED)
-        .length,
-      icon: Send,
-      color: "text-indigo-500",
-    },
-    {
-      key: OrderStatus.COMPLETED,
-      title: "COMPLETED",
-      value: orders.filter((o: any) => o.status === OrderStatus.COMPLETED)
-        .length,
-      icon: BadgeCheck,
-      color: "text-green-600",
-    },
-    {
-      key: OrderStatus.CANCEL,
-      title: "CANCEL",
-      value: orders.filter((o: any) => o.status === OrderStatus.CANCEL).length,
-      icon: Ban,
-      color: "text-red-600",
-    },
-    {
-      key: OrderStatus.REFUND,
-      title: "REFUND",
-      value: orders.filter((o: any) => o.status === OrderStatus.CANCEL).length,
-      icon: RefreshCcw,
-      color: "text-red-600",
-    },
-    {
-      key: "TOTAL_ORDERS",
-      title: "TOTAL ORDERS",
-      value: orders.length,
-      icon: FileText,
-      color: "text-blue-600",
-    },
-    {
-      key: "TOTAL_REVENUE",
-      title: "TOTAL REVENUE",
-      value: `${totalRevenue.toLocaleString()} USD`,
-      icon: DollarSign,
-      color: "text-emerald-600",
-    },
-  ];
-
   const filteredStats = requiredStatus
     ? stats.filter((s) => requiredStatus.includes(s.key))
     : stats;
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 md:grid-cols-5 xl:grid-cols-5">
       {filteredStats.map((stat) => (
         <Card key={stat.key} className="flex h-fit gap-0 gap-y-1 py-3">
           <CardContent>
             <div className="text-xl font-bold break-all">{stat.value}</div>
           </CardContent>{" "}
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium break-all">
+            <CardTitle className="truncate text-sm font-medium">
               {stat.title}
             </CardTitle>
             <stat.icon className={cn("h-5 w-5", stat.color)} />
