@@ -3,7 +3,7 @@ import {
   DashboardMainContent,
   DashboardMainContentHeader,
 } from "@/features/dashboard/components/DashboardMainContent";
-import Help from "@/features/dashboard/components/Help";
+import Help from "@/features/helpandsupport/components/Help";
 import { ReactElement } from "react";
 
 function HelpAndSupport() {

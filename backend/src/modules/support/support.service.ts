@@ -1,26 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSupportDto } from './dto/create-support.dto';
-import { UpdateSupportDto } from './dto/update-support.dto';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BaseService } from '../base/base.service';
+import { SupportEntity } from './entities/support.entity';
 
 @Injectable()
-export class SupportService {
-  create(createSupportDto: CreateSupportDto) {
-    return 'This action adds a new support';
+export class SupportService extends BaseService<SupportEntity> {
+  constructor(
+    @InjectRepository(SupportEntity)
+    private readonly _repository: Repository<SupportEntity>,
+  ) {
+    super(_repository);
   }
 
-  findAll() {
-    return `This action returns all support`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} support`;
-  }
-
-  update(id: number, updateSupportDto: UpdateSupportDto) {
-    return `This action updates a #${id} support`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} support`;
-  }
+  private readonly logger = new Logger(SupportService.name);
 }

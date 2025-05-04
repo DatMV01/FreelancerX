@@ -10,8 +10,8 @@ import { z } from "zod";
 // Zod schema
 const supportFormSchema = z.object({
   email: z.string().email("Invalid email"),
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  content: z.string().min(10, "Content must be at least 10 characters"),
+  subject: z.string().min(3, "Subject must be at least 3 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
 type SupportFormData = z.infer<typeof supportFormSchema>;
@@ -53,23 +53,23 @@ function Help() {
             </div>
 
             <div>
-              <Input placeholder="Title" {...register("title")} />
-              {errors.title && (
+              <Input placeholder="Subject" {...register("subject")} />
+              {errors.subject && (
                 <p className="mt-1 text-sm text-red-500">
-                  {errors.title.message}
+                  {errors.subject.message}
                 </p>
               )}
             </div>
 
             <div>
               <Textarea
-                placeholder="Content..."
+                placeholder="Message"
                 rows={4}
-                {...register("content")}
+                {...register("message")}
               />
-              {errors.content && (
+              {errors.message && (
                 <p className="mt-1 text-sm text-red-500">
-                  {errors.content.message}
+                  {errors.message.message}
                 </p>
               )}
             </div>
