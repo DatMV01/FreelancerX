@@ -1,13 +1,10 @@
 "use client";
 
 import CircularProgressCenter from "@/components/CircularProgressCenter";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
-import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import PaginationWithPageSize from "@/components/PaginationWithPageSize";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -20,41 +17,28 @@ import {
   DashboardMainContent,
   DashboardMainContentHeader,
 } from "@/features/dashboard/components/DashboardMainContent";
-import { OrderDetailBuyer } from "@/features/order/components/OrderDetailBuyer";
 import OrderStats from "@/features/order/components/OrderStats";
 import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
 import {
   ActorType,
   orderFreelancerStatus,
+  orderStatus,
   OrderStatus,
 } from "@/features/order/dto";
-import {
-  fetchAdminOrders,
-  fetchBuyerOrders,
-  fetchFreelancerOrders,
-} from "@/features/order/order.api";
-import { useFilterParams } from "@/hooks/useUrlSync ";
-import { CircularProgress } from "@mui/material";
+import { useQuerySync } from "@/hooks/useQuerySync";
 import { format, formatDate } from "date-fns";
 import { saveAs } from "file-saver";
 import {
   ArrowUpDown,
-  CalendarCheck,
-  ChevronLeft,
-  ChevronRight,
-  Download,
   Eye,
-  RefreshCcw,
+  RefreshCcw
 } from "lucide-react";
-import { useRouter } from "next/router";
 import { VisuallyHidden } from "radix-ui";
-import React, { ReactElement, useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
+import React, { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { OrderTypeBadge } from "../components/OrderTypeBadge";
-import { useQuerySync } from "@/hooks/useQuerySync";
-import { OrderEntity } from "../order.entity";
 import { defaulFetchOrdersByAdminQuery } from "../hooks/useGetOrdersByAdmin";
+import { OrderEntity } from "../order.entity";
 import { OrderDetail } from "./OrderDetail";
 
 const TableHeaderSection = ({
@@ -185,7 +169,7 @@ function OrdersManageTable({
 
   const [orders, setOrders] = useState<any[]>([]);
 
-  const { query, queryString, setQuery, removeFilter, resetQuery } =
+  const { query, queryString, setQuery, resetQuery } =
     useQuerySync<OrderEntity>(defaulFetchOrdersByAdminQuery);
 
   const pageSize = Number(query?.pageSize);
@@ -314,9 +298,9 @@ function OrdersManageTable({
             OrderStatus.UNPAID,
             OrderStatus.PENDING,
             OrderStatus.ACCEPTED,
-            OrderStatus.IN_PROGRESS,
-            OrderStatus.REVISION_REQUESTED,
+            OrderStatus.PROGRESS,
             OrderStatus.DELIVERED,
+            OrderStatus.REVISION,
             OrderStatus.COMPLETED,
             OrderStatus.CANCEL,
             OrderStatus.REFUND,
@@ -331,9 +315,9 @@ function OrdersManageTable({
             OrderStatus.UNPAID,
             OrderStatus.PENDING,
             OrderStatus.ACCEPTED,
-            OrderStatus.IN_PROGRESS,
-            OrderStatus.REVISION_REQUESTED,
+            OrderStatus.PROGRESS,
             OrderStatus.DELIVERED,
+            OrderStatus.REVISION,
             OrderStatus.COMPLETED,
             OrderStatus.CANCEL,
             OrderStatus.REFUND,
@@ -348,8 +332,8 @@ function OrdersManageTable({
             // OrderStatus.UNPAID,
             OrderStatus.PENDING,
             OrderStatus.ACCEPTED,
-            OrderStatus.IN_PROGRESS,
-            OrderStatus.REVISION_REQUESTED,
+            OrderStatus.PROGRESS,
+            OrderStatus.REVISION,
             OrderStatus.DELIVERED,
             OrderStatus.COMPLETED,
             OrderStatus.CANCEL,
@@ -380,9 +364,7 @@ function OrdersManageTable({
                   onChange={(e) => {
                     setQuery({
                       filters: {
-                        ...query.filters,
                         status: e.target.value,
-                        orderNo:'ORD-20250504124863-Mxk29LdQH8vZ'
                       },
                       page: 1,
                     });
@@ -390,11 +372,26 @@ function OrdersManageTable({
                   className="rounded border px-2 py-1 text-sm"
                 >
                   <option value="">All Statuses</option>
-                  {orderFreelancerStatus.map((_) => (
-                    <option key={_} value={_}>
-                      {_}
-                    </option>
-                  ))}
+                  {actorType === ActorType.BUYER &&
+                    orderStatus.map((_) => (
+                      <option key={_} value={_}>
+                        {_}
+                      </option>
+                    ))}
+
+                  {actorType === ActorType.ADMIN &&
+                    orderStatus.map((_) => (
+                      <option key={_} value={_}>
+                        {_}
+                      </option>
+                    ))}
+
+                  {actorType === ActorType.FREELANCER &&
+                    orderFreelancerStatus.map((_) => (
+                      <option key={_} value={_}>
+                        {_}
+                      </option>
+                    ))}
                 </select>
 
                 {/* <Button variant="outline" onClick={handleExportCSV}>
@@ -590,7 +587,7 @@ function OrdersManageTable({
           </VisuallyHidden.Root>
 
           <OrderDetail
-            actorType={ActorType.BUYER}
+            actorType={actorType}
             orderId={selected?.id}
             mutateAllOrder={mutate}
           />

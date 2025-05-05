@@ -289,7 +289,7 @@ function WalletTransactionTable({
 
   const [walletTransactions, setWalletTransactions] = useState<any[]>([]);
 
-  const { query, queryString, setQuery, removeFilter, resetQuery } =
+  const { query, queryString, setQuery, resetQuery } =
     useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
 
   const pageSize = Number(query?.pageSize);

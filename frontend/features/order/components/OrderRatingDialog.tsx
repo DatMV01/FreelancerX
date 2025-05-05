@@ -20,7 +20,7 @@ type Props = {
   open: boolean;
   processing?: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  orderId: string;
+  orderNo: string;
   handleSubmit: (data: { rating: number; review: string }) => void;
 };
 
@@ -28,7 +28,7 @@ export function OrderRatingDialog({
   open,
   processing = false,
   onOpenChange,
-  orderId,
+  orderNo,
   handleSubmit,
 }: Props) {
   const [rating, setRating] = useState<number>(0);
@@ -47,7 +47,7 @@ export function OrderRatingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Order #{orderId}</DialogTitle>
+          <DialogTitle className="text-green-900">{orderNo}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  And,
   DeepPartial,
   FindManyOptions,
   In,
@@ -564,6 +565,10 @@ export class OrderService extends BaseService<OrderEntity> {
           OrderActions.CANCEL_ORDER_FREELANCER.action,
           OrderActions.CANCEL_ORDER_FREELANCER,
         ],
+        [
+          OrderActions.CANCEL_ORDER_ADMIN.action,
+          OrderActions.CANCEL_ORDER_ADMIN,
+        ],
       ]);
 
       const actionData = ACTION_MAP.get(data.action!);
@@ -577,13 +582,14 @@ export class OrderService extends BaseService<OrderEntity> {
         [
           OrderActions.CANCEL_ORDER_BUYER.action,
           OrderActions.CANCEL_ORDER_FREELANCER.action,
+          OrderActions.CANCEL_ORDER_ADMIN.action,
         ].includes(data.action! as any)
       ) {
         const cancellableStatuses = [
           OrderStatus.UNPAID,
           OrderStatus.PENDING,
           OrderStatus.ACCEPTED,
-          OrderStatus.IN_PROGRESS,
+          OrderStatus.PROGRESS,
         ];
         if (!cancellableStatuses.includes(order.status)) {
           throw new Error(
@@ -597,6 +603,10 @@ export class OrderService extends BaseService<OrderEntity> {
             `Only ${actionData.fromStatus} orders can be ${actionData.action}.`,
           );
         }
+      }
+
+      if ([OrderActions.START_WORK.action].includes(data.action! as any)) {
+        order.startDate = new Date();
       }
 
       // Cập nhật trạng thái và ghi log
@@ -756,10 +766,10 @@ export class OrderService extends BaseService<OrderEntity> {
           order.status !== OrderStatus.UNPAID &&
           order.status !== OrderStatus.PENDING &&
           order.status !== OrderStatus.ACCEPTED &&
-          order.status !== OrderStatus.IN_PROGRESS
+          order.status !== OrderStatus.PROGRESS
         ) {
           throw new Error(
-            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.IN_PROGRESS} orders can be canceled.`,
+            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.PROGRESS} orders can be canceled.`,
           );
         }
 
@@ -777,10 +787,10 @@ export class OrderService extends BaseService<OrderEntity> {
           order.status !== OrderStatus.UNPAID &&
           order.status !== OrderStatus.PENDING &&
           order.status !== OrderStatus.ACCEPTED &&
-          order.status !== OrderStatus.IN_PROGRESS
+          order.status !== OrderStatus.PROGRESS
         ) {
           throw new Error(
-            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.IN_PROGRESS} orders can be canceled.`,
+            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.PROGRESS} orders can be canceled.`,
           );
         }
 
@@ -842,11 +852,17 @@ export class OrderService extends BaseService<OrderEntity> {
       //   where: { userId: currentUser.id },
       //   select: { id: true },
       // });
+      const existingStatus = (options.where as any).status;
 
       options.where = {
         ...options.where,
         freelancerId: currentUser?.freelancerId,
-      //  status: Not(In([OrderStatus.UNPAID])),
+        status: existingStatus
+          ? And(
+              existingStatus,
+              Not(In([OrderStatus.UNPAID, OrderStatus.REFUND])),
+            )
+          : Not(In([OrderStatus.UNPAID, OrderStatus.REFUND])),
       };
     }
 

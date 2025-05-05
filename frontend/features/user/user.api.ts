@@ -4,13 +4,8 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 const API_URL = "/user";
 
 export const getUserById = async (id: string): Promise<any> => {
-  try {
-    const response = await axiosInstanceV1.get(`${API_URL}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error getUserById", error);
-    throw error;
-  }
+  const response = await axiosInstanceV1.get(`${API_URL}/${id}`);
+  return response;
 };
 
 // export const fetchGigs = async ({

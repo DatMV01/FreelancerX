@@ -71,7 +71,7 @@ export const OrderStatusButtonFreelancer = ({
         </>
       )}
 
-      {status === OrderStatus.IN_PROGRESS && (
+      {status === OrderStatus.PROGRESS && (
         <>
           <Button onClick={onDeliver} variant="outline">
             <Upload className="h-4 text-green-500" /> Deliver Work
@@ -103,7 +103,7 @@ export const OrderStatusButtonFreelancer = ({
         </>
       )}
 
-      {status === OrderStatus.REVISION_REQUESTED && (
+      {status === OrderStatus.REVISION && (
         <>
           <Button variant="outline" onClick={onReDeliver}>
             <Upload className="h-4 text-green-500" />

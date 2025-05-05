@@ -1,206 +1,192 @@
 export type QueryInput<Entity> = {
-  page?: number;
-  pageSize?: number;
+  page: number;
+  pageSize: number;
   sorts?: Partial<Record<keyof Entity, "ASC" | "DESC">>;
   filters?: Partial<Record<keyof Entity, any>>;
   fields?: (keyof Entity)[];
   keyword?: string;
-  actor: 'admin' | 'buyer'| 'freelancer'
 };
-
-type QueryStringFormat = "comma" | "repeat";
 
 export function buildQueryFromObject<Entity>(
   query: QueryInput<Entity>,
-  arrayFormat: QueryStringFormat = "comma", // mặc định: dùng dấu phẩy
 ): string {
-  debugger
   const params = new URLSearchParams();
 
-  if (query.page !== undefined) params.set("page", String(query.page));
-  if (query.pageSize !== undefined)
-    params.set("pageSize", String(query.pageSize));
-  if (query.keyword !== undefined) params.set("keyword", query.keyword);
+  params.set("page", (query.page ?? 1).toString());
+  params.set("pageSize", (query.pageSize ?? 10).toString());
 
-  if (query.sorts && Object.keys(query.sorts).length > 0) {
-    const sortString = Object.entries(query.sorts)
+  if (query.sorts) {
+    const sortStr = Object.entries(query.sorts)
       .map(([key, value]) => `${key}:${value}`)
       .join(",");
-    params.set("sorts", sortString);
+    params.set("sorts", sortStr);
   }
 
-  if (query.filters && Object.keys(query.filters).length > 0) {
-    for (const [key, value] of Object.entries(query.filters)) {
-      if (Array.isArray(value)) {
-        if (arrayFormat === "comma") {
-          params.append("filters", `${key}:${value.join(",")}`);
-        } else {
-          value.forEach((v) => params.append("filters", `${key}:${v}`));
+  if (query.filters) {
+    const filterStr = Object.entries(query.filters)
+      .map(([key, value]) => {
+        // Giá trị undefined/null không cần encode
+        if (value === undefined || value === null) return null;
+
+        if (Array.isArray(value)) {
+          return `${key}:in_${value.join(";")}`; // Dùng dấu `;` cho các mảng
         }
-      } else {
-        params.append("filters", `${key}:${value}`);
-      }
-    }
+
+        if (typeof value === "object" && value !== null) {
+          // Các toán tử đặc biệt (ví dụ: { '>': 10 })
+          const op = Object.keys(value)[0];
+          const val = (value as Record<string, any>)[op];
+          return `${key}:${op}_${val}`;
+        }
+
+        return `${key}:${value}`;
+      })
+      .filter(Boolean)
+      .join(",");
+    if (filterStr) params.set("filters", filterStr);
   }
 
-  if (query.fields && query.fields.length > 0) {
-    if (arrayFormat === "comma") {
-      params.set("fields", query.fields.join(","));
-    } else {
-      query.fields.forEach((f) => params.append("fields", f as string));
-    }
+  if (query.fields?.length) {
+    params.set("fields", query.fields.join(","));
+  }
+
+  if (query.keyword) {
+    params.set("keyword", query.keyword);
   }
 
   return params.toString();
 }
 
 export function buildObjectFromQuery<Entity>(
-  queryString: string,
-  arrayFormat: QueryStringFormat = "comma"
+  query: string | URLSearchParams,
 ): QueryInput<Entity> {
-  const params = new URLSearchParams(queryString);
-  const result: QueryInput<Entity> = {};
+  //const params = typeof query === 'string' ? new URLSearchParams(query) : query;
 
-  // page và pageSize
-  if (params.has("page")) result.page = parseInt(params.get("page")!, 10);
-  if (params.has("pageSize"))
-    result.pageSize = parseInt(params.get("pageSize")!, 10);
+  const params = new URLSearchParams(query);
+  const page = parseInt(params.get("page") || "1", 10);
+  const pageSize = parseInt(params.get("pageSize") || "10", 10);
 
-  // keyword
-  if (params.has("keyword")) result.keyword = params.get("keyword")!;
+  const filtersRaw = params.get("filters");
+  const filters: Partial<Record<keyof Entity, any>> = {};
 
-  // sorts
-  if (params.has("sorts")) {
-    const sorts = params
-      .get("sorts")!
-      .split(",")
-      .reduce<Partial<Record<keyof Entity, "ASC" | "DESC">>>((acc, pair) => {
-        const [key, value] = pair.split(":");
-        acc[key as keyof Entity] = value.toUpperCase() as "ASC" | "DESC";
-        return acc;
-      }, {});
-    result.sorts = sorts;
-  }
+  if (filtersRaw) {
+    filtersRaw.split(",").forEach((item) => {
+      const [key, rawVal] = item.split(":");
+      if (!key || !rawVal) return;
 
-  // filters
-  if (params.has("filters")) {
-    const filters: Partial<Record<keyof Entity, any>> = {};
-    params.getAll("filters").forEach((filter) => {
-      const [key, value] = filter.split(":");
-      if (value.includes(",")) {
-        // Xử lý array filter
-        filters[key as keyof Entity] = arrayFormat === "comma" ? value.split(",") : value.split(",");
+      // Kiểm tra xem giá trị có phải là mảng không (dấu in_)
+      if (rawVal.startsWith("in_")) {
+        const values = rawVal
+          .slice(3)
+          .split(";")
+          .map((v) => v.trim()); // Đổi từ in_x,y,z thành ['x', 'y', 'z']
+        filters[key as keyof Entity] = values;
+      }
+      // Kiểm tra các toán tử đặc biệt khác
+      else if (
+        rawVal.startsWith("like_") ||
+        rawVal.startsWith("not_") ||
+        rawVal.startsWith("contains_") ||
+        rawVal.startsWith("startsWith_") ||
+        rawVal.startsWith("endsWith_") ||
+        rawVal.startsWith("between_") ||
+        rawVal.startsWith(">=_") ||
+        rawVal.startsWith("<=_") ||
+        rawVal.toLowerCase() === "null" ||
+        rawVal.toLowerCase() === "isnull"
+      ) {
+        filters[key as keyof Entity] = rawVal;
       } else {
-        filters[key as keyof Entity] = value;
+        // Nếu không phải các toán tử đặc biệt, thì gán luôn giá trị vào
+        filters[key as keyof Entity] = isNaN(Number(rawVal))
+          ? rawVal
+          : Number(rawVal);
       }
     });
-    result.filters = filters;
   }
 
-  // fields
-  if (params.has("fields")) {
-    const fields = params.getAll("fields").map((field) => field as keyof Entity);
-    result.fields = fields;
-  }
+  const sortsRaw = params.get("sorts");
+  const sorts = sortsRaw
+    ? (Object.fromEntries(
+        sortsRaw.split(",").map((item) => {
+          const [key, dir] = item.split(":");
+          return [key, dir.toUpperCase() === "DESC" ? "DESC" : "ASC"];
+        }),
+      ) as Partial<Record<keyof Entity, "ASC" | "DESC">>)
+    : undefined;
 
-  return result;
-}
+  const fieldsRaw = params.get("fields");
+  const fields = fieldsRaw
+    ? (fieldsRaw.split(",") as (keyof Entity)[])
+    : undefined;
 
-
-export function buildObjectFromSearchParams<Entity>(
-  searchParams: URLSearchParams,
-): QueryInput<Entity> {
-  const page = searchParams.get("page");
-  const pageSize = searchParams.get("pageSize");
-  const keyword = searchParams.get("keyword") || "";
-
-  // Parse filters
-  const filtersRaw = searchParams.getAll("filters"); // Lấy tất cả filters
-  const filters: Record<string, any> = {};
-
-  for (const entry of filtersRaw) {
-    const [key, rawValue] = entry.split(":");
-    if (!key || rawValue === undefined) continue;
-
-    // Nếu là chuỗi có dấu phẩy → mảng
-    if (rawValue.includes(",")) {
-      filters[key] = rawValue.split(",").map((v) => v.trim());
-    } else {
-      // Có thể nhiều filters cùng key → gom vào mảng
-      if (filters[key]) {
-        if (Array.isArray(filters[key])) {
-          filters[key].push(rawValue);
-        } else {
-          filters[key] = [filters[key], rawValue];
-        }
-      } else {
-        filters[key] = rawValue;
-      }
-    }
-  }
-
-  // Parse sorts: createdAt:DESC,updatedAt:ASC
-  const sortsRaw = searchParams.get("sorts");
-  const sorts: Record<string, "ASC" | "DESC"> = {};
-  if (sortsRaw) {
-    for (const part of sortsRaw.split(",")) {
-      const [key, dir] = part.split(":");
-      if (key && dir) sorts[key] = dir.toUpperCase() as "ASC" | "DESC";
-    }
-  }
-
-  // Parse fields: id,title,name hoặc fields=id&fields=title
-  const fieldsRaw = searchParams.getAll("fields");
-  const fields = fieldsRaw.flatMap((item) =>
-    item.includes(",") ? item.split(",") : [item],
-  );
+  const keyword = params.get("keyword") || undefined;
 
   return {
-    page: page ? Number(page) : 1,
-    pageSize: pageSize ? Number(pageSize) : 10,
-    keyword,
+    page,
+    pageSize,
     filters,
     sorts,
-    fields: fields.length > 0 ? (fields as (keyof Entity)[]) : undefined,
-  } as any;
+    fields,
+    keyword,
+  };
 }
 
-// 👉 Output:
-/// page=2&limit=20&sorts=name:ASC,createdAt:DESC&filters=name:like_admin,status:[active;inactive],createdAt:>=2024-01-01&fields=id,name,status
-
-const queryString: QueryInput<any> = {
-  filters: {
-    status: ["PENDING", "ACCEPTED"],
-    type: "like_task",
-  },
-  fields: ["id", "title"],
+const filters = {
+  createdAt: "<_2023-01-01", // LessThan (date)
+  price: "between_100_500", // Between (number)
+  status: "in_pending;completed;rejected", // In (string[])
+  name: "like_john", // Like (string)
+  description: "contains_offer", // Like (contains)
+  title: "startsWith_Gig", // Like (startsWith)
+  note: "endsWith_discount", // Like (endsWith)
+  "user.email": "not_test@example.com", // Not equal
+  "user.age": ">=_18", // MoreThanOrEqual
+  "user.isActive": "true", // Boolean
+  deletedAt: "null", // IsNull
+  rating: "<=_4.5", // LessThanOrEqual (float)
+  "meta.type": "=__system__", // Equal exact
 };
 
-// 👇 comma format (mặc định)
-//buildQueryFromObject(queryString, "comma");
-// → filters=status:PENDING,ACCEPTED&filters=type:like_task&fields=id,title
+const input: QueryInput<any> = {
+  page: 1,
+  pageSize: 20,
+  filters: {
+    ...filters,
+    orderNo: "ORD-20250504124863-Mxk29LdQH8vZ",
+    status: ["ACTIVE", "PENDNG", "COMPLETED"],
+    createdAt: "between_2023-01-01_2023-12-31",
+  },
+  sorts: { createdAt: "DESC", updatedAt: "DESC" },
+  fields: ["id", "orderNo", "status", "createdAt", "updatedAt"],
+};
 
-// 👇 repeat format
-//buildQueryFromObject(queryString, "repeat");
-// → filters=status:PENDING&filters=status:ACCEPTED&filters=type:like_task&fields=id&fields=title
+// Sau khi truyền filters này vào buildWhereClause<Entity>(filters), 
 
-// URL:
-// ?page=1&pageSize=10&keyword=design
-// &filters=status:PENDING,ACCEPTED&filters=type:like_task
-// &sorts=createdAt:DESC
-// &fields=id,title
-
-// 
 // {
-//   page: 1,
-//   pageSize: 10,
-//   keyword: 'design',
-//   filters: {
-//     status: ['PENDING', 'ACCEPTED'],
-//     type: 'like_task'
+//   createdAt: LessThan('2023-01-01'),
+//   price: Between('100', '500'),
+//   status: In(['pending', 'completed', 'rejected']),
+//   name: Like('%john%'),
+//   description: Like('%offer%'),
+//   title: Like('Gig%'),
+//   note: Like('%discount'),
+//   user: {
+//     email: Not('test@example.com'),
+//     age: MoreThanOrEqual('18'),
+//     isActive: true
 //   },
-//   sorts: {
-//     createdAt: 'DESC'
-//   },
-//   fields: ['id', 'title']
+//   deletedAt: IsNull(),
+//   rating: LessThanOrEqual('4.5'),
+//   meta: {
+//     type: Equal('__system__')
+//   }
 // }
+
+// const qs = buildQueryFromObject(input);
+
+// const parsed = buildObjectFromQuery<typeof input>(qs);
+
+// console.log(qs);
+
+// console.log(parsed);

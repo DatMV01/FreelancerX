@@ -1,4 +1,4 @@
-import { axiosInstanceV1, axiosInstanceV3 } from "@/lib/axios/axiosInstance";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
 const API_URL = "/orders";
 
@@ -112,6 +112,45 @@ export const submitOrderAnswer = async (
 
   const response = await axiosInstanceV1.patch(
     `/orders/questions-answers/${questionId}`,
+    formData,
+  );
+
+  return response;
+};
+
+export const addOrderQuestion = async (
+  orderId: string,
+  question: string,
+  file: any,
+): Promise<any> => {
+  const formData = new FormData();
+  formData.append("question", question);
+  formData.append("orderId", orderId);
+
+  if (file) {
+    const newFileName = `order___${orderId}___${file.name.replaceAll(" ", "_")}`;
+    const newFile = new File([file], newFileName, {
+      type: file.type,
+    });
+
+    const { data, status } = await axiosInstanceV1.post(
+      "/file/upload",
+      { file: newFile },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    if (status === 201) {
+      console.log("File uploaded successfully", data);
+      formData.append("file", JSON.stringify(data));
+    }
+  }
+
+  const response = await axiosInstanceV1.post(
+    "/orders/questions-answers",
     formData,
   );
 

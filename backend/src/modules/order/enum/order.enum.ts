@@ -43,9 +43,9 @@ export enum OrderStatus {
   UNPAID = 'UNPAID', // 🟥 Đơn hàng chưa được thanh toán
   PENDING = 'PENDING', // 🟡 Đơn hàng đã được tạo, đang chờ freelancer chấp nhận
   ACCEPTED = 'ACCEPTED', // 🟢 Freelancer đã chấp nhận đơn, chuẩn bị bắt đầu
-  IN_PROGRESS = 'IN_PROGRESS', // 🔨 Freelancer đang thực hiện đơn hàng
+  PROGRESS = 'PROGRESS', // 🔨 Freelancer đang thực hiện đơn hàng
   DELIVERED = 'DELIVERED', // 📦 Freelancer đã gửi sản phẩm (chờ buyer phản hồi)
-  REVISION_REQUESTED = 'REVISION_REQUESTED', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
+  REVISION = 'REVISION', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
   COMPLETED = 'COMPLETED', // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
   CANCEL = 'CANCEL', // ❌ Đơn hàng bị hủy
   REFUND = 'REFUND', // ❌ Đơn hàng bị haonf tiền
@@ -78,13 +78,13 @@ export const OrderActions = {
     action: 'START_WORK',
     actorType: ActorType.FREELANCER,
     fromStatus: OrderStatus.ACCEPTED,
-    toStatus: OrderStatus.IN_PROGRESS,
+    toStatus: OrderStatus.PROGRESS,
     message: 'Freelancer started working on the order.',
   },
   DELIVER_WORK: {
     action: 'DELIVER_WORK',
     actorType: ActorType.FREELANCER,
-    fromStatus: OrderStatus.IN_PROGRESS,
+    fromStatus: OrderStatus.PROGRESS,
     toStatus: OrderStatus.DELIVERED,
     message: 'Freelancer delivered the work.',
   },
@@ -92,13 +92,13 @@ export const OrderActions = {
     action: 'REQUEST_REVISION',
     actorType: ActorType.BUYER,
     fromStatus: OrderStatus.DELIVERED,
-    toStatus: OrderStatus.REVISION_REQUESTED,
+    toStatus: OrderStatus.REVISION,
     message: 'Buyer requested a revision.',
   },
   RE_DELIVER_WORK: {
     action: 'RE_DELIVER_WORK',
     actorType: ActorType.FREELANCER,
-    fromStatus: OrderStatus.REVISION_REQUESTED,
+    fromStatus: OrderStatus.REVISION,
     toStatus: OrderStatus.DELIVERED,
     message: 'Freelancer re-delivered the work.',
   },
@@ -115,6 +115,12 @@ export const OrderActions = {
     toStatus: OrderStatus.CANCEL,
     message: 'Buyer canceled the order.',
   },
+  CANCEL_ORDER_ADMIN: {
+    action: 'CANCEL_ORDER_ADMIN',
+    actorType: ActorType.ADMIN,
+    toStatus: OrderStatus.CANCEL,
+    message: 'Admin canceled the order.',
+  },
   CANCEL_ORDER_FREELANCER: {
     action: 'CANCEL_ORDER_FREELANCER',
     actorType: ActorType.FREELANCER,
@@ -125,10 +131,10 @@ export const OrderActions = {
     action: 'REFUND_ORDER',
     actorType: ActorType.SYSTEM,
     fromStatus: OrderStatus.CANCEL,
-    toStatus: OrderStatus.REFUND, 
+    toStatus: OrderStatus.REFUND,
     message: 'Order has been refund',
   },
-} as const;
+};
 
 // Optional: If you still need actions in array form
 export const OrderActionList = Object.values(OrderActions);

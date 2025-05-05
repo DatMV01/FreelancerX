@@ -149,7 +149,7 @@ export const fetchFreelancersOrders = () => {
       const fakeOrders = Array.from({ length: 500 }, () =>
         generateFakeOrder([
           OrderStatus.PENDING,
-          OrderStatus.IN_PROGRESS,
+          OrderStatus.PROGRESS,
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
    

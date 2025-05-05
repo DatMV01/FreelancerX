@@ -8,10 +8,14 @@ import { OrderDeliveryWork } from "./OrderDeliveryWork";
 import OrderReview from "./OrderReview";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { OrderTypeBadge } from "./OrderTypeBadge";
+import { ActorType } from "../dto";
+import { replyOrderComment } from "@/features/reviews/reviews.api";
+import { toast } from "sonner";
+import CircularProgressCenter from "@/components/CircularProgressCenter";
 
 const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
   return (
-    <p className="flex w-full items-center gap-x-1 text-sm">
+    <p className="flex w-full flex-wrap items-center gap-x-1 text-sm">
       <span className="w-22 max-w-22">{k}</span>
       <span>:</span>
       {typeof v === "string" ? (
@@ -22,13 +26,24 @@ const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
     </p>
   );
 };
-const OrderOverView = ({ order }: { order: OrderEntity }) => {
+const OrderOverView = ({
+  order,
+  actorType,
+}: {
+  order: OrderEntity;
+  actorType: ActorType;
+}) => {
   const sortedDeliverables = [...order?.deliverables].sort(
     (a: any, b: any) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
-  const { data: review, mutate: mutateReview } = useSWR(
+  const {
+    data: review,
+    isLoading,
+    isValidating,
+    mutate: mutateReview,
+  } = useSWR(
     order?.id ? `reviews/order/${order.id}` : null,
     () => getOrderReviewById(order.id),
     {
@@ -43,6 +58,15 @@ const OrderOverView = ({ order }: { order: OrderEntity }) => {
     return (
       <div className="flex h-full flex-col gap-y-2 border-r">
         <p className="text-center text-lg font-semibold">Overview</p>
+      </div>
+    );
+  }
+  
+  if (isLoading || isValidating) {
+    return (
+      <div className="flex h-full flex-col gap-y-2 border-r">
+        <p className="text-center text-lg font-semibold">Overview</p>
+        <CircularProgressCenter />
       </div>
     );
   }
@@ -173,7 +197,33 @@ const OrderOverView = ({ order }: { order: OrderEntity }) => {
         <Separator />
         <div>
           <p className="font-bold"> Review</p>
-          {review && <OrderReview review={review} />}
+          {review && actorType == ActorType.BUYER && (
+            <OrderReview review={review} />
+          )}
+
+          {review && actorType == ActorType.FREELANCER && (
+            <OrderReview
+              review={review}
+              isFreelancer
+              onReplySubmit={async (reviewId, replyText) => {
+                console.log(review);
+
+                try {
+                  const response = await replyOrderComment(
+                    reviewId,
+                    replyText,
+                    order.freelancerId,
+                  );
+
+                  if (response.status === 200) {
+                    mutateReview();
+                  }
+                } catch (error: any) {
+                  toast.error("Reply Review Error");
+                }
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

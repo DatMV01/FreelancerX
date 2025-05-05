@@ -16,7 +16,7 @@ import { ReactElement } from "react";
 function FreelancerOrdersPage() {
   const freelancer = useAppSelector(selectFreelancer);
 
-  const { query, queryString, setQuery, removeFilter, resetQuery } =
+  const { query, queryString, setQuery, resetQuery } =
     useQuerySync<OrderEntity>(defaulFetchOrdersByFreelancerQuery);
 
   const enabled = !!freelancer?.id && !!queryString;

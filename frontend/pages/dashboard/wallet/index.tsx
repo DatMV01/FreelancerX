@@ -10,11 +10,11 @@ import WalletInfo from "@/features/wallet/components/WalletInfo";
 import WalletTransactionTable from "@/features/wallet/components/WalletTransactionTable";
 import { useGetEarningsDataByYear } from "@/features/wallet/hooks/useGetEarningsDataByYear";
 import { useGetWalletInfo } from "@/features/wallet/hooks/useGetWalletInfo";
-import { defaultWalletTransactionQuery, useGetWalletTransactions } from "@/features/wallet/hooks/useGetWalletTransactions";
-
 import {
-  requestWithdraw
-} from "@/features/wallet/wallet.api";
+  defaultWalletTransactionQuery,
+  useGetWalletTransactions,
+} from "@/features/wallet/hooks/useGetWalletTransactions";
+import { requestWithdraw } from "@/features/wallet/wallet.api";
 import { WalletTransactionEntity } from "@/features/wallet/wallet.type";
 import { useQuerySync } from "@/hooks/useQuerySync";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
@@ -30,7 +30,7 @@ function WalletDashboard() {
   const user = useAppSelector(selectUser);
   const userId = user?.id || "";
 
-  const { query, queryString, setQuery, removeFilter, resetQuery } =
+  const { query, queryString, setQuery, resetQuery } =
     useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
   console.log(query);
   console.log(queryString);

@@ -93,10 +93,13 @@ export const OrderStatusButtonBuyer = ({
             <Hourglass className="h-4 text-green-500" /> Waiting for freelancer
             start work...
           </Button>
+          <Button onClick={onCancel} variant="outline">
+            <Ban className="h-4 text-red-500" /> Cancel
+          </Button>
         </>
       )}
 
-      {status === OrderStatus.REVISION_REQUESTED && (
+      {status === OrderStatus.REVISION && (
         <>
           <Button className="pointer-events-none" variant="outline">
             <Hourglass className="h-4 text-green-500" /> Waiting for freelancer

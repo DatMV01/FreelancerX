@@ -38,50 +38,50 @@ export default function OrderStats({
   const stats = [
     {
       key: OrderStatus.UNPAID,
-      title: "UNPAID",
+      title: OrderStatus.UNPAID,
       value: orders.filter((o: any) => o.status === OrderStatus.UNPAID).length,
       icon: CreditCard,
       color: "text-orange-600",
     },
     {
       key: OrderStatus.PENDING,
-      title: "PENDING",
+      title: OrderStatus.PENDING,
       value: orders.filter((o: any) => o.status === OrderStatus.PENDING).length,
       icon: Clock,
       color: "text-yellow-500",
     },
     {
       key: OrderStatus.ACCEPTED,
-      title: "ACCEPTED",
+      title: OrderStatus.ACCEPTED,
       value: orders.filter((o: any) => o.status === OrderStatus.ACCEPTED)
         .length,
       icon: CheckCircle,
       color: "text-cyan-600",
     },
     {
-      key: OrderStatus.IN_PROGRESS,
-      title: "IN PROGRESS",
-      value: orders.filter((o: any) => o.status === OrderStatus.IN_PROGRESS)
+      key: OrderStatus.PROGRESS,
+      title: OrderStatus.PROGRESS,
+      value: orders.filter((o: any) => o.status === OrderStatus.PROGRESS)
         .length,
       icon: Hammer,
       color: "text-blue-600",
     },
     {
-      key: OrderStatus.REVISION_REQUESTED,
-      title: "REVISION",
-      value: orders.filter(
-        (o: any) => o.status === OrderStatus.REVISION_REQUESTED,
-      ).length,
-      icon: RefreshCw,
-      color: "text-purple-600",
-    },
-    {
       key: OrderStatus.DELIVERED,
-      title: "DELIVERED",
+      title: OrderStatus.DELIVERED,
       value: orders.filter((o: any) => o.status === OrderStatus.DELIVERED)
         .length,
       icon: Package,
       color: "text-indigo-600",
+    },
+
+    {
+      key: OrderStatus.REVISION,
+      title: OrderStatus.REVISION,
+      value: orders.filter((o: any) => o.status === OrderStatus.REVISION)
+        .length,
+      icon: RefreshCw,
+      color: "text-purple-600",
     },
     {
       key: OrderStatus.COMPLETED,

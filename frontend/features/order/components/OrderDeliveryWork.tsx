@@ -20,7 +20,7 @@ interface DeliveryWorkCardProps {
 
 const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
   return (
-    <p className="flex w-full items-center gap-x-1 text-sm">
+    <p className="flex w-full flex-wrap items-center gap-x-1 text-sm">
       <span className="w-22 max-w-22">{k}</span>
       <span>:</span>
       {typeof v === "string" ? (
@@ -52,7 +52,7 @@ export const OrderDeliveryWork: React.FC<DeliveryWorkCardProps> = ({
               <Download className="h-4 w-4" />
             </Button>
 
-            <span className="text-muted-foreground ml-1 truncate text-sm">
+            <span className="text-muted-foreground ml-1 text-sm break-all">
               {decodeURIComponent(delivery?.file?.url.split("___").pop() || "")}
             </span>
           </a>

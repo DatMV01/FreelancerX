@@ -42,8 +42,8 @@ export default function OrderReview({
   };
 
   return (
-    <Card className=" ">
-      <CardContent className="space-y-1">
+    <div className="flex w-full flex-col gap-y-2 rounded-xs border p-2">
+      <div className="space-y-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-yellow-500">
             <Rating
@@ -102,7 +102,7 @@ export default function OrderReview({
             </Button>
           </div>
         ) : null}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

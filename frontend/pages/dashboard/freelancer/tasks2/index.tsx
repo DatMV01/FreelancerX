@@ -379,8 +379,8 @@ function FreelancerOrderPage() {
           // OrderStatus.UNPAID,
           OrderStatus.PENDING,
           OrderStatus.ACCEPTED,
-          OrderStatus.IN_PROGRESS,
-          OrderStatus.REVISION_REQUESTED,
+          OrderStatus.PROGRESS,
+          OrderStatus.REVISION,
           OrderStatus.DELIVERED,
           OrderStatus.COMPLETED,
           OrderStatus.CANCEL,
@@ -745,7 +745,7 @@ function FreelancerOrderPage() {
           const response = await axiosInstanceV1.patch(
             `/orders/${selectedId}`,
             {
-              status: OrderStatus.IN_PROGRESS,
+              status: OrderStatus.PROGRESS,
             },
           );
 
