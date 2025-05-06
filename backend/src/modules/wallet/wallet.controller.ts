@@ -6,24 +6,19 @@ import {
   Patch,
   Post,
   Query,
-  SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CREATE_GROUP } from 'src/common/constant/serialize.group';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { CurrentUser, Roles } from 'src/common/decorators';
+import { buildObjectFromQuery } from 'src/utils/typeorm-utils';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { PageDto, PageMetaDto } from '../base/dto/pagination';
-import { QueryDto } from '../base/dto/query.dto';
-import { WalletTransactionEntity } from './entities/wallet_transactions.entity';
 import { RoleEnum } from '../role/enum/role.enum';
 import { RolesGuard } from '../role/role.guard';
+import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { WalletService } from './wallet.service';
-import { AdjustBalanceDto, FilterTransactionDto } from './dto/wallet.dto';
 
-@Controller('wallet')
+@Controller('wallets')
 export class WalletController {
   constructor(protected readonly service: WalletService) {}
 
@@ -33,18 +28,35 @@ export class WalletController {
   //   return this.service.addPendingEarningToFreelancer(order);
   // }
 
-  @Post('/earning/approve')
-  @Roles(RoleEnum.ADMIN)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  async approvePendingEarning(
-    @Body() dto: { transactionId: string; orderId: string },
-    @CurrentUser() currentUser: JwtAccessPayloadType,
-  ) {
-    return this.service.approvePendingEarning(dto, currentUser);
-  }
+  // @Post('refund')
+  // @UseGuards(AuthGuard('jwt'))
+  // async refundToBuyer(@Body('order') order: any) {
+  //   return this.service.refundToBuyer(order);
+  // }
 
-  // --- 3. Freelancer yêu cầu rút tiền ---
-  @Post('withdraw/request')
+  // @Post('deposit')
+  // @UseGuards(AuthGuard('jwt'))
+  // async deposit(
+  //   @CurrentUser() currentUser: JwtAccessPayloadType,
+  //   @Body('amount') amount: string,
+  //   @Body('description') description: string,
+  // ) {
+  //   const userId = currentUser.id;
+
+  //   return this.service.deposit(userId, Number(amount), description);
+  // }
+
+  // @Patch('adjust')
+  // async adjustBalance(@Body() dto: AdjustBalanceDto) {
+  //   return this.service.adjustBalance(
+  //     dto.userId,
+  //     Number(dto.amount),
+  //     dto.actorType,
+  //     dto.description,
+  //   );
+  // }
+
+  @Post('/withdraw/request')
   @UseGuards(AuthGuard('jwt'))
   async requestWithdraw(
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -54,8 +66,18 @@ export class WalletController {
     return this.service.requestWithdraw(userId, dto);
   }
 
+  @Patch('/earning/approve/:transactionId')
+  @Roles(RoleEnum.ADMIN)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  async approvePendingEarning(
+    @Param('transactionId') transactionId: string,
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    return this.service.approvePendingEarning({ transactionId }, currentUser);
+  }
+
   // --- 4. Admin duyệt rút tiền ---
-  @Patch('withdraw/approve/:transactionId')
+  @Patch('/withdraw/approve/:transactionId')
   @Roles(RoleEnum.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   async approveWithdraw(
@@ -66,7 +88,7 @@ export class WalletController {
   }
 
   // --- 5. Admin từ chối rút tiền ---
-  @Patch('withdraw/reject/:transactionId')
+  @Patch('/withdraw/reject/:transactionId')
   @Roles(RoleEnum.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   async rejectWithdraw(
@@ -77,38 +99,6 @@ export class WalletController {
     return this.service.rejectWithdraw(transactionId, reason, currentUser);
   }
 
-  // --- 6. Hoàn tiền cho Buyer ---
-  @Post('refund')
-  @UseGuards(AuthGuard('jwt'))
-  async refundToBuyer(@Body('order') order: any) {
-    return this.service.refundToBuyer(order);
-  }
-
-  // --- 7. Admin nạp tiền cho user ---
-  @Post('deposit')
-  @UseGuards(AuthGuard('jwt'))
-  async deposit(
-    @CurrentUser() currentUser: JwtAccessPayloadType,
-    @Body('amount') amount: string,
-    @Body('description') description: string,
-  ) {
-    const userId = currentUser.id;
-
-    return this.service.deposit(userId, Number(amount), description);
-  }
-
-  // --- 8. Admin chỉnh sửa số dư ---
-  @Patch('adjust')
-  async adjustBalance(@Body() dto: AdjustBalanceDto) {
-    return this.service.adjustBalance(
-      dto.userId,
-      Number(dto.amount),
-      dto.actorType,
-      dto.description,
-    );
-  }
-
-  // --- 9. Lấy thông tin ví user ---
   @Get('/infomation')
   @UseGuards(AuthGuard('jwt'))
   async getWalletInfo(@CurrentUser() currentUser: JwtAccessPayloadType) {
@@ -118,26 +108,15 @@ export class WalletController {
 
   @Get('/transactions')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get all entities' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of entities',
-    type: PageDto<WalletTransactionEntity>,
-  })
   async findAll(
-    @Query() query: QueryDto<any>,
+    @Query() query: any,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ) {
-    const { page, pageSize, filters, sorts, fields } = query;
+    const { page, pageSize, keyword, filters, sorts, fields } = query;
 
-    const [results, count] = await this.service.findAll(
-      page,
-      pageSize,
-      filters,
-      sorts,
-      fields as any,
-      currentUser,
-    );
+    const queryObj = buildObjectFromQuery(query as any);
+
+    const [results, count] = await this.service.findAll(queryObj, currentUser);
 
     return new PageDto<any>(
       results,
@@ -148,49 +127,16 @@ export class WalletController {
     );
   }
 
-  // @Post('/withdrawal-request')
-  // @UseGuards(AuthGuard('jwt'))
-  // @SerializeOptions({ groups: [CREATE_GROUP] })
-  // @ApiOperation({ summary: 'Create a new entity' })
-  // @ApiBody({ type: Object, required: false })
-  // async createWithdrawal(
-  //   @Body() data: CreateWithdrawalDto,
-  //   @CurrentUser() currentUser: JwtAccessPayloadType,
-  // ): Promise<any> {
-  //   return await this.service.createWithdrawal({
-  //     freelancerId: currentUser.freelancerId,
-  //     data,
-  //   });
-  // }
+  @Get('/transactions/:id')
+  @UseGuards(AuthGuard('jwt'))
+  async getTransactionById(
+    @Param('id') id: string,
 
-  // @Patch(':id/approve')
-  // @UseGuards(AuthGuard('jwt'))
-  // @Roles(RoleEnum.ADMIN)
-  // async approveWithdraw(@Param('id') id: string) {
-  //   return this.service.approveWithdraw(id);
-  // }
-
-  // @Patch(':id/reject')
-  // //@UseGuards(AuthGuard('jwt'))
-  // @Roles(RoleEnum.ADMIN, RoleEnum.FREELANCER)
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // async rejectWithdraw(
-  //   @Param('id') id: string,
-  //   @Body() rejectionReason: string,
-  //   @CurrentUser() currentUser: JwtAccessPayloadType,
-  // ) {
-  //   return this.service.rejectWithdraw(id, rejectionReason);
-  // }
-
-  // @Get('/wallet')
-  // @UseGuards(AuthGuard('jwt'))
-  // async getWalletInfo(
-  //   @CurrentUser() currentUser: JwtAccessPayloadType,
-  // ): Promise<any> {
-  //   return await this.service.getWalletInfo({
-  //     freelancerId: currentUser.freelancerId,
-  //   });
-  // }
+    @CurrentUser() currentUser: JwtAccessPayloadType,
+  ) {
+    const userId = currentUser.id;
+    return this.service.getTransactionById(id);
+  }
 
   @Get('/earnings/:year')
   @UseGuards(AuthGuard('jwt'))

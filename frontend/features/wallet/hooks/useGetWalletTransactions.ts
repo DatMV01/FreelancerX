@@ -7,11 +7,12 @@ import {
 import { fetchWalletTransactions } from "../wallet.api";
 import { WalletTransactionEntity } from "../wallet.type";
 
-export const defaultWalletTransactionQuery: QueryInput<WalletTransactionEntity> = {
-  page: 1,
-  pageSize: 10,
-  sorts: { createdAt: "DESC" },
-} as any;
+export const defaultWalletTransactionQuery: QueryInput<WalletTransactionEntity> =
+  {
+    page: 1,
+    pageSize: 10,
+    sorts: { processedAt: "DESC", createdAt: "DESC" },
+  } as any;
 
 const fetcher = async (queryStr: string) => {
   try {
@@ -31,31 +32,6 @@ const fetcher = async (queryStr: string) => {
 export function useGetWalletTransactions(queryString: string) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     queryString ? queryString : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 0,
-      refreshInterval: 0,
-    },
-  );
-
-  return {
-    data,
-    error,
-    isLoading,
-    isValidating,
-    mutate,
-  };
-}
-
-export function useWalletTransactions2(
-  queryObj: QueryInput<WalletTransactionEntity>,
-) {
-  const queryString = buildQueryFromObject(queryObj);
-
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
-    queryString,
     fetcher,
     {
       revalidateOnFocus: false,

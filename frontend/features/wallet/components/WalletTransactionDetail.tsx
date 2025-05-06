@@ -1,241 +1,259 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CircularProgressCenter from "@/components/CircularProgressCenter";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import Decimal from "decimal.js";
+import { CheckCircle, RefreshCcw, XCircle } from "lucide-react";
+import { useGetWalletTransaction } from "../hooks/useGetWalletTransaction";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  ActorType,
+  TransactionStatus,
+  TransactionType,
+  WalletTransactionEntity,
+} from "../wallet.type";
+import { WalletTransactionMethodBadge } from "./WalletTransactionMethodBadge";
+import { WalletTransactionStatusBadge } from "./WalletTransactionStatusBadge";
+import { WalletTransactionTypeBadge } from "./WalletTransactionTypeBadge";
+import { WalletTransationStatusButtonAdmin } from "./WalletTransationStatusButtonAdmin";
+import { useState } from "react";
+import ApproveEarningDialog from "./ApproveEarningDialog";
+import { toast } from "sonner";
+import RejectEarningDialog from "./RejectEarningDialog";
+import ApproveWithdrawDialog from "./ApproveWithdrawDialog";
+import RejectWithdrawDialog from "./RejectWithdrawDialog";
 import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Ban,
-  Bitcoin,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  DollarSign,
-  HandCoins,
-  HelpCircle,
-  Landmark,
-  Send,
-  Wallet2,
-  XCircle,
-} from "lucide-react";
-import { TransactionMethod, TransactionStatus } from "../wallet.type";
-type WalletTransactionDetailProps = {
-  transaction: {
-    id: string;
-    walletId: string;
-    type: string;
-    status: string;
-    amount: string;
-    actorType: string;
-    actorId: string;
-    referenceCode: string;
-    balanceBefore: string;
-    balanceAfter: string;
-    method: string;
-    metadata: Record<string, any>;
-    description: string;
-    currency: string;
-    createdAt: string;
-    processedAt: string | null;
-    processedBy: string | null;
-  };
-};
+  approvePendingEarning,
+  approveWithdraw,
+  rejectWithdraw,
+} from "../wallet.api";
 
-const renderStatus = (status: string) => {
-  switch (status.toUpperCase()) {
-    case TransactionStatus.SUCCESS:
-      return (
-        <Badge className="flex items-center gap-1 bg-green-100 text-green-700">
-          <CheckCircle size={14} /> {TransactionStatus.SUCCESS}
-        </Badge>
-      );
-    case TransactionStatus.PENDING:
-      return (
-        <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800">
-          <Clock size={14} /> {TransactionStatus.PENDING}
-        </Badge>
-      );
-    case TransactionStatus.REJECT:
-      return (
-        <Badge className="flex items-center gap-1 bg-red-100 text-red-700">
-          <XCircle size={14} /> {TransactionStatus.REJECT}
-        </Badge>
-      );
-    case TransactionStatus.FAILED:
-      return (
-        <Badge className="flex items-center gap-1 bg-gray-200 text-gray-800">
-          <Ban size={14} /> {TransactionStatus.FAILED}
-        </Badge>
-      );
-    default:
-      return <Badge>{status}</Badge>;
-  }
-};
-
-const renderMethod = (method: string) => {
-  switch (method) {
-    case TransactionMethod.BANK:
-      return (
-        <Badge className="flex items-center gap-1 bg-blue-100 text-blue-700">
-          <Landmark size={14} /> {TransactionMethod.BANK}
-        </Badge>
-      );
-    case TransactionMethod.PAYPAL:
-      return (
-        <Badge className="flex items-center gap-1 bg-sky-100 text-sky-700">
-          <Send size={14} /> {TransactionMethod.PAYPAL}
-        </Badge>
-      );
-    case TransactionMethod.WALLET:
-      return (
-        <Badge className="flex items-center gap-1 bg-gray-100 text-gray-700">
-          <Wallet2 size={14} /> {TransactionMethod.WALLET}
-        </Badge>
-      );
-    case TransactionMethod.CRYPTO:
-      return (
-        <Badge className="flex items-center gap-1 bg-purple-100 text-purple-700">
-          <Bitcoin size={14} /> {TransactionMethod.CRYPTO}
-        </Badge>
-      );
-    case TransactionMethod.STRIPE:
-      return (
-        <Badge className="flex items-center gap-1 bg-indigo-100 text-indigo-700">
-          <CreditCard size={14} /> {TransactionMethod.STRIPE}
-        </Badge>
-      );
-    case TransactionMethod.MANUAL:
-      return (
-        <Badge className="flex items-center gap-1 bg-zinc-100 text-zinc-700">
-          <HandCoins size={14} /> {TransactionMethod.MANUAL}
-        </Badge>
-      );
-    default:
-      return <Badge>{method}</Badge>;
-  }
-};
-
-const renderType = (type: string) => {
-  const map = {
-    EARNING: {
-      label: "Earning - You get paid for the order",
-      icon: <ArrowDownCircle size={16} className="text-green-700" />,
-      className: "text-green-700",
-      short: "Earning",
-    },
-    WITHDRAW: {
-      label: "Withdraw - You withdraw money from your wallet",
-      icon: <ArrowUpCircle size={16} className="text-blue-700" />,
-      className: "text-blue-700",
-      short: "Withdraw",
-    },
-    REFUND: {
-      label: "Refund - Money is refunded",
-      icon: <DollarSign size={16} className="text-purple-700" />,
-      className: "text-purple-700",
-      short: "Refund",
-    },
-    DEFAULT: {
-      label: "Unknown transaction type",
-      icon: <HelpCircle size={16} className="text-gray-500" />,
-      className: "text-gray-500",
-      short: type,
-    },
-  };
-
-  const data = map[type as keyof typeof map] || map.DEFAULT;
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className={`flex items-center gap-1 ${data.className}`}>
-            {data.icon}
-            {data.short}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{data.label}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
+type Props = {
+  transaction: WalletTransactionEntity;
+  actorType?: ActorType;
+  mutateAllTransactions: any;
 };
 
 export function WalletTransactionDetail({
   transaction,
-}: WalletTransactionDetailProps) {
-  console.log(transaction);
-  if (!transaction) return;
+  actorType,
+  mutateAllTransactions,
+}: Props) {
+  const [approveWithdrawDialogOpen, setApproveWithdrawDialogOpen] =
+    useState(false);
+  const [rejectWithdrawDialogOpen, setRejectWithdrawDialogOpen] =
+    useState(false);
+  const [approveEarningDialogOpen, setApproveEarningDialogOpen] =
+    useState(false);
+  const [rejectEarningDialogOpen, setRejectEarningDialogOpen] = useState(false);
+
+  const [processing, setProcessing] = useState(false);
+
+  const {
+    data: walletTransaction,
+    isLoading: isLoadingTransaction,
+    isValidating: isValidatingTransaction,
+    error: errorWalletTransaction,
+    mutate: mutateWalletTransaction,
+  } = useGetWalletTransaction(transaction.id);
+
+  if (isLoadingTransaction || isValidatingTransaction) {
+    return <CircularProgressCenter />;
+  }
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Transaction #{transaction.referenceCode}</CardTitle>
-      </CardHeader>
-      <CardContent className="text-muted-foreground space-y-4 text-sm">
-        <div className="flex justify-between">
-          <span>Id</span>
-          <span>{transaction.id}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Amount</span>
-          <span className="font-bold text-black">
-            {new Decimal(transaction.amount).toFixed(2)} {transaction.currency}
-          </span>
-        </div>
-        <div className="flex justify-between">
-          <span>Type</span>
-          <span>{renderType(transaction.type)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Status</span>
-          <span>{renderStatus(transaction.status)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Method</span>
-          <span>{renderMethod(transaction.method)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Actor</span>
-          <span>{transaction.actorType}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Description</span>
-          <span>{transaction.description}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Balance Before</span>
-          <span>{new Decimal(transaction.balanceBefore).toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Balance After</span>
-          <span>{new Decimal(transaction.balanceAfter).toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Created At</span>
-          <span>{format(new Date(transaction.createdAt), "PPPppp")}</span>
-        </div>
-        {transaction.processedAt && (
+    <div className="flex h-full flex-col items-center justify-between gap-y-2 px-4">
+      <div className="w-full rounded-xs p-2">
+        <div className="text-muted-foreground space-y-4 text-sm">
           <div className="flex justify-between">
-            <span>Processed At</span>
-            <span>{format(new Date(transaction.processedAt), "PPPppp")}</span>
+            <span>Id</span>
+            <span>{walletTransaction.id}</span>
           </div>
-        )}
-        {transaction.processedBy && (
+
           <div className="flex justify-between">
-            <span>Processed By</span>
-            <span>ADMIN</span>
+            <span>ReferenceCode</span>
+            <span>{walletTransaction.referenceCode}</span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          <div className="flex justify-between">
+            <span>Amount</span>
+            <span className="font-bold text-black">
+              {new Decimal(walletTransaction.amount).toFixed(2)}{" "}
+              {walletTransaction.currency}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Type</span>
+            <WalletTransactionTypeBadge type={walletTransaction.type} />
+          </div>
+          <div className="flex justify-between">
+            <span>Status</span>
+            <WalletTransactionStatusBadge status={walletTransaction.status} />
+          </div>
+          {walletTransaction?.metadata?.reason && (
+            <div className="flex justify-between">
+              <span>Reason</span>
+              <span>{walletTransaction.metadata.reason}</span>
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            <span>Method</span>
+            <WalletTransactionMethodBadge method={walletTransaction.method} />
+          </div>
+          <div className="flex justify-between">
+            <span>Actor</span>
+            <span>{walletTransaction.actorType}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Description</span>
+            <span>{walletTransaction.description}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Balance Before</span>
+            <span>
+              {new Decimal(walletTransaction.balanceBefore).toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Balance After</span>
+            <span>
+              {new Decimal(walletTransaction.balanceAfter).toFixed(2)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>Created At</span>
+            <span>
+              {format(
+                new Date(walletTransaction.createdAt),
+                "dd/MM/yyyy HH:mm",
+              )}
+            </span>
+          </div>
+          {walletTransaction.processedAt && (
+            <div className="flex justify-between">
+              <span>Processed At</span>
+              <span>
+                {format(
+                  new Date(walletTransaction.processedAt),
+                  "dd/MM/yyyy HH:mm",
+                )}
+              </span>
+            </div>
+          )}
+          {walletTransaction.processedBy && (
+            <div className="flex justify-between">
+              <span>Processed By</span>
+              <span>ADMIN</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex gap-x-2">
+        <WalletTransationStatusButtonAdmin
+          status={walletTransaction.status}
+          type={walletTransaction.type}
+          onApproveWithdraw={() => {
+            setApproveWithdrawDialogOpen(true);
+          }}
+          onRejectWithdraw={() => {
+            setRejectWithdrawDialogOpen(true);
+          }}
+          onApproveEarning={() => {
+            setApproveEarningDialogOpen(true);
+          }}
+          onRejectEarning={() => {
+            setRejectEarningDialogOpen(true);
+          }}
+          onRefresh={() => {
+            mutateWalletTransaction();
+          }}
+        />
+      </div>
+
+      <>
+        <ApproveWithdrawDialog
+          open={approveWithdrawDialogOpen}
+          onOpenChange={setApproveWithdrawDialogOpen}
+          processing={processing}
+          onConfirm={async () => {
+            setProcessing(true);
+
+            try {
+              const response = await approveWithdraw(walletTransaction.id);
+
+              if (response.status === 200) {
+                mutateWalletTransaction();
+                mutateAllTransactions && mutateAllTransactions();
+              }
+            } catch (error) {
+              toast.error("ApproveWithdrawDialog Error");
+            } finally {
+              setApproveWithdrawDialogOpen(false);
+              setProcessing(false);
+            }
+          }}
+        />
+
+        <RejectWithdrawDialog
+          open={rejectWithdrawDialogOpen}
+          onOpenChange={setRejectWithdrawDialogOpen}
+          processing={processing}
+          onReject={async (reason) => {
+            setProcessing(true);
+
+            try {
+              const response = await rejectWithdraw(
+                walletTransaction.id,
+                reason,
+              );
+
+              if (response.status === 200) {
+                mutateWalletTransaction();
+                mutateAllTransactions && mutateAllTransactions();
+              }
+            } catch (error) {
+              toast.error("RejectWithdrawDialog Error");
+            } finally {
+              setRejectWithdrawDialogOpen(false);
+              setProcessing(false);
+            }
+          }}
+        />
+
+        <ApproveEarningDialog
+          open={approveEarningDialogOpen}
+          onOpenChange={setApproveEarningDialogOpen}
+          processing={processing}
+          onConfirm={async () => {
+            setProcessing(true);
+
+            try {
+              const response = await approvePendingEarning(
+                walletTransaction.id,
+              );
+
+              if (response.status === 200) {
+                mutateWalletTransaction();
+                mutateAllTransactions && mutateAllTransactions();
+              }
+            } catch (error) {
+              toast.error("ApproveEarningDialog Error");
+            } finally {
+              setApproveEarningDialogOpen(false);
+              setProcessing(false);
+            }
+          }}
+        />
+
+        {/* <RejectEarningDialog
+          open={rejectEarningDialogOpen}
+          onOpenChange={setRejectEarningDialogOpen}
+          processing={processing}
+          onReject={(reason) => toast.info(reason)}
+        /> */}
+      </>
+    </div>
   );
 }

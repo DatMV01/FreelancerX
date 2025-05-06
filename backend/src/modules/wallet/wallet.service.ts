@@ -1,20 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
+import { nanoid } from 'nanoid';
 import {
-  DataSource,
-  FindManyOptions,
-  FindOptionsOrder,
-  FindOptionsWhere,
-  In,
-  IsNull,
-  Like,
-  QueryRunner,
-  Repository,
-} from 'typeorm';
+  buildOrderClause2,
+  buildWhereClause,
+  QueryInput,
+} from 'src/utils/typeorm-utils';
+import { DataSource, FindManyOptions, QueryRunner, Repository } from 'typeorm';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { MailService } from '../mail/mail.service';
 import { OrderEntity } from '../order/entities/order.entity';
+import { RoleEnum } from '../role/enum/role.enum';
 import { UserEntity } from '../user/entities/user.entity';
 import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { WalletEntity } from './entities/wallet.entity';
@@ -25,10 +22,6 @@ import {
   TransactionStatus,
   TransactionType,
 } from './enum/transaction.enum';
-import { GetTransactionsDto } from './dto/get-transaction.dto';
-import { buildOrderClause, buildWhereClause } from 'src/utils/typeorm-utils';
-import { RoleEnum } from '../role/enum/role.enum';
-import { nanoid } from 'nanoid';
 
 @Injectable()
 export class WalletService {
@@ -70,7 +63,7 @@ export class WalletService {
       transaction.actorId = order.freelancerId;
       transaction.actorType = ActorType.FREELANCER;
       transaction.method = TransactionMethod.WALLET;
-      transaction.description = `Pending earning for order #${order.id}`;
+      transaction.description = `Pending earning for order: ${order.orderNo}`;
 
       await queryRunner.manager.save(WalletTransactionEntity, transaction);
       await queryRunner.commitTransaction();
@@ -106,7 +99,7 @@ export class WalletService {
     //transaction.actorId = order.freelancerId;
     transaction.actorType = ActorType.SYSTEM;
     transaction.method = TransactionMethod.WALLET;
-    transaction.description = `Pending earning ${order.totalAmount} ${order.currency} for order #${order.id}`;
+    transaction.description = `Pending earning ${order.totalAmount} ${order.currency} for order: ${order.orderNo}`;
 
     await queryRunner.manager.save(WalletTransactionEntity, transaction);
   }
@@ -116,7 +109,7 @@ export class WalletService {
       transactionId,
       orderId,
     }: {
-      transactionId?: string;
+      transactionId: string;
       orderId?: string;
     },
     currentUser: JwtAccessPayloadType,
@@ -312,6 +305,7 @@ export class WalletService {
 
       transaction.status = TransactionStatus.REJECT;
       transaction.processedBy = currentUser.id;
+      transaction.processedAt = new Date();
       transaction.metadata = {
         ...transaction.metadata,
         reason,
@@ -369,7 +363,9 @@ export class WalletService {
     refundTransaction.amount = refundAmount.toNumber();
     refundTransaction.balanceBefore = balanceBefore.toNumber();
     refundTransaction.balanceAfter = wallet.availableBalance;
+    refundTransaction.processedAt = new Date();
     //  refundTransaction.actorId = order.buyerId;
+    refundTransaction.method = TransactionMethod.WALLET;
     refundTransaction.actorType = ActorType.SYSTEM;
     refundTransaction.description = `Refund ${order.currency}${order.totalAmount} for canceled order #${order.id}`;
 
@@ -410,7 +406,9 @@ export class WalletService {
       refundTransaction.actorId = order.buyerId;
       refundTransaction.actorType = ActorType.BUYER;
       refundTransaction.description = `Refund for canceled order #${order.id}`;
-
+      refundTransaction.processedAt = new Date();
+      refundTransaction.method = TransactionMethod.WALLET;
+      
       await queryRunner.manager.save(
         WalletTransactionEntity,
         refundTransaction,
@@ -540,223 +538,50 @@ export class WalletService {
     };
   }
 
-  async getWalletTransactions(
-    userId: string,
-    filter: {
-      page?: number;
-      limit?: number;
-      type?: TransactionType; // optional: EARNING | WITHDRAWAL | REFUND | ...
-      status?: TransactionStatus; // optional: SUCCESS | FAILED | PENDING
-      startDate?: Date;
-      endDate?: Date;
-    },
-  ) {
-    const page = filter.page || 1;
-    const limit = filter.limit || 20;
-    const skip = (page - 1) * limit;
+  async getTransactionById(id: string) {
+    const tx = await this.walletTxRepo.findOne({
+      where: { id },
+    });
 
-    const query = this.walletTxRepo
-      .createQueryBuilder('transaction')
-      .where('transaction.actorId = :userId', { userId })
-      .andWhere('transaction.actorType = :actorType', {
-        actorType: ActorType.FREELANCER,
-      });
-
-    if (filter.type) {
-      query.andWhere('transaction.type = :type', { type: filter.type });
+    if (!tx) {
+      throw new NotFoundException('Wallet transaction not found.');
     }
 
-    if (filter.status) {
-      query.andWhere('transaction.status = :status', { status: filter.status });
-    }
-
-    if (filter.startDate && filter.endDate) {
-      query.andWhere('transaction.createdAt BETWEEN :startDate AND :endDate', {
-        startDate: filter.startDate,
-        endDate: filter.endDate,
-      });
-    }
-
-    const [items, total] = await query
-      .orderBy('transaction.createdAt', 'DESC')
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-
-    return {
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-      data: items.map((tx) => ({
-        id: tx.id,
-        type: tx.type,
-        status: tx.status,
-        amount: tx.amount,
-        description: tx.description,
-        createdAt: tx.createdAt,
-      })),
-    };
-  }
-
-  async findAll2(
-    page = 1,
-    limit = 10,
-    filters?: FindOptionsWhere<WalletTransactionEntity>,
-    sorts?: FindOptionsOrder<WalletTransactionEntity>,
-    fields?: (keyof WalletTransactionEntity)[],
-    currentUser?: JwtAccessPayloadType,
-  ): Promise<[WalletTransactionEntity[], number]> {
-    try {
-      const queryBuilder = this.walletTxRepo.createQueryBuilder('transaction');
-
-      // Nếu người dùng không phải là admin, thêm điều kiện lọc theo ví của người dùng
-      if (currentUser?.role.toLocaleLowerCase() !== 'admin') {
-        const wallet = await this.walletRepo.findOne({
-          where: { userId: currentUser?.id },
-        });
-
-        if (!wallet) throw new Error('Wallet not found');
-
-        queryBuilder.andWhere('transaction.walletId = :walletId', {
-          walletId: wallet.id,
-        });
-      }
-
-      // Áp dụng các điều kiện lọc
-      if (filters) {
-        Object.keys(filters).forEach((key) => {
-          const value = filters[key];
-          if (value === undefined || value === null) return;
-
-          if (Array.isArray(value)) {
-            queryBuilder.andWhere(`transaction.${key} IN (:...values)`, {
-              values: value,
-            });
-          } else if (typeof value === 'string') {
-            const normalizedValue = value.trim().toLowerCase();
-            if (normalizedValue.startsWith('like_')) {
-              queryBuilder.andWhere(`LOWER(transaction.${key}) LIKE :value`, {
-                value: `%${normalizedValue.replace('like_', '')}%`,
-              });
-            } else if (/^(>|>=|<|<=|=)_/.test(normalizedValue)) {
-              const operator = normalizedValue.slice(
-                0,
-                normalizedValue.indexOf('_'),
-              );
-              const actualValue = normalizedValue
-                .slice(normalizedValue.indexOf('_') + 1)
-                .trim();
-              queryBuilder.andWhere(`transaction.${key} ${operator} :value`, {
-                value: actualValue,
-              });
-            } else {
-              queryBuilder.andWhere(`transaction.${key} = :value`, { value });
-            }
-          } else {
-            queryBuilder.andWhere(`transaction.${key} IS NULL`);
-          }
-        });
-      }
-
-      // Áp dụng các điều kiện sắp xếp
-      if (sorts) {
-        Object.entries(sorts).forEach(([key, order]) => {
-          queryBuilder.addOrderBy(
-            `transaction.${key}`,
-            (order as string).toUpperCase() as 'ASC' | 'DESC',
-          );
-        });
-      }
-
-      // Lấy tổng số bản ghi
-      const [data, total] = await queryBuilder
-        .skip((page - 1) * limit)
-        .take(limit)
-        .select(fields ? fields.map((field) => `transaction.${field}`) : [])
-        .getManyAndCount();
-
-      return [data, total];
-    } catch (error) {
-      throw new Error(`Error fetching data: ${error.message}`);
-    }
+    return tx;
   }
 
   async findAll(
-    page = 1,
-    pageSize = 10,
-    filters?: FindOptionsWhere<WalletTransactionEntity>,
-    sorts?: FindOptionsOrder<WalletTransactionEntity>,
-    fields?: (keyof WalletTransactionEntity)[],
+    queryObj: QueryInput<WalletTransactionEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<[WalletTransactionEntity[], number]> {
+    let { page, pageSize, sorts, filters, fields } = queryObj;
+
+    if (currentUser?.role.toUpperCase() !== RoleEnum[RoleEnum.ADMIN]) {
+      const wallet = await this.walletRepo.findOneOrFail({
+        where: { userId: currentUser?.id },
+      });
+
+      filters = {
+        ...filters,
+        walletId: wallet.id,
+      };
+    }
+
     try {
-      if (currentUser?.role.toUpperCase() !== RoleEnum[RoleEnum.ADMIN]) {
-        const wallet = await this.walletRepo.findOne({
-          where: { userId: currentUser?.id },
-        });
-
-        if (!wallet) {
-          throw new Error('Wallet not found');
-        }
-
-        filters = {
-          ...filters,
-          walletId: wallet.id,
-        };
-      }
-
       let options: FindManyOptions<WalletTransactionEntity> = {
         where: buildWhereClause(filters),
-        order: buildOrderClause(sorts),
+        order: buildOrderClause2(sorts),
         skip: (page - 1) * pageSize,
         take: pageSize,
-        select: fields as any,
+        select: fields ? (fields as any) : undefined,
       };
 
-      const [data, total] = await this.walletTxRepo.findAndCount(options);
+      const result = await this.walletTxRepo.findAndCount(options);
 
-      return [data, total];
+      return result;
     } catch (error) {
       throw new Error(`Error fetching data: ${error.message}`);
     }
-  }
-
-  generateReferenceCode(transactionType: TransactionType): string {
-    let prefix = 'TX'; // default nếu không match type
-
-    switch (transactionType) {
-      case TransactionType.WITHDRAW:
-        prefix = 'WD';
-        break;
-      case TransactionType.PAYMENT:
-        prefix = 'PMT';
-        break;
-      case TransactionType.REFUND:
-        prefix = 'RF';
-        break;
-      case TransactionType.EARNING:
-        prefix = 'EARN';
-        break;
-      case TransactionType.DEPOSIT:
-        prefix = 'DEP';
-        break;
-      case TransactionType.PLATFORM_FEE:
-        prefix = 'FEE';
-        break;
-      case TransactionType.ADJUSTMENT:
-        prefix = 'ADJ';
-        break;
-      default:
-        prefix = 'TX'; // transaction chung chung
-    }
-
-    return `${prefix}-${new Date()
-      .toISOString()
-      .replace(/[-:T.]/g, '')
-      .slice(0, 14)}-${nanoid(12)}`;
   }
 
   async getEarningsDataByYear(currentUser: JwtAccessPayloadType, year: number) {
@@ -836,6 +661,40 @@ export class WalletService {
     };
   }
 
+  generateReferenceCode(transactionType: TransactionType): string {
+    let prefix = 'TX'; // default nếu không match type
+
+    switch (transactionType) {
+      case TransactionType.WITHDRAW:
+        prefix = 'WD';
+        break;
+      case TransactionType.PAYMENT:
+        prefix = 'PMT';
+        break;
+      case TransactionType.REFUND:
+        prefix = 'RF';
+        break;
+      case TransactionType.EARNING:
+        prefix = 'EARN';
+        break;
+      case TransactionType.DEPOSIT:
+        prefix = 'DEP';
+        break;
+      case TransactionType.PLATFORM_FEE:
+        prefix = 'FEE';
+        break;
+      case TransactionType.ADJUSTMENT:
+        prefix = 'ADJ';
+        break;
+      default:
+        prefix = 'TX'; // transaction chung chung
+    }
+
+    return `${prefix}-${new Date()
+      .toISOString()
+      .replace(/[-:T.]/g, '')
+      .slice(0, 14)}-${nanoid(12)}`;
+  }
   //  @Cron(CronExpression.EVERY_WEEK)
   // @Cron(CronExpression.EVERY_MINUTE)
   // async handleApprovePending() {

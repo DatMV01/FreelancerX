@@ -32,8 +32,6 @@ function WalletDashboard() {
 
   const { query, queryString, setQuery, resetQuery } =
     useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
-  console.log(query);
-  console.log(queryString);
 
   const {
     data: wallet,

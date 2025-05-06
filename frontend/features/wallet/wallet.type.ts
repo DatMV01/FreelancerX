@@ -61,6 +61,6 @@ export interface WalletTransactionEntity {
   description?: string;
   currency: string;
   createdAt: Date;
-  approvedAt: Date | null;
-  rejectedAt: Date | null;
+  processedAt: string | null;
+  processedBy: string | null;
 }

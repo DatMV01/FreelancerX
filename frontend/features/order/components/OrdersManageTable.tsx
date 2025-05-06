@@ -28,11 +28,7 @@ import {
 import { useQuerySync } from "@/hooks/useQuerySync";
 import { format, formatDate } from "date-fns";
 import { saveAs } from "file-saver";
-import {
-  ArrowUpDown,
-  Eye,
-  RefreshCcw
-} from "lucide-react";
+import { ArrowUpDown, Download, Eye, RefreshCcw } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 import React, { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
@@ -40,6 +36,10 @@ import { OrderTypeBadge } from "../components/OrderTypeBadge";
 import { defaulFetchOrdersByAdminQuery } from "../hooks/useGetOrdersByAdmin";
 import { OrderEntity } from "../order.entity";
 import { OrderDetail } from "./OrderDetail";
+
+function formatDate2(date?: string) {
+  return date ? format(new Date(date), "dd/MM/yyyy HH:mm") : "";
+}
 
 const TableHeaderSection = ({
   handleSort,
@@ -246,26 +246,66 @@ function OrdersManageTable({
     return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  const handleExportCSV = () => {
-    const data = orders.map((_) => {
-      return {
-        title: _?.title,
-        basicPrice: _?.basicPrice,
-        standardPrice: _?.standardPrice,
-        premiumPrice: _?.premiumPrice,
-        status: _?.status,
-        ratingAverate: _?.ratingAverate,
-        views: _?.views,
-        orderCount: _?.orderCount,
-        createdAt: formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
-      };
-    });
-    const worksheet = XLSX.utils.json_to_sheet(data);
+  const handleExportExcel = (order: any) => {
+    if (!order) return;
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, worksheet, "Earnings");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(blob, `gigs.xlsx`);
+
+    // === Sheet: Order Summary ===
+    const summaryData = [
+      ["Order No", order.orderNo],
+      ["Status", order.status],
+      ["Gig Title", order.snapshot.gig.title],
+      ["Package", order.snapshot.package.title],
+      ["Price", `${order.totalAmount} ${order.currency}`],
+      ["Buyer", order.snapshot.buyer.fullName],
+      ["Freelancer", order.snapshot.freelancer.displayName],
+      ["Start Date", formatDate2(order.startDate)],
+      ["Created At", formatDate2(order.createdAt)],
+      ["Updated At", formatDate2(order.updatedAt)],
+    ];
+    const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, summarySheet, "Order Summary");
+
+    // === Sheet: Package Features ===
+    const features = order.snapshot.package.features.map((f: any) => ({
+      Feature: f.package,
+      Value: f.value,
+    }));
+    const featuresSheet = XLSX.utils.json_to_sheet(features);
+    XLSX.utils.book_append_sheet(wb, featuresSheet, "Package Features");
+
+    // === Sheet: Order Logs ===
+    const logs = order.orderlogs.map((log: any) => ({
+      Time: formatDate2(log.createdAt),
+      Action: log.action,
+      From: log.fromStatus ?? "",
+      To: log.toStatus,
+      Actor: log.actor.fullName,
+      Role: log.actor.role.name,
+      Message: log.message,
+    }));
+    const logsSheet = XLSX.utils.json_to_sheet(logs);
+    XLSX.utils.book_append_sheet(wb, logsSheet, "Order Logs");
+
+    // === Sheet: Payment Info ===
+    const payment = order.snapshot.paymentUrl ?? {};
+    const paymentData = [
+      ["Payment ID", payment.paymentId ?? ""],
+      ["Status", payment.status ?? ""],
+      ["Amount", `${payment.amount ?? order.totalAmount} ${order.currency}`],
+      ["Method", payment.method ?? ""],
+      ["Bank Code", payment.bankCode ?? ""],
+      ["Paid At", formatDate2(payment.paidAt)],
+    ];
+    const paymentSheet = XLSX.utils.aoa_to_sheet(paymentData);
+    XLSX.utils.book_append_sheet(wb, paymentSheet, "Payment Info");
+
+    // === Export Excel ===
+    const fileName = `${order.orderNo}.xlsx`;
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, fileName);
   };
 
   if (error) return <div>Failed to load data.</div>;
@@ -490,28 +530,12 @@ function OrdersManageTable({
                           <Eye className="h-4" /> View Details
                         </Button>
 
-                        {/* <OrderFreelancerStatusButton
-                       status={_.status}
-                       onViewDetails={() => {
-                         setSelectedId(_.id);
-                         setDetailOpen(true);
-                       }}
-                       onAccept={() => {}}
-                       onDecline={() => {}}
-                       onStart={() => {
-                         setSelectedId(_.id);
-                         setStartWorkDialogOpen(true);
-                       }}
-                       onCancel={() => {
-                         setSelectedId(_.id);
-                         setCancelOrderDialogOpen(true);
-                       }}
-                       onDeliver={() => {
-                         setSelectedId(_.id);
-                         setOpenDeliver(true);
-                       }}
-                       onAskQuestion={() => {}}
-                     /> */}
+                        {/* <Button
+                          variant="outline"
+                          onClick={() => handleExportExcel(_)}
+                        >
+                          <Download className="mr-1 h-4 w-4" /> Export Excel
+                        </Button> */}
                       </TableCell>
                     </TableRow>
                   </React.Fragment>
