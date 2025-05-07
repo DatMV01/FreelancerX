@@ -27,9 +27,6 @@ function WalletDashboard() {
   const [openWithdraw, setOpenWithdraw] = useState(false);
   const [year, setYear] = useState(2025);
 
-  const user = useAppSelector(selectUser);
-  const userId = user?.id || "";
-
   const { query, queryString, setQuery, resetQuery } =
     useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
 
@@ -39,22 +36,22 @@ function WalletDashboard() {
     isLoading: isLoadingWallet,
     isValidating: isValidatingWallet,
     mutate: mutateWallet,
-  } = useGetWalletInfo(userId);
+  } = useGetWalletInfo();
 
   const {
     data: earningsData,
-    error: errorEarnings,
     isLoading: isLoadingEarnings,
     isValidating: isValidatingEarnings,
     mutate: mutateEarnings,
+    error: errorEarnings,
   } = useGetEarningsDataByYear(year);
 
   const {
     data: walletTransactions,
     isLoading: isLoadingTransactions,
     isValidating: isValidatingTransactions,
-    error: errorWalletTransactions,
     mutate: mutateWalletTransactions,
+    error: errorWalletTransactions,
   } = useGetWalletTransactions(queryString);
 
   const handleWithdrawSubmit = async (form: any) => {

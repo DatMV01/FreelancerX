@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import Decimal from "decimal.js";
 import { CheckCircle, RefreshCcw, XCircle } from "lucide-react";
-import { useGetWalletTransaction } from "../hooks/useGetWalletTransaction";
 import {
   ActorType,
   TransactionStatus,
@@ -27,6 +26,7 @@ import {
   approveWithdraw,
   rejectWithdraw,
 } from "../wallet.api";
+import { useGetWalletTransaction } from "../hooks/useGetWalletTransaction";
 
 type Props = {
   transaction: WalletTransactionEntity;

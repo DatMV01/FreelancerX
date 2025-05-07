@@ -59,23 +59,7 @@ export function SyncSessionToRedux2() {
 }
 
 export function SyncFavoriteGigsToRedux() {
-  const dispatch = useAppDispatch();
-  const user = useAppSelector(selectUser);
-
   useFavoriteGigs();
-
-  // useEffect(() => {
-  //   const fetch = async () => {
-  //     const favoriteGigs = await dispatch(fetchFavoriteGigs()).unwrap();
-
-  //     console.log("====================================");
-  //     console.log("SyncFavoriteGigsToRedux");
-  //     console.log(favoriteGigs);
-  //     console.log("====================================");
-  //   };
-
-  //   user && fetch();
-  // }, [user?.id]);
 
   return null;
 }
