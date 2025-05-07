@@ -2,6 +2,7 @@
 
 import MyCkEditorWithNoSSR from "@/components/ckeditor/CkEditorWithNoSSR";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { Button } from "@/components/ui/button";
 import { categories, Category, root_categories } from "@/data/categories";
 import { GigDto, GigStatus } from "@/dto/dto.type.";
@@ -229,7 +230,7 @@ const FreelancerEditGigPage = () => {
       if (!id) return;
 
       try {
-        const response = await axiosInstanceV1.get(`/gig/${id}`);
+        const response = await axiosInstanceV1.get(`/gigs/${id}`);
 
         const data: GigDto = response.data;
 
@@ -283,7 +284,7 @@ const FreelancerEditGigPage = () => {
     values.nestedSubcategory = undefined;
 
     try {
-      const response = await axiosInstanceV1.patch(`/gig/${values.id}`, values);
+      const response = await axiosInstanceV1.patch(`/gigs/${values.id}`, values);
       const { slug } = response.data;
 
       toast.success(`Update service successfully!`);
@@ -494,7 +495,7 @@ const FreelancerEditGigPage = () => {
           </div>
 
           {/* Search metadata */}
-          <div className="col-span-3">
+          {/* <div className="col-span-3">
             <div>
               <label className="font-semibold text-gray-700">
                 Gig metadata
@@ -503,7 +504,7 @@ const FreelancerEditGigPage = () => {
           </div>
           <div className="col-span-9">
             <div>Under development</div>
-          </div>
+          </div> */}
 
           {/* PRICING */}
           <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
@@ -646,7 +647,7 @@ const FreelancerEditGigPage = () => {
 };
 
 FreelancerEditGigPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
 export default FreelancerEditGigPage;

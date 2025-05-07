@@ -72,7 +72,7 @@ const CustomTooltip = ({
     const withdrawals =
       payload.find((item) => item.dataKey === "totalWithdrawals")?.value || 0;
     const refund =
-      payload.find((item) => item.dataKey === "refund")?.value || 0;
+      payload.find((item) => item.dataKey === "totalRefunds")?.value || 0;
 
     return (
       <div className="rounded bg-white p-3 text-sm shadow-md">
@@ -215,7 +215,7 @@ export function WalletChart({
                 animationDuration={800}
               />
               <Bar
-                dataKey="refund"
+                dataKey="totalRefunds"
                 fill="#60a5fa"
                 name="Refund"
                 animationDuration={800}

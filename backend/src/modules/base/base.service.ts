@@ -5,7 +5,12 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { MaybeUndefined } from 'src/utils/types/maybe.type';
+import { consoleError } from 'src/utils/common';
+import {
+  buildOrderClause,
+  buildWhereClause,
+  QueryInput,
+} from 'src/utils/typeorm-utils';
 import {
   DataSource,
   DeepPartial,
@@ -16,21 +21,11 @@ import {
   In,
   IsNull,
   Like,
-  QueryFailedError,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { BaseEntity } from './entities/base.entity';
-import { throwUnprocessableEntityException } from 'src/common/exception/thowException';
-import { consoleError } from 'src/utils/common';
-import {
-  buildObjectFromQuery,
-  buildOrderClause,
-  buildOrderClause2,
-  buildWhereClause,
-  QueryInput,
-} from 'src/utils/typeorm-utils';
 
 @Injectable()
 export abstract class BaseService<Entity extends BaseEntity> {
@@ -46,97 +41,6 @@ export abstract class BaseService<Entity extends BaseEntity> {
       console.error('Error creating entity:', error);
       throw new UnprocessableEntityException('Could not create entity');
     }
-  }
-
-  async findAll2(
-    page = 1,
-    limit = 10,
-    filters?: FindOptionsWhere<Entity>,
-    sorts?: FindOptionsOrder<Entity>,
-    currentUser?: JwtAccessPayloadType,
-  ): Promise<[Entity[], number]> {
-    const appliedFilters = new Set<string>();
-
-    const queryBuilder = this.additionalQuery(
-      this.repository.createQueryBuilder() as SelectQueryBuilder<Entity>,
-      appliedFilters,
-      filters,
-      sorts,
-      currentUser,
-    );
-
-    this.applyFilters(queryBuilder, filters, appliedFilters);
-    this.applySorting(queryBuilder, sorts, appliedFilters);
-
-    queryBuilder.skip((page - 1) * limit).take(limit);
-    return queryBuilder.getManyAndCount();
-  }
-
-  private applyFilters(
-    queryBuilder: SelectQueryBuilder<Entity>,
-    filters?: FindOptionsWhere<Entity>,
-    appliedFilters?: Set<string>,
-  ) {
-    if (!filters) return;
-
-    Object.keys(filters).forEach((key) => {
-      if (appliedFilters?.has(key)) return;
-      const value = filters[key];
-      if (!value) return;
-
-      if (Array.isArray(value)) {
-        queryBuilder.andWhere(`${queryBuilder.alias}.${key} IN (:...${key})`, {
-          [key]: value,
-        });
-      } else if (typeof value === 'string') {
-        const normalizedValue = value.trim().toLowerCase();
-        if (normalizedValue.startsWith('like_')) {
-          queryBuilder.andWhere(`${queryBuilder.alias}.${key} LIKE :${key}`, {
-            [key]: `%${normalizedValue.replace('like_', '').trim()}%`,
-          });
-        } else if (/^(>|>=|<|<=|=)_/.test(normalizedValue)) {
-          const operator = normalizedValue.slice(
-            0,
-            normalizedValue.indexOf('_'),
-          );
-
-          const actualValue = normalizedValue
-            .slice(normalizedValue.indexOf('_') + 1)
-            .trim();
-
-          queryBuilder.andWhere(
-            `${queryBuilder.alias}.${key} ${operator} :${key}`,
-            {
-              [key]: actualValue,
-            },
-          );
-        } else {
-          queryBuilder.andWhere(`${queryBuilder.alias}.${key} = :${key}`, {
-            [key]: value,
-          });
-        }
-      } else {
-        queryBuilder.andWhere(`${queryBuilder.alias}.${key} IS NULL`);
-      }
-
-      appliedFilters?.add(key);
-    });
-  }
-
-  private applySorting(
-    queryBuilder: SelectQueryBuilder<Entity>,
-    sorts?: FindOptionsOrder<Entity>,
-    appliedFilters?: Set<string>,
-  ) {
-    if (!sorts) return;
-    Object.entries(sorts || {}).forEach(([key, order]) => {
-      if (appliedFilters?.has(key)) return;
-      queryBuilder.addOrderBy(
-        `${queryBuilder.alias}.${key}`,
-        sorts[key].toUpperCase(),
-      );
-      appliedFilters?.add(key);
-    });
   }
 
   async findOneById(id: BaseEntity['id']): Promise<Entity> {
@@ -238,29 +142,6 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return await this.repository.existsBy(where);
   }
 
-  async getSelectedFields(
-    //repository: Repository<Entity>,
-    fields: (keyof Entity)[],
-    where?: Partial<Entity>,
-  ): Promise<Partial<Entity>[]> {
-    const queryBuilder: SelectQueryBuilder<Entity> =
-      this.repository.createQueryBuilder();
-
-    queryBuilder.select(
-      fields.map((field) => `${queryBuilder.alias}.${String(field)}`),
-    );
-
-    if (where) {
-      Object.entries(where).forEach(([key, value]) => {
-        queryBuilder.andWhere(`${queryBuilder.alias}.${key} = :${key}`, {
-          [key]: value,
-        });
-      });
-    }
-
-    return queryBuilder.getRawMany();
-  }
-
   protected additionalQuery(
     queryBuilder: SelectQueryBuilder<Entity>,
     appliedFilters: Set<string>,
@@ -275,7 +156,11 @@ export abstract class BaseService<Entity extends BaseEntity> {
     return this.repository.createQueryBuilder();
   }
 
-  async findAll3(
+  public createQueryBuilder(alias: string): SelectQueryBuilder<Entity> {
+    return this.repository.createQueryBuilder(alias);
+  }
+
+  async findAll2(
     queryObj: QueryInput<Entity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<[Entity[], number]> {
@@ -284,13 +169,13 @@ export abstract class BaseService<Entity extends BaseEntity> {
     try {
       let options: FindManyOptions<Entity> = {
         where: buildWhereClause(filters),
-        order: buildOrderClause2(sorts),
+        order: buildOrderClause(sorts),
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: fields ? (fields as any) : undefined,
       };
 
-      options = await this.modifyOptions(options, currentUser);
+      options = await this.modifyFindManyOptions(options, currentUser);
 
       const result = await this.repository.findAndCount(options);
 
@@ -299,7 +184,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
       throw new Error(`Error fetching data: ${error.message}`);
     }
   }
-  async findAll3_V2(
+  async findAll2_V2(
     queryObj: QueryInput<Entity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<[Entity[], number]> {
@@ -310,7 +195,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
       const whereClause = buildWhereClause(filters);
 
       // Sử dụng buildOrderClause2 để tạo điều kiện ORDER BY
-      const orderClause = buildOrderClause2(sorts);
+      const orderClause = buildOrderClause(sorts);
 
       const queryBuilder =
         this.repository.createQueryBuilder() as SelectQueryBuilder<Entity>;
@@ -359,6 +244,14 @@ export abstract class BaseService<Entity extends BaseEntity> {
       // }
 
       let options: FindManyOptions<Entity> = {
+        where: buildWhereClause(whereConditions),
+        order: buildOrderClause(orderConditions as any),
+        skip: (page - 1) * limit,
+        take: limit,
+        select: fields ? (fields as any) : undefined,
+      };
+
+      let options2: FindManyOptions<Entity> = {
         where: this.processFilters(whereConditions),
         order: this.processSorting(orderConditions),
         skip: (page - 1) * limit,
@@ -366,7 +259,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
         select: fields ? (fields as any) : undefined,
       };
 
-      options = await this.modifyOptions(options, currentUser);
+      options = await this.modifyFindManyOptions(options, currentUser);
 
       const [data, total] = await this.repository.findAndCount(options);
 
@@ -376,7 +269,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
     }
   }
 
-  protected async modifyOptions(
+  protected async modifyFindManyOptions(
     options: FindManyOptions<Entity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<Entity>> {

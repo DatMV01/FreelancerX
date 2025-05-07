@@ -78,7 +78,7 @@ export function WalletTransactionDetail({
           <div className="flex justify-between">
             <span>Amount</span>
             <span className="font-bold text-black">
-              {new Decimal(walletTransaction.amount).toFixed(2)}{" "}
+              {new Decimal(walletTransaction.amount).toFixed(2)} &nbsp;
               {walletTransaction.currency}
             </span>
           </div>
@@ -112,13 +112,15 @@ export function WalletTransactionDetail({
           <div className="flex justify-between">
             <span>Balance Before</span>
             <span>
-              {new Decimal(walletTransaction.balanceBefore).toFixed(2)}
+              {new Decimal(walletTransaction.balanceBefore).toFixed(2)}&nbsp;
+              {walletTransaction.currency}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Balance After</span>
             <span>
-              {new Decimal(walletTransaction.balanceAfter).toFixed(2)}
+              {new Decimal(walletTransaction.balanceAfter).toFixed(2)}&nbsp;
+              {walletTransaction.currency}
             </span>
           </div>
           <div className="flex justify-between">
@@ -150,27 +152,29 @@ export function WalletTransactionDetail({
         </div>
       </div>
 
-      <div className="flex gap-x-2">
-        <WalletTransationStatusButtonAdmin
-          status={walletTransaction.status}
-          type={walletTransaction.type}
-          onApproveWithdraw={() => {
-            setApproveWithdrawDialogOpen(true);
-          }}
-          onRejectWithdraw={() => {
-            setRejectWithdrawDialogOpen(true);
-          }}
-          onApproveEarning={() => {
-            setApproveEarningDialogOpen(true);
-          }}
-          onRejectEarning={() => {
-            setRejectEarningDialogOpen(true);
-          }}
-          onRefresh={() => {
-            mutateWalletTransaction();
-          }}
-        />
-      </div>
+      {actorType === ActorType.ADMIN && (
+        <div className="flex gap-x-2">
+          <WalletTransationStatusButtonAdmin
+            status={walletTransaction.status}
+            type={walletTransaction.type}
+            onApproveWithdraw={() => {
+              setApproveWithdrawDialogOpen(true);
+            }}
+            onRejectWithdraw={() => {
+              setRejectWithdrawDialogOpen(true);
+            }}
+            onApproveEarning={() => {
+              setApproveEarningDialogOpen(true);
+            }}
+            onRejectEarning={() => {
+              setRejectEarningDialogOpen(true);
+            }}
+            onRefresh={() => {
+              mutateWalletTransaction();
+            }}
+          />
+        </div>
+      )}
 
       <>
         <ApproveWithdrawDialog

@@ -1,12 +1,13 @@
 import useSWR from "swr";
 import { useEffect } from "react";
 import { fetchFavoritesGigs } from "@/features/gig/gig.api";
-import { useAppDispatch } from "@/lib/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import {
   setFavoriteGigs,
   setError,
   setLoading,
 } from "@/lib/redux/features/gigs/gigsSlice2";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
 
 export const useFavoriteGigs = (): {
   data: any;
@@ -17,10 +18,12 @@ export const useFavoriteGigs = (): {
   mutate: () => void;
 } => {
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  const userId = user?.id;
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    "/gigs/favorites",
-    fetchFavoritesGigs,
+    userId ? "/gigs/favorites" : null,
+    () => fetchFavoritesGigs(),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

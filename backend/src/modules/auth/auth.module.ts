@@ -12,6 +12,7 @@ import { SessionService } from '../session/session.service';
 import { UserService } from '../user/user.service';
 import { AutoMapper } from '../base/mapper/mapper';
 import { MailModule } from '../mail/mail.module';
+import { JwtStrategyOptional } from './strategies/jwt-access.strategy.optional';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { MailModule } from '../mail/mail.module';
   providers: [
     AuthService,
     JwtStrategy,
+    JwtStrategyOptional,
     JwtRefreshStrategy,
     LocalStrategy,
     SessionService,

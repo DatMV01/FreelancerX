@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import TransferForm from "./TransferForm";
 
 import React from "react";
+import Decimal from "decimal.js";
 
 type Props = {};
 
@@ -202,6 +203,8 @@ export function WithdrawModal({
   onSubmit: (form: any) => void;
   availableBalance: number;
 }) {
+  if (!availableBalance) return null;
+
   const [amount, setAmount] = useState<number>(0);
   const [method, setMethod] = useState<string>("BANK");
 
@@ -238,13 +241,13 @@ export function WithdrawModal({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Withdraw Funds</DialogTitle>
+          <DialogTitle>Withdraw</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
             <label className="mb-1 block text-sm">
-              Amount (Max: ${availableBalance})
+              Amount (Max: ${new Decimal(availableBalance).toFixed(2)})
             </label>
             <Input
               type="number"

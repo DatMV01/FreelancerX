@@ -2,10 +2,11 @@ import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import {
   BadRequestException,
-  HttpStatus,
+  ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
-  UnprocessableEntityException,
+  UnprocessableEntityException
 } from '@nestjs/common';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigService } from '@nestjs/config';
@@ -15,10 +16,11 @@ import * as crypto from 'crypto';
 import * as ms from 'ms';
 import {
   AllConfigType,
-  AUTH_CONFIG_REGISTER,
-  MAIL_CONFIG_REGISTER,
+  AUTH_CONFIG_REGISTER
 } from 'src/config/config.type';
+import { v4 as uuidv4 } from 'uuid';
 import { MailService } from '../mail/mail.service';
+import { RoleKey } from '../role/enum/role.enum';
 import { SessionService } from '../session/session.service';
 import { StatusEnum } from '../status/enum/statuses.enum';
 import { UserDto } from '../user/dto/user.dto';
@@ -27,15 +29,11 @@ import { UserService } from '../user/user.service';
 import { AuthConfig } from './config/auth.config';
 import { AuthEmailLoginDto } from './dto/auth-email-login.dto';
 import { AuthRegisterLoginDto } from './dto/auth-email-register.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { AuthProvidersEnum } from './enum/auth-providers.enum';
 import { JwtAccessPayloadType } from './strategies/types/jwt-access-payload.type';
 import { JwtRefreshPayloadType } from './strategies/types/jwt-refresh-payload.type';
-import { MailConfig } from '../mail/config/mail-config.type';
-import appConfig from 'src/config/app.config';
-import { faker } from '@faker-js/faker/.';
-import { v4 as uuidv4 } from 'uuid';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,9 +66,8 @@ export class AuthService {
   }
 
   async me(currentUser: JwtAccessPayloadType): Promise<UserDto> {
-    const entity = await this.usersService.findOne({
-      where: { id: currentUser.id },
-      relations: ['freelancer'],
+    const entity = await this.usersService.getUserBriefInfo({
+      id: currentUser.id,
     });
 
     const userDto = this.mapper.map(entity, UserEntity, UserDto);
@@ -85,27 +82,22 @@ export class AuthService {
   async validateUser(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
     const { email, password } = loginDto;
 
-    const entity = await this.usersService.findOne({
-      where: { email },
-      relations: ['freelancer'],
-    });
+    const entity = await this.usersService.getUserBriefInfo({ email });
 
     if (!entity) {
-      throw new UnprocessableEntityException({
-        email: 'notFound',
-      });
+      throw new NotFoundException('User not found');
     }
 
-    if (entity.provider.toString() !== AuthProvidersEnum.EMAIL.toString()) {
-      throw new UnprocessableEntityException({
-        email: `needLoginViaProvider:${entity.provider}`,
-      });
+    if (entity.provider !== AuthProvidersEnum.EMAIL) {
+      throw new BadRequestException('Please login using your social account');
     }
 
-    if (!entity.role || entity.status.id == StatusEnum.LOCKED) {
-      throw new UnprocessableEntityException({
-        user: `${entity.email} was locked.`,
-      });
+    if (!entity.roleId) {
+      throw new ForbiddenException('Account role is not assigned');
+    }
+
+    if (entity.statusId === StatusEnum.LOCKED) {
+      throw new ForbiddenException('Account is locked');
     }
 
     const isValidPassword = await bcrypt.compare(password, entity.password);
@@ -133,7 +125,7 @@ export class AuthService {
 
     const tokensData = await this.getTokensData({
       id: entity.id,
-      role: entity.role.name,
+      role: entity.role.name as RoleKey,
       email: entity.email,
       sessionId: session.id,
       freelancerId: entity.freelancer?.id,
@@ -168,15 +160,24 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const entity = await this.usersService.findOne({
-      where: { id: session.user.id },
-      relations: ['freelancer'],
+    const entity = await this.usersService.getUserBriefInfo({
+      id: session.user.id,
     });
 
-    if (!entity.role || entity.status.id == StatusEnum.LOCKED) {
-      throw new UnprocessableEntityException({
-        user: 'was locked.',
-      });
+    if (!entity) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (entity.provider !== AuthProvidersEnum.EMAIL) {
+      throw new BadRequestException('Please login using your social account');
+    }
+
+    if (!entity.roleId) {
+      throw new ForbiddenException('Account role is not assigned');
+    }
+
+    if (entity.statusId === StatusEnum.LOCKED) {
+      throw new ForbiddenException('Account is locked');
     }
 
     const newHash = crypto
@@ -188,7 +189,7 @@ export class AuthService {
 
     const tokensData = await this.getTokensData({
       id: entity.id,
-      role: entity.role.name,
+      role: entity.role.name as RoleKey,
       email: entity.email,
       sessionId: session.id,
       freelancerId: entity?.freelancer?.id,
@@ -212,7 +213,7 @@ export class AuthService {
     hash,
   }: {
     id: string;
-    role: string;
+    role: RoleKey;
     email: string;
     sessionId: string;
     freelancerId?: string;

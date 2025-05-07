@@ -10,6 +10,61 @@ import { getMetadataArgsStorage } from 'typeorm';
 import typeormConfig, { TypeORMConfig } from './typeorm.config';
 import * as mysql from 'mysql2/promise';
 import { consoleSuccess } from 'src/utils/common';
+import { Logger, QueryRunner } from 'typeorm';
+
+export class CustomTypeOrmLogger implements Logger {
+  logQuery(query: string, parameters?: any[], queryRunner?: QueryRunner) {
+    console.log('\n');
+
+    console.log('🟢 QUERY:', query);
+    if (parameters?.length) {
+      console.log('🔸 PARAMS:', JSON.stringify(parameters));
+    }
+
+    console.log('\n');
+  }
+
+  logQueryError(
+    error: string | Error,
+    query: string,
+    parameters?: any[],
+    queryRunner?: QueryRunner,
+  ) {
+    console.log('\n');
+    console.error('❌ QUERY FAILED:', query);
+    console.error('📛 ERROR:', error);
+    console.log('\n');
+  }
+
+  logQuerySlow(
+    time: number,
+    query: string,
+    parameters?: any[],
+    queryRunner?: QueryRunner,
+  ) {
+    console.log('\n');
+    console.warn('🐢 SLOW QUERY:', query, `(${time}ms)`);
+    console.log('\n');
+  }
+
+  logSchemaBuild(message: string, queryRunner?: QueryRunner) {
+    console.log('\n');
+    console.log('🛠️ SCHEMA:', message);
+    console.log('\n');
+  }
+
+  logMigration(message: string, queryRunner?: QueryRunner) {
+    console.log('\n');
+    console.log('📦 MIGRATION:', message);
+    console.log('\n');
+  }
+
+  log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner) {
+    console.log('\n');
+    console[level]('ℹ️', message);
+    console.log('\n');
+  }
+}
 
 @Global()
 @Module({
@@ -45,8 +100,10 @@ import { consoleSuccess } from 'src/utils/common';
           database: databaseConfig.name,
           synchronize: databaseConfig.synchronize,
           dropSchema: databaseConfig.dropSchema,
-          logging: appConfig.apiPrefix !== Environment.Production,
-          logger: 'advanced-console',
+          // logging: appConfig.apiPrefix !== Environment.Production,
+          // logger: 'advanced-console',
+          logging: 'all',
+          logger: new CustomTypeOrmLogger(),
           // autoLoadEntities: true,
           // entities: [RoleEntity],
           // entities: [join(process.cwd(), 'src', '**', '*.entity.{.ts,.js}')],

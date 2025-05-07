@@ -1,8 +1,12 @@
 import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import GigLitstingSection from "@/features/categories/GigLitstingSection";
 import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import { GigEntity } from "@/features/gig/gig.entity";
+import { useGetActiveGigs } from "@/features/gig/hooks/useGetActiveGigs";
 import UserRank from "@/features/user/components/UserRank";
+import { useQuerySync } from "@/hooks/useQuerySync";
 import { formatDate } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -31,6 +35,14 @@ const FreelancerProfile = () => {
       dedupingInterval: 300000, // 5 minutes
     },
   );
+
+  const {
+    data: responseGetActiveGigs,
+    error: errorGetActiveGigs,
+    isLoading: isLoadingGetActiveGigs,
+    isValidating: isValidatingGetActiveGigs,
+    mutate: mutateGetActiveGigs,
+  } = useGetActiveGigs();
 
   if (isLoading || isValidating) {
     return <CircularProgressCenter fullScreen />;
@@ -133,13 +145,17 @@ const FreelancerProfile = () => {
           {/* My gig */}
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
-              My gig ({freelancer.gigs?.length || 0})
+              My gig ({responseGetActiveGigs?.meta?.itemCount || 0})
             </h3>
+            {responseGetActiveGigs?.data && (
+              <GigLitstingSection data={responseGetActiveGigs?.data} />
+            )}
+
             <div className="mt-4 space-y-4"></div>
           </div>
 
           {/* Reviews section */}
-          <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
+          {/* <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
               Reviews ({freelancer.reviewCount || 0})
             </h3>
@@ -159,7 +175,7 @@ const FreelancerProfile = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       )}
 

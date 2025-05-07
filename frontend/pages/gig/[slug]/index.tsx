@@ -18,6 +18,7 @@ import GigReviewStats from "@/features/gig/components/GigReviewStats";
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
+import { getGigBySlug } from "@/features/gig/gig.api";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import {
@@ -399,13 +400,15 @@ const GigDetail = () => {
   const [gig, setGig] = useState<GigDto | null>(null);
   const user = useAppSelector(selectUser);
 
+  
+
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        const response = await axiosInstanceV1.get(`/gig/slug/${slug}`);
+        const response = await getGigBySlug(slug as any);
 
         const { data } = response;
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { nanoid } from 'nanoid';
 import {
-  buildOrderClause2,
+  buildOrderClause,
   buildWhereClause,
   QueryInput,
 } from 'src/utils/typeorm-utils';
@@ -570,7 +570,7 @@ export class WalletService {
     try {
       let options: FindManyOptions<WalletTransactionEntity> = {
         where: buildWhereClause(filters),
-        order: buildOrderClause2(sorts),
+        order: buildOrderClause(sorts),
         skip: (page - 1) * pageSize,
         take: pageSize,
         select: fields ? (fields as any) : undefined,

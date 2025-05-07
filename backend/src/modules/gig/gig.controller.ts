@@ -13,24 +13,21 @@ import {
   Get,
   NotFoundException,
   Param,
-  Patch,
   Post,
   SerializeOptions,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
-import {
-  CREATE_GROUP,
-  UPDATE_GROUP,
-} from 'src/common/constant/serialize.group';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import {
+  CREATE_GROUP
+} from 'src/common/constant/serialize.group';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { FreelancerDto } from '../freelancer/dto/freelancer.dto';
 import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
-import { PageDto, PageMetaDto } from '../base/dto/pagination';
 
-@Controller('gig')
+@Controller('gigs')
 export class GigController extends BaseController<
   GigEntity,
   GigDto,

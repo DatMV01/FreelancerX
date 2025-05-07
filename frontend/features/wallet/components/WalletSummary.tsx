@@ -22,6 +22,7 @@ import { useState } from "react";
 import { requestWithdraw } from "../wallet.api";
 import { toast } from "sonner";
 import { CardHeader } from "@mui/material";
+import Decimal from "decimal.js";
 
 export function WalletSummary({
   wallet,
@@ -113,13 +114,11 @@ export function WalletSummary({
               </TooltipProvider>
             </div>
             <div className="text-xl font-semibold text-blue-600">
-              ${wallet?.availableBalance}
+              ${new Decimal(wallet?.availableBalance).toFixed(2)}
             </div>
           </div>
         </div>
       </CardContent>
-
- 
     </Card>
   );
 }

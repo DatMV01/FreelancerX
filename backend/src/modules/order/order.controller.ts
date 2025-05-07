@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   SerializeOptions,
   UseGuards,
 } from '@nestjs/common';
@@ -130,16 +131,12 @@ export class OrderController extends BaseController<
     type: PageDto<OrderEntity>,
   })
   async findAllOrdersByBuyer(
-    @Query() query: any,
+    @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
-    currentUser = {
-      ...currentUser,
-      role: 'buyer',
-    };
+    currentUser.actorType = RoleEnum[RoleEnum.BUYER];
 
-    const results = await super.findAll3(query, currentUser);
-    //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
+    const results = await super.findAll2(req, currentUser);
 
     return results;
   }
@@ -153,14 +150,12 @@ export class OrderController extends BaseController<
     type: PageDto<OrderEntity>,
   })
   async findAllOrdersByFreelancer(
-    @Query() query: any,
+    @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
-    currentUser = {
-      ...currentUser,
-      role: 'freelancer',
-    };
-    const results = await super.findAll3(query, currentUser);
+    currentUser.actorType = RoleEnum[RoleEnum.FREELANCER];
+
+    const results = await super.findAll2(req, currentUser);
 
     return results;
   }
@@ -177,13 +172,9 @@ export class OrderController extends BaseController<
     @Query() query: any,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
-    currentUser = {
-      ...currentUser,
-      role: 'admin',
-    };
+    currentUser.actorType = RoleEnum[RoleEnum.ADMIN];
 
-    const results = await super.findAll3(query, currentUser);
-    //   const resultWithBuyer = this._service.mappingOrderWithBuyer(results);
+    const results = await super.findAll2(query, currentUser);
 
     return results;
   }

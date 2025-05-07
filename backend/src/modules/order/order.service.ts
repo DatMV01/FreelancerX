@@ -3,12 +3,14 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   And,
   DeepPartial,
   FindManyOptions,
+  FindOperator,
   In,
   Not,
   QueryRunner,
@@ -43,6 +45,7 @@ import {
   TransactionType,
 } from './enum/order.enum';
 import { WalletEntity } from '../wallet/entities/wallet.entity';
+import { RoleEnum } from '../role/enum/role.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -705,120 +708,6 @@ export class OrderService extends BaseService<OrderEntity> {
     }
   }
 
-  async updateOrderByActionOld(
-    currentUser: JwtAccessPayloadType,
-    id: BaseEntity['id'],
-    data: DeepPartial<OrderEntity>,
-  ): Promise<OrderEntity> {
-    const order = await this.findOneById(id);
-
-    let log = this.orderLogRepo.create({
-      order,
-      actorId: currentUser.id,
-    });
-
-    switch (data.action) {
-      case OrderActions.ACCEPT_ORDER.action:
-        if (order.status !== OrderActions.ACCEPT_ORDER.fromStatus) {
-          throw new Error(
-            `Only ${OrderActions.ACCEPT_ORDER.fromStatus} orders can be completed.`,
-          );
-        }
-
-        order.status = OrderActions.ACCEPT_ORDER.toStatus;
-        log = { ...log, ...OrderActions.ACCEPT_ORDER };
-        break;
-
-      case OrderActions.START_WORK.action:
-        if (order.status !== OrderActions.START_WORK.fromStatus) {
-          throw new Error(
-            `Only ${OrderActions.START_WORK.fromStatus} orders can be completed.`,
-          );
-        }
-
-        order.status = OrderActions.START_WORK.toStatus;
-        log = { ...log, ...OrderActions.START_WORK };
-        break;
-
-      case OrderActions.REQUEST_REVISION.action:
-        if (order.status !== OrderActions.REQUEST_REVISION.fromStatus) {
-          throw new Error(
-            `Only ${OrderActions.REQUEST_REVISION.fromStatus} orders can be completed.`,
-          );
-        }
-
-        order.status = OrderActions.REQUEST_REVISION.toStatus;
-        log = { ...log, ...OrderActions.REQUEST_REVISION };
-        break;
-
-      case OrderActions.COMPLETE_ORDER.action:
-        if (order.status !== OrderActions.COMPLETE_ORDER.fromStatus) {
-          throw new Error(
-            `Only ${OrderActions.COMPLETE_ORDER.fromStatus} orders can be completed.`,
-          );
-        }
-        order.status = OrderActions.COMPLETE_ORDER.toStatus;
-        log = { ...log, ...OrderActions.COMPLETE_ORDER };
-        break;
-
-      case OrderActions.CANCEL_ORDER_BUYER.action:
-        if (
-          order.status !== OrderStatus.UNPAID &&
-          order.status !== OrderStatus.PENDING &&
-          order.status !== OrderStatus.ACCEPTED &&
-          order.status !== OrderStatus.PROGRESS
-        ) {
-          throw new Error(
-            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.PROGRESS} orders can be canceled.`,
-          );
-        }
-
-        log = {
-          ...log,
-          fromStatus: order.status,
-          ...OrderActions.CANCEL_ORDER_BUYER,
-        };
-
-        order.status = OrderActions.CANCEL_ORDER_BUYER.toStatus;
-        break;
-
-      case OrderActions.CANCEL_ORDER_FREELANCER.action:
-        if (
-          order.status !== OrderStatus.UNPAID &&
-          order.status !== OrderStatus.PENDING &&
-          order.status !== OrderStatus.ACCEPTED &&
-          order.status !== OrderStatus.PROGRESS
-        ) {
-          throw new Error(
-            `Only ${OrderStatus.UNPAID}, ${OrderStatus.PENDING},${OrderStatus.ACCEPTED},${OrderStatus.PROGRESS} orders can be canceled.`,
-          );
-        }
-
-        log = {
-          ...log,
-          fromStatus: order.status,
-          ...OrderActions.CANCEL_ORDER_FREELANCER,
-        };
-
-        order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
-        break;
-
-      default:
-        break;
-    }
-
-    try {
-      const updatedOrder = await this._repository.save(order);
-
-      await this.orderLogRepo.save(log);
-
-      return updatedOrder;
-    } catch (error) {
-      console.error('Error updating entity:', error);
-      throw new ConflictException('Update failed due to conflict');
-    }
-  }
-
   async completeOrder(
     currentUser: JwtAccessPayloadType,
     orderId: string,
@@ -843,33 +732,38 @@ export class OrderService extends BaseService<OrderEntity> {
     return updatedOrder;
   }
 
-  protected async modifyOptions(
+  protected async modifyFindManyOptions(
     options: FindManyOptions<OrderEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<OrderEntity>> {
-    if (currentUser?.role.toLocaleLowerCase() === 'freelancer') {
-      // const freelancer = await this.freelancerRepo.findOne({
-      //   where: { userId: currentUser.id },
-      //   select: { id: true },
-      // });
-      const existingStatus = (options.where as any).status;
+    if (!currentUser) {
+      throw new UnauthorizedException(
+        'You must be logged in to access this resource',
+      );
+    }
+
+    if (currentUser.actorType === RoleEnum[RoleEnum.FREELANCER]) {
+      const existingStatus =
+        !Array.isArray(options.where) && options.where?.status;
 
       options.where = {
         ...options.where,
-        freelancerId: currentUser?.freelancerId,
+        freelancerId: currentUser.freelancerId,
         status: existingStatus
           ? And(
-              existingStatus,
+              existingStatus instanceof FindOperator
+                ? existingStatus
+                : In([existingStatus]),
               Not(In([OrderStatus.UNPAID, OrderStatus.REFUND])),
             )
           : Not(In([OrderStatus.UNPAID, OrderStatus.REFUND])),
       };
     }
 
-    if (currentUser?.role.toLocaleLowerCase() === 'buyer') {
+    if (currentUser.actorType === RoleEnum[RoleEnum.BUYER]) {
       options.where = {
         ...options.where,
-        buyerId: currentUser?.id,
+        buyerId: currentUser.id,
       };
     }
 

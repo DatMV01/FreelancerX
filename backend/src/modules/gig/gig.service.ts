@@ -106,9 +106,7 @@ export class GigService extends BaseService<GigEntity> {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    const favoriteGigs = user.
-    
-    favoriteGigs || [];
+    const favoriteGigs = user.favoriteGigs || [];
     return [favoriteGigs, favoriteGigs.length];
   }
 
@@ -284,6 +282,19 @@ export class GigService extends BaseService<GigEntity> {
     }
 
     return queryBuilder;
+  }
+
+  protected modifyFindManyOptions(
+    options: FindManyOptions<GigEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<FindManyOptions<GigEntity>> {
+    if (currentUser?.role.toUpperCase() !== RoleEnum[RoleEnum.ADMIN]) {
+      options.where = {
+        ...options.where,
+        freelancerId: currentUser?.freelancerId ?? currentUser?.id,
+      };
+    }
+    return Promise.resolve(options);
   }
 
   transformPackages = (data) => {

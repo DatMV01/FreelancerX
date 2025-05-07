@@ -201,7 +201,7 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
 
   const deleteGig = async (gigId: string) => {
     try {
-      const response = await axiosInstanceV1.delete(`gig/${gigId}`);
+      const response = await axiosInstanceV1.delete(`gigs/${gigId}`);
       if (response.status === 200) {
         return true;
       }

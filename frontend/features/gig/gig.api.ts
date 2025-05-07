@@ -1,7 +1,7 @@
 import { GigDto } from "@/dto/dto.type.";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { axiosInstanceV1, axiosInstanceV2 } from "@/lib/axios/axiosInstance";
 
-const API_URL = "/gig";
+const API_URL = "/gigs";
 
 export const fetchGigs = async ({
   page = 1,
@@ -25,6 +25,11 @@ export const fetchGigs = async ({
     console.error("Error fetching gigs:", error);
     throw error;
   }
+};
+
+export const fetchGigsV2 = async (queryStr: string): Promise<any> => {
+  const response = await axiosInstanceV2.get(`${API_URL}?${queryStr}`);
+  return response;
 };
 
 export const fetchFavoritesGigs = async (): Promise<GigDto[]> => {
@@ -67,6 +72,11 @@ export const getGigById = async (id: string): Promise<GigDto> => {
     console.error("Error fetching gig by id:", error);
     throw error;
   }
+};
+
+export const getGigBySlug = async (slug: string): Promise<any> => {
+  const response = await axiosInstanceV1.get(`${API_URL}/slug/${slug}`);
+  return response;
 };
 
 export const createGig = async (

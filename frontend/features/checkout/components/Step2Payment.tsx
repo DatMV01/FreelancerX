@@ -38,7 +38,7 @@ export default function Step2Payment({ onNext, onBack }: Props) {
     orderId ? `/orders/${orderId}` : null,
     () => (orderId ? getOrderById(orderId) : null),
     {
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
       dedupingInterval: 0,
@@ -80,7 +80,7 @@ export default function Step2Payment({ onNext, onBack }: Props) {
                 <div className="flex justify-between">
                   <span>No:</span>
                   <span className="text-right font-medium">
-                    {order.id.split("-")[4]}
+                    {order.orderNo}
                   </span>
                 </div>
                 <div className="flex justify-between">

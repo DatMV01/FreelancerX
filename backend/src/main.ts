@@ -11,11 +11,14 @@ import { AllConfigType, APP_CONFIG_REGISTER } from './config/config.type';
 import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
+import { Logger } from 'nestjs-pino';
+import { ResponseLoggingInterceptor } from './common/interceptors/response-logging.interceptor';
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  app.useLogger(app.get(Logger));
 
   const configService = app.get(ConfigService<AllConfigType>);
 
@@ -37,9 +40,12 @@ async function bootstrap() {
 
   // const httpAdapterHost = app.get(HttpAdapterHost);
   // app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
-
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
+  
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(reflector),
+    new ResponseLoggingInterceptor(),
+  );
   app.use(cookieParser());
 
   app.use('/api/v1/stripe/webhook', express.raw({ type: 'application/json' }));

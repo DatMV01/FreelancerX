@@ -2,6 +2,7 @@
 
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
+import PaginationWithPageSize from "@/components/PaginationWithPageSize";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -358,7 +359,7 @@ function FreelancerManageGigsPage() {
   const deleteGig = async (gigId: string) => {
     debugger;
     try {
-      const response = await axiosInstanceV1.delete(`gig/${gigId}`);
+      const response = await axiosInstanceV1.delete(`gigs/${gigId}`);
       if (response.status === 200) {
         return true;
       }
@@ -523,7 +524,7 @@ function FreelancerManageGigsPage() {
         <CardContent className="p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Input
+              {/* <Input
                 type="text"
                 placeholder="Search by title..."
                 value={filters.keyword}
@@ -531,7 +532,7 @@ function FreelancerManageGigsPage() {
                   updateFilter({ keyword: e.target.value });
                 }}
                 className="w-48"
-              />
+              /> */}
               <select
                 value={filters.status}
                 onChange={(e) => updateFilter({ status: e.target.value })}
@@ -544,10 +545,10 @@ function FreelancerManageGigsPage() {
                   </option>
                 ))}
               </select>
-
+              {/* 
               <Button variant="outline" onClick={handleExportCSV}>
                 <Download className="mr-1 h-4 w-4" /> Export CSV
-              </Button>
+              </Button> */}
 
               {/* <Button variant="outline" onClick={handleExportPDF}>
                 <FileDown className="mr-2 h-4 w-4" />
@@ -570,7 +571,7 @@ function FreelancerManageGigsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>
+                {/* <TableHead>
                   <input
                     type="checkbox"
                     onChange={toggleSelectAll}
@@ -579,7 +580,7 @@ function FreelancerManageGigsPage() {
                       paginatedGigs.every((o) => selectedRows.includes(o.id))
                     }
                   />
-                </TableHead>
+                </TableHead> */}
                 <TableHead>#</TableHead>
                 <TableHead
                   onClick={() => handleSort("title")}
@@ -654,13 +655,13 @@ function FreelancerManageGigsPage() {
                         "pointer-events-none opacity-50",
                     )}
                   >
-                    <TableCell>
+                    {/* <TableCell>
                       <input
                         type="checkbox"
                         checked={selectedRows.includes(_.id)}
                         onChange={() => toggleSelectRow(_.id)}
                       />
-                    </TableCell>
+                    </TableCell> */}
 
                     <TableCell>
                       {(currentPage - 1) * filters.pageSize + index + 1}
@@ -871,7 +872,7 @@ function FreelancerManageGigsPage() {
           )}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <select
                 value={filters.pageSize}
                 onChange={(e) => {
@@ -925,7 +926,8 @@ function FreelancerManageGigsPage() {
               <Button size="sm" onClick={handleGoToPage}>
                 Go to
               </Button>
-            </div>
+            </div> */}
+            <PaginationWithPageSize totalItems={data?.meta?.itemCount} />;
           </div>
         </CardContent>
       </Card>

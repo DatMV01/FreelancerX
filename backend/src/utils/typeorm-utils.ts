@@ -73,11 +73,12 @@ export function buildQueryFromObject<Entity>(
 }
 
 export function buildObjectFromQuery<Entity>(
-  query: string | URLSearchParams,
+  query: string,
 ): QueryInput<Entity> {
-  //const params = typeof query === 'string' ? new URLSearchParams(query) : query;
+  console.log(query)
+  const decoded = decodeURIComponent(query);
+  const params = new URLSearchParams(decoded);
 
-  const params = new URLSearchParams(query);
   const page = parseInt(params.get('page') || '1', 10);
   const pageSize = parseInt(params.get('pageSize') || '10', 10);
 
@@ -251,18 +252,6 @@ export function buildWhereClause2<Entity>(
 }
 
 export function buildOrderClause<Entity>(
-  sorts?: FindOptionsOrder<Entity>,
-): FindOptionsOrder<Entity> {
-  if (!sorts) return {};
-  return Object.fromEntries(
-    Object.entries(sorts).map(([key, order]) => [
-      key,
-      (order as string).toUpperCase() as 'ASC' | 'DESC',
-    ]),
-  ) as FindOptionsOrder<Entity>;
-}
-
-export function buildOrderClause2<Entity>(
   sorts?: Partial<Record<keyof Entity, string>>,
 ): FindOptionsOrder<Entity> {
   if (!sorts) return {};

@@ -5,3 +5,9 @@ export enum RoleEnum {
   GUEST = 4,
   // REGISTERED = 5,
 }
+
+export const roleKey = Object.keys(RoleEnum).filter((key) =>
+  isNaN(Number(key)),
+);
+
+export type RoleKey = keyof typeof RoleEnum;

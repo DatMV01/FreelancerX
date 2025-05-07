@@ -492,7 +492,7 @@ export class FreelancerService extends BaseService<FreelancerEntity> {
     return queryBuilder;
   }
 
-  protected modifyOptions(
+  protected modifyFindManyOptions(
     options: FindManyOptions<FreelancerEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<FreelancerEntity>> {

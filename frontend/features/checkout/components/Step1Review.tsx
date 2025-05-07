@@ -90,7 +90,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
     orderId ? `/orders/${orderId}` : null,
     () => (orderId ? getOrderById(orderId) : null),
     {
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
       dedupingInterval: 0,
@@ -106,7 +106,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
     order?.gigId ? `/gig/${order.gigId}` : null,
     () => (order?.gigId ? getGigById(order.gigId) : null),
     {
-      revalidateOnFocus: true,
+      revalidateOnFocus: false,
       revalidateOnReconnect: false,
       refreshInterval: 0,
       dedupingInterval: 0,
@@ -168,8 +168,8 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
           <div className="flex">
             <div className="flex-1">
               <p className="text-xl">
-                <span className="mr-2 font-semibold">OrderNo:</span>#
-                {order.id.split("-")[4]}
+                <span className="mr-2 font-semibold">OrderNo:</span>
+                {order.orderNo}
               </p>
 
               <p className="text-xl">

@@ -38,17 +38,17 @@ export enum ActorType {
   ADMIN = 'ADMIN',
 }
 
-// 🟡 Status Enum
+// Status Enum
 export enum OrderStatus {
-  UNPAID = 'UNPAID', // 🟥 Đơn hàng chưa được thanh toán
-  PENDING = 'PENDING', // 🟡 Đơn hàng đã được tạo, đang chờ freelancer chấp nhận
-  ACCEPTED = 'ACCEPTED', // 🟢 Freelancer đã chấp nhận đơn, chuẩn bị bắt đầu
-  PROGRESS = 'PROGRESS', // 🔨 Freelancer đang thực hiện đơn hàng
-  DELIVERED = 'DELIVERED', // 📦 Freelancer đã gửi sản phẩm (chờ buyer phản hồi)
-  REVISION = 'REVISION', // 🔄 Buyer yêu cầu chỉnh sửa/giao lại
-  COMPLETED = 'COMPLETED', // ✅ Đơn hàng đã hoàn tất (buyer xác nhận hoặc tự động sau thời gian)
-  CANCEL = 'CANCEL', // ❌ Đơn hàng bị hủy
-  REFUND = 'REFUND', // ❌ Đơn hàng bị haonf tiền
+  UNPAID = 'UNPAID', //  Đơn hàng chưa được thanh toán
+  PENDING = 'PENDING', //  Đơn hàng đã được tạo, đang chờ freelancer chấp nhận
+  ACCEPTED = 'ACCEPTED', //  Freelancer đã chấp nhận đơn, chuẩn bị bắt đầu
+  PROGRESS = 'PROGRESS', //  Freelancer đang thực hiện đơn hàng
+  DELIVERED = 'DELIVERED', //  Freelancer đã gửi sản phẩm (chờ buyer phản hồi)
+  REVISION = 'REVISION', //  Buyer yêu cầu chỉnh sửa/giao lại
+  COMPLETED = 'COMPLETED', //  Đơn hàng đã hoàn tất (buyer xác nhận)
+  CANCEL = 'CANCEL', //  Đơn hàng bị hủy
+  REFUND = 'REFUND', //  Đơn hàng đã hoàn tiền
 }
 
 // 🔄 Order Actions Mapping

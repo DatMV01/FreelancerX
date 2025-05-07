@@ -29,6 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { GigReviewModule } from './modules/gigreview/gigreview.module';
 import { WalletModule } from './modules/wallet/wallet.module';
 import { SupportModule } from './modules/support/support.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -42,6 +43,49 @@ import { SupportModule } from './modules/support/support.module';
     }),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: 'debug', // hoặc 'trace'
+        transport: {
+          target: 'pino-pretty', // giúp dễ đọc
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            singleLine: true,
+          },
+        },
+        serializers: {
+          req(req) {
+            return {
+              method: req.method,
+              url: req.url,
+              headers: req.headers,
+              query: req.query,
+              params: req.params,
+              body: req.body,
+            };
+          },
+          res(res) {
+            return {
+              statusCode: res.statusCode,
+              // res.body không có sẵn trừ khi custom lại
+            };
+          },
+        },
+        customLogLevel(req, res, err) {
+          if (res.statusCode >= 500 || err) return 'error';
+          if (res.statusCode >= 400) return 'warn';
+          return 'info';
+        },
+        customSuccessMessage(req, res) {
+          return `${req.method} ${req.url} - ${res.statusCode}`;
+        },
+        customErrorMessage(req, res, err) {
+          return `Request errored: ${req.method} ${req.url} - ${err?.message}`;
+        },
+        genReqId: (req) => req.headers['x-request-id'] || crypto.randomUUID(),
+      },
     }),
     ScheduleModule.forRoot(),
     DataBaseModule,

@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   SerializeOptions,
   Type,
   UseGuards,
@@ -22,6 +23,7 @@ import {
   ApiExtraModels,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from '@nestjs/swagger';
 import {
@@ -39,6 +41,8 @@ import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import { QueryDto } from './dto/query.dto';
 import { BaseEntity } from './entities/base.entity';
+import { RawQueryDto } from './dto/rawquery.dto';
+import { JwtOptionalAuthGuard } from 'src/common/guards';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiExtraModels(PageDto, PageMetaDto)
@@ -107,20 +111,31 @@ export abstract class BaseController<
   }
 
   @Get()
-  @Version('3')
-  //@UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get all entities' })
+  @Version('2')
+  @UseGuards(JwtOptionalAuthGuard)
+  @ApiQuery({
+    name: 'rawQuery',
+    description:
+      'Raw query string: page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    example: 'page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    required: false,
+    type: String,
+    allowReserved: false,
+    style: 'form',
+    explode: false,
+  })
   @ApiResponse({
     status: 200,
-    description: 'List of entities',
+    description: 'List of entities with pagination metadata',
     type: PageDto<any>,
   })
-  async findAll3(@Query() query: any, @CurrentUser() currentUser: any) {
-    const { page, pageSize, keyword, filters, sorts, fields } = query;
+  async findAll2(@Req() req: Request, @CurrentUser() currentUser: any) {
+    const rawQueryString = req.url.split('?')[1] ?? '';
+    const queryString = rawQueryString.replace(`rawQuery=`, '');
 
-    const queryObj = buildObjectFromQuery(query as any);
+    const queryObj = buildObjectFromQuery(queryString);
 
-    const [results, count] = await this.baseService.findAll3(
+    const [results, count] = await this.baseService.findAll2(
       queryObj,
       currentUser,
     );
@@ -129,42 +144,10 @@ export abstract class BaseController<
       results,
       new PageMetaDto({
         itemCount: count,
-        pageOptionsDto: { pageSize, page, filters, sorts },
+        pageOptionsDto: queryObj,
       }),
     );
   }
-
-  // @Get()
-  // @Version('2')
-  // @UseGuards(AuthGuard('jwt'))
-  // @ApiOperation({ summary: 'Get all entities' })
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'List of entities',
-  //   type: PageDto<Dto>,
-  // })
-  // async findAll2(
-  //   @Query() query: QueryDto<Entity>,
-  //   @CurrentUser() currentUser: any,
-  // ) {
-  //   const { page, pageSize, filters, sorts } = query;
-
-  //   const [results, count] = await this.baseService.findAll2(
-  //     page,
-  //     pageSize,
-  //     filters,
-  //     sorts,
-  //     currentUser,
-  //   );
-
-  //   return new PageDto<Dto>(
-  //     this.mapFromEntityToDto(results),
-  //     new PageMetaDto({
-  //       itemCount: count,
-  //       pageOptionsDto: { pageSize, page, filters, sorts },
-  //     }),
-  //   );
-  // }
 
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))

@@ -2,6 +2,7 @@
 
 import MyCkEditorWithNoSSR from "@/components/ckeditor/CkEditorWithNoSSR";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
+import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { Button } from "@/components/ui/button";
 import { categories, Category, root_categories } from "@/data/categories";
 import { GigStatus } from "@/dto/dto.type.";
@@ -232,7 +233,7 @@ const FreelancerCreateGigPage = () => {
     values.status = GigStatus.DRAFT;
 
     try {
-      const response = await axiosInstanceV1.post("/gig", values);
+      const response = await axiosInstanceV1.post("/gigs", values);
       const { slug } = response.data;
 
       toast.success(`Create a new service successfully!`);
@@ -599,7 +600,7 @@ const FreelancerCreateGigPage = () => {
 };
 
 FreelancerCreateGigPage.getLayout = function getLayout(page: ReactElement) {
-  return <DashboardLayout>{page}</DashboardLayout>;
+  return <DashboardLayout2>{page}</DashboardLayout2>;
 };
 
 export default FreelancerCreateGigPage;

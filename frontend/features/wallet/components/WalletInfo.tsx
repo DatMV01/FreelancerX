@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { WalletEntity } from "../wallet.type";
+import Decimal from "decimal.js";
 
 interface WalletCardProps {
   wallet: WalletEntity;
@@ -71,7 +72,7 @@ export default function WalletInfo({
               </TooltipProvider>
             </div>
             <div className="text-2xl font-bold text-blue-600">
-              ${Number(wallet.availableBalance).toLocaleString()}
+              ${new Decimal(wallet?.availableBalance).toFixed(2)}
             </div>
           </div>
         </div>
@@ -82,7 +83,7 @@ export default function WalletInfo({
           disabled={wallet.availableBalance <= 0}
         >
           <ArrowDownCircle className="h-5 w-5" />
-          Withdraw Funds
+          Withdraw
         </Button>
       </CardContent>
     </Card>

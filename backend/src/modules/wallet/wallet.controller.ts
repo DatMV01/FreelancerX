@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -17,6 +18,7 @@ import { RoleEnum } from '../role/enum/role.enum';
 import { RolesGuard } from '../role/role.guard';
 import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { WalletService } from './wallet.service';
+import { JwtAuthGuard } from 'src/common/guards';
 
 @Controller('wallets')
 export class WalletController {
@@ -107,14 +109,12 @@ export class WalletController {
   }
 
   @Get('/transactions')
-  @UseGuards(AuthGuard('jwt'))
-  async findAll(
-    @Query() query: any,
-    @CurrentUser() currentUser: JwtAccessPayloadType,
-  ) {
-    const { page, pageSize, keyword, filters, sorts, fields } = query;
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Req() req: Request, @CurrentUser() currentUser: any) {
+    const rawQueryString = req.url.split('?')[1] ?? '';
+    const queryString = rawQueryString.replace(`rawQuery=`, '');
 
-    const queryObj = buildObjectFromQuery(query as any);
+    const queryObj = buildObjectFromQuery(queryString);
 
     const [results, count] = await this.service.findAll(queryObj, currentUser);
 
@@ -122,7 +122,7 @@ export class WalletController {
       results,
       new PageMetaDto({
         itemCount: count,
-        pageOptionsDto: { pageSize, page, filters, sorts },
+        pageOptionsDto: queryObj,
       }),
     );
   }
