@@ -4,28 +4,15 @@ import { Loader2 } from "lucide-react";
 import useSWR from "swr";
 import GigSellerRank from "./GigSellerRank";
 
-const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
-  // const freelancer = gig.freelancer
-  const email = gig.freelancer.email;
-
-  const {
-    data: freelancer,
-    error,
-    isLoading,
-    isValidating,
-  } = useSWR(
-    `/profile/email/${email}`,
-    () => getFreelancerProfileByEmail(email),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
-      dedupingInterval: 300000, // 5 minutes
-    },
-  );
-
-  if (isLoading || isValidating) {
-    return <Loader2 className="animate-spin" size={18} />;
+const GigSellerOverview = ({
+  gig,
+  freelancer,
+}: {
+  gig: GigDto;
+  freelancer: any;
+}) => {
+  if (!!freelancer) {
+    return null;
   }
 
   const date = new Date(freelancer?.createdAt);
@@ -36,7 +23,7 @@ const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
   return (
     <div>
       <div className="my-4 w-full space-y-6 rounded-sm border p-4">
-        <GigSellerRank gig={gig} />
+        <GigSellerRank gig={gig} freelancer={freelancer} />
 
         <div className="grid grid-cols-4 gap-4 text-sm text-gray-800">
           <div>
@@ -51,8 +38,7 @@ const GigSellerOverview = ({ gig }: { gig: GigDto }) => {
 
           <div>
             <p className="font-semibold">Languages</p>
-            <div className="flex flex-wrap gap-x-2">
-            </div>
+            <div className="flex flex-wrap gap-x-2"></div>
           </div>
 
           <div>

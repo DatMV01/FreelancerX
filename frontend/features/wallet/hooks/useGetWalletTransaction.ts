@@ -5,5 +5,8 @@ export function useGetWalletTransaction(
   transactionId: string,
   swrOptions?: any,
 ) {
-  return useFetchV1(walletUrl.transaction(transactionId), swrOptions);
+  return useFetchV1({
+    url: walletUrl.transaction(transactionId),
+    swrOptions,
+  });
 }

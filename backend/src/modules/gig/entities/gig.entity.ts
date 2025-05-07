@@ -42,7 +42,7 @@ export class GigTagEntity {
 }
 
 @Entity('gigs')
-@Index('IDX_gig_search', ['title', 'description', 'slug'], { fulltext: true })
+@Index('IDX_gig_search', ['title'], { fulltext: true })
 export class GigEntity extends BaseEntity {
   /* Overview */
   @AutoMap()
@@ -122,7 +122,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap(() => FreelancerEntity)
   @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.gigs, {
-    eager: true,
+    eager: false,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'freelancer_id' })
@@ -237,7 +237,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   userId: string;
-  
+
   @AutoMap()
   @OneToMany(() => OrderEntity, (order) => order.gig)
   orders: OrderEntity[];

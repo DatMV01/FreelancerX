@@ -1,10 +1,16 @@
 import { GigDto } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
-const API_URL = "/user";
+const BASE = "/user";
+
+export const userUrl = {
+  detail: (id: string) => `${BASE}/${id}`,
+  update: (id: string) => `${BASE}/update/${id}`,
+  delete: (id: string) => `${BASE}/delete/${id}`,
+};
 
 export const getUserById = async (id: string): Promise<any> => {
-  const response = await axiosInstanceV1.get(`${API_URL}/${id}`);
+  const response = await axiosInstanceV1.get(userUrl.detail(id));
   return response;
 };
 

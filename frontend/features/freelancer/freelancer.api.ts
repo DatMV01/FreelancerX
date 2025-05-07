@@ -1,40 +1,31 @@
 import { GigDto } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 
-const API_URL = "/freelancer";
+const BASE = "/freelancer";
+
+export const freelancerUrl = {
+  detail: (id: string) => `${BASE}/${id}`,
+  profileById: (id: string) => `${BASE}/profile/id/${id}`,
+  profileByEmail: (email: string) => `${BASE}/profile/email/${email}`,
+};
 
 export const getFreelancerById = async (id: string): Promise<any> => {
-  try {
-    const response = await axiosInstanceV1.get(`${API_URL}/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error getFreelancerById", error);
-    throw error;
-  }
+  const response = await axiosInstanceV1.get(freelancerUrl.detail(id));
+  return response;
 };
 
 export const getFreelancerProfileById = async (id: string): Promise<any> => {
-  try {
-    const response = await axiosInstanceV1.get(`${API_URL}/profile/id/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error getFreelancerProfileById", error);
-    throw error;
-  }
+  const response = await axiosInstanceV1.get(freelancerUrl.profileById(id));
+  return response;
 };
 
 export const getFreelancerProfileByEmail = async (
   email: string,
 ): Promise<any> => {
-  try {
-    const response = await axiosInstanceV1.get(
-      `${API_URL}/profile/email/${email}`,
-    );
-    return response.data;
-  } catch (error) {
-    console.error("getFreelancerProfileByEmail", JSON.stringify(error));
-    throw error;
-  }
+  const response = await axiosInstanceV1.get(
+    freelancerUrl.profileByEmail(email),
+  );
+  return response;
 };
 
 // export const fetchGigs = async ({

@@ -1,19 +1,21 @@
 "use client";
 
-import CircularProgressCenter from "@/components/CircularProgressCenter";
-import { loginAsync } from "@/lib/redux/features/auth/authSlice";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { VisuallyHidden } from "radix-ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
-  email: z.string().min(6, { message: "Invalid email" }),
+  email: z.string().email({ message: "Invalid email." }),
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters long" }),
@@ -32,6 +34,8 @@ type Props = {
 export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showSignUpForm, setShowSignUpForm] = useState(false);
 
   const {
     register,
@@ -106,6 +110,7 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
   return (
     <div className="flex w-full max-w-lg flex-col items-center justify-center px-4">
       <h2 className="mb-4 text-center text-xl font-semibold">Login</h2>
+
       <form onSubmit={handleSubmit(handleLogin)} className="w-full space-y-2">
         <div>
           <label className="block text-base font-medium text-gray-700">
@@ -138,13 +143,23 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
             </Link>
           </div>
 
-          <input
-            type="password"
-            {...register("password")}
-            className="mt-1 block w-full rounded-md border border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="******"
-            autoComplete="current-password"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              {...register("password")}
+              className="mt-1 block w-full rounded-md border border-gray-300 p-2 pr-10 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              placeholder="******"
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute top-2.5 right-2 text-gray-500"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
           {errors.password && (
             <p className="my-2 text-sm text-red-500">
@@ -154,13 +169,14 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
         </div>
 
         {/* ✅ Submit Button */}
-        <button
+        <Button
           type="submit"
           className="w-full rounded-md bg-green-500 py-2 text-white hover:bg-green-600"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Logging in..." : "Login"}
-        </button>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isSubmitting ? "Processing..." : "Login"}
+        </Button>
 
         {/* <button
           type="button"
@@ -186,6 +202,7 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
           </p>
         )}
       </form>
+
       <div className="mt-4 text-center text-sm">
         <span>Don&apos;t have an account?&nbsp;</span>
         <Link
@@ -196,7 +213,6 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
           Sign up
         </Link>
       </div>
-      {isSubmitting && <CircularProgressCenter />}
     </div>
   );
 }

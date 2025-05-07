@@ -92,7 +92,7 @@ export class GigController extends BaseController<
   async findOneBySlug(@Param('slug') slug: string) {
     const entity = await this._service.findOneBySlug({
       where: { slug },
-      relations: ['freelancer', 'freelancer.user'],
+     // relations: ['freelancer', 'freelancer.user'],
     });
 
     return this.mapFromEntityToDto(entity);

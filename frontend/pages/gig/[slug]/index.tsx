@@ -3,6 +3,7 @@
 import BreadcrumbCategory from "@/components/BreadcrumbCategory";
 import { Button } from "@/components/ui/button";
 import { GigDto, GigPackage } from "@/dto/dto.type.";
+import { freelancerUrl } from "@/features/freelancer/freelancer.api";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import GigComments from "@/features/gig/components/GigComment";
 import GigComparePackage from "@/features/gig/components/GigComparePackage";
@@ -19,6 +20,7 @@ import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
 import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
 import { getGigBySlug } from "@/features/gig/gig.api";
+import { useFetchV1 } from "@/hooks/useFetch";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import {
@@ -89,6 +91,7 @@ const PackageSideBar = ({
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const { mode } = router.query;
+  const userId = useAppSelector(selectUser)?.id;
 
   const handleScroll = () => {
     document
@@ -97,8 +100,8 @@ const PackageSideBar = ({
   };
 
   const handlePlaceAnOrder = async () => {
-    if (mode) {
-      toast.info("Preview mode");
+    if (!userId) {
+      toast.info("Please login");
       return;
     }
 
@@ -239,21 +242,6 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
 
   return (
     <div className="sticky top-4 hidden h-fit w-[300px] md:block">
-      {isGigOwner && (
-        <div className="my-2 flex justify-end">
-          <Button
-            variant="outline"
-            onClick={(e) => {
-              e.preventDefault();
-
-              router.push(`/dashboard/freelancer/gigs/edit/?id=${gig.id}`);
-            }}
-          >
-            <Pencil className="h-4 text-green-500" /> Edit
-          </Button>
-        </div>
-      )}
-
       <div className="flex h-8 justify-end">
         <GigFavorite gig={gig} />
       </div>
@@ -352,14 +340,27 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
   const router = useRouter();
   const { user_id, gig_id } = router.query;
-  const { title, freelancer } = gig;
+  const { title, freelancerId } = gig;
 
-  console.log(gig);
+  const {
+    data: freelancer,
+    error,
+    isLoading,
+    isValidating,
+  } = useFetchV1({
+    url: freelancerUrl.profileById(freelancerId),
+    swrOptions: {
+      dedupingInterval: 1000000,
+    },
+    requireLogin: false,
+  });
+
+  console.log(freelancer);
   return (
     <div className="min-w-0">
       <p className="min-h-8 text-xl font-semibold">{title}</p>
 
-      <GigSellerRank gig={gig} />
+      <GigSellerRank gig={gig} freelancer={freelancer} />
 
       <GigCarousel gig={gig} className="h-[300px] lg:h-[400px] xl:h-[600px]" />
 
@@ -367,7 +368,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       {/* <GigMetaData /> */}
 
-      <GigSellerOverview gig={gig} />
+      <GigSellerOverview gig={gig} freelancer={freelancer} />
 
       {/* <GigSellerPortfolio /> */}
 
@@ -399,8 +400,6 @@ const GigDetail = () => {
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);
   const user = useAppSelector(selectUser);
-
-  
 
   useEffect(() => {
     setLoading(true);

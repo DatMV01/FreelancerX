@@ -27,12 +27,13 @@ const GigFavorite = ({ gig }: { gig: GigDto }) => {
   const [isFavorite, setFavorite] = useState(false);
   const favoriteGigs = useAppSelector(selectFavoriteGigs);
   const favoriteGigsStatus = useAppSelector(selectFavoriteGigsStatus);
+  const userId = useAppSelector(selectUser)?.id;
 
   const handleAddFavoriteGig = async () => {
-    // if (isGigOwner) {
-    //   toast.info("Preview mode");
-    //   return;
-    // }
+    if (!userId) {
+      toast.info("Please login");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -45,10 +46,10 @@ const GigFavorite = ({ gig }: { gig: GigDto }) => {
   };
 
   const handleRemoveFavoriteGig = async () => {
-    // if (isGigOwner) {
-    //   toast.info("Preview mode");
-    //   return;
-    // }
+    if (!userId) {
+      toast.info("Please login");
+      return;
+    }
 
     try {
       setLoading(true);

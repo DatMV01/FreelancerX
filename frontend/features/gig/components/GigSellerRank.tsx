@@ -1,32 +1,17 @@
 import { GigDto } from "@/dto/dto.type.";
-import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
 import UserAvatar from "@/features/user/components/UserAvatar";
 import UserRank from "@/features/user/components/UserRank";
-import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import useSWR from "swr";
 
-const GigSellerRank = ({ gig }: { gig: GigDto }) => {
-  const email = gig.freelancer.email;
-
-  const {
-    data: freelancer,
-    error,
-    isLoading,
-    isValidating,
-  } = useSWR(
-    `/profile/email/${email}`,
-    () => getFreelancerProfileByEmail(email),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
-      dedupingInterval: 300000, // 5 minutes
-    },
-  );
-
-  if (isLoading || isValidating) {
-    return <Loader2 className="animate-spin" size={18} />;
+const GigSellerRank = ({
+  gig,
+  freelancer,
+}: {
+  gig?: GigDto;
+  freelancer: any;
+}) => {
+  if (!freelancer) {
+    return null;
   }
 
   const handleScroll = () => {
@@ -35,11 +20,10 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
       ?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const { ratingCount, ratingAverage } = gig;
   return (
     <div className="my-2 flex items-center space-x-2">
       <Link
-        href={`/freelancer/profile/${email}`}
+        href={`/freelancer/profile/${freelancer.email}`}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -52,7 +36,7 @@ const GigSellerRank = ({ gig }: { gig: GigDto }) => {
       <div>
         <div className="flex items-center justify-between gap-x-2">
           <Link
-            href={`/freelancer/profile/${email}`}
+            href={`/freelancer/profile/${freelancer?.email}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-base font-bold hover:underline"

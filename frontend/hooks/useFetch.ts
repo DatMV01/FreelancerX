@@ -1,4 +1,6 @@
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import {
+     axiosInstanceV1
+} from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { AxiosError } from "axios";
@@ -12,7 +14,7 @@ export const defaultSwrOptions = {
   shouldRetryOnError: false,
 };
 
-const fetcher = async <T>(
+export const fetcher = async <T>(
   fetcherFn: (queryStr: string) => Promise<T>,
   queryString: string,
 ): Promise<T> => {
@@ -77,13 +79,58 @@ export function useFetchByKey<T>(
   };
 }
 
-export function useFetchV1<T>(
+export function useFetchV1<T>({
+  url,
+  swrOptions,
+  key,
+  requireLogin = true,
+}: {
+  url: string;
+  swrOptions?: Record<string, any>;
+  key?: string;
+  requireLogin?: boolean;
+}) {
+  let shouldFetch = true;
+
+  if (requireLogin) {
+    const userId = useAppSelector(selectUser)?.id;
+    shouldFetch = !!userId && (!!url || !!key);
+  }
+
+  const cacheKey = key ?? url;
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    shouldFetch ? cacheKey : null,
+    async () => {
+      try {
+        const res = await axiosInstanceV1.get(url);
+        return res.data;
+      } catch (err) {
+        const error = err as AxiosError;
+        console.warn(error);
+        throw error;
+      }
+    },
+    { ...defaultSwrOptions, ...swrOptions },
+  );
+
+  return {
+    data,
+    isLoading,
+    isValidating,
+    mutate,
+    error,
+    errorMessage: error?.response?.data?.message || error?.message,
+    statusCode: error?.response?.status,
+  };
+}
+
+export function useFetchPublicV1<T>(
   url: string,
   swrOptions?: Record<string, any>,
-  key?: string, // key tùy chọn
+  key?: string,
 ) {
-  const userId = useAppSelector(selectUser)?.id;
-  const shouldFetch = !!userId && (!!url || !!key);
+  const shouldFetch = !!url || !!key;
 
   const cacheKey = key ?? url;
 

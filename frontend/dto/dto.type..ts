@@ -143,6 +143,7 @@ export class GigDto extends BaseDto<GigDto> {
   thumbnail!: MediaItem;
   orderCount!: number;
   freelancer!: Freelancer;
+  freelancerId!: string;
   slug!: string;
   ratingAverage?: number;
   ratingCount?: number;

@@ -1,27 +1,19 @@
 import { GigDto } from "@/dto/dto.type.";
-import { faker } from "@faker-js/faker";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Avatar, Divider, Rating } from "@mui/material";
-
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import { LoremIpsum } from "lorem-ipsum";
-import { Star } from "lucide-react";
-import { useState } from "react";
-import useSWR from "swr";
-import { getGigRatingCount, getGigReviews } from "../gig.api";
-import { getUserById } from "@/features/user/user.api";
-import {
-  getFreelancerById,
-  getFreelancerProfileById,
-} from "@/features/freelancer/freelancer.api";
-import { format } from "date-fns";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { freelancerUrl } from "@/features/freelancer/freelancer.api";
+import UserAvatar from "@/features/user/components/UserAvatar";
+import { userUrl } from "@/features/user/user.api";
+import { useFetchV1 } from "@/hooks/useFetch";
+import { format } from "date-fns";
+import { useState } from "react";
+import useSWR from "swr";
+import { getGigReviews } from "../gig.api";
 
 const GigSellerResponse = ({ comment }: { comment: any }) => {
   const { reviewerId, freelancerId, content, replies } = comment;
@@ -31,48 +23,41 @@ const GigSellerResponse = ({ comment }: { comment: any }) => {
     error,
     isLoading,
     isValidating,
-    mutate,
-  } = useSWR(`/user/${reviewerId}`, () => getUserById(reviewerId), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    refreshInterval: 0,
-    dedupingInterval: 1000000,
-  });
-
-  const {
-    data: freelancer,
-    error: error2,
-    isLoading: isLoading2,
-    isValidating: isValidating2,
-  } = useSWR(
-    `/freelancer/${freelancerId}`,
-    () => getFreelancerProfileById(freelancerId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
+  } = useFetchV1({
+    url: userUrl.detail(reviewerId),
+    swrOptions: {
       dedupingInterval: 1000000,
     },
-  );
+    requireLogin: false,
+  });
+
+  const { data: freelancer } = useFetchV1({
+    url: freelancerUrl.profileById(freelancerId),
+    swrOptions: {
+      dedupingInterval: 1000000,
+    },
+    requireLogin: false,
+  });
 
   return (
     <div className="w-full rounded-lg border p-4">
       <div className="mb-2 flex items-center gap-3">
-        <Avatar alt="User" src={reviewer?.avatar} />
+        <UserAvatar avatarUrl={reviewer?.avatar} />
 
         <div>
           <div className="flex flex-col space-x-2">
-            <a
+            {/* <a
               href={`/buyer/profile/${reviewer?.email}`}
               target="_blank"
               className="font-semibold"
             >
               {reviewer?.fullName}
-            </a>
+            </a> */}
+
+            <p> {reviewer?.fullName}</p>
 
             <p className="text-sm text-gray-500"> {reviewer?.country}</p>
           </div>
-          {/* <p className="text-sm text-gray-500">{country}</p> */}
         </div>
       </div>
       <Divider />
@@ -140,8 +125,9 @@ const GigComments = ({ gig }: { gig: GigDto }) => {
     }
   };
 
+  const isLoadMoreClick = data.page < data.lastPage && !isValidating;
   const loadMoreClick = () => {
-    if (data.page < data.lastPage && !isValidating) {
+    if (isLoadMoreClick) {
       setPage(data.page + 1);
     }
   };
@@ -156,12 +142,14 @@ const GigComments = ({ gig }: { gig: GigDto }) => {
 
       {isValidating && <div>Loading more...</div>}
 
-      <button
-        className="rounded-md border-[1px] border-black bg-white p-2 font-bold text-black"
-        onClick={loadMoreClick}
-      >
-        Show More Reviews
-      </button>
+      {isLoadMoreClick && (
+        <button
+          className="rounded-md border-[1px] border-black bg-white p-2 font-bold text-black"
+          onClick={loadMoreClick}
+        >
+          Show More Reviews
+        </button>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -79,13 +80,14 @@ export default function ResetPasswordForm() {
           </div>
 
           {/* ✅ Submit Button */}
-          <button
+          <Button
             type="submit"
-            className="w-full rounded-md bg-green-500 py-1 text-white hover:bg-green-600"
+            className="w-full rounded-md bg-green-500 py-2 text-white hover:bg-green-600"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Processing..." : "Submit Request"}
-          </button>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSubmitting ? "Processing..." : "Login"}
+          </Button>
 
           {/* ✅ Success & Error Messages */}
           {message && (

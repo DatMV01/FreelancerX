@@ -158,6 +158,9 @@ export class GigDto extends BaseDto<GigDto> {
   // @AutoMap(() => Requirement)
   // requirements?: Requirement[];
 
+  @AutoMap()
+  freelancerId: string;
+
   @AutoMap(() => FreelancerDto)
   freelancer?: FreelancerDto | undefined;
 
