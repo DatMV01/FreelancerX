@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser, Roles } from 'src/common/decorators';
-import { buildObjectFromQuery } from 'src/utils/typeorm-utils';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { PageDto, PageMetaDto } from '../base/dto/pagination';
 import { RoleEnum } from '../role/enum/role.enum';
@@ -19,6 +18,7 @@ import { RolesGuard } from '../role/role.guard';
 import { RequestWithdrawalDto } from './dto/create-widthdrawal.dto';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from 'src/common/guards';
+import { buildObjectFromQuery } from 'src/utils/query-utils';
 
 @Controller('wallets')
 export class WalletController {
@@ -114,7 +114,7 @@ export class WalletController {
     const rawQueryString = req.url.split('?')[1] ?? '';
     const queryString = rawQueryString.replace(`rawQuery=`, '');
 
-    const queryObj = buildObjectFromQuery(queryString);
+    const queryObj = buildObjectFromQuery(queryString) as any;
 
     const [results, count] = await this.service.findAll(queryObj, currentUser);
 

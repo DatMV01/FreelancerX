@@ -22,133 +22,70 @@ export type QueryInput<Entity> = {
   keyword?: string;
 };
 
-export function buildQueryFromObject<Entity>(
-  query: QueryInput<Entity>,
-): string {
-  const params = new URLSearchParams();
-
-  params.set('page', (query.page ?? 1).toString());
-  params.set('pageSize', (query.pageSize ?? 10).toString());
-
-  if (query.sorts) {
-    const sortStr = Object.entries(query.sorts)
-      .map(([key, value]) => `${key}:${value}`)
-      .join(',');
-    params.set('sorts', sortStr);
+function parseValue(val: string): any {
+  if (!isNaN(Number(val))) {
+    return Number(val);
   }
-
-  if (query.filters) {
-    const filterStr = Object.entries(query.filters)
-      .map(([key, value]) => {
-        // Giá trị undefined/null không cần encode
-        if (value === undefined || value === null) return null;
-
-        if (Array.isArray(value)) {
-          return `${key}:in_${value.join(';')}`; // Dùng dấu `;` cho các mảng
-        }
-
-        if (typeof value === 'object' && value !== null) {
-          // Các toán tử đặc biệt (ví dụ: { '>': 10 })
-          const op = Object.keys(value)[0];
-          const val = (value as Record<string, any>)[op];
-          return `${key}:${op}_${val}`;
-        }
-
-        return `${key}:${value}`;
-      })
-      .filter(Boolean)
-      .join(',');
-    if (filterStr) params.set('filters', filterStr);
-  }
-
-  if (query.fields?.length) {
-    params.set('fields', query.fields.join(','));
-  }
-
-  if (query.keyword) {
-    params.set('keyword', query.keyword);
-  }
-
-  return params.toString();
+  return val;
 }
 
-export function buildObjectFromQuery<Entity>(
-  query: string,
-): QueryInput<Entity> {
-  console.log(query)
-  const decoded = decodeURIComponent(query);
-  const params = new URLSearchParams(decoded);
+/**
+ * Parse chuỗi kiểu toán tử (vd: 'like_abc', '>=_10') thành expression TypeORM
+ */
+export function parseOperatorValue(raw: string): any {
+  if (!raw || typeof raw !== 'string') return raw;
 
-  const page = parseInt(params.get('page') || '1', 10);
-  const pageSize = parseInt(params.get('pageSize') || '10', 10);
-
-  const filtersRaw = params.get('filters');
-  const filters: Partial<Record<keyof Entity, any>> = {};
-
-  if (filtersRaw) {
-    filtersRaw.split(',').forEach((item) => {
-      const [key, rawVal] = item.split(':');
-      if (!key || !rawVal) return;
-
-      // Kiểm tra xem giá trị có phải là mảng không (dấu in_)
-      if (rawVal.startsWith('in_')) {
-        const values = rawVal
-          .slice(3)
-          .split(';')
-          .map((v) => v.trim()); // Đổi từ in_x,y,z thành ['x', 'y', 'z']
-        filters[key as keyof Entity] = values;
-      }
-      // Kiểm tra các toán tử đặc biệt khác
-      else if (
-        rawVal.startsWith('like_') ||
-        rawVal.startsWith('not_') ||
-        rawVal.startsWith('contains_') ||
-        rawVal.startsWith('startsWith_') ||
-        rawVal.startsWith('endsWith_') ||
-        rawVal.startsWith('between_') ||
-        rawVal.startsWith('>=_') ||
-        rawVal.startsWith('<=_') ||
-        rawVal.toLowerCase() === 'null' ||
-        rawVal.toLowerCase() === 'isnull'
-      ) {
-        filters[key as keyof Entity] = rawVal;
-      } else {
-        // Nếu không phải các toán tử đặc biệt, thì gán luôn giá trị vào
-        filters[key as keyof Entity] = isNaN(Number(rawVal))
-          ? rawVal
-          : Number(rawVal);
-      }
-    });
+  // isnull hoặc null
+  if (raw.toLowerCase() === 'null' || raw.toLowerCase() === 'isnull') {
+    return IsNull();
   }
 
-  const sortsRaw = params.get('sorts');
-  const sorts = sortsRaw
-    ? (Object.fromEntries(
-        sortsRaw.split(',').map((item) => {
-          const [key, dir] = item.split(':');
-          return [key, dir.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'];
-        }),
-      ) as Partial<Record<keyof Entity, 'ASC' | 'DESC'>>)
-    : undefined;
+  // like_abc → Like('abc')
+  if (raw.startsWith('like_')) {
+    return Like(raw.slice(5));
+  }
 
-  const fieldsRaw = params.get('fields');
-  const fields = fieldsRaw
-    ? (fieldsRaw.split(',') as (keyof Entity)[])
-    : undefined;
+  // not_abc → Not('abc')
+  if (raw.startsWith('not_')) {
+    return Not(raw.slice(4));
+  }
 
-  const keyword = params.get('keyword') || undefined;
+  // in_x;y;z → In(['x', 'y', 'z'])
+  if (raw.startsWith('in_')) {
+    return In(raw.slice(3).split(';'));
+  }
 
-  return {
-    page,
-    pageSize,
-    filters,
-    sorts,
-    fields,
-    keyword,
-  };
+  // between_10;20 → Between(10, 20)
+  if (raw.startsWith('between_')) {
+    const [from, to] = raw.slice(8).split(';');
+    return Between(parseValue(from), parseValue(to));
+  }
+
+  // >=_10 → MoreThanOrEqual(10)
+  if (raw.startsWith('>=_')) {
+    return MoreThanOrEqual(parseValue(raw.slice(3)));
+  }
+
+  // <=_20 → LessThanOrEqual(20)
+  if (raw.startsWith('<=_')) {
+    return LessThanOrEqual(parseValue(raw.slice(3)));
+  }
+
+  // >_10 → MoreThan(10)
+  if (raw.startsWith('>_')) {
+    return MoreThan(parseValue(raw.slice(2)));
+  }
+
+  // <_20 → LessThan(20)
+  if (raw.startsWith('<_')) {
+    return LessThan(parseValue(raw.slice(2)));
+  }
+
+  // fallback: trả về string hoặc number
+  return parseValue(raw);
 }
 
-function parseOperatorValue(value: string): any {
+function parseOperatorValueOld(value: string): any {
   const v = value.trim().toLowerCase();
 
   if (v.startsWith('like_')) return Like(`%${value.slice(5)}%`);
@@ -191,61 +128,46 @@ function parseOperatorValue(value: string): any {
 }
 
 export function buildWhereClause<Entity>(
-  filters?: Partial<Record<string, any>>,
+  filters?: Record<string, any>,
 ): FindOptionsWhere<Entity> {
   if (!filters) return {};
 
-  const setNestedValue = (obj: any, path: string[], value: any) => {
+  const where: FindOptionsWhere<Entity> = {};
+
+  const setNested = (obj: any, path: string[], value: any) => {
     const key = path[0];
     if (path.length === 1) {
       obj[key] = value;
     } else {
       obj[key] = obj[key] || {};
-      setNestedValue(obj[key], path.slice(1), value);
+      setNested(obj[key], path.slice(1), value);
     }
   };
 
-  const where: FindOptionsWhere<Entity> = {};
+  const flattenToEntries = (
+    obj: Record<string, any>,
+    prefix = '',
+  ): [string, any][] => {
+    return Object.entries(obj).flatMap(([key, value]) => {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return flattenToEntries(value, fullKey);
+      }
+      return [[fullKey, value]];
+    });
+  };
 
-  for (const [key, raw] of Object.entries(filters)) {
-    if (raw === undefined || raw === null) continue;
+  const flatEntries = flattenToEntries(filters);
 
-    const keys = key.split('.');
-    const value = Array.isArray(raw)
-      ? In(raw)
-      : typeof raw === 'string'
-        ? parseOperatorValue(raw)
-        : raw;
-
-    setNestedValue(where, keys, value);
-  }
-
-  return where;
-}
-
-export function buildWhereClause2<Entity>(
-  filters?: Partial<Record<string, any>>,
-): FindOptionsWhere<Entity> {
-  if (!filters) return {};
-
-  const where: FindOptionsWhere<Entity> = {};
-
-  for (const [key, raw] of Object.entries(filters)) {
-    if (raw === undefined || raw === null) continue;
-
-    const path = key.split('.');
-    const value = Array.isArray(raw)
-      ? In(raw)
-      : typeof raw === 'string'
-        ? parseOperatorValue(raw)
-        : raw;
-
-    let obj: any = where;
-    for (let i = 0; i < path.length - 1; i++) {
-      obj[path[i]] = obj[path[i]] || {};
-      obj = obj[path[i]];
-    }
-    obj[path[path.length - 1]] = value;
+  for (const [flatKey, rawValue] of flatEntries) {
+    if (rawValue === undefined || rawValue === null) continue;
+    const path = flatKey.split('.');
+    const parsedValue = Array.isArray(rawValue)
+      ? In(rawValue)
+      : typeof rawValue === 'string'
+        ? parseOperatorValue(rawValue)
+        : rawValue;
+    setNested(where, path, parsedValue);
   }
 
   return where;

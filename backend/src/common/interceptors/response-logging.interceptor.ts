@@ -16,7 +16,7 @@ export class ResponseLoggingInterceptor implements NestInterceptor {
     const now = Date.now();
     return next.handle().pipe(
       tap((data) => {
-        console.log(`[RESPONSE] ${request.method} ${request.url}`, data);
+        console.log(`[RESPONSE] ${request.method} ${request.url}`);
       }),
     );
   }

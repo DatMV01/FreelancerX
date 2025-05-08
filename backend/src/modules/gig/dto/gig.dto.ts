@@ -162,7 +162,7 @@ export class GigDto extends BaseDto<GigDto> {
   freelancerId: string;
 
   @AutoMap(() => FreelancerDto)
-  freelancer?: FreelancerDto | undefined;
+  freelancer?: FreelancerDto;
 
   @AutoMap()
   slug: string;

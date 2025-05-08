@@ -4,24 +4,17 @@ import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import OrdersManageTable from "@/features/order/components/OrdersManageTable";
 import { ActorType } from "@/features/order/dto";
 import {
-  defaulFetchOrdersByFreelancerQuery,
-  useGetOrdersFreelancer,
+  defaulFetchOrdersByFreelancerQuery
 } from "@/features/order/hooks/useGetOrdersFreelancer";
+import { fetchOrdersByFreelancer } from "@/features/order/order.api";
 import { OrderEntity } from "@/features/order/order.entity";
+import { useFetchByQuery } from "@/hooks/useFetch";
 import { useQuerySync } from "@/hooks/useQuerySync";
-import { selectFreelancer } from "@/lib/redux/features/auth/authSlice";
-import { useAppSelector } from "@/lib/redux/hooks";
 import { ReactElement } from "react";
 
 function FreelancerOrdersPage() {
-  const freelancer = useAppSelector(selectFreelancer);
-
-  const { query, queryString, setQuery, resetQuery } =
+  const { query, queryString, url, setQuery, resetQuery } =
     useQuerySync<OrderEntity>(defaulFetchOrdersByFreelancerQuery);
-
-  const enabled = !!freelancer?.id && !!queryString;
-
-  console.log(queryString);
 
   const {
     data: response,
@@ -29,9 +22,11 @@ function FreelancerOrdersPage() {
     isLoading,
     isValidating,
     mutate,
-  } = useGetOrdersFreelancer(enabled ? queryString : null);
-
-  if (!freelancer) return null;
+  } = useFetchByQuery({
+    queryString,
+    fetcherFn: fetchOrdersByFreelancer,
+    key: url,
+  });
 
   return (
     <OrdersManageTable

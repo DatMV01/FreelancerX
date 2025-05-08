@@ -1,5 +1,8 @@
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { selectUser } from "@/lib/redux/features/auth/authSlice";
+import {
+  selectAccessToken,
+  selectUser,
+} from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { AxiosError } from "axios";
 import useSWR from "swr";
@@ -26,53 +29,33 @@ export const fetcher = async <T>(
   }
 };
 
-export function useFetchByQuery<T>(
-  queryString: string,
-  fetcherFn: (queryStr: string) => Promise<T>,
-  swrOptions?: Record<string, any>,
-) {
-  const userId = useAppSelector(selectUser)?.id;
-  const shouldFetch = !!userId && !!queryString;
-
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
-    shouldFetch ? queryString : null,
-    () => fetcher(fetcherFn, queryString),
-    { ...defaultSwrOptions, ...swrOptions },
-  );
-
-  return {
-    data,
-    isLoading,
-    isValidating,
-    mutate,
-    error,
-    errorMessage: error?.response?.data?.message || error?.message,
-    statusCode: error?.response?.status,
-  };
-}
-
-export function useFetchByQuery2<T>({
+export function useFetchByQuery<T>({
   queryString,
   fetcherFn,
   swrOptions,
   requireLogin = true,
+  key,
 }: {
-  queryString: string;
+  queryString: string | null;
   fetcherFn: (queryStr: string) => Promise<T>;
   swrOptions?: Record<string, any>;
   requireLogin?: boolean;
+  key?: string;
 }) {
-  let shouldFetch = true;
-
+  let shouldFetch = false;
   if (requireLogin) {
-    const userId = useAppSelector(selectUser)?.id;
-    shouldFetch = !!userId && !!queryString;
+    const accessToken = useAppSelector(selectAccessToken);
+    shouldFetch = !!accessToken && !!queryString;
+  } else {
+    shouldFetch = !!queryString;
   }
-  shouldFetch = !!queryString;
 
   const { data, error, isLoading, isValidating, mutate } = useSWR(
-    shouldFetch ? queryString : null,
-    () => fetcher(fetcherFn, queryString),
+    shouldFetch ? (key ?? queryString) : null,
+    () =>
+      queryString
+        ? fetcher(fetcherFn, queryString)
+        : Promise.reject(new Error("Query string is null")),
     { ...defaultSwrOptions, ...swrOptions },
   );
 
@@ -87,31 +70,31 @@ export function useFetchByQuery2<T>({
   };
 }
 
-export function useFetchByKey<T>(
-  key: string,
-  queryID: string,
-  fetcherFn: (queryStr: string) => Promise<T>,
-  swrOptions?: Record<string, any>,
-) {
-  const userId = useAppSelector(selectUser)?.id;
-  const shouldFetch = !!userId && !!key;
+// export function useFetchByKey<T>(
+//   key: string,
+//   queryID: string,
+//   fetcherFn: (queryStr: string) => Promise<T>,
+//   swrOptions?: Record<string, any>,
+// ) {
+//   const userId = useAppSelector(selectUser)?.id;
+//   const shouldFetch = !!userId && !!key;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR(
-    shouldFetch ? key : null,
-    () => fetcher(fetcherFn, queryID),
-    { ...defaultSwrOptions, ...swrOptions },
-  );
+//   const { data, error, isLoading, isValidating, mutate } = useSWR(
+//     shouldFetch ? key : null,
+//     () => fetcher(fetcherFn, queryID),
+//     { ...defaultSwrOptions, ...swrOptions },
+//   );
 
-  return {
-    data,
-    isLoading,
-    isValidating,
-    mutate,
-    error,
-    errorMessage: error?.response?.data?.message || error?.message,
-    statusCode: error?.response?.status,
-  };
-}
+//   return {
+//     data,
+//     isLoading,
+//     isValidating,
+//     mutate,
+//     error,
+//     errorMessage: error?.response?.data?.message || error?.message,
+//     statusCode: error?.response?.status,
+//   };
+// }
 
 export function useFetchV1<T>({
   url,
@@ -129,8 +112,9 @@ export function useFetchV1<T>({
   if (requireLogin) {
     const userId = useAppSelector(selectUser)?.id;
     shouldFetch = !!userId && (!!url || !!key);
+  } else {
+    shouldFetch = !!url || !!key;
   }
-  shouldFetch = !!url || !!key;
 
   const cacheKey = key ?? url;
 

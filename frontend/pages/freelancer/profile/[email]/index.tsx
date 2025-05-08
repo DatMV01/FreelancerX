@@ -2,23 +2,13 @@ import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import GigLitstingSection from "@/features/categories/GigLitstingSection";
-import {
-  freelancerUrl,
-  getFreelancerProfileByEmail,
-} from "@/features/freelancer/freelancer.api";
-import { GigEntity } from "@/features/gig/gig.entity";
-import { useGetActiveGigs } from "@/features/gig/hooks/useGetActiveGigs";
+import { freelancerUrl } from "@/features/freelancer/freelancer.api";
+import { gigUrl } from "@/features/gig/gig.api";
 import UserRank from "@/features/user/components/UserRank";
-import {
-  useFetchByQuery,
-  useFetchByQuery2,
-  useFetchV1,
-} from "@/hooks/useFetch";
-import { useQuerySync } from "@/hooks/useQuerySync";
+import { useFetchV1 } from "@/hooks/useFetch";
 import { formatDate } from "date-fns";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import useSWR from "swr";
 
 const FreelancerProfile = () => {
   const router = useRouter();
@@ -28,17 +18,14 @@ const FreelancerProfile = () => {
   }>();
 
   const { email } = router.query as any;
-
+  debugger;
   const {
     data: freelancer,
     error,
     isLoading,
     isValidating,
   } = useFetchV1({
-    url: (email ? freelancerUrl.profileByEmail(email) : null) as any,
-    swrOptions: {
-      dedupingInterval: 300000, // 5 minutes
-    },
+    url: email ? freelancerUrl.profileByEmail(email) : null,
     requireLogin: false,
   });
 
@@ -48,17 +35,43 @@ const FreelancerProfile = () => {
     isLoading: isLoadingGetActiveGigs,
     isValidating: isValidatingGetActiveGigs,
     mutate: mutateGetActiveGigs,
-  } = useGetActiveGigs();
+  } = useFetchV1({
+    url: email ? gigUrl.activeGig(email) : null,
+    requireLogin: false,
+  });
+
+  // const {
+  //   data: responseGetActiveGigs,
+  //   error: errorGetActiveGigs,
+  //   isLoading: isLoadingGetActiveGigs,
+  //   isValidating: isValidatingGetActiveGigs,
+  //   mutate: mutateGetActiveGigs,
+  // } = useFetchByQuery({
+  //   queryString: email
+  //     ? buildQueryFromObject<GigEntity>({
+  //         page: 1,
+  //         sorts: { createdAt: "DESC", updatedAt: "DESC" },
+  //         pageSize: 50,
+  //         filters: {
+  //           status: [GigStatus.ACTIVE],
+  //           freelancer: {
+  //             email,
+  //           },
+  //         },
+  //       })
+  //     : null,
+  //   fetcherFn: fetchGigsV2,
+  //   requireLogin: false,
+  // });
 
   if (isLoading || isLoadingGetActiveGigs) {
-    return <CircularProgressCenter fullScreen />;
+    return <CircularProgressCenter />;
   }
 
   if (error) {
     return <div>Not found</div>;
   }
 
-  console.log(responseGetActiveGigs);
   return (
     <div className="relative">
       {freelancer && (
@@ -152,7 +165,7 @@ const FreelancerProfile = () => {
           {/* My gig */}
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">
-              My gig ({responseGetActiveGigs?.meta?.itemCount || 0})
+              My gig ({responseGetActiveGigs?.data.meta?.itemCount || 0})
             </h3>
 
             {responseGetActiveGigs?.data && (

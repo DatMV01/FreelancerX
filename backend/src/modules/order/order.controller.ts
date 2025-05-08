@@ -169,12 +169,12 @@ export class OrderController extends BaseController<
     type: PageDto<OrderEntity>,
   })
   async findAllOrdersByAdmin(
-    @Query() query: any,
+    @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
     currentUser.actorType = RoleEnum[RoleEnum.ADMIN];
 
-    const results = await super.findAll2(query, currentUser);
+    const results = await super.findAll2(req, currentUser);
 
     return results;
   }

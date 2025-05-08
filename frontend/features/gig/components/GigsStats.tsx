@@ -5,23 +5,10 @@ import { GigStatus } from "@/features/gig/gig.types";
 
 import { cn } from "@/lib/utils";
 import {
-  BadgeCheck,
-  CheckCircle,
-  Clock,
-  CreditCard,
-  FileText,
-  Hammer,
-  RotateCcw,
-  Send,
-  XCircle,
-  DollarSign,
-  Hourglass,
-  PlayCircle,
-  PauseCircle,
-  Pencil,
   Ban,
   NotepadTextDashed,
-  X,
+  PauseCircle,
+  PlayCircle
 } from "lucide-react";
 
 export default function GigsStats({
@@ -31,9 +18,7 @@ export default function GigsStats({
   gigs: any;
   requiredStatus?: string[];
 }) {
-  if (!gigs) {
-    return <p className="text-muted-foreground text-sm">Loading...</p>;
-  }
+  if (!gigs) return null;
 
   const stats = [
     {

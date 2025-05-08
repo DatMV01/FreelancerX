@@ -293,10 +293,22 @@ export class GigService extends BaseService<GigEntity> {
     options: FindManyOptions<GigEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<GigEntity>> {
-    if (currentUser?.role.toUpperCase() !== RoleEnum[RoleEnum.ADMIN]) {
-      options.where = {
-        ...options.where,
-        freelancerId: currentUser?.freelancerId ?? currentUser?.id,
+    if (
+      currentUser &&
+      currentUser.role.toUpperCase() != RoleEnum[RoleEnum.ADMIN]
+    ) {
+      if (currentUser.freelancerId) {
+        options.where = {
+          ...options.where,
+          freelancerId: currentUser.freelancerId,
+        };
+      }
+    } else if (
+      currentUser &&
+      currentUser.role.toUpperCase() == RoleEnum[RoleEnum.ADMIN]
+    ) {
+      options.relations = {
+        freelancer: true,
       };
     }
     return Promise.resolve(options);

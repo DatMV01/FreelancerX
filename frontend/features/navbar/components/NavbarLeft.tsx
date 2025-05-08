@@ -55,7 +55,7 @@ const NavbarLeft = () => {
 
   const fullName = user?.fullName || "Guest";
   const isAdmin = user?.role?.name === "ADMIN";
- 
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -99,33 +99,104 @@ const NavbarLeft = () => {
         >
           <MenuItem href="/" label="Home" />
 
-          {user && isAdmin && (
-            <MenuItem href={route.admin.dashboard} label="Admin Dashboarđ" />
+          {isAdmin && (
+            <Link
+              href={route.admin.users}
+              className="flex p-4 hover:bg-green-50 hover:text-green-500"
+            >
+              Admin Dashboard
+            </Link>
           )}
 
-          {user && !isAdmin && (
-            <>
-              <MenuItem href={route.buyer.dashboard} label="Buyer Dashboarđ" />
-
-              {freelancer && (
-                <MenuItem
-                  href={route.freelancer.dashboard}
-                  label="Freelancer Dashboarđ"
-                />
-              )}
-
-              {!freelancer && (
-                <SheetClose asChild>
-                  <Link
-                    href={route.public.freelancer_signup}
-                    className="flex w-full items-center p-2 text-green-500 hover:bg-green-50 hover:text-green-500"
-                  >
-                    Become a Freelancer
-                  </Link>
-                </SheetClose>
-              )}
-            </>
+          {!isAdmin && (
+            <MenuItem href={route.dashboard.wallet} label="My Dashboarđ" />
           )}
+
+          {/* {!isAdmin && (
+              <Link
+                href={route.buyer.orders}
+                target="_blank"
+                className="flex p-4 hover:bg-green-50 hover:text-green-500"
+              >
+                Buyer Dashboarđ
+              </Link>
+            )} */}
+
+          {/* {!isAdmin && freelancer && (
+              <Link
+                href={route.freelancer.profile}
+                target="_blank"
+                className="flex p-4 hover:bg-green-50 hover:text-green-500"
+              >
+                Freelancer Dashboarđ
+              </Link>
+            )} */}
+
+          {!isAdmin && !freelancer && (
+            <SheetClose asChild>
+              <Link
+                href={route.public.freelancer_signup}
+                className="flex w-full items-center p-2 text-green-500 hover:bg-green-50 hover:text-green-500"
+              >
+                Become a Freelancer
+              </Link>
+            </SheetClose>
+          )}
+
+          {/* Profile Links */}
+          {/* <div className="grid h-12 grid-cols-2">
+              <Link
+                href={`/buyer/profile/${username}`}
+                className="flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500"
+              >
+                Buyer Profile
+              </Link>
+
+              {user?.freelancer && (
+                <Link
+                  href={`/freelancer/profile/${user?.freelancer?.email}`}
+                  className="flex items-center justify-center text-center hover:bg-green-50 hover:text-green-500"
+                >
+                  Freelancer Profile
+                </Link>
+              )}
+
+              {!user?.freelancer && (
+                <Link
+                  href="/freelancer/new"
+                  className="flex items-center justify-center text-center text-green-500 hover:bg-green-50"
+                >
+                  Become a Freelancer
+                </Link>
+              )}
+            </div> */}
+
+          {/* Switch Profile & Dashboard Links */}
+          {/* 
+            {!freelancer && (
+              <Link
+                href="/freelancer/dashboard"
+                className="mx-4 my-2 rounded-sm border border-black py-2 text-center font-bold hover:bg-gray-50 hover:text-green-500"
+              >
+                Freelancer Dashboard
+              </Link>
+            )} */}
+
+          {/* <DropdownMenuSeparator />
+
+             <Link
+              href={`/setting`}
+              className="p-4 hover:bg-green-50 hover:text-green-500"
+            >
+              Settings
+            </Link> */}
+
+          {/* <Link
+              href={`/billing`}
+              className="p-4 hover:bg-green-50 hover:text-green-500"
+            >
+              Billing and payments
+            </Link> */}
 
           <Accordion type="single" collapsible>
             <AccordionItem value="categories" className="m-2">

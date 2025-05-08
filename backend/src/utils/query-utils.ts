@@ -1,18 +1,3 @@
-import {
-  Between,
-  Equal,
-  FindOptionsOrder,
-  FindOptionsWhere,
-  In,
-  IsNull,
-  LessThan,
-  LessThanOrEqual,
-  Like,
-  MoreThan,
-  MoreThanOrEqual,
-  Not,
-} from 'typeorm';
-
 export type QueryInput<Entity> = {
   page: number;
   pageSize: number;
@@ -21,44 +6,47 @@ export type QueryInput<Entity> = {
   fields?: (keyof Entity)[];
   keyword?: string;
 };
+function flatten(
+  obj: Record<string, any>,
+  parentKey = '',
+): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  for (const key in obj) {
+    const value = obj[key];
+    const fullKey = parentKey ? `${parentKey}.${key}` : key;
+
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      Object.assign(result, flatten(value, fullKey));
+    } else {
+      result[fullKey] = value;
+    }
+  }
+
+  return result;
+}
 
 export function buildQueryFromObject<Entity>(
   query: QueryInput<Entity>,
 ): string {
   const params = new URLSearchParams();
 
-  params.set('page', (query.page ?? 1).toString());
-  params.set('pageSize', (query.pageSize ?? 10).toString());
+  params.set('page', query.page?.toString() || '1');
+  params.set('pageSize', query.pageSize?.toString() || '10');
 
   if (query.sorts) {
     const sortStr = Object.entries(query.sorts)
-      .map(([key, value]) => `${key}:${value}`)
+      .map(([key, dir]) => `${key}:${dir}`)
       .join(',');
     params.set('sorts', sortStr);
   }
 
   if (query.filters) {
-    const filterStr = Object.entries(query.filters)
-      .map(([key, value]) => {
-        // Giá trị undefined/null không cần encode
-        if (value === undefined || value === null) return null;
-
-        if (Array.isArray(value)) {
-          return `${key}:in_${value.join(';')}`; // Dùng dấu `;` cho các mảng
-        }
-
-        if (typeof value === 'object' && value !== null) {
-          // Các toán tử đặc biệt (ví dụ: { '>': 10 })
-          const op = Object.keys(value)[0];
-          const val = (value as Record<string, any>)[op];
-          return `${key}:${op}_${val}`;
-        }
-
-        return `${key}:${value}`;
-      })
-      .filter(Boolean)
+    const flatFilters = flatten(query.filters);
+    const filterStr = Object.entries(flatFilters)
+      .map(([key, val]) => `${key}:${val}`)
       .join(',');
-    if (filterStr) params.set('filters', filterStr);
+    params.set('filters', filterStr);
   }
 
   if (query.fields?.length) {
@@ -71,207 +59,105 @@ export function buildQueryFromObject<Entity>(
 
   return params.toString();
 }
+function setNested(obj: any, path: string[], value: any) {
+  const key = path[0];
+  if (path.length === 1) {
+    obj[key] = value;
+  } else {
+    obj[key] = obj[key] || {};
+    setNested(obj[key], path.slice(1), value);
+  }
+}
 
-export function buildObjectFromQuery<Entity>(
-  query: string | URLSearchParams,
-): QueryInput<Entity> {
-  //const params = typeof query === 'string' ? new URLSearchParams(query) : query;
+function parsePrimitiveValue(val: string): any {
+  if (val === 'null') return null;
+  if (val === 'undefined') return undefined;
+  if (val === 'true') return true;
+  if (val === 'false') return false;
+  if (!isNaN(Number(val))) return Number(val);
+  return val;
+}
 
-  const params = new URLSearchParams(query);
+export function buildObjectFromQuery(query: string): {
+  page: number;
+  pageSize: number;
+  filters?: Record<string, any>;
+  sorts?: Record<string, 'ASC' | 'DESC'>;
+  fields?: string[];
+  keyword?: string;
+} {
+  const params = new URLSearchParams(decodeURIComponent(query));
+
   const page = parseInt(params.get('page') || '1', 10);
   const pageSize = parseInt(params.get('pageSize') || '10', 10);
 
   const filtersRaw = params.get('filters');
-  const filters: Partial<Record<keyof Entity, any>> = {};
+  const filters: Record<string, any> = {};
 
   if (filtersRaw) {
     filtersRaw.split(',').forEach((item) => {
-      const [key, rawVal] = item.split(':');
-      if (!key || !rawVal) return;
-
-      // Kiểm tra xem giá trị có phải là mảng không (dấu in_)
-      if (rawVal.startsWith('in_')) {
-        const values = rawVal
-          .slice(3)
-          .split(';')
-          .map((v) => v.trim()); // Đổi từ in_x,y,z thành ['x', 'y', 'z']
-        filters[key as keyof Entity] = values;
-      }
-      // Kiểm tra các toán tử đặc biệt khác
-      else if (
-        rawVal.startsWith('like_') ||
-        rawVal.startsWith('not_') ||
-        rawVal.startsWith('contains_') ||
-        rawVal.startsWith('startsWith_') ||
-        rawVal.startsWith('endsWith_') ||
-        rawVal.startsWith('between_') ||
-        rawVal.startsWith('>=_') ||
-        rawVal.startsWith('<=_') ||
-        rawVal.toLowerCase() === 'null' ||
-        rawVal.toLowerCase() === 'isnull'
-      ) {
-        filters[key as keyof Entity] = rawVal;
-      } else {
-        // Nếu không phải các toán tử đặc biệt, thì gán luôn giá trị vào
-        filters[key as keyof Entity] = isNaN(Number(rawVal))
-          ? rawVal
-          : Number(rawVal);
-      }
+      const [key, val] = item.split(':');
+      if (!key || val === undefined) return;
+      const path = key.split('.');
+      const parsed = parsePrimitiveValue(val);
+      setNested(filters, path, parsed);
     });
   }
 
   const sortsRaw = params.get('sorts');
-  const sorts = sortsRaw
-    ? (Object.fromEntries(
+  const sorts: Record<string, 'ASC' | 'DESC'> | undefined = sortsRaw
+    ? Object.fromEntries(
         sortsRaw.split(',').map((item) => {
           const [key, dir] = item.split(':');
-          return [key, dir.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'];
+          return [key, dir?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'];
         }),
-      ) as Partial<Record<keyof Entity, 'ASC' | 'DESC'>>)
+      )
     : undefined;
 
-  const fieldsRaw = params.get('fields');
-  const fields = fieldsRaw
-    ? (fieldsRaw.split(',') as (keyof Entity)[])
-    : undefined;
-
-  const keyword = params.get('keyword') || undefined;
+  const fields = params.get('fields')?.split(',') ?? undefined;
+  const keyword = params.get('keyword') ?? undefined;
 
   return {
     page,
     pageSize,
-    filters,
+    filters: Object.keys(filters).length ? filters : undefined,
     sorts,
     fields,
     keyword,
   };
 }
 
-function parseOperatorValue(value: string): any {
-  const v = value.trim().toLowerCase();
+const queryStr = buildQueryFromObject({
+  page: 1,
+  pageSize: 20,
+  filters: {
+    active: true,
+    retryCount: 3,
+    email: null,
+    user: {
+      isPremium: 'false',
+      age: '25',
+    },
+  },
+});
 
-  if (v.startsWith('like_')) return Like(`%${value.slice(5)}%`);
-  if (v.startsWith('contains_')) return Like(`%${value.slice(9)}%`);
-  if (v.startsWith('startswith_')) return Like(`${value.slice(11)}%`);
-  if (v.startsWith('endswith_')) return Like(`%${value.slice(10)}`);
-  if (v.startsWith('not_')) return Not(value.slice(4));
-  if (v.startsWith('between_')) {
-    const [, from, to] = value.split('_');
-    return from && to ? Between(from, to) : undefined;
-  }
-  if (v.startsWith('in_'))
-    return In(
-      value
-        .slice(3)
-        .split(';')
-        .map((s) => s.trim()),
-    );
-  if (v === 'null' || v === 'isnull') return IsNull();
+console.log(queryStr);
 
-  if (/^(>=|<=|>|<|=)_/.test(value)) {
-    const [op, val] = value.split(/_(.+)/);
-    switch (op) {
-      case '>':
-        return MoreThan(val);
-      case '>=':
-        return MoreThanOrEqual(val);
-      case '<':
-        return LessThan(val);
-      case '<=':
-        return LessThanOrEqual(val);
-      case '=':
-        return Equal(val);
-      default:
-        return val;
-    }
-  }
+console.log(buildObjectFromQuery(queryStr));
 
-  return isNaN(Number(value)) ? value : Number(value);
-}
+const query = buildQueryFromObject({
+  page: 1,
 
-export function buildWhereClause<Entity>(
-  filters?: Partial<Record<string, any>>,
-): FindOptionsWhere<Entity> {
-  if (!filters) return {};
+  sorts: { createdAt: 'DESC', updatedAt: 'DESC' },
+  pageSize: 50,
+  filters: {
+    status: ['ACTIVE'],
+    freelancer: {
+      email: 'user32@example.com',
+    },
+  },
+} as any);
 
-  const setNestedValue = (obj: any, path: string[], value: any) => {
-    const key = path[0];
-    if (path.length === 1) {
-      obj[key] = value;
-    } else {
-      obj[key] = obj[key] || {};
-      setNestedValue(obj[key], path.slice(1), value);
-    }
-  };
+console.log(query);
 
-  const where: FindOptionsWhere<Entity> = {};
-
-  for (const [key, raw] of Object.entries(filters)) {
-    if (raw === undefined || raw === null) continue;
-
-    const keys = key.split('.');
-    const value = Array.isArray(raw)
-      ? In(raw)
-      : typeof raw === 'string'
-        ? parseOperatorValue(raw)
-        : raw;
-
-    setNestedValue(where, keys, value);
-  }
-
-  return where;
-}
-
-export function buildWhereClause2<Entity>(
-  filters?: Partial<Record<string, any>>,
-): FindOptionsWhere<Entity> {
-  if (!filters) return {};
-
-  const where: FindOptionsWhere<Entity> = {};
-
-  for (const [key, raw] of Object.entries(filters)) {
-    if (raw === undefined || raw === null) continue;
-
-    const path = key.split('.');
-    const value = Array.isArray(raw)
-      ? In(raw)
-      : typeof raw === 'string'
-        ? parseOperatorValue(raw)
-        : raw;
-
-    let obj: any = where;
-    for (let i = 0; i < path.length - 1; i++) {
-      obj[path[i]] = obj[path[i]] || {};
-      obj = obj[path[i]];
-    }
-    obj[path[path.length - 1]] = value;
-  }
-
-  return where;
-}
-
-export function buildOrderClause<Entity>(
-  sorts?: FindOptionsOrder<Entity>,
-): FindOptionsOrder<Entity> {
-  if (!sorts) return {};
-  return Object.fromEntries(
-    Object.entries(sorts).map(([key, order]) => [
-      key,
-      (order as string).toUpperCase() as 'ASC' | 'DESC',
-    ]),
-  ) as FindOptionsOrder<Entity>;
-}
-
-export function buildOrderClause2<Entity>(
-  sorts?: Partial<Record<keyof Entity, string>>,
-): FindOptionsOrder<Entity> {
-  if (!sorts) return {};
-
-  return Object.entries(sorts).reduce((acc, [key, value]) => {
-    const direction = (String(value) || '').toUpperCase();
-    if (direction === 'ASC' || direction === 'DESC') {
-      acc[key as keyof Entity as any] = direction;
-    }
-    return acc;
-  }, {} as FindOptionsOrder<Entity>);
-}
+console.log(buildObjectFromQuery(query));

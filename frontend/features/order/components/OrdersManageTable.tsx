@@ -447,7 +447,7 @@ function OrdersManageTable({
               />
 
               <TableBody>
-                {sortedOrders.map((_, index) => (
+                {sortedOrders?.map((_, index) => (
                   <React.Fragment key={_.id}>
                     {/* Information */}
                     <TableRow className="w-fit">

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useQuerySync } from "@/hooks/useQuerySync";
-import { QueryInput } from "@/lib/fitlers/buildQueryFromObject";
+import { QueryInput } from "@/lib/fitlers/query-utils";
 
 type Order = {
   id: number;
@@ -11,7 +11,7 @@ type Order = {
   buyerId: string;
 };
 
-const defaultQuery: QueryInput<Order> = {
+const defaultQuery: QueryInput<any> = {
   page: 1,
   pageSize: 10,
   sorts: { createdAt: "DESC" },

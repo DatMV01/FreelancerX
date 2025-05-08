@@ -1,5 +1,5 @@
 import { useFetchByQuery } from "@/hooks/useFetch";
-import { QueryInput } from "@/lib/fitlers/buildQueryFromObject";
+import { QueryInput } from "@/lib/fitlers/query-utils";
 import { fetchWalletTransactions } from "../wallet.api";
 import { WalletTransactionEntity } from "../wallet.type";
 
@@ -14,5 +14,9 @@ export function useGetWalletTransactions(
   queryString: string,
   swrOptions?: any,
 ) {
-  return useFetchByQuery(queryString, fetchWalletTransactions, swrOptions);
+  return useFetchByQuery({
+    queryString,
+    fetcherFn: fetchWalletTransactions,
+    swrOptions,
+  });
 }

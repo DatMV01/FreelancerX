@@ -7,13 +7,15 @@ import {
   defaulFetchOrdersByAdminQuery,
   useGetOrdersByAdmin,
 } from "@/features/order/hooks/useGetOrdersByAdmin";
+import { fetchOrdersByAdmin } from "@/features/order/order.api";
 import { OrderEntity } from "@/features/order/order.entity";
-import { useQuerySync } from "@/hooks/useQuerySync";
+import { useFetchByQuery } from "@/hooks/useFetch";
+import { defaulFetchQuery, useQuerySync } from "@/hooks/useQuerySync";
 import { ReactElement } from "react";
 
 function AdminOrdersPage() {
-  const { query, queryString, setQuery, removeQuery, resetQuery } =
-    useQuerySync<OrderEntity>(defaulFetchOrdersByAdminQuery);
+  const { query, queryString, url, setQuery, removeQuery, resetQuery } =
+    useQuerySync<OrderEntity>(defaulFetchQuery);
 
   const {
     data: response,
@@ -21,7 +23,11 @@ function AdminOrdersPage() {
     isLoading,
     isValidating,
     mutate,
-  } = useGetOrdersByAdmin(queryString);
+  } = useFetchByQuery({
+    queryString,
+    fetcherFn: fetchOrdersByAdmin,
+    key: url,
+  });
 
   return (
     <OrdersManageTable

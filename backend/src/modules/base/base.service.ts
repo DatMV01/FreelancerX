@@ -181,7 +181,10 @@ export abstract class BaseService<Entity extends BaseEntity> {
 
       return result;
     } catch (error) {
-      throw new Error(`Error fetching data: ${error.message}`);
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      throw new Error(`Error fetching data: ${error}`);
     }
   }
   async findAll2_V2(

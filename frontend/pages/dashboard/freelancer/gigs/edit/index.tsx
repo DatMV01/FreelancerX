@@ -1,5 +1,6 @@
 "use client";
 
+import CircularProgressCenter from "@/components/CircularProgressCenter";
 import MyCkEditorWithNoSSR from "@/components/ckeditor/CkEditorWithNoSSR";
 import DashboardLayout from "@/components/layouts/DashboardLayout";
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
@@ -284,7 +285,10 @@ const FreelancerEditGigPage = () => {
     values.nestedSubcategory = undefined;
 
     try {
-      const response = await axiosInstanceV1.patch(`/gigs/${values.id}`, values);
+      const response = await axiosInstanceV1.patch(
+        `/gigs/${values.id}`,
+        values,
+      );
       const { slug } = response.data;
 
       toast.success(`Update service successfully!`);
@@ -322,7 +326,7 @@ const FreelancerEditGigPage = () => {
   }, [allValues]);
 
   if (isLoading) {
-    return <div>Loading</div>;
+    return <CircularProgressCenter />;
   }
 
   return (
@@ -348,7 +352,7 @@ const FreelancerEditGigPage = () => {
                 <button
                   className="flex items-center rounded bg-green-500 px-4 py-2 font-bold text-white hover:bg-green-600"
                   onClick={(e) => {
-                    e.preventDefault(); 
+                    e.preventDefault();
                     router.replace(
                       `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
                     );

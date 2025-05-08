@@ -1,6 +1,6 @@
 import useSWR from "swr";
 
-import { QueryInput } from "@/lib/fitlers/buildQueryFromObject";
+import { QueryInput } from "@/lib/fitlers/query-utils";
 import { fetchOrdersByFreelancer } from "../order.api";
 import { OrderEntity } from "../order.entity";
 

@@ -35,14 +35,14 @@ import {
 
 import { CurrentUser } from 'src/common/decorators';
 import { removeUndefinedFields } from 'src/utils/common';
-import { buildObjectFromQuery } from 'src/utils/typeorm-utils';
-import { SelectQueryBuilder } from 'typeorm';
+ import { SelectQueryBuilder } from 'typeorm';
 import { BaseService } from './base.service';
 import { PageDto, PageMetaDto } from './dto/pagination';
 import { QueryDto } from './dto/query.dto';
 import { BaseEntity } from './entities/base.entity';
 import { RawQueryDto } from './dto/rawquery.dto';
 import { JwtOptionalAuthGuard } from 'src/common/guards';
+import { buildObjectFromQuery } from 'src/utils/query-utils';
 
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiExtraModels(PageDto, PageMetaDto)
@@ -133,7 +133,7 @@ export abstract class BaseController<
     const rawQueryString = req.url.split('?')[1] ?? '';
     const queryString = rawQueryString.replace(`rawQuery=`, '');
 
-    const queryObj = buildObjectFromQuery(queryString);
+    const queryObj = buildObjectFromQuery(queryString) as any;
 
     const [results, count] = await this.baseService.findAll2(
       queryObj,

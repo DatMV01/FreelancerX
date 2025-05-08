@@ -1,591 +1,713 @@
 "use client";
 
-import { GigDto, GigStatus } from "@/dto/dto.type.";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import CircularProgressCenter from "@/components/CircularProgressCenter";
+import PaginationWithPageSize from "@/components/PaginationWithPageSize";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  TablePagination,
-  TextField,
-} from "@mui/material";
-import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+} from "@/components/ui/dialog";
 import {
-  DataGrid,
-  GridColDef,
-  gridPageCountSelector,
-  gridPageSelector,
-  gridPageSizeSelector,
-  useGridApiContext,
-  useGridSelector,
-} from "@mui/x-data-grid";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
-  ChevronFirst,
-  ChevronLast,
-  ChevronLeft,
-  ChevronRight,
+  DashboardMainContent,
+  DashboardMainContentHeader,
+} from "@/features/dashboard/components/DashboardMainContent";
+import OrderStats from "@/features/order/components/OrderStats";
+import { OrderStatusBadge } from "@/features/order/components/OrderStatusBadge";
+import {
+  ActorType,
+  orderFreelancerStatus,
+  orderStatus,
+  OrderStatus,
+} from "@/features/order/dto";
+import { defaulFetchOrdersByAdminQuery } from "@/features/order/hooks/useGetOrdersByAdmin";
+import { OrderEntity } from "@/features/order/order.entity";
+import { useQuerySync } from "@/hooks/useQuerySync";
+import { format, formatDate } from "date-fns";
+import { saveAs } from "file-saver";
+import {
+  ArrowUpDown,
+  Download,
+  Eye,
+  Loader2,
+  PauseCircle,
+  Pencil,
+  RefreshCcw,
+  Send,
+  X,
 } from "lucide-react";
-import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { VisuallyHidden } from "radix-ui";
+import React, { useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
+import { defaulFetchGigsQuery } from "../hooks/useGetActiveGigs";
+import { GigEntity } from "../gig.entity";
+import { ErrorOrEmptyState } from "@/components/ErrorOrEmptyState";
+import GigsStats from "./GigsStats";
+import { GigStatus, gigStatus } from "../gig.types";
+import { useRouter } from "next/router";
+import { GigStatusBadge } from "./GigStatusBadge";
+import clsx from "clsx";
+import Link from "next/link";
+import GigStatusButtonsFreelancer from "./GigStatusButtonsFreelancer";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { deleteGig, updateGig } from "../gig.api";
+import { toast } from "sonner";
+import GigStatusButtonsAdmin from "./GigStatusButtonsAdmin";
 
-import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions";
-
-function TablePaginationActions(props: TablePaginationActionsProps) {
-  const { count, page, rowsPerPage, onPageChange } = props;
-
-  const handleFirstPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    onPageChange(event, 0);
-  };
-
-  const handleBackButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    onPageChange(event, page - 1);
-  };
-
-  const handleNextButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    onPageChange(event, page + 1);
-  };
-
-  const handleLastPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
-
-  return (
-    <div className="flex">
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        <ChevronFirst />
-      </IconButton>
-
-      <IconButton
-        onClick={handleBackButtonClick}
-        disabled={page === 0}
-        aria-label="previous page"
-      >
-        <ChevronLeft />
-      </IconButton>
-
-      <IconButton
-        onClick={handleNextButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="next page"
-      >
-        <ChevronRight />
-      </IconButton>
-
-      <IconButton
-        onClick={handleLastPageButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="last page"
-      >
-        <ChevronLast />
-      </IconButton>
-    </div>
-  );
+function formatDate2(date?: string) {
+  return date ? format(new Date(date), "dd/MM/yyyy HH:mm") : "";
 }
 
-const CustomPagination = (
-  props: TablePaginationActionsProps & { pageSizeOptions?: number[] },
-) => {
-  const { pageSizeOptions = [10, 20, 30, 40, 50] } = props;
-
-  const apiRef = useGridApiContext();
-  const page = useGridSelector(apiRef, gridPageSelector);
-  const pageSize = useGridSelector(apiRef, gridPageSizeSelector);
-  const pageCount = useGridSelector(apiRef, gridPageCountSelector);
-
-  const [inputPage, setInputPage] = useState(page + 1);
-
-  useEffect(() => {
-    setInputPage(page + 1);
-  }, [page]);
-
-  const handlePageChange = () => {
-    const targetPage = Math.max(1, Math.min(inputPage, pageCount));
-    if (targetPage !== page + 1) {
-      setInputPage(targetPage);
-    }
-    apiRef.current.setPage(targetPage - 1);
-  };
-
+const TableHeaderSection = ({
+  handleSort,
+  getSortIcon,
+  actorType = ActorType.ADMIN,
+}: {
+  handleSort: any;
+  getSortIcon: any;
+  actorType?: ActorType;
+}) => {
   return (
-    <div className="flex w-full items-center justify-center">
-      <TablePagination
-        component="div"
-        count={apiRef.current.state.pagination.rowCount ?? 0}
-        page={page}
-        rowsPerPage={pageSize}
-        onPageChange={(event, newPage) => apiRef.current.setPage(newPage)}
-        onRowsPerPageChange={(event) =>
-          apiRef.current.setPageSize(parseInt(event.target.value, 10))
-        }
-        ActionsComponent={TablePaginationActions}
-        rowsPerPageOptions={pageSizeOptions}
-        labelDisplayedRows={({ from, to, count }) =>
-          `Page ${page + 1} of ${pageCount}`
-        }
-      />
+    <TableHeader>
+      <TableRow>
+        {/* <TableHead>
+         <input
+           type="checkbox"
+           onChange={toggleSelectAll}
+           checked={
+             paginatedGigs.length > 0 &&
+             paginatedGigs.every((o) => selectedRows.includes(o.id))
+           }
+         />
+       </TableHead> */}
+        <TableHead>#</TableHead>
+        <TableHead
+          onClick={() => handleSort("title")}
+          className="cursor-pointer"
+        >
+          Title {getSortIcon("title")}
+        </TableHead>
 
-      <TextField
-        size="small"
-        type="number"
-        label="Go to page"
-        value={inputPage}
-        onChange={(e) => setInputPage(Number(e.target.value))}
-        style={{ width: 90, marginRight: 10 }}
-      />
-      <Button variant="contained" size="small" onClick={handlePageChange}>
-        Go
-      </Button>
-    </div>
+        {actorType === ActorType.ADMIN && (
+          <TableHead
+            onClick={() => handleSort("freelancer.email")}
+            className="cursor-pointer"
+          >
+            Freelancer {getSortIcon("freelancer.email")}
+          </TableHead>
+        )}
+
+        <TableHead
+          onClick={() => handleSort("basicPrice")}
+          className="flex cursor-pointer"
+        >
+          <p> Price {getSortIcon("basicPrice")}</p>
+        </TableHead>
+
+        <TableHead
+          onClick={() => handleSort("status")}
+          className="cursor-pointer"
+        >
+          Status {getSortIcon("status")}
+        </TableHead>
+        <TableHead
+          onClick={() => handleSort("ratingAverage")}
+          className="cursor-pointer"
+        >
+          Rating {getSortIcon("ratingAverage")}
+        </TableHead>
+
+        <TableHead
+          onClick={() => handleSort("viewCount")}
+          className="cursor-pointer"
+        >
+          Views {getSortIcon("viewCount")}
+        </TableHead>
+
+        <TableHead
+          onClick={() => handleSort("completeOrderCount")}
+          className="cursor-pointer"
+        >
+          Orders {getSortIcon("completeOrderCount")}
+        </TableHead>
+
+        <TableHead
+          onClick={() => handleSort("favoriteCount")}
+          className="cursor-pointer"
+        >
+          Favorites {getSortIcon("favoriteCount")}
+        </TableHead>
+      </TableRow>
+    </TableHeader>
   );
 };
 
-const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
-  const [rows, setRows] = useState<GigDto[]>([]);
-  const [loadingRows, setLoadingRows] = useState<string[]>([]);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 20,
+function GigsManageTable({
+  isLoading,
+  error,
+  response,
+  mutate,
+  actorType = ActorType.ADMIN,
+}: {
+  isLoading: boolean;
+  error: any;
+  response: any;
+  mutate: any;
+  actorType?: ActorType;
+}) {
+  const router = useRouter();
+  const [deletingRows, setDeletingRows] = useState<string[]>([]);
+  const [processingId, setProcessingId] = useState<string>();
+
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [pagingMetadata, setPagingMetadata] = useState<any>();
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
+
+  const [selectedId, setSelectedId] = useState<string>();
+  const [showActiveDialog, setShowActiveDialog] = useState(false);
+  const [showPauseGigDialog, setShowPausePauseGigDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+
+  const [processing, setProcessing] = useState(false);
+
+  const [gigs, setGigs] = useState<any[]>([]);
+
+  const { query, queryString, setQuery, resetQuery } =
+    useQuerySync<GigEntity>(defaulFetchGigsQuery);
+
+  const pageSize = Number(query?.pageSize);
+  const page = Number(query?.page ?? 1);
+  const totalItems = pagingMetadata?.itemCount ?? 0;
+
+  useEffect(() => {
+    if (response) {
+      setGigs(response.data as any);
+      setPagingMetadata(response.meta);
+    }
+  }, [response]);
+
+  console.log(gigs);
+
+  const filteredGigs = useMemo(() => {
+    const { status } = query.filters ?? {};
+
+    return gigs.filter((order: any) => {
+      //  const keyword = query.keyword ?? "";
+      //  const matchesKeyword = keyword
+      //    ? order.snapshot.gig.title.toLowerCase().includes(keyword.toLowerCase())
+      //    : true;
+
+      // const matchesStatus = status ? order.status === status : true;
+
+      // const matchesFromDate = fromDate
+      //   ? new Date(order.createdAt) >= new Date(fromDate)
+      //   : true;
+
+      // const matchesToDate = toDate
+      //   ? new Date(order.createdAt) <= new Date(toDate)
+      //   : true;
+
+      return true;
+      // matchesKeyword && matchesStatus && matchesFromDate && matchesToDate
+    });
+  }, [gigs, query.filters]);
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => {
+      if (prev?.key === key) {
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
+      } else {
+        return { key, direction: "asc" };
+      }
+    });
+  };
+
+  const getNestedValue = (obj: any, path: any) => {
+    return path.split(".").reduce((acc: any, part: any) => acc?.[part], obj);
+  };
+
+  const sortedGigs = [...filteredGigs].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+    const aVal = getNestedValue(a, key);
+    const bVal = getNestedValue(b, key);
+
+    if (aVal === bVal) return 0;
+
+    if (key === "date" || key === "createdAt" || key === "updatedAt") {
+      return direction === "asc"
+        ? new Date(aVal).getTime() - new Date(bVal).getTime()
+        : new Date(bVal).getTime() - new Date(aVal).getTime();
+    }
+
+    return direction === "asc"
+      ? String(aVal).localeCompare(String(bVal))
+      : String(bVal).localeCompare(String(aVal));
   });
-  const [dayRange, setDayRange] = useState(7);
-  const [isDeleting, setDeleting] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [rowCount, setRowCount] = useState(50);
 
-  const handleDeleteAll = async () => {
-    if (selectedRows.length === 0) return;
-
-    setLoadingRows(selectedRows);
-    setDeleting(true);
-
-    const results = await Promise.all(selectedRows.map(deleteGig));
-    const success = results.every((result) => result === true);
-
-    if (success) {
-      setRows((prevRows) =>
-        prevRows.filter((row) => !selectedRows.includes(row.id)),
-      );
-      setSelectedRows([]);
-    } else {
-      alert("Failed to delete some gigs. Please try again.");
-    }
-
-    setDeleting(false);
+  const getSortIcon = (key: string) => {
+    if (sortConfig?.key !== key)
+      return <ArrowUpDown className="inline h-4 w-4" />;
+    return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
-  const handleDeleteRow = async (gigId: string) => {
-    setLoadingRows((prev) => [...prev, gigId]);
-    const success = await deleteGig(gigId);
-    if (success) {
-      setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
-    }
-    setLoadingRows((prev) => prev.filter((id) => id !== gigId));
+  const handleExportCSV = () => {
+    const data = gigs.map((_) => {
+      return {
+        title: _?.title,
+        basicPrice: _?.basicPrice,
+
+        standardPrice: _?.standardPrice,
+
+        premiumPrice: _?.premiumPrice,
+
+        status: _?.status,
+
+        ratingAverate: _?.ratingAverate,
+        views: _?.views,
+        orderCount: _?.orderCount,
+        createdAt: formatDate(new Date(_?.createdAt), "dd/MM/yyyy"),
+        updatedAt: formatDate(new Date(_?.updatedAt), "dd/MM/yyyy"),
+      };
+    });
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, worksheet, "Earnings");
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, `gigs.xlsx`);
   };
 
-  const deleteGig = async (gigId: string) => {
-    try {
-      const response = await axiosInstanceV1.delete(`gigs/${gigId}`);
-      if (response.status === 200) {
-        return true;
-      }
-      throw new Error(`Failed to delete gig with ID: ${gigId}`);
-    } catch (error) {
-      console.error(error);
-      alert(`Error deleting gig ${gigId}: ${error}`);
-      return false;
-    }
-  };
-
-  const handlePauseRow = async (row: any) => {
-    const gigId = row.id;
-    setLoadingRows((prev) => [...prev, gigId]);
-    ;
-    const data = {
-      id: row.id,
-      status: GigStatus.PAUSED,
-    } as any;
-
-    console.log(data);
-
-    try {
-      const response = await axiosInstanceV1.patch(`gig/${gigId}`, data);
-      if (response.status === 200) {
-        setLoadingRows((prev) => prev.filter((id) => id !== gigId));
-        setRows((prevRows) => prevRows.filter((row) => row.id !== gigId));
-
-        return true;
-      }
-      throw new Error(`Failed to pausing gig with ID: ${gigId}`);
-    } catch (error) {
-      console.error(error);
-      alert(`Error pausing gig ${gigId}: ${error}`);
-      return false;
-    }
-  };
-
-  // const fetchGigs = async () => {
-  //   try {
-  //     const response = await axiosInstanceV1.get(`/gig`, {
-  //       params: {
-  //         page: paginationModel.page + 1,
-  //         limit: paginationModel.pageSize,
-  //         filters: `status:${gigStatus},` + `day_range:${dayRange}`,
-  //       },
-  //     });
-  //     const { data, meta } = response.data;
-  //     setRows(data);
-  //     setRowCount(meta.itemCount);
-  //   } catch (error) {
-  //     alert("Error fetching data:" + error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   setLoading(true);
-  //   fetchGigs().finally(() => setLoading(false));
-  // }, [dayRange, paginationModel.page, paginationModel.pageSize]);
-
-  const fetchGigs = useCallback(async () => {
-    try {
-      const response = await axiosInstanceV1.get("/gig", {
-        params: {
-          page: paginationModel.page + 1,
-          limit: paginationModel.pageSize,
-          filters: `status:${gigStatus},day_range:${dayRange}`,
-        },
-      });
-      const { data, meta } = response.data;
-      setRows(data);
-      setRowCount(meta.itemCount);
-    } catch (error) {
-      alert("Error fetching gigs: " + error);
-    }
-  }, [paginationModel, gigStatus, dayRange]);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchGigs().finally(() => setLoading(false));
-  }, [fetchGigs]);
-
-  const columns: GridColDef[] = useMemo(
-    () => [
-      {
-        field: "rowNumber",
-        headerName: "#",
-        width: 60,
-        sortable: true,
-        renderCell: (params) => {
-          const index = rows.findIndex((row) => row.id === params.row.id);
-          return (
-            <div className="flex h-full items-center">
-              {index + 1 + paginationModel.page * paginationModel.pageSize}
-            </div>
-          );
-        },
-      },
-      {
-        field: "title",
-        headerName: "Gig",
-        flex: 1,
-        sortable: true,
-        type: "string",
-        valueGetter: (params: any) => {
-          const title = params?.row?.title;
-          return title ?? null;
-        },
-        sortComparator: (v1, v2) => {
-          if (!v1 || !v2) return 0; // Handle null values
-          return v1.localeCompare(v2); // Sort strings alphabetically
-        },
-        renderCell: (params) => {
-          const { row } = params;
-          const { title, images } = row;
-          const { image1, image2, image3 } = images;
-
-          return (
-            <Stack
-              direction="row"
-              alignItems="center"
-              sx={{ height: "100%" }}
-              spacing={2}
-            >
-              <div className="relative h-14 w-14 flex-shrink-0">
-                <Image
-                  src={image1.url || image2.url || image3.url}
-                  alt="Gig Thumbnail"
-                  fill
-                  className="rounded-sm"
-                />
-              </div>
-
-              <Typography>{title}</Typography>
-            </Stack>
-          );
-        },
-      },
-      {
-        field: "basicPrice",
-        headerName: "Pricing",
-        type: "number",
-        width: 120,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => {
-          const basicPackage = row.packages.find(
-            (_: any) => _.type === "basic",
-          );
-          const standardPackage = row.packages.find(
-            (_: any) => _.type === "standard",
-          );
-          const premiumPackage = row.packages.find(
-            (_: any) => _.type === "premium",
-          );
-
-          return (
-            <div className="flex h-full flex-col items-start justify-center">
-              <p>Basic: {basicPackage.price}</p>
-              <p>Standard:{standardPackage.price}</p>
-              <p>Premiem:{premiumPackage.price}</p>
-            </div>
-          );
-        },
-      },
-      {
-        field: "ratingAverate",
-        headerName: "Rating",
-        type: "number",
-        width: 100,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => (
-          <div className="flex h-full flex-col items-start justify-center">
-            <p>Count: {row.ratingCount}</p>
-            <p>Average:{row.ratingAverate}</p>
-          </div>
-        ),
-      },
-      {
-        field: "orders",
-        headerName: "Orders",
-        type: "number",
-        width: 70,
-        sortComparator: (v1, v2) => {
-          if (v1 === null || v2 === null) return 0; // Handle null values
-          return v1 - v2; // Sort numbers in ascending order
-        },
-        renderCell: ({ row }) => (
-          <div className="flex h-full items-center justify-end">
-            {row.orderCount}
-          </div>
-        ),
-      },
-      {
-        field: "updatedAt",
-        headerName: "DateTime",
-        type: "dateTime",
-        sortable: true,
-        width: 110,
-        valueGetter: (params: any) => {
-          const updatedAt = params?.row?.updatedAt;
-          return updatedAt ? new Date(updatedAt) : null;
-        },
-        sortComparator: (v1, v2) => {
-          if (!v1 || !v2) return 0;
-          return v1.getTime() - v2.getTime();
-        },
-        renderCell: (params) => {
-          if (!params || !params.row || !params.row.updatedAt) {
-            return (
-              <div className="flex h-full items-center justify-end">N/A</div>
-            );
-          }
-
-          const date = new Date(params.row.updatedAt);
-
-          // Format the date
-          const hh = String(date.getHours()).padStart(2, "0");
-          const mm = String(date.getMinutes()).padStart(2, "0");
-          const ss = String(date.getSeconds()).padStart(2, "0");
-          const dd = String(date.getDate()).padStart(2, "0");
-          const MM = String(date.getMonth() + 1).padStart(2, "0");
-          const yyyy = date.getFullYear();
-
-          const formatted = `${hh}:${mm}:${ss} ${dd}/${MM}/${yyyy}`;
-
-          return (
-            <div className="flex h-full items-center justify-end">
-              {formatted}
-            </div>
-          );
-        },
-      },
-      {
-        field: "actions",
-        headerName: "Actions",
-        width: 100,
-        sortable: false,
-        renderCell: (params) => {
-          const { row } = params;
-          const { slug } = row;
-          const editUrl = `/gig/edit/${slug}`;
-          const reviewUrl = `/gig/${slug}`;
-          return (
-            <div className="m-y-2 flex flex-col justify-center">
-              <Button
-                href={editUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="contained"
-                color="primary"
-                size="small"
-                disabled={loadingRows.includes(row.id)}
-              >
-                Edit
-              </Button>
-
-              <Button
-                href={reviewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="contained"
-                color="success"
-                size="small"
-                sx={{ marginTop: 1 }}
-                disabled={loadingRows.includes(row.id)}
-              >
-                Review
-              </Button>
-
-              {gigStatus === GigStatus.ACTIVE && (
-                <Button
-                  variant="contained"
-                  color="warning"
-                  size="small"
-                  onClick={() => handlePauseRow(row)}
-                  disabled={loadingRows.includes(row.id)}
-                  sx={{ marginTop: 1 }}
-                >
-                  Paused
-                </Button>
-              )}
-
-              <Button
-                variant="contained"
-                color="error"
-                size="small"
-                onClick={() => handleDeleteRow(row.id)}
-                disabled={loadingRows.includes(row.id)}
-                sx={{ marginTop: 1 }}
-              >
-                {loadingRows.includes(row.id) ? "Deleting" : "Delete"}
-              </Button>
-            </div>
-          );
-        },
-      },
-    ],
-    [handleDeleteRow, loadingRows],
-  );
+  if (error)
+    return (
+      <ErrorOrEmptyState isLoading={isLoading} isError={error} retry={mutate} />
+    );
 
   return (
-    <Paper
-      variant="elevation"
-      elevation={0}
-      sx={{ height: "100%", width: "100%" }}
-    >
-      <Stack direction="row" alignItems="center" sx={{ padding: "10px 0" }}>
-        <strong className="uppercase">{gigStatus.table_label}</strong>
+    <DashboardMainContent>
+      <DashboardMainContentHeader>
+        <p>Manage Gigs</p>
 
-        <div className="ml-auto flex items-center">
-          {selectedRows.length > 0 && (
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleDeleteAll}
-              disabled={isDeleting}
-            >
-              {isDeleting
-                ? "Deleting..."
-                : `Delete All (${selectedRows.length})`}
-            </Button>
-          )}
+        <Button
+          variant="outline"
+          onClick={() => {
+            mutate();
+          }}
+        >
+          <RefreshCcw />
+        </Button>
+      </DashboardMainContentHeader>
+      {isLoading && <CircularProgressCenter />}
+      {!isLoading && <GigsStats gigs={gigs} />}
+      {!isLoading && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* <Input
+                 type="text"
+                 placeholder="Search by title..."
+                 value={filters.keyword}
+                 onChange={(e) => {
+                   updateFilter({ keyword: e.target.value });
+                 }}
+                 className="w-48"
+               /> */}
+                <select
+                  value={query.filters?.status}
+                  onChange={(e) => {
+                    setQuery({
+                      filters: {
+                        status: e.target.value,
+                      },
+                      page: 1,
+                    });
+                  }}
+                  className="rounded border px-2 py-1 text-sm"
+                >
+                  <option value="">All Statuses</option>
+                  {gigStatus.map((_) => (
+                    <option key={_} value={_}>
+                      {_}
+                    </option>
+                  ))}
+                </select>
 
-          <FormControl size="small" sx={{ m: 1, minWidth: 150 }}>
-            <InputLabel id="time-range-label">Day Range</InputLabel>
-            <Select
-              labelId="time-range-label"
-              id="time-range"
-              value={dayRange}
-              onChange={(e) => setDayRange(e.target.value as number)}
-              label="Time Range"
-            >
-              <MenuItem value={7}>Last 7 Days</MenuItem>
-              <MenuItem value={14}>Last 14 Days</MenuItem>
-              <MenuItem value={30}>Last 30 Days</MenuItem>
-              <MenuItem value={60}>Last 2 Months</MenuItem>
-              <MenuItem value={90}>Last 3 Months</MenuItem>
-              <MenuItem value="All">All</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
-      </Stack>
-      <DataGrid
-        loading={loading}
-        rows={rows}
-        columns={columns}
-        rowCount={rowCount}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[10, 20, 30, 40, 50]}
-        checkboxSelection
-        paginationMode="server"
-        onRowSelectionModelChange={(ids) => {
-          setSelectedRows(ids as string[]);
-        }}
-        getRowHeight={(params: any) => {
-          // return params?.row?.someField === "specialValue" ? 100 : 150;
-          return "auto" as any;
-        }}
-        disableRowSelectionOnClick
-        slots={{ pagination: CustomPagination as any }}
-        sx={{
-          "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-            outline: "none !important",
-          },
-          "& .Mui-selected": {
-            border: "none !important",
-          },
-          "& .MuiDataGrid-footerContainer": {
-            minHeight: "70px",
-          },
-          "& .MuiTablePagination-select": {
-            margin: "0 2px",
-          },
-        }}
-      />
-    </Paper>
+                {/* <Button variant="outline" onClick={handleExportCSV}>
+                 <Download className="mr-1 h-4 w-4" /> Export 
+               </Button> */}
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    router.replace("/dashboard/freelancer/gigs/new");
+                  }}
+                  className="rounded-sm border border-green-500 bg-white px-2 py-1 whitespace-nowrap text-green-500"
+                >
+                  Create new gig
+                </Button>
+
+                {/* <AdvancedSearchDialog /> */}
+              </div>
+            </div>
+
+            <Table>
+              <TableHeaderSection
+                handleSort={handleSort}
+                getSortIcon={getSortIcon}
+                actorType={actorType}
+              />
+
+              <TableBody>
+                {sortedGigs.map((_, index) => (
+                  <React.Fragment key={_.id}>
+                    <TableRow
+                      className={clsx(
+                        "w-fit",
+                        (deletingRows.includes(_.id) ||
+                          processingId === _.id) &&
+                          "pointer-events-none opacity-50",
+                      )}
+                    >
+                      <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
+
+                      <TableCell className="max-w-[400px] truncate">
+                        {_.title}
+                      </TableCell>
+
+                      {actorType === ActorType.ADMIN && (
+                        <TableCell>{_.freelancer.email}</TableCell>
+                      )}
+
+                      <TableCell>
+                        {_.basicPrice} - {_.standardPrice} - {_.premiumPrice}
+                      </TableCell>
+
+                      <TableCell>
+                        <GigStatusBadge status={_.status} />
+                      </TableCell>
+
+                      <TableCell>{_.ratingAverage}</TableCell>
+
+                      <TableCell>{_.viewCount}</TableCell>
+
+                      <TableCell>{_.completeOrderCount}</TableCell>
+
+                      <TableCell>{_.favoriteCount}</TableCell>
+                    </TableRow>
+
+                    {/* Action */}
+                    <TableRow
+                      className={clsx(
+                        "w-fit",
+                        (deletingRows.includes(_.id) ||
+                          processingId === _.id) &&
+                          "pointer-events-none opacity-50",
+                      )}
+                    >
+                      <TableCell colSpan={11} className="bg-gray-50">
+                        <div className="flex pl-10">
+                          {actorType == ActorType.FREELANCER && (
+                            <GigStatusButtonsFreelancer
+                              status={_.status}
+                              onViewDetails={() => {
+                                window.open(`/gig/${_.slug} `, "_blank");
+                              }}
+                              onActive={() => {
+                                setSelectedId(_.id);
+                                setShowActiveDialog(true);
+                              }}
+                              onEdit={() => {
+                                router.push(
+                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
+                                );
+                              }}
+                              onPause={() => {
+                                setSelectedId(_.id);
+                                setShowPausePauseGigDialog(true);
+                              }}
+                              onDelete={() => {
+                                setSelectedId(_.id);
+                                setShowDeleteDialog(true);
+                              }}
+                            />
+                          )}
+
+                          {actorType == ActorType.ADMIN && (
+                            <GigStatusButtonsAdmin
+                              status={_.status}
+                              onViewDetails={() => {
+                                window.open(`/gig/${_.slug} `, "_blank");
+                              }}
+                              onActive={() => {
+                                setSelectedId(_.id);
+                                setShowActiveDialog(true);
+                              }}
+                              onEdit={() => {
+                                router.push(
+                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
+                                );
+                              }}
+                              onPause={() => {
+                                setSelectedId(_.id);
+                                setShowPausePauseGigDialog(true);
+                              }}
+                              onDelete={() => {
+                                setSelectedId(_.id);
+                                setShowDeleteDialog(true);
+                              }}
+                              onReject={() => {
+                                setSelectedId(_.id);
+                                setShowRejectDialog(true);
+                              }}
+                            />
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+
+            <>
+              <Dialog
+                open={showActiveDialog}
+                onOpenChange={setShowActiveDialog}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    Are you sure you want to active this service?
+                  </DialogHeader>
+                  <DialogFooter className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowActiveDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className={clsx(
+                        `rounded-sm border border-green-500 bg-white`,
+                        `text-green-500 hover:text-green-500`,
+                      )}
+                      onClick={async () => {
+                        try {
+                          if (!selectedId) return;
+                          setProcessing(true);
+
+                          const response = await updateGig(selectedId, {
+                            status: GigStatus.ACTIVE,
+                          });
+
+                          if (response.status === 200) {
+                            mutate();
+                          }
+                        } catch (error) {
+                          toast.error("Some error happen.");
+                        } finally {
+                          setSelectedId(undefined);
+                          setProcessingId(undefined);
+                          setProcessing(false);
+                          setShowActiveDialog(false);
+                        }
+                      }}
+                    >
+                      {processing && (
+                        <Loader2 className="animate-spin" size={18} />
+                      )}
+                      {processing ? "Processing..." : "Confirm Active"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={showPauseGigDialog}
+                onOpenChange={setShowPausePauseGigDialog}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    Are you sure you want to pause this service?
+                  </DialogHeader>
+                  <DialogFooter className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPausePauseGigDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className={clsx(
+                        `rounded-sm border border-orange-500 bg-white`,
+                        `text-orange-500 hover:text-orange-500`,
+                      )}
+                      onClick={async () => {
+                        try {
+                          if (!selectedId) return;
+                          setProcessing(true);
+
+                          const response = await updateGig(selectedId, {
+                            status: GigStatus.PAUSED,
+                          });
+
+                          if (response.status === 200) {
+                            mutate();
+                          }
+                        } catch (error) {
+                          toast.error("Some error happen.");
+                        } finally {
+                          setSelectedId(undefined);
+                          setProcessingId(undefined);
+                          setProcessing(false);
+                          setShowPausePauseGigDialog(false);
+                        }
+                      }}
+                    >
+                      {processing && (
+                        <Loader2 className="animate-spin" size={18} />
+                      )}
+                      {processing ? "Processing..." : "Confirm Pause"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={showDeleteDialog}
+                onOpenChange={setShowDeleteDialog}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    Are you sure you want to delete the selected gig?
+                  </DialogHeader>
+                  <DialogFooter className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowDeleteDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className={clsx(
+                        `rounded-sm border border-red-500 bg-white`,
+                        `text-red-500 hover:text-red-500`,
+                      )}
+                      onClick={async () => {
+                        try {
+                          if (!selectedId) return;
+
+                          setProcessing(true);
+                          const response = await deleteGig(selectedId);
+
+                          if (response.status === 200) {
+                            mutate();
+                          }
+                        } catch (error) {
+                          toast.error("Some error happen.");
+                        } finally {
+                          setSelectedId(undefined);
+                          setProcessingId(undefined);
+                          setProcessing(false);
+                          setShowDeleteDialog(false);
+                        }
+                      }}
+                    >
+                      {processing && (
+                        <Loader2 className="animate-spin" size={18} />
+                      )}
+
+                      {processing ? "Processing..." : "Confirm Delete"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={showRejectDialog}
+                onOpenChange={setShowRejectDialog}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    Are you sure you want to reject the selected gig?
+                  </DialogHeader>
+                  <DialogFooter className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowRejectDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className={clsx(
+                        `rounded-sm border border-red-500 bg-white`,
+                        `text-red-500 hover:text-red-500`,
+                      )}
+                      onClick={async () => {
+                        try {
+                          if (!selectedId) return;
+
+                          setProcessing(true);
+
+                          const response = await updateGig(selectedId, {
+                            status: GigStatus.REJECTED,
+                          });
+
+                          if (response.status === 200) {
+                            mutate();
+                          }
+                        } catch (error) {
+                          toast.error("Some error happen.");
+                        } finally {
+                          setSelectedId(undefined);
+                          setProcessingId(undefined);
+                          setProcessing(false);
+                          setShowRejectDialog(false);
+                        }
+                      }}
+                    >
+                      {processing && (
+                        <Loader2 className="animate-spin" size={18} />
+                      )}
+
+                      {processing ? "Processing..." : "Confirm Reject"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          </CardContent>
+        </Card>
+      )}
+      <PaginationWithPageSize totalItems={totalItems} />;
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="flex h-[90vh] flex-col md:max-w-[90vw]">
+          <VisuallyHidden.Root>
+            <DialogHeader>DialogHeader</DialogHeader>
+          </VisuallyHidden.Root>
+        </DialogContent>
+      </Dialog>
+    </DashboardMainContent>
   );
-};
+}
 
 export default GigsManageTable;

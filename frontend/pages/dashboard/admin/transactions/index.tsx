@@ -4,18 +4,19 @@ import {
   DashboardMainContent,
   DashboardMainContentHeader,
 } from "@/features/dashboard/components/DashboardMainContent";
-import WithdrawModal from "@/features/dashboard/freelancer/components/WithdrawModal";
-import { WalletChart } from "@/features/wallet/components/WalletChart";
-import WalletInfo from "@/features/wallet/components/WalletInfo";
 import WalletTransactionTable from "@/features/wallet/components/WalletTransactionTable";
-import { useGetEarningsDataByYear } from "@/features/wallet/hooks/useGetEarningsDataByYear";
-import { useGetWalletInfo } from "@/features/wallet/hooks/useGetWalletInfo";
 import {
-  defaultWalletTransactionQuery,
-  useGetWalletTransactions,
+  defaultWalletTransactionQuery
 } from "@/features/wallet/hooks/useGetWalletTransactions";
-import { requestWithdraw } from "@/features/wallet/wallet.api";
-import { ActorType, WalletTransactionEntity } from "@/features/wallet/wallet.type";
+import {
+  fetchWalletTransactions,
+  requestWithdraw,
+} from "@/features/wallet/wallet.api";
+import {
+  ActorType,
+  WalletTransactionEntity,
+} from "@/features/wallet/wallet.type";
+import { useFetchByQuery } from "@/hooks/useFetch";
 import { useQuerySync } from "@/hooks/useQuerySync";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
@@ -30,7 +31,7 @@ function AdminTransactionsDashboard() {
   const user = useAppSelector(selectUser);
   const userId = user?.id || "";
 
-  const { query, queryString, setQuery, resetQuery } =
+  const { query, queryString, url, setQuery, resetQuery } =
     useQuerySync<WalletTransactionEntity>(defaultWalletTransactionQuery);
 
   const {
@@ -39,7 +40,11 @@ function AdminTransactionsDashboard() {
     isValidating: isValidatingTransactions,
     error: errorWalletTransactions,
     mutate: mutateWalletTransactions,
-  } = useGetWalletTransactions(queryString);
+  } = useFetchByQuery({
+    queryString,
+    fetcherFn: fetchWalletTransactions,
+    key: url,
+  });
 
   const handleWithdrawSubmit = async (form: any) => {
     try {

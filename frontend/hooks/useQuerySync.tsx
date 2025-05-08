@@ -2,10 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  buildQueryFromObject,
-  QueryInput,
-} from "@/lib/fitlers/buildQueryFromObject";
+import { buildQueryFromObject, QueryInput } from "@/lib/fitlers/query-utils";
 
 function parseFromUrl<Entity>(
   params: URLSearchParams,
@@ -24,7 +21,6 @@ function parseFromUrl<Entity>(
   let hasFilters = false;
   let hasFields = false;
 
-  
   for (const [key, value] of params.entries()) {
     if (key.startsWith("sorts.")) {
       const k = key.replace("sorts.", "") as keyof Entity;
@@ -59,7 +55,7 @@ function parseValue(value: string) {
   return value; // return string as default
 }
 
-function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
+export function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   const params = new URLSearchParams();
 
   params.set("page", String(query.page));
@@ -72,7 +68,6 @@ function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   if (query.sorts) {
     const querySortsEntries = Object.entries(query.sorts);
     for (const [key, value] of querySortsEntries) {
-      ;
       if (value) params.set(`sorts.${key}`, String(value));
     }
   }
@@ -80,7 +75,6 @@ function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   if (query.filters) {
     const queryFiltersEntries = Object.entries(query.filters);
     for (const [key, value] of queryFiltersEntries) {
-      ;
       if (value !== undefined && value !== "") {
         // Check if the value is an array, to serialize it properly
         if (Array.isArray(value)) {
@@ -99,12 +93,16 @@ function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   return params.toString();
 }
 
+export const defaulFetchQuery = {
+  page: 1,
+  pageSize: 10,
+  sorts: { createdAt: "DESC", updatedAt: "DESC" },
+} as any;
+
 export function useQuerySync<Entity>(defaultQuery: QueryInput<Entity>) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  ;
 
   const query: QueryInput<Entity> = useMemo(() => {
     return parseFromUrl<Entity>(searchParams, defaultQuery);
@@ -149,9 +147,11 @@ export function useQuerySync<Entity>(defaultQuery: QueryInput<Entity>) {
     router.replace(url);
   };
 
+  const queryString = buildQueryFromObject(query);
   return {
     query,
-    queryString: buildQueryFromObject(query),
+    queryString,
+    url: `${pathname}?${decodeURIComponent(queryString)}`,
     setQuery,
     removeQuery,
     resetQuery,

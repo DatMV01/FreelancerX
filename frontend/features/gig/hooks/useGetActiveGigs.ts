@@ -1,10 +1,11 @@
 import useSWR from "swr";
 
-import { QueryInput } from "@/lib/fitlers/buildQueryFromObject";
+import { QueryInput } from "@/lib/fitlers/query-utils";
 import { GigEntity } from "../gig.entity";
 import { fetchGigsV2 } from "../gig.api";
+import { useQuerySync } from "@/hooks/useQuerySync";
 
-export const defaulFetchOrdersByFreelancerQuery: QueryInput<GigEntity> = {
+export const defaulFetchGigsQuery: QueryInput<GigEntity> = {
   page: 1,
   pageSize: 10,
   sorts: { createdAt: "DESC", updatedAt: "DESC" },
@@ -28,6 +29,7 @@ const fetcher = async (queryStr: string) => {
 export function useGetActiveGigs() {
   const queryString =
     "page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC&filters=status:in_ACTIVE";
+
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     queryString,
     () => fetcher(queryString),
