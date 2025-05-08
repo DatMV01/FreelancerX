@@ -82,11 +82,11 @@ const NavbarLeftPopoverFavoriteGig = () => {
 
                     <div className="flex items-center gap-x-2">
                       <a
-                        href={`/freelancer/profile/${gig.freelancer.email}`}
+                        href={`/freelancer/profile/${gig?.freelancer?.email}`}
                         target="_blank"
                         className="cursor-pointer text-xs text-gray-500 hover:underline"
                       >
-                        {gig.freelancer.displayName}
+                        {gig?.freelancer?.displayName}
                       </a>
                       <p className="flex items-center justify-center space-x-1">
                         <Star

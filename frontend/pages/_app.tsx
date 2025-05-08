@@ -11,6 +11,7 @@ import {
   SyncSessionToRedux,
   SyncSessionToRedux2,
 } from "./syncToRedux ";
+import { useSessionSyncAcrossTabs } from "@/hooks/useSessionSyncAcrossTabs";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -26,6 +27,8 @@ export default function App({
 }: AppPropsWithLayout) {
   const getLayout =
     Component.getLayout ?? ((page) => <MainLayout>{page}</MainLayout>);
+
+  useSessionSyncAcrossTabs();
 
   return (
     <SessionProvider session={session}>

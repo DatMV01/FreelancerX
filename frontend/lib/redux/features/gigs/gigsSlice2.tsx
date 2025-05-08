@@ -30,7 +30,6 @@ export const gigSlice2 = createAppSlice({
     },
 
     removeFavoriteGig: (state, action) => {
-      debugger
       const gigId = action.payload.id;
       state.data = state.data.filter((gig) => gig.id !== gigId);
     },

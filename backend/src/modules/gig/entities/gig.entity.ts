@@ -31,6 +31,7 @@ import {
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { GigPackagesEntity, GigPackageType } from './gig_packages.entity';
+import { UserFavoriteGigEntity } from 'src/modules/gig/entities/user_favorite_gigs.entity';
 
 @Entity('tags')
 export class GigTagEntity {
@@ -142,9 +143,13 @@ export class GigEntity extends BaseEntity {
   tags: GigTagEntity[];
 
   /**== FavoriteGigs ==*/
-  @AutoMap(() => [UserEntity])
-  @ManyToMany(() => UserEntity, (user) => user.favoriteGigs)
-  users: UserEntity[];
+  // @AutoMap(() => [UserEntity])
+  // @ManyToMany(() => UserEntity, (user) => user.favoriteGigLinks)
+  // favoritedByUsers: UserEntity[];
+
+  @OneToMany(() => UserFavoriteGigEntity, (ufg) => ufg.gig)
+  favoritedByLinks: UserFavoriteGigEntity[];
+
   /* Overview */
 
   /* Pricing */
@@ -265,15 +270,20 @@ export class GigEntity extends BaseEntity {
     if (this.subCategory) this.subCategoryId = this.subCategory?.id ?? null;
     if (this.nestedSubcategory)
       this.nestedSubcategoryId = this.nestedSubcategory?.id ?? null;
-    this.basicPrice =
-      this.packages.find((pkg) => pkg.type === GigPackageType.BASIC)?.price ??
-      0;
-    this.standardPrice =
-      this.packages.find((pkg) => pkg.type === GigPackageType.STANDARD)
-        ?.price ?? 0;
-    this.premiumPrice =
-      this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)?.price ??
-      0;
+    if (this.packages) {
+      this.basicPrice =
+        this.packages.find((pkg) => pkg.type === GigPackageType.BASIC)?.price ??
+        0;
+
+      this.standardPrice =
+        this.packages.find((pkg) => pkg.type === GigPackageType.STANDARD)
+          ?.price ?? 0;
+
+      this.premiumPrice =
+        this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)
+          ?.price ?? 0;
+    }
+
     this.thumbnail =
       this.images?.image1 || this.images?.image2 || this.images?.image3 || null;
   }

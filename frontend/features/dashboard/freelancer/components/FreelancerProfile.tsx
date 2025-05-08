@@ -5,7 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
-import { getFreelancerProfileByEmail, getFreelancerProfileById } from "@/features/freelancer/freelancer.api";
+import {
+  freelancerUrl,
+  getFreelancerProfileByEmail,
+  getFreelancerProfileById,
+} from "@/features/freelancer/freelancer.api";
+import { useFetchV1 } from "@/hooks/useFetch";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import {
   refetchMeAsync,
@@ -117,27 +122,22 @@ export default function FreelancerSignupForm() {
     type: "success" | "errror";
     message: string;
   }>();
-  const user = useAppSelector(selectUser);
   const dispatch = useAppDispatch();
-
-  const email = user?.email;
-  const userId = user?.freelancer?.id;
+  const user = useAppSelector(selectUser);
+  const freelancerId = user?.freelancer?.id;
 
   const {
     data,
     error,
     isLoading: loading,
     isValidating,
-  } = useSWR<FreelancerProfile>(
-    userId ? `/profile/id/${userId}` : null,
-    () => getFreelancerProfileById(typeof userId === "string" ? userId : ""),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
+  } = useFetchV1({
+    url: freelancerId ? freelancerUrl.profileById(freelancerId) : null,
+    swrOptions: {
       dedupingInterval: 300000, // 5 minutes
     },
-  );
+    requireLogin: false,
+  });
 
   useEffect(() => {
     if (data) {

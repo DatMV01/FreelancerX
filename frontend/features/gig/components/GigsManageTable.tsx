@@ -216,7 +216,7 @@ const GigsManageTable = ({ gigStatus, ...props }: { gigStatus: any }) => {
   const handlePauseRow = async (row: any) => {
     const gigId = row.id;
     setLoadingRows((prev) => [...prev, gigId]);
-    debugger;
+    ;
     const data = {
       id: row.id,
       status: GigStatus.PAUSED,

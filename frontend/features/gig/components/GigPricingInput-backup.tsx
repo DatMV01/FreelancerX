@@ -693,7 +693,7 @@ export default function GigPricingInput({
   let parseRequire: RowData[] = [];
   let parseFeatures: RowData[] = [];
   if (pricingPackage) {
-    debugger
+    
     for (let index = 0; index < pricingPackage.length; index++) {
       const element: RowData = pricingPackage[index];
       if (

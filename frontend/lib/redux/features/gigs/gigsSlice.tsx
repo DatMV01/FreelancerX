@@ -45,7 +45,7 @@ export const gigSlice = createAppSlice({
         },
         { rejectWithValue },
       ) => {
-        debugger;
+        ;
         try {
           const response = await axiosInstanceV1.post("/gig/favorites", {
             gigId: payload.gigId,
@@ -63,7 +63,7 @@ export const gigSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          debugger;
+          ;
           state.status = "idle";
 
           const { data } = action.payload;
@@ -82,7 +82,7 @@ export const gigSlice = createAppSlice({
         },
         { rejectWithValue },
       ) => {
-        debugger;
+        ;
         try {
           const response = await axiosInstanceV1.delete(
             "/gig/favorites/" + payload.gigId,
@@ -101,7 +101,7 @@ export const gigSlice = createAppSlice({
           state.status = "loading";
         },
         fulfilled: (state, action) => {
-          debugger;
+          ;
           state.status = "idle";
 
           const { data, gigId } = action.payload;

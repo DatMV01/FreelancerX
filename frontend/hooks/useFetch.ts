@@ -1,6 +1,4 @@
-import {
-     axiosInstanceV1
-} from "@/lib/axios/axiosInstance";
+import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { AxiosError } from "axios";
@@ -53,6 +51,42 @@ export function useFetchByQuery<T>(
   };
 }
 
+export function useFetchByQuery2<T>({
+  queryString,
+  fetcherFn,
+  swrOptions,
+  requireLogin = true,
+}: {
+  queryString: string;
+  fetcherFn: (queryStr: string) => Promise<T>;
+  swrOptions?: Record<string, any>;
+  requireLogin?: boolean;
+}) {
+  let shouldFetch = true;
+
+  if (requireLogin) {
+    const userId = useAppSelector(selectUser)?.id;
+    shouldFetch = !!userId && !!queryString;
+  }
+  shouldFetch = !!queryString;
+
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    shouldFetch ? queryString : null,
+    () => fetcher(fetcherFn, queryString),
+    { ...defaultSwrOptions, ...swrOptions },
+  );
+
+  return {
+    data,
+    isLoading,
+    isValidating,
+    mutate,
+    error,
+    errorMessage: error?.response?.data?.message || error?.message,
+    statusCode: error?.response?.status,
+  };
+}
+
 export function useFetchByKey<T>(
   key: string,
   queryID: string,
@@ -85,7 +119,7 @@ export function useFetchV1<T>({
   key,
   requireLogin = true,
 }: {
-  url: string;
+  url: string | null;
   swrOptions?: Record<string, any>;
   key?: string;
   requireLogin?: boolean;
@@ -96,6 +130,7 @@ export function useFetchV1<T>({
     const userId = useAppSelector(selectUser)?.id;
     shouldFetch = !!userId && (!!url || !!key);
   }
+  shouldFetch = !!url || !!key;
 
   const cacheKey = key ?? url;
 
@@ -103,6 +138,9 @@ export function useFetchV1<T>({
     shouldFetch ? cacheKey : null,
     async () => {
       try {
+        if (!url) {
+          throw new Error("URL cannot be null");
+        }
         const res = await axiosInstanceV1.get(url);
         return res.data;
       } catch (err) {

@@ -24,7 +24,7 @@ function parseFromUrl<Entity>(
   let hasFilters = false;
   let hasFields = false;
 
-  debugger
+  
   for (const [key, value] of params.entries()) {
     if (key.startsWith("sorts.")) {
       const k = key.replace("sorts.", "") as keyof Entity;
@@ -72,7 +72,7 @@ function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   if (query.sorts) {
     const querySortsEntries = Object.entries(query.sorts);
     for (const [key, value] of querySortsEntries) {
-      debugger;
+      ;
       if (value) params.set(`sorts.${key}`, String(value));
     }
   }
@@ -80,7 +80,7 @@ function buildUrlQuery<Entity>(query: QueryInput<Entity>): string {
   if (query.filters) {
     const queryFiltersEntries = Object.entries(query.filters);
     for (const [key, value] of queryFiltersEntries) {
-      debugger;
+      ;
       if (value !== undefined && value !== "") {
         // Check if the value is an array, to serialize it properly
         if (Array.isArray(value)) {
@@ -104,7 +104,7 @@ export function useQuerySync<Entity>(defaultQuery: QueryInput<Entity>) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  debugger;
+  ;
 
   const query: QueryInput<Entity> = useMemo(() => {
     return parseFromUrl<Entity>(searchParams, defaultQuery);

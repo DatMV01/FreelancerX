@@ -300,7 +300,6 @@ function FreelancerManageGigsPage() {
     const results = await Promise.all(selectedRows.map(deleteGig));
     const success = results.every((result) => result === true);
 
-    debugger;
     if (success) {
       setGigs((prev) => prev.filter((o) => !selectedRows.includes(o.id)));
 
@@ -357,7 +356,6 @@ function FreelancerManageGigsPage() {
   };
 
   const deleteGig = async (gigId: string) => {
-    debugger;
     try {
       const response = await axiosInstanceV1.delete(`gigs/${gigId}`);
       if (response.status === 200) {

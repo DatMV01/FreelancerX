@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isNumberParse } from 'src/utils/common';
 import {
-  Between,
   DeepPartial,
   FindManyOptions,
   FindOneOptions,
@@ -16,14 +15,14 @@ import { BaseService } from '../base/base.service';
 import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerService } from '../freelancer/freelancer.service';
 import { RoleEnum } from '../role/enum/role.enum';
+import { UserEntity } from '../user/entities/user.entity';
+import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
 import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import {
   GigPackagesEntity,
   GigPackageType,
 } from './entities/gig_packages.entity';
-import { GigStatus } from './enum/gig.status';
-import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
-import { UserEntity } from '../user/entities/user.entity';
+import { UserFavoriteGigEntity } from './entities/user_favorite_gigs.entity';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -40,6 +39,9 @@ export class GigService extends BaseService<GigEntity> {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
 
+    @InjectRepository(UserFavoriteGigEntity)
+    private readonly userFavoriteGigRepo: Repository<UserFavoriteGigEntity>,
+
     private readonly freelancerService: FreelancerService,
   ) {
     super(_repository);
@@ -52,44 +54,22 @@ export class GigService extends BaseService<GigEntity> {
     const { gigId } = data;
     const userId = currentUser.id;
 
-    const gig = await super.findOneById(String(gigId));
+    const exists = await this.userFavoriteGigRepo.findOneBy({ userId, gigId });
+    if (exists) return;
 
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { favoriteGigs: true },
-    });
+    const fav = this.userFavoriteGigRepo.create({ userId, gigId });
+    await this.userFavoriteGigRepo.save(fav);
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    const newFavoriteGigs = [...user.favoriteGigs, gig];
-
-    user.favoriteGigs = newFavoriteGigs;
-
-    await this.userRepo.save(user);
-
-    return gig;
+    return true;
   }
 
   async removeFavoriteGig(id: string, currentUser: JwtAccessPayloadType) {
     const gigId = id;
     const userId = currentUser.id;
 
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { favoriteGigs: true },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    const newFavoriteGigs = user.favoriteGigs.filter((_) => _.id !== gigId);
-
-    user.favoriteGigs = newFavoriteGigs;
-
-    await this.userRepo.save(user);
+    await this.dataSource
+      .getRepository(UserFavoriteGigEntity)
+      .delete({ userId, gigId });
 
     return true;
   }
@@ -97,16 +77,42 @@ export class GigService extends BaseService<GigEntity> {
   async findFovoriteGigs(currentUser: JwtAccessPayloadType) {
     const userId = currentUser.id;
 
-    const user = await this.userRepo.findOne({
-      where: { id: userId },
-      relations: { favoriteGigs: true },
-    });
+    // const [favoriteGigs, favoriteGigsCount] = await this.dataSource
+    //   .getRepository(GigEntity)
+    //   .createQueryBuilder('gig')
+    //   .innerJoin(
+    //     'user_favorite_gigs',
+    //     'ufg',
+    //     'ufg.gigId = gig.id AND ufg.userId = :userId',
+    //     { userId },
+    //   )
+    //   .leftJoin('gig.freelancer', 'freelancer')
+    //   .leftJoin('freelancer.user', 'freelancer_user')
 
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
+    //   .select([
+    //     'gig.id',
+    //     'gig.title',
+    //     'gig.slug',
+    //     'gig.freelancerId',
+    //     'gig.images',
+    //     'freelancer.id',
+    //     'freelancer.displayName',
+    //     'freelancer_user.avatar',
+    //     'freelancer_user.id',
+    //   ])
+    //   .orderBy('gig.createdAt', 'DESC')
+    //   .getManyAndCount();
 
-    const favoriteGigs = user.favoriteGigs || [];
+    const records = await this.dataSource
+      .getRepository(UserFavoriteGigEntity)
+      .createQueryBuilder('ufg')
+      .innerJoinAndSelect('ufg.gig', 'gig')
+      .innerJoinAndSelect('gig.freelancer', 'freelancer')
+      .innerJoinAndSelect('freelancer.user', 'freelancer_user')
+      .where('ufg.userId = :userId', { userId })
+      .orderBy('ufg.createdAt', 'DESC')
+      .getMany();
+    const favoriteGigs = records.map((ufg) => ufg.gig);
     return [favoriteGigs, favoriteGigs.length];
   }
 
@@ -156,7 +162,6 @@ export class GigService extends BaseService<GigEntity> {
       viewCount: gigEntity.viewCount,
       orderCount: gigEntity.orderCount,
       freelancer: gigEntity.freelancer,
-      users: gigEntity.users,
     } as any;
 
     const save = await super.create(updateEntity);

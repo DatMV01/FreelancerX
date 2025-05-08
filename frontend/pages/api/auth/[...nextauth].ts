@@ -1,3 +1,4 @@
+import { refreshAccessToken } from "@/pages/auth/auth";
 import * as jwt from "jsonwebtoken";
 import NextAuth, { AuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -108,8 +109,8 @@ export const authOptions: AuthOptions = {
             throw new Error("Invalid credentials");
           }
 
-          const data = await response.json();
-          return data; // Successful login
+          const authResponse = await response.json();
+          return authResponse; // Successful login
         } catch (error: any) {
           const errorMessage =
             error.response?.data || error.message || "An error occurred";
@@ -138,50 +139,40 @@ export const authOptions: AuthOptions = {
     // async redirect({ url, baseUrl }) { return baseUrl },
     // async session({ session, token, user }) { return session },
     // async jwt({ token, user, account, profile, isNewUser }) { return token }
-    async jwt({
-      token,
-      user,
-      trigger,
-      session,
-    }: {
-      token: JWT;
-      user: User;
-      trigger: any;
-      session: any;
-    }) {
-      if (user) {
+    async jwt({ token, user: authResponse, trigger, session }) {
+      if (authResponse) {
         // Decode accessToken để lấy iat và exp từ backend
         // const payload = jwt.decode(user.accessToken) as jwt.JwtPayload | null;
 
         token = {
-          // expires: user.accessExpires,
-          // payload,
-          // ...user,
-          accessToken: user.accessToken,
-          refreshToken: user.refreshToken,
-          accessExpires: user.accessExpires,
-          refreshExpires: user.refreshExpires,
+          accessToken: authResponse.accessToken,
+          refreshToken: authResponse.refreshToken,
+          accessExpires: authResponse.accessExpires,
+          refreshExpires: authResponse.refreshExpires,
+          accessTokenExpires:
+            (jwt.decode(authResponse.accessToken) as any)?.exp * 1000,
           user: {
-            id: user.user.id,
-            avatar: user.user.avatar,
-            email: user.user.email,
-            provider: user.user.provider,
-            fullName: user.user.fullName,
-            country: user.user.country,
-            phone: user.user.phone,
+            id: authResponse.user.id,
+            avatar: authResponse.user.avatar,
+            email: authResponse.user.email,
+            provider: authResponse.user.provider,
+            fullName: authResponse.user.fullName,
+            country: authResponse.user.country,
+            phone: authResponse.user.phone,
             role: {
-              id: user.user.role.id,
-              name: user.user.role.name,
+              id: authResponse.user.role.id,
+              name: authResponse.user.role.name,
             },
             status: {
-              id: user.user.status.id,
-              name: user.user.status.name,
+              id: authResponse.user.status.id,
+              name: authResponse.user.status.name,
             },
-            freelancer: user?.user?.freelancer?.id
+            freelancer: authResponse?.user?.freelancer
               ? {
-                  id: user.user.freelancer?.id || null,
-                  level: user.user.freelancer?.level || null,
-                  displayName: user.user.freelancer?.displayName || null,
+                  id: authResponse.user.freelancer?.id || null,
+                  level: authResponse.user.freelancer?.level || null,
+                  displayName:
+                    authResponse.user.freelancer?.displayName || null,
                 }
               : null,
           },
@@ -205,15 +196,12 @@ export const authOptions: AuthOptions = {
 
           const data = await response.json();
 
-          token = {
-            ...token,
-            user: {
-              ...data,
-              freelancer: {
-                id: data.freelancer?.id || null,
-                level: data.freelancer?.level || null,
-                displayName: data.freelancer?.displayName || null,
-              },
+          token.user = {
+            ...data,
+            freelancer: {
+              id: data.freelancer?.id || null,
+              level: data.freelancer?.level || null,
+              displayName: data.freelancer?.displayName || null,
             },
           };
         } catch (error: any) {
@@ -224,29 +212,41 @@ export const authOptions: AuthOptions = {
         }
       }
 
-      //  console.log("user", user);
-      console.log("token.user", token.user);
-      // console.log("trigger", trigger);
-      // console.log("session", session);
+      // const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
+      // if (Date.now() < token.accessExpires - refreshBuffer) {
 
-      const refreshBuffer = 60 * 60 * 1000; // 60 minutes before expiration
-      if (Date.now() < token.accessExpires - refreshBuffer) {
+      if (Date.now() < token.accessExpires) {
+        console.log("====================");
         console.log("Token still valid, no refresh needed.");
+        // console.log("token.user", token.user);
+        //  console.log("user", user);
+        // console.log("trigger", trigger);
+        // console.log("session", session);
+        console.log("====================");
         return token;
       }
 
-      console.log("Token expired or close to expiration, refreshing...");
-      return refreshAccessToken(token);
+      return await refreshAccessToken(token);
     },
 
     //Hàm session() trong callbacks của NextAuth có nhiệm vụ cập nhật session object,
     // giúp client (frontend) truy cập được accessToken và thông tin user trong session.
     // const { data: session } = useSession();
+    //    // Thêm accessToken từ token vào session
+
     async session({ session, token }: { session: Session; token: JWT }) {
+      // Nếu token null (bị logout), session sẽ bị xoá
+      if (
+        !token ||
+        !token.accessToken ||
+        token.error === "RefreshAccessTokenError"
+      ) {
+        return null as any;
+      }
+
       session = {
-        ...session,
         ...token,
-      };
+      } as any;
 
       return session;
     },
@@ -254,43 +254,6 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
 };
-
-async function refreshAccessToken(token: any) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/auth/refresh`,
-      {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token.refreshToken}` },
-        body: JSON.stringify({ refreshToken: token.refreshToken }),
-      },
-    );
-
-    if (!res.ok) throw new Error("Failed to refresh token");
-
-    const data = await res.json();
-    const payload = jwt.decode(data.accessToken) as jwt.JwtPayload | null;
-
-    token = {
-      expires: data.accessExpires,
-      payload,
-      ...data,
-    } as any;
-
-    return token;
-  } catch (error) {
-    console.error("Error refreshing access token", error);
-
-    // Force logout by clearing the session
-    return {
-      error: "RefreshAccessTokenError",
-      accessToken: null,
-      refreshToken: null,
-      user: null,
-      expires: 0,
-    } as any;
-  }
-}
 
 // export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
 export default NextAuth(authOptions);

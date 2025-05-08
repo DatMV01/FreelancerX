@@ -2,10 +2,18 @@ import CircularProgressCenter from "@/components/CircularProgressCenter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import GigLitstingSection from "@/features/categories/GigLitstingSection";
-import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import {
+  freelancerUrl,
+  getFreelancerProfileByEmail,
+} from "@/features/freelancer/freelancer.api";
 import { GigEntity } from "@/features/gig/gig.entity";
 import { useGetActiveGigs } from "@/features/gig/hooks/useGetActiveGigs";
 import UserRank from "@/features/user/components/UserRank";
+import {
+  useFetchByQuery,
+  useFetchByQuery2,
+  useFetchV1,
+} from "@/hooks/useFetch";
 import { useQuerySync } from "@/hooks/useQuerySync";
 import { formatDate } from "date-fns";
 import { useRouter } from "next/router";
@@ -19,22 +27,20 @@ const FreelancerProfile = () => {
     message: string;
   }>();
 
-  const { email } = router.query ?? "";
+  const { email } = router.query as any;
+
   const {
     data: freelancer,
     error,
     isLoading,
     isValidating,
-  } = useSWR<FreelancerProfile>(
-    email ? `/profile/email/${email}` : null,
-    () => getFreelancerProfileByEmail(typeof email === "string" ? email : ""),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
+  } = useFetchV1({
+    url: (email ? freelancerUrl.profileByEmail(email) : null) as any,
+    swrOptions: {
       dedupingInterval: 300000, // 5 minutes
     },
-  );
+    requireLogin: false,
+  });
 
   const {
     data: responseGetActiveGigs,
@@ -44,7 +50,7 @@ const FreelancerProfile = () => {
     mutate: mutateGetActiveGigs,
   } = useGetActiveGigs();
 
-  if (isLoading || isValidating) {
+  if (isLoading || isLoadingGetActiveGigs) {
     return <CircularProgressCenter fullScreen />;
   }
 
@@ -52,6 +58,7 @@ const FreelancerProfile = () => {
     return <div>Not found</div>;
   }
 
+  console.log(responseGetActiveGigs);
   return (
     <div className="relative">
       {freelancer && (
@@ -122,7 +129,7 @@ const FreelancerProfile = () => {
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">Languages</h3>
             <div className="mt-2 flex flex-wrap gap-2">
-              {freelancer.freelancersLanguages?.map((lang) => (
+              {freelancer.freelancersLanguages?.map((lang: any) => (
                 <Badge key={lang.id} className="bg-gray-200 text-gray-800">
                   {`${lang.name} - ${lang.proficiency}`}
                 </Badge>
@@ -134,7 +141,7 @@ const FreelancerProfile = () => {
           <div className="mt-6 rounded-lg bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold">Skills</h3>
             <div className="mt-2 flex flex-wrap gap-2">
-              {freelancer.freelancersSkills?.map((skill) => (
+              {freelancer.freelancersSkills?.map((skill: any) => (
                 <Badge key={skill.id} className="bg-gray-300 text-gray-900">
                   {`${skill.name} - ${skill.proficiency}`}
                 </Badge>
@@ -147,6 +154,7 @@ const FreelancerProfile = () => {
             <h3 className="text-lg font-semibold">
               My gig ({responseGetActiveGigs?.meta?.itemCount || 0})
             </h3>
+
             {responseGetActiveGigs?.data && (
               <GigLitstingSection data={responseGetActiveGigs?.data} />
             )}

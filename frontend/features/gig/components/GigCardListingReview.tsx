@@ -2,34 +2,33 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GigDto } from "@/dto/dto.type.";
-import { getFreelancerProfileByEmail } from "@/features/freelancer/freelancer.api";
+import {
+  freelancerUrl
+} from "@/features/freelancer/freelancer.api";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import UserRank from "@/features/user/components/UserRank";
+import { useFetchV1 } from "@/hooks/useFetch";
 import { getFirstTwoLetters } from "@/lib/utils";
 import clsx from "clsx";
 import { Loader2, Star } from "lucide-react";
 import Link from "next/link";
-import useSWR from "swr";
 import GigFavorite from "./GigFavorite";
 
 const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
-  const email = gig?.freelancer.email;
+  const freelancerId = gig.freelancerId;
 
   const {
     data: freelancer,
     error,
     isLoading,
     isValidating,
-  } = useSWR(
-    `/profile/email/${email}`,
-    () => getFreelancerProfileByEmail(email),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      refreshInterval: 0,
+  } = useFetchV1({
+    url: freelancerUrl.profileById(freelancerId),
+    swrOptions: {
       dedupingInterval: 300000, // 5 minutes
     },
-  );
+    requireLogin: false,
+  });
 
   if (isLoading || isValidating) {
     return (

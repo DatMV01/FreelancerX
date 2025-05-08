@@ -24,6 +24,7 @@ import { AuthProvidersEnum } from '../enum/user.provider';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
+import { UserFavoriteGigEntity } from '../../gig/entities/user_favorite_gigs.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -137,15 +138,18 @@ export class UserEntity extends BaseEntity {
   // @OneToMany(() => UsersFavoriteGigsEntity, (_) => _.user)
   // usersFavoriteGigs: UsersFavoriteGigsEntity[];
 
-  @AutoMap(() => [GigEntity])
-  @ManyToMany(() => GigEntity, (user) => user.users, {
-    cascade: true,
-    eager: false,
-  })
-  @JoinTable({
-    name: 'user_favorite_gigs',
-    joinColumn: { name: 'userId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
-  })
-  favoriteGigs: GigEntity[];
+  // @AutoMap(() => [GigEntity])
+  // @ManyToMany(() => GigEntity, (user) => user.favoritedByUsers, {
+  //   cascade: true,
+  //   eager: false,
+  // })
+  // @JoinTable({
+  //   name: 'user_favorite_gigs',
+  //   joinColumn: { name: 'userId', referencedColumnName: 'id' },
+  //   inverseJoinColumn: { name: 'gigId', referencedColumnName: 'id' },
+  // })
+  // favoriteGigs: GigEntity[];
+
+  @OneToMany(() => UserFavoriteGigEntity, (ufg) => ufg.user)
+  favoriteGigLinks: UserFavoriteGigEntity[];
 }

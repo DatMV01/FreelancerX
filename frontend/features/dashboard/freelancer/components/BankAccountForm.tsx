@@ -37,7 +37,7 @@ const WithdrawForm = () => {
       setLoading(false);
       return;
     }
-    debugger;
+   
     // Tạo token từ thông tin thẻ
     console.log("Bắt đầu tạo token...");
     const { token, error } = await stripe.createToken(cardElement);

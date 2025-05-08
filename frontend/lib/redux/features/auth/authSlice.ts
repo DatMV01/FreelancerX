@@ -220,7 +220,7 @@ export const authSlice = createAppSlice({
 
     syncNexthAuthSesion: create.asyncThunk(
       async () => {
-        debugger;
+        ;
         const session = await getSession();
 
         return session;
@@ -231,7 +231,7 @@ export const authSlice = createAppSlice({
         },
         fulfilled: (state, action) => {
           state.status = "authenticated";
-          debugger;
+          ;
 
           const sesion = action.payload;
 
