@@ -55,3 +55,15 @@ export function removeUndefinedFields(obj: any): any {
   }
   return obj;
 }
+
+export function capitalizeFirstLetter(text: string): string {
+  if (!text) return '';
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+export function capitalizeEachWord(text: string): string {
+  return text
+    .split(' ')
+    .map((word) => capitalizeFirstLetter(word))
+    .join(' ');
+}

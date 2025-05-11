@@ -26,9 +26,13 @@ export class PageMetaDto {
   @ApiProperty()
   readonly filter?: any;
 
+  @ApiProperty()
+  readonly keyword?: any;
+
   constructor({ pageOptionsDto, itemCount }: PageMetaDtoParameters) {
     this.page = pageOptionsDto.page;
     this.pageSize = pageOptionsDto.pageSize;
+    this.keyword = pageOptionsDto.keyword;
     this.sorts = pageOptionsDto.sorts;
     this.filter = pageOptionsDto.filters;
     this.itemCount = itemCount;

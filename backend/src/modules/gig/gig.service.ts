@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { isNumberParse } from 'src/utils/common';
+import { capitalizeEachWord, isNumberParse } from 'src/utils/common';
 import {
   DeepPartial,
   FindManyOptions,
@@ -23,6 +23,7 @@ import {
   GigPackageType,
 } from './entities/gig_packages.entity';
 import { UserFavoriteGigEntity } from './entities/user_favorite_gigs.entity';
+import { QueryInput } from 'src/utils/typeorm-utils';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -36,8 +37,8 @@ export class GigService extends BaseService<GigEntity> {
     @InjectRepository(GigPackagesEntity)
     private readonly gigPackageRepository: Repository<GigPackagesEntity>,
 
-    @InjectRepository(UserEntity)
-    private readonly userRepo: Repository<UserEntity>,
+    @InjectRepository(GigTagEntity)
+    private readonly gigTagRepo: Repository<GigTagEntity>,
 
     @InjectRepository(UserFavoriteGigEntity)
     private readonly userFavoriteGigRepo: Repository<UserFavoriteGigEntity>,
@@ -72,6 +73,87 @@ export class GigService extends BaseService<GigEntity> {
       .delete({ userId, gigId });
 
     return true;
+  }
+
+  async searchGigs(
+    queryObj: QueryInput<GigEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[GigEntity[], number]> {
+    const { page, pageSize, sorts, filters, fields, keyword } = queryObj;
+
+    try {
+      const qb = this._repository.createQueryBuilder('gig');
+      qb.where('gig.status = :status', { status: 'ACTIVE' });
+
+      if (keyword!.length >= 4) {
+        qb.andWhere(
+          `MATCH (gig.title ) AGAINST (:keyword IN NATURAL LANGUAGE MODE)`,
+          { keyword },
+        );
+      } else {
+        // qb.andWhere(
+        //   `(gig.title LIKE :like OR gig.description LIKE :like OR gig.tags LIKE :like)`,
+        //   { like: `%${keyword}%` },
+        // );
+
+        qb.andWhere(`(gig.title LIKE :like)`, { like: `%${keyword}%` });
+      }
+
+      qb.skip((page - 1) * page).take(pageSize);
+      const result = await qb.getManyAndCount();
+
+      return result;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      throw new Error(`Error fetching data: ${error}`);
+    }
+  }
+
+  async searchTags(
+    queryObj: QueryInput<GigTagEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[GigTagEntity[], number]> {
+    const { page, pageSize, sorts, filters, fields, keyword } = queryObj;
+
+    if (!keyword || keyword === '') {
+      return [[], 0];
+    }
+
+    try {
+      const results = await this.gigTagRepo
+        .createQueryBuilder('tag')
+        // .where('tag.keyword LIKE :q', { q: `${capitalizeEachWord(keyword)}%` }) // autocomplete kiểu bắt đầu bằng
+        .where('LOWER(tag.keyword) LIKE LOWER(:q)', {
+          q: `%${keyword.toLowerCase()}%`,
+        })
+
+        .orderBy('tag.searchCount', 'DESC') // nếu có
+        .limit(10)
+        .getManyAndCount();
+
+      return results;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      throw new Error(`Error fetching data: ${error}`);
+    }
+  }
+
+  async increaseSearchCount(keyword: string) {
+    const tag = await this.gigTagRepo.findOneBy({
+      keyword: capitalizeEachWord(keyword),
+    });
+
+    if (tag) {
+      tag.searchCount += 1;
+      await this.gigTagRepo.save(tag);
+    } else {
+      const newTag = this.gigTagRepo.create({ keyword, searchCount: 1 });
+      await this.gigTagRepo.save(newTag);
+    }
   }
 
   async findFovoriteGigs(currentUser: JwtAccessPayloadType) {
@@ -170,18 +252,19 @@ export class GigService extends BaseService<GigEntity> {
   }
 
   async createTags(tags: any[]): Promise<any[]> {
-    const tagNames = tags;
+    const tagNames = tags.map((_) => String(_).toLowerCase());
 
     const existingTags = await this.gigTagRepository.findBy({
-      name: In(tagNames),
+      keyword: In(tagNames),
     });
 
     const newTagNames = tagNames.filter(
-      (_) => !existingTags.some((__) => __.name === _),
+      (_) => !existingTags.some((__) => __.keyword === _),
     );
+
     const newTags = await Promise.all(
       newTagNames.map(async (name) => {
-        const newskill = this.gigTagRepository.create({ name });
+        const newskill = this.gigTagRepository.create({ keyword: name });
         return await this.gigTagRepository.save(newskill);
       }),
     );

@@ -4,7 +4,7 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
-import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
+//import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { RoleDto } from 'src/modules/role/dto/role.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
@@ -84,11 +84,11 @@ export class UserDto extends BaseDto<UserDto> {
   @ApiPropertyOptional({ type: [GigReviewDto], example: [], nullable: true })
   reviews?: GigReviewDto[];
 
-  /* NOTIFICATIONS */
-  @AutoMap(() => [NotificationDto])
-  // @Transform((params) => undefinedTransformer(params))
-  @ApiPropertyOptional({ type: [NotificationDto], example: [], nullable: true })
-  notifications?: NotificationDto[];
+  // /* NOTIFICATIONS */
+  // @AutoMap(() => [NotificationDto])
+  // // @Transform((params) => undefinedTransformer(params))
+  // @ApiPropertyOptional({ type: [NotificationDto], example: [], nullable: true })
+  // notifications?: NotificationDto[];
 
   /* FILES */
   @AutoMap(() => [FileEntity])

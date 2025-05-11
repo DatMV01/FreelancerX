@@ -3,9 +3,7 @@ import {
   afterMap,
   beforeMap,
   createMap,
-  forMember,
-  forSelf,
-  mapWith,
+  forSelf
 } from '@automapper/core';
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
 import { Injectable } from '@nestjs/common';
@@ -23,21 +21,19 @@ import {
 import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { UpdateFreelancerDto } from 'src/modules/freelancer/dto/update-freelancer.dto';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
+import { SkillEntity } from 'src/modules/freelancer/entities/freelancer_skills.entity';
 import {
-  CreateGigDto,
-  GigFreelancerDto,
+  CreateGigDto
 } from 'src/modules/gig/dto/create-gig.dto';
 import { GigDto } from 'src/modules/gig/dto/gig.dto';
 import { UpdateGigDto } from 'src/modules/gig/dto/update-gig.dto';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { CreateNotificationDto } from 'src/modules/notification/dto/create-notification.dto';
-import { NotificationDto } from 'src/modules/notification/dto/notification.dto';
-import { UpdateNotificationDto } from 'src/modules/notification/dto/update-notification.dto';
-import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
-import { CreateOrderDto } from 'src/modules/order/dto/create-order.dto';
+ import { CreateOrderDto } from 'src/modules/order/dto/create-order.dto';
 import { OrderDto } from 'src/modules/order/dto/order.dto';
 import { UpdateOrderDto } from 'src/modules/order/dto/update-order.dto';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { CreateRoleDto } from 'src/modules/role/dto/create-role.dto';
 import { UpdateRoleDto } from 'src/modules/role/dto/update-role.dto';
 import { CreateSessionDto } from 'src/modules/session/dto/create-session.dto';
@@ -48,23 +44,19 @@ import { CreateStatusDto } from 'src/modules/status/dto/create-status.dto';
 import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { UpdateStatusDto } from 'src/modules/status/dto/update-status.dto';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { CreateTransactionDto } from 'src/modules/wallet/dto/create-transaction.dto';
-import { TransactionDto } from 'src/modules/wallet/dto/transaction.dto';
-import { UpdateTransactionDto } from 'src/modules/wallet/dto/update-transaction.dto';
-import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { CreateUserDto } from 'src/modules/user/dto/create-user.dto';
 import { UpdateUserDto } from 'src/modules/user/dto/update-user.dto';
 import { UserDto } from 'src/modules/user/dto/user.dto';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { CreateTransactionDto } from 'src/modules/wallet/dto/create-transaction.dto';
+import { TransactionDto } from 'src/modules/wallet/dto/transaction.dto';
+import { UpdateTransactionDto } from 'src/modules/wallet/dto/update-transaction.dto';
+import {
+  convertNullToUndefined
+} from 'src/utils/common';
 import { BaseEntity } from 'typeorm';
 import { RoleDto } from '../../role/dto/role.dto';
 import { RoleEntity } from '../../role/entities/role.entity';
-import {
-  convertNullToUndefined,
-  removeUndefinedFields,
-} from 'src/utils/common';
-import { SkillEntity } from 'src/modules/freelancer/entities/freelancer_skills.entity';
-import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
 
 @Injectable()
 export class AutoMapper extends AutomapperProfile {
@@ -123,12 +115,12 @@ export class AutoMapper extends AutomapperProfile {
           createDto: CreateCategoryDto,
           updateDto: UpdateCategoryDto,
         },
-        {
-          entity: NotificationEntity,
-          dto: NotificationDto,
-          createDto: CreateNotificationDto,
-          updateDto: UpdateNotificationDto,
-        },
+        // {
+        //   entity: NotificationEntity,
+        //   dto: NotificationDto,
+        //   createDto: CreateNotificationDto,
+        //   updateDto: UpdateNotificationDto,
+        // },
 
         {
           entity: UserEntity,

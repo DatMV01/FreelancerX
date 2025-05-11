@@ -13,6 +13,7 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -33,17 +34,23 @@ import { GigStatus } from '../enum/gig.status';
 import { GigPackagesEntity, GigPackageType } from './gig_packages.entity';
 import { UserFavoriteGigEntity } from 'src/modules/gig/entities/user_favorite_gigs.entity';
 
-@Entity('tags')
+@Entity('gig_tags')
 export class GigTagEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, type: 'varchar', length: 50 })
-  name: string;
+  @Column({ unique: true, type: 'varchar', length: 100 })
+  keyword: string;
+
+  @Column({ default: 0 })
+  searchCount: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
 
 @Entity('gigs')
-@Index('IDX_gig_search', ['title'], { fulltext: true })
+@Index('IDX_gig_fulltext', ['title'], { fulltext: true })
 export class GigEntity extends BaseEntity {
   /* Overview */
   @AutoMap()
@@ -136,7 +143,7 @@ export class GigEntity extends BaseEntity {
     cascade: true,
   })
   @JoinTable({
-    name: 'gig_tags',
+    name: 'gig_has_tags',
     joinColumn: { name: 'gig_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'tag_id', referencedColumnName: 'id' },
   })

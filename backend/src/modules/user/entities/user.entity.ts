@@ -2,26 +2,21 @@ import { AutoMap } from '@automapper/classes';
 import { Exclude } from 'class-transformer';
 import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
-import { NotificationEntity } from 'src/modules/notification/entities/notification.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
+import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { RoleEntity } from 'src/modules/role/entities/role.entity';
 import { StatusEntity } from 'src/modules/status/entities/status.entity';
-import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
 
-import { GigEntity } from 'src/modules/gig/entities/gig.entity';
 import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 import { UserFavoriteGigEntity } from '../../gig/entities/user_favorite_gigs.entity';
@@ -117,9 +112,9 @@ export class UserEntity extends BaseEntity {
   reviews: GigReviewEntity[];
 
   /* NOTIFICATIONS */
-  @AutoMap(() => [NotificationEntity])
-  @OneToMany(() => NotificationEntity, (notification) => notification.user)
-  notifications: NotificationEntity[];
+  // @AutoMap(() => [NotificationEntity])
+  // @OneToMany(() => NotificationEntity, (notification) => notification.user)
+  // notifications: NotificationEntity[];
 
   // /* FILES */
   // @AutoMap(() => [FileEntity])

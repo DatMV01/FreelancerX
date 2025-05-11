@@ -400,10 +400,11 @@ const GigDetail = () => {
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);
   const user = useAppSelector(selectUser);
-
+  debugger
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
+  
       setLoading(true);
 
       try {

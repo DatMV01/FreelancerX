@@ -14,18 +14,26 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   SerializeOptions,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import {
-  CREATE_GROUP
-} from 'src/common/constant/serialize.group';
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+} from '@nestjs/swagger';
+import { CREATE_GROUP } from 'src/common/constant/serialize.group';
 import { CurrentUser } from 'src/common/decorators';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { FreelancerDto } from '../freelancer/dto/freelancer.dto';
 import { AddFavoriteGigDto } from './dto/add-favorite-gig.dto';
+import { PageDto, PageMetaDto } from '../base/dto/pagination';
+import { JwtOptionalAuthGuard } from 'src/common/guards';
+import { buildObjectFromQuery } from 'src/utils/query-utils';
 
 @Controller('gigs')
 export class GigController extends BaseController<
@@ -88,11 +96,92 @@ export class GigController extends BaseController<
     return super.create(data);
   }
 
+  @Get('/search/gig')
+  @UseGuards(JwtOptionalAuthGuard)
+  @ApiQuery({
+    name: 'rawQuery',
+    description:
+      'Raw query string: page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    example: 'page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    required: false,
+    type: String,
+    allowReserved: false,
+    style: 'form',
+    explode: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities with pagination metadata',
+    type: PageDto<any>,
+  })
+  async searchGigs(@Req() req: Request, @CurrentUser() currentUser: any) {
+    const rawQueryString = req.url.split('?')[1] ?? '';
+    const queryString = rawQueryString.replace(`rawQuery=`, '');
+
+    const queryObj = buildObjectFromQuery(queryString) as any;
+
+    const [results, count] = await this._service.searchGigs(
+      queryObj,
+      currentUser,
+    );
+
+    return new PageDto<any>(
+      results,
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: queryObj,
+      }),
+    );
+  }
+
+  @Get('/search/tag')
+  @UseGuards(JwtOptionalAuthGuard)
+  @ApiQuery({
+    name: 'rawQuery',
+    description:
+      'Raw query string: page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    example: 'page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    required: false,
+    type: String,
+    allowReserved: false,
+    style: 'form',
+    explode: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities with pagination metadata',
+    type: PageDto<any>,
+  })
+  async searchTags(@Req() req: Request, @CurrentUser() currentUser: any) {
+    const rawQueryString = req.url.split('?')[1] ?? '';
+    const queryString = rawQueryString.replace(`rawQuery=`, '');
+
+    const queryObj = buildObjectFromQuery(queryString) as any;
+
+    const [results, count] = await this._service.searchTags(
+      queryObj,
+      currentUser,
+    );
+
+    return new PageDto<any>(
+      results,
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: queryObj,
+      }),
+    );
+  }
+
+  @Post('search-tags/increase')
+  increaseSearchCount(@Body('keyword') keyword: string) {
+    return this._service.increaseSearchCount(keyword);
+  }
+
   @Get('/slug/:slug')
   async findOneBySlug(@Param('slug') slug: string) {
     const entity = await this._service.findOneBySlug({
       where: { slug },
-     // relations: ['freelancer', 'freelancer.user'],
+      // relations: ['freelancer', 'freelancer.user'],
     });
 
     return this.mapFromEntityToDto(entity);

@@ -2,7 +2,9 @@ import { classes } from '@automapper/classes';
 import { AutomapperModule } from '@automapper/nestjs';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -16,20 +18,17 @@ import fileConfig from './modules/files/config/file.config';
 import { FileModule } from './modules/files/file.module';
 import { FreelancerModule } from './modules/freelancer/freelancer.module';
 import { GigModule } from './modules/gig/gig.module';
-import { NotificationModule } from './modules/notification/notification.module';
+import { GigReviewModule } from './modules/gigreview/gigreview.module';
+import mailConfig from './modules/mail/config/mail.config';
+import { MailModule } from './modules/mail/mail.module';
 import { OrderModule } from './modules/order/order.module';
 import { RoleModule } from './modules/role/role.module';
 import { SessionModule } from './modules/session/session.module';
 import { StatusModule } from './modules/status/status.module';
-import { UserModule } from './modules/user/user.module';
-import { MailModule } from './modules/mail/mail.module';
-import { StripeModule } from './stripe/stripe.module';
-import mailConfig from './modules/mail/config/mail.config';
-import { ScheduleModule } from '@nestjs/schedule';
-import { GigReviewModule } from './modules/gigreview/gigreview.module';
-import { WalletModule } from './modules/wallet/wallet.module';
 import { SupportModule } from './modules/support/support.module';
-import { LoggerModule } from 'nestjs-pino';
+import { UserModule } from './modules/user/user.module';
+import { WalletModule } from './modules/wallet/wallet.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -100,7 +99,6 @@ import { LoggerModule } from 'nestjs-pino';
     OrderModule,
     WalletModule,
     CategoryModule,
-    NotificationModule,
     FreelancerModule,
     MailModule,
     StripeModule,

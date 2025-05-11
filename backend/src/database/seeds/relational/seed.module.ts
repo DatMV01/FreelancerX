@@ -14,6 +14,7 @@ import { SkillSeeding } from './seed/skill.seeding';
 import { LanguageSeeding } from './seed/language.seeding';
 import { LanguageEntity } from 'src/modules/freelancer/entities/freelancer_languages.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RoleEntity])],
@@ -30,7 +31,9 @@ export class RoleSeedModule {}
 export class StatusSeedModule {}
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, FreelancerEntity])],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity, FreelancerEntity, WalletEntity]),
+  ],
   providers: [UserSeeding],
   exports: [UserSeeding],
 })

@@ -1,43 +1,67 @@
-import { faker } from "@faker-js/faker";
-import { CircleX, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { searchGigByTag } from "@/features/gig/gig.api";
+import { defaulFetchGigsQuery } from "@/features/gig/hooks/useGetActiveGigs";
+import { useFetchByQuery } from "@/hooks/useFetch";
+import { buildUrlQuery } from "@/hooks/useQuerySync";
+import { buildQueryFromObject, QueryInput } from "@/lib/fitlers/query-utils";
+import { CircleX, Loader2, Search } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react"; // Thêm useRef vào import
 
 const NavbarSearchBar = ({ ...props }) => {
   const [inputValue, setInputValue] = useState("");
-  const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
-
-  const arr = Array.from({ length: 100 }, (_, i) => {
-    return {
-      userId: faker.string.uuid(),
-      username: faker.internet.username(),
-      email: faker.internet.email(),
-      avatar: faker.image.avatar(),
-      password: faker.internet.password(),
-      birthdate: faker.date.birthdate(),
-      registeredAt: faker.date.past(),
-      job: faker.person.jobTitle(),
-    };
-  });
+  const [popularSearches, setPopularSearches] = useState<any[]>([]);
+  const [noResults, setNoResults] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchSearchResults = async (query: string) => {
-    console.log("Fetching results for:", query);
+  // Thêm ref vào useRef hook để tham chiếu DOM element
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const results = arr.filter((a) =>
-      a.job.toLowerCase().includes(query.toLowerCase()),
-    );
+  const [queryObj, setQueryObj] = useState<QueryInput<any>>({
+    ...defaulFetchGigsQuery,
+    pageSize: 50,
+  });
 
-    setSearchResults(results);
+  const queryString = buildQueryFromObject(queryObj);
+  let key = `${pathname}?${buildUrlQuery(queryObj)}`;
+
+  const {
+    data: response,
+    error,
+    isLoading,
+    isValidating,
+    mutate,
+  } = useFetchByQuery({
+    queryString,
+    fetcherFn: searchGigByTag,
+    key,
+  });
+
+  useEffect(() => {
+    if (response?.data) {
+      setSearchResults(response?.data);
+      setNoResults(response?.data.length === 0);
+    }
+  }, [response]);
+
+  const fetchSearchResults = async (keyword: string) => {
+    setQueryObj((prev) => ({ ...prev, keyword }));
   };
 
   useEffect(() => {
     if (inputValue === "") {
-      setShowResults(false);
+      setSearchResults([]);
+      setPopularSearches([
+        { id: "1", keyword: "Web Development" },
+        { id: "2", keyword: "App Development" },
+        { id: "3", keyword: "UI/UX Design" },
+      ]);
       return;
     }
-    setShowResults(true);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -45,7 +69,7 @@ const NavbarSearchBar = ({ ...props }) => {
 
     timeoutRef.current = setTimeout(() => {
       fetchSearchResults(inputValue);
-    }, 500);
+    }, 1000);
 
     return () => {
       if (timeoutRef.current) {
@@ -54,33 +78,28 @@ const NavbarSearchBar = ({ ...props }) => {
     };
   }, [inputValue]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowResults(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  const handleClickSearchResult = (keyword: string) => {
+    setInputValue("");
+    setSearchResults([]);
 
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        ref.current &&
-        !(ref.current as HTMLElement).contains(event.target as Node)
-      ) {
-        setShowResults(false);
-      }
+    const abc: QueryInput<any> = {
+      ...queryObj,
+      filters: {
+        tag: keyword,
+      },
+      keyword: undefined,
     };
+    const _query = buildQueryFromObject(abc as any);
+    const uri = decodeURIComponent(buildQueryFromObject(abc as any));
+    console.log(uri);
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [ref]);
+    router.push(`/search/gigs?${_query}`);
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleClickSearchResult(searchResults[0].keyword);
+    }
+  };
 
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
@@ -95,7 +114,9 @@ const NavbarSearchBar = ({ ...props }) => {
   };
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={searchInputRef} className="relative">
+      {" "}
+      {/* Sử dụng ref từ useRef */}
       <form className="relative flex h-full w-full flex-row">
         <input
           placeholder="Search for any service..."
@@ -103,6 +124,7 @@ const NavbarSearchBar = ({ ...props }) => {
           autoComplete="off"
           onChange={(e) => setInputValue(e.target.value)}
           value={inputValue}
+          onKeyDown={handleKeyDown}
           className="h-[50px] w-full rounded-sm border border-gray-300 px-4 outline-none focus:border-gray-500"
         ></input>
 
@@ -115,12 +137,13 @@ const NavbarSearchBar = ({ ...props }) => {
           <Search size={16} color="white" strokeWidth={1} />
         </button>
 
-        {showResults && (
+        {inputValue !== "" && (
           <button
             className="absolute top-1/2 right-11 flex -translate-y-1/2 items-center justify-center"
             onClick={(e) => {
               e.preventDefault();
               setInputValue("");
+              setSearchResults([]);
             }}
           >
             <CircleX
@@ -130,20 +153,47 @@ const NavbarSearchBar = ({ ...props }) => {
           </button>
         )}
       </form>
-
-      {showResults && (
+      {/* {inputValue === "" && !isLoading && (
         <ul className="absolute z-51 mt-1 max-h-90 w-full overflow-hidden overflow-y-auto rounded-sm border-2 border-gray-200 bg-white p-2">
-          {searchResults.map((a, index) => (
-            <li
-              key={index}
-              className="flex h-8 items-center hover:bg-green-100"
-            >
-              <button>
-                {/* Highlight the matched text in job title */}
-                <span>{highlightText(a.job, inputValue)}</span>
+          {popularSearches.map((a) => (
+            <li key={a.id} className="flex h-8 items-center hover:bg-green-100">
+              <button
+                className="flex w-full"
+                onClick={() => handleClickSearchResult(a.keyword)}
+              >
+                <span>{a.keyword}</span>
               </button>
             </li>
           ))}
+        </ul>
+      )} */}
+      {inputValue !== "" && (
+        <ul className="absolute z-51 mt-1 max-h-90 w-full overflow-hidden overflow-y-auto rounded-sm border-2 border-gray-200 bg-white p-2">
+          {isLoading && (
+            <li>
+              <Loader2 className="animate-spin" size={18} />
+            </li>
+          )}
+
+          {!isLoading && noResults && (
+            <li className="text-gray-500">No matching results found</li>
+          )}
+
+          {!isLoading &&
+            !noResults &&
+            searchResults.map((a) => (
+              <li
+                key={a.id}
+                className="flex h-8 items-center hover:bg-green-100"
+              >
+                <button
+                  className="flex w-full"
+                  onClick={() => handleClickSearchResult(a.keyword)}
+                >
+                  <span>{highlightText(a.keyword, inputValue)}</span>
+                </button>
+              </li>
+            ))}
         </ul>
       )}
     </div>

@@ -7,6 +7,7 @@ import { StatusEnum } from 'src/modules/status/enum/statuses.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
+import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 
 @Injectable()
 export class UserSeeding {
@@ -16,6 +17,9 @@ export class UserSeeding {
 
     @InjectRepository(FreelancerEntity)
     private freelancerRepository: Repository<FreelancerEntity>,
+
+    @InjectRepository(WalletEntity)
+    private walletRepository: Repository<WalletEntity>,
   ) {}
 
   async run() {
@@ -110,13 +114,23 @@ export class UserSeeding {
         phone: faker.phone.number(),
         //roleId: Math.floor(Math.random() * 4 + 1),
         roleId: 2,
-        statusId: Math.floor(Math.random() * 5 + 1),
+        //  statusId: Math.floor(Math.random() * 5 + 1),
+        statusId: 1,
       });
     }
 
-    await this.repository.save(users);
+    const userEntites = await this.repository.save(users);
 
     await this.freelancerRepository.save(freelancerProfile);
+
+    const wallets: Partial<WalletEntity>[] = [];
+    userEntites.forEach((element) => {
+      wallets.push({
+        userId: element.id,
+      });
+    });
+
+    await this.walletRepository.save(wallets);
 
     console.log('\n == Users are seeded completely !!! == \n');
   }

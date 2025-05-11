@@ -76,6 +76,16 @@ const fetch = async (url: string, params: FetchOrderParams) => {
   }
 };
 
+export const searchGig = async (queryStr: string) => {
+  debugger;
+  return axiosInstanceV1.get(`${BASE}/search?${queryStr}`);
+};
+
+export const searchGigByTag = async (queryStr: string) => {
+  debugger;
+  return axiosInstanceV1.get(`${BASE}/search/tag?${queryStr}`);
+};
+
 export const fetchGigsV2 = async (queryStr: string) => {
   debugger;
   return axiosInstanceV2.get(`${BASE}?${queryStr}`);

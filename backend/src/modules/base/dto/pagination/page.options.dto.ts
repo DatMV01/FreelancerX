@@ -25,4 +25,8 @@ export class PageOptionsDto {
   @IsOptional()
   @ApiPropertyOptional()
   filters?: any;
+
+  @IsOptional()
+  @ApiPropertyOptional()
+  keyword?: string;
 }

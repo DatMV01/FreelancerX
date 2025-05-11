@@ -18,6 +18,7 @@ import { UserFavoriteGigEntity } from './entities/user_favorite_gigs.entity';
       GigPackagesEntity,
       UserEntity,
       UserFavoriteGigEntity,
+      GigTagEntity,
     ]),
     UserModule,
     FreelancerModule,

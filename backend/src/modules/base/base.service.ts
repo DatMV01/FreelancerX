@@ -187,6 +187,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
       throw new Error(`Error fetching data: ${error}`);
     }
   }
+  
   async findAll2_V2(
     queryObj: QueryInput<Entity>,
     currentUser?: JwtAccessPayloadType,
