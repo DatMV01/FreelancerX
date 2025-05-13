@@ -76,7 +76,7 @@ export class AuthService {
   }
 
   async logout(sessionId: string): Promise<boolean> {
-    return await this.sessionService.removeOneById(sessionId);
+    return await this.sessionService.removeSoftOneById(sessionId);
   }
 
   async validateUser(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
@@ -315,7 +315,7 @@ export class AuthService {
         throw new BadRequestException('Invalid token');
       }
 
-      await this.sessionService.removeOneById(sessionId);
+      await this.sessionService.removeSoftOneById(sessionId);
 
       await this.usersService.update(userId, {
         password: await bcrypt.hash(newPassword, 10),

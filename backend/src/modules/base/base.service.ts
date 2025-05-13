@@ -34,25 +34,19 @@ export abstract class BaseService<Entity extends BaseEntity> {
   @Inject(DataSource) protected readonly dataSource: DataSource;
 
   async create(createDto: DeepPartial<Entity>): Promise<Entity> {
-    try {
-      const entity = this.repository.create(createDto);
-      return await this.repository.save(entity);
-    } catch (error) {
-      console.error('Error creating entity:', error);
-      throw new UnprocessableEntityException('Could not create entity');
-    }
+    const entity = this.repository.create(createDto);
+    return await this.repository.save(entity);
   }
 
   async findOneById(id: BaseEntity['id']): Promise<Entity> {
-    const entity = await this.repository.findOneOrFail({
-      where: { id } as FindOptionsWhere<Entity>,
+    return this.findOne({
+      where: { id } as any,
     });
-
-    return entity;
   }
 
   async findOne(options: FindOneOptions<Entity>): Promise<Entity> {
-    const entity = await this.repository.findOneOrFail(options);
+    const entity = await this.repository.findOne(options);
+    if (!entity) throw new NotFoundException('Entity not found');
 
     return entity;
   }
@@ -61,56 +55,34 @@ export abstract class BaseService<Entity extends BaseEntity> {
     id: BaseEntity['id'],
     data: DeepPartial<Entity>,
   ): Promise<Entity> {
-    const entity = await this.repository.preload({ id, ...data });
-
-    if (!entity) {
-      consoleError(`Entity with ID ${id} not found`);
-      throw new NotFoundException(`ID ${id} not found`);
-    }
-
-    try {
-      return await this.repository.save(entity);
-    } catch (error) {
-      console.error('Error updating entity:', error);
-      throw new ConflictException('Update failed due to conflict');
-    }
-  }
-
-  async updateOnly(
-    id: BaseEntity['id'],
-    entity: DeepPartial<Entity>,
-  ): Promise<Entity> {
-    try {
-      return await this.repository.save(entity);
-    } catch (error) {
-      console.error('Error updating entity:', error);
-      throw new ConflictException('Update failed due to conflict');
-    }
+    const entity = await this.findOneById(id);
+    const updated = Object.assign(entity, data);
+    return this.repository.save(updated);
   }
 
   // DELETE (Soft Delete)
-  async removeOneById(id: BaseEntity['id']): Promise<boolean> {
-    const result = await this.repository.softDelete(id);
-    if (!result.affected) {
-      throw new NotFoundException(`Entity with ID ${id} not found`);
-    }
-
-    return true;
+  async removeSoftOneById(id: BaseEntity['id']): Promise<boolean> {
+    return this.removeSoft({ id } as any);
   }
 
   async removeHardOneById(id: BaseEntity['id']): Promise<boolean> {
-    const result = await this.repository.delete(id);
-    if (!result.affected) {
-      throw new NotFoundException(`Entity with ID ${id} not found`);
-    }
+    return this.removeHard({ id } as any);
+  }
+
+  async removeSoft(where: FindOptionsWhere<Entity>): Promise<boolean> {
+    const result = await this.repository.softDelete(where);
+
+    if (!result.affected)
+      throw new NotFoundException('Entity not found or already deleted');
 
     return true;
   }
 
-  async remove(where: FindOptionsWhere<Entity>): Promise<boolean> {
-    const result = await this.repository.softDelete(where);
+  async removeHard(where: FindOptionsWhere<Entity>): Promise<boolean> {
+    const result = await this.repository.delete(where);
+
     if (!result.affected)
-      throw new NotFoundException(`Entity with condition not found`);
+      throw new NotFoundException('Entity not found or already deleted');
 
     return true;
   }
@@ -187,7 +159,7 @@ export abstract class BaseService<Entity extends BaseEntity> {
       throw new Error(`Error fetching data: ${error}`);
     }
   }
-  
+
   async findAll2_V2(
     queryObj: QueryInput<Entity>,
     currentUser?: JwtAccessPayloadType,
@@ -255,13 +227,13 @@ export abstract class BaseService<Entity extends BaseEntity> {
         select: fields ? (fields as any) : undefined,
       };
 
-      let options2: FindManyOptions<Entity> = {
-        where: this.processFilters(whereConditions),
-        order: this.processSorting(orderConditions),
-        skip: (page - 1) * limit,
-        take: limit,
-        select: fields ? (fields as any) : undefined,
-      };
+      // let options2: FindManyOptions<Entity> = {
+      //   where: this.processFilters(whereConditions),
+      //   order: this.processSorting(orderConditions),
+      //   skip: (page - 1) * limit,
+      //   take: limit,
+      //   select: fields ? (fields as any) : undefined,
+      // };
 
       options = await this.modifyFindManyOptions(options, currentUser);
 
@@ -277,58 +249,55 @@ export abstract class BaseService<Entity extends BaseEntity> {
     options: FindManyOptions<Entity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<FindManyOptions<Entity>> {
-    // if (currentUser?.role === 'manager') {
-    //   options.where = { ...options.where, status: 'active' };
-    // }
     return options;
   }
 
-  private processFilters(
-    filters: FindOptionsWhere<Entity>,
-  ): FindOptionsWhere<Entity> {
-    const processedFilters: FindOptionsWhere<Entity> = {};
+  // private processFilters(
+  //   filters: FindOptionsWhere<Entity>,
+  // ): FindOptionsWhere<Entity> {
+  //   const processedFilters: FindOptionsWhere<Entity> = {};
 
-    Object.keys(filters).forEach((key) => {
-      const value = filters[key];
-      if (!value) return;
+  //   Object.keys(filters).forEach((key) => {
+  //     const value = filters[key];
+  //     if (!value) return;
 
-      if (Array.isArray(value)) {
-        processedFilters[key] = In(value);
-      } else if (typeof value === 'string') {
-        const normalizedValue = value.trim().toLowerCase();
-        if (normalizedValue.startsWith('like_')) {
-          processedFilters[key] = Like(
-            `%${normalizedValue.replace('like_', '').trim()}%`,
-          );
-        } else if (/^(>|>=|<|<=|=)_/.test(normalizedValue)) {
-          const operator = normalizedValue.slice(
-            0,
-            normalizedValue.indexOf('_'),
-          );
-          const actualValue = normalizedValue
-            .slice(normalizedValue.indexOf('_') + 1)
-            .trim();
+  //     if (Array.isArray(value)) {
+  //       processedFilters[key] = In(value);
+  //     } else if (typeof value === 'string') {
+  //       const normalizedValue = value.trim().toLowerCase();
+  //       if (normalizedValue.startsWith('like_')) {
+  //         processedFilters[key] = Like(
+  //           `%${normalizedValue.replace('like_', '').trim()}%`,
+  //         );
+  //       } else if (/^(>|>=|<|<=|=)_/.test(normalizedValue)) {
+  //         const operator = normalizedValue.slice(
+  //           0,
+  //           normalizedValue.indexOf('_'),
+  //         );
+  //         const actualValue = normalizedValue
+  //           .slice(normalizedValue.indexOf('_') + 1)
+  //           .trim();
 
-          processedFilters[key] = { [operator]: actualValue } as any;
-        } else {
-          processedFilters[key] = value;
-        }
-      } else {
-        processedFilters[key] = IsNull();
-      }
-    });
+  //         processedFilters[key] = { [operator]: actualValue } as any;
+  //       } else {
+  //         processedFilters[key] = value;
+  //       }
+  //     } else {
+  //       processedFilters[key] = IsNull();
+  //     }
+  //   });
 
-    return processedFilters;
-  }
-  private processSorting(
-    sorts: FindOptionsOrder<Entity>,
-  ): FindOptionsOrder<Entity> {
-    const processedSorts: FindOptionsOrder<Entity> = {};
+  //   return processedFilters;
+  // }
+  // private processSorting(
+  //   sorts: FindOptionsOrder<Entity>,
+  // ): FindOptionsOrder<Entity> {
+  //   const processedSorts: FindOptionsOrder<Entity> = {};
 
-    Object.entries(sorts || {}).forEach(([key, order]) => {
-      processedSorts[key] = order.toUpperCase() as 'ASC' | 'DESC';
-    });
+  //   Object.entries(sorts || {}).forEach(([key, order]) => {
+  //     processedSorts[key] = order.toUpperCase() as 'ASC' | 'DESC';
+  //   });
 
-    return processedSorts;
-  }
+  //   return processedSorts;
+  // }
 }

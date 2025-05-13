@@ -195,7 +195,7 @@ export abstract class BaseController<
   @ApiParam({ name: 'id', type: String })
   @ApiResponse({ status: 200, description: 'Entity deleted successfully' })
   async remove(@Param('id') id: string) {
-    return this.baseService.removeOneById(id);
+    return this.baseService.removeSoftOneById(id);
   }
   @Delete('/hard/:id')
   @UseGuards(AuthGuard('jwt'))

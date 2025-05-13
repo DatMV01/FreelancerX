@@ -73,7 +73,7 @@ export class SessionController extends BaseController<
   async removeAllSession(
     @Param('userId') userId: UserDto['id'],
   ): Promise<boolean> {
-    return this.sessionService.remove({
+    return this.sessionService.removeSoft({
       user: {
         id: userId.toString(),
       },
@@ -93,7 +93,7 @@ export class SessionController extends BaseController<
     @Param('userId') userId: UserDto['id'],
     @Param('sessionId') excludeSessionId: SessionDto['id'],
   ): Promise<boolean> {
-    return this.sessionService.remove({
+    return this.sessionService.removeSoft({
       user: {
         id: userId.toString(),
       },

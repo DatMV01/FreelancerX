@@ -16,7 +16,8 @@ import {
   QueryRunner,
   Repository,
 } from 'typeorm';
-import { nanoid } from 'nanoid';
+//import { nanoid } from 'nanoid';
+import { faker } from '@faker-js/faker';
 
 import { v4 as uuidv4 } from 'uuid';
 import { BaseService } from '../base/base.service';
@@ -811,10 +812,15 @@ export class OrderService extends BaseService<OrderEntity> {
   private generateOrderNo(): string {
     let prefix = 'ORD';
 
+    // return `${prefix}-${new Date()
+    //   .toISOString()
+    //   .replace(/[-:T.]/g, '')
+    //   .slice(0, 14)}-${nanoid(12)}`;
+
     return `${prefix}-${new Date()
       .toISOString()
       .replace(/[-:T.]/g, '')
-      .slice(0, 14)}-${nanoid(12)}`;
+      .slice(0, 14)}-${faker.database.mongodbObjectId()}`;
   }
 
   // @Cron(CronExpression.EVERY_30_MINUTES)

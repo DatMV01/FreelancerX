@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
-import { nanoid } from 'nanoid';
+//import { nanoid } from 'nanoid';
+import { faker } from '@faker-js/faker';
+
 import {
   buildOrderClause,
   buildWhereClause,
@@ -693,7 +695,7 @@ export class WalletService {
     return `${prefix}-${new Date()
       .toISOString()
       .replace(/[-:T.]/g, '')
-      .slice(0, 14)}-${nanoid(12)}`;
+      .slice(0, 14)}-${faker.database.mongodbObjectId()}`;
   }
   //  @Cron(CronExpression.EVERY_WEEK)
   // @Cron(CronExpression.EVERY_MINUTE)

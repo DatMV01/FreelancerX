@@ -15,7 +15,7 @@ export class SessionService extends BaseService<SessionEntity> {
   }
 
   async removeAllSessionByUserId(userId: string): Promise<boolean> {
-    return super.remove({
+    return super.removeSoft({
       userId,
     });
   }
@@ -24,7 +24,7 @@ export class SessionService extends BaseService<SessionEntity> {
     userId: string;
     excludeSessionId: SessionDto['id'];
   }): Promise<boolean> {
-    return super.remove({
+    return super.removeSoft({
       user: {
         id: conditions.userId.toString(),
       },
