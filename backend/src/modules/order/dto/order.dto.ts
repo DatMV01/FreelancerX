@@ -2,7 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { GigEntity } from 'src/modules/gig/entities/gig.entity';
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
 import { OrderTransactionEntity } from 'src/modules/order/entities/order_transactions.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 
@@ -74,8 +74,8 @@ export class OrderDto extends BaseDto<OrderDto> {
   @AutoMap(() => [OrderQuestionsEntity])
   orderQuestionsAnswers: OrderQuestionsEntity[];
 
-  @AutoMap(() => GigReviewEntity)
-  review: GigReviewEntity;
+  @AutoMap(() => GigRatingEntity)
+  rating: GigRatingEntity;
 
   @AutoMap(() => [OrderDeliverablesEntity])
   deliverables: OrderDeliverablesEntity[];

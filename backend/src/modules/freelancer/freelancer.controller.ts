@@ -73,7 +73,7 @@ export class FreelancerController extends BaseController<
     description: 'Entity found',
     type: FreelancerDto,
   })
-  async getFreelancerProfileByEmail(
+  async findProfileByEmail(
     @Param('email') email: string,
   ): Promise<FreelancerDto> {
     if (!email) {

@@ -1,27 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useAppDispatch } from "@/lib/redux/hooks";
+import { passwordSchema } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DialogDescription, DialogTrigger } from "@radix-ui/react-dialog";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { VisuallyHidden } from "radix-ui";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email." }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters long" }),
-  // .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-  // .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-  // .regex(/[0-9]/, { message: "Password must contain at least one digit" }),
+  password: passwordSchema,
 });
 
 type FormType = z.infer<typeof formSchema>;
@@ -47,7 +40,7 @@ export default function LoginForm({ setShowLoginForm, loginSuccessCb }: Props) {
     mode: "onSubmit",
     defaultValues: {
       email: "admin@example.com",
-      password: "user123",
+      password: "user@123",
     },
   });
 

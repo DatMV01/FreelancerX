@@ -101,7 +101,7 @@ const FreelancerProfile = () => {
                       className="cursor-pointer"
                     />
                   </a>
-                  {
+                  { false && 
                     <a href="#" target="_blank" rel="noopener noreferrer">
                       <img
                         src="https://upload.wikimedia.org/wikipedia/commons/8/83/Telegram_2019_Logo.svg"

@@ -2,7 +2,7 @@
 
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import GigsManageTable from "@/features/gig/components/GigsManageTable";
-import { fetchGigsV2 } from "@/features/gig/gig.api";
+import { fetchGigsV2, findUserGigs } from "@/features/gig/gig.api";
 import { GigEntity } from "@/features/gig/gig.entity";
 import { defaulFetchGigsQuery } from "@/features/gig/hooks/useGetActiveGigs";
 import { ActorType } from "@/features/order/dto";
@@ -23,7 +23,7 @@ function FreelancerManageGigsPage() {
     mutate,
   } = useFetchByQuery({
     queryString,
-    fetcherFn: fetchGigsV2,
+    fetcherFn: findUserGigs,
     key: url,
   });
 

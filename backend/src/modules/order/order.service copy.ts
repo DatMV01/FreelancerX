@@ -1,9 +1,8 @@
 import {
-  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -18,11 +17,9 @@ import {
 } from 'typeorm';
 //import { nanoid } from 'nanoid';
 import { faker } from '@faker-js/faker';
-
 import { v4 as uuidv4 } from 'uuid';
 import { BaseService } from '../base/base.service';
 import { OrderEntity } from './entities/order.entity';
-
 import { StripeService } from 'src/modules/stripe/stripe.service';
 import { consoleError } from 'src/utils/common';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
@@ -30,9 +27,9 @@ import { BaseEntity } from '../base/entities/base.entity';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
 import { OrderTransactionEntity } from './entities/order_transactions.entity';
-
-import { WalletService } from '../wallet/wallet.service';
+import { RoleEnum } from '../role/enum/role.enum';
 import { UserEntity } from '../user/entities/user.entity';
+import { WalletService } from '../wallet/wallet.service';
 import { OrderDeliverablesEntity } from './entities/order_deliverables.entity';
 import { OrderLogsEntity } from './entities/order_logs.entity';
 import { OrderQuestionsEntity } from './entities/order_questions.entity';
@@ -45,8 +42,6 @@ import {
   TransactionStatus,
   TransactionType,
 } from './enum/order.enum';
-import { WalletEntity } from '../wallet/entities/wallet.entity';
-import { RoleEnum } from '../role/enum/role.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity> {
@@ -421,7 +416,7 @@ export class OrderService extends BaseService<OrderEntity> {
     } as any;
   }
 
-  async addQuestionToOrder(
+  async addQuestionsAnswersToOrder(
     data: OrderQuestionsEntity,
     currentUser: JwtAccessPayloadType,
   ): Promise<OrderQuestionsEntity> {
@@ -551,7 +546,6 @@ export class OrderService extends BaseService<OrderEntity> {
     try {
       const orderRepo = queryRunner.manager.getRepository(OrderEntity);
       const logRepo = queryRunner.manager.getRepository(OrderLogsEntity);
-      const gigRepo = queryRunner.manager.getRepository(GigEntity);
 
       const order = await orderRepo.findOneOrFail({
         where: { id: String(id) },
@@ -612,11 +606,6 @@ export class OrderService extends BaseService<OrderEntity> {
 
       if ([OrderActions.START_WORK.action].includes(data.action! as any)) {
         order.startDate = new Date();
-      }
-
-      if ([OrderActions.COMPLETE_ORDER.action].includes(data.action! as any)) {
-        order.endDate = new Date();
-        gigRepo.increment({ id: order.gigId }, 'orderCompleteCount', 1);
       }
 
       // Cập nhật trạng thái và ghi log
@@ -715,6 +704,30 @@ export class OrderService extends BaseService<OrderEntity> {
     }
   }
 
+  async completeOrder(
+    currentUser: JwtAccessPayloadType,
+    orderId: string,
+    queryRunner: QueryRunner,
+  ) {
+    const order = await queryRunner.manager.findOne(OrderEntity, {
+      where: { id: orderId },
+    });
+
+    if (!order) {
+      throw new Error('Order not found.');
+    }
+
+    order.status = OrderActions.COMPLETE_ORDER.toStatus;
+
+    order.status = OrderActions.CANCEL_ORDER_FREELANCER.toStatus;
+
+    const updatedOrder = await queryRunner.manager.save(order);
+
+    await this.walletService.addPendingEarningToFreelancer(updatedOrder);
+
+    return updatedOrder;
+  }
+
   protected async modifyFindManyOptions(
     options: FindManyOptions<OrderEntity>,
     currentUser?: JwtAccessPayloadType,
@@ -792,79 +805,9 @@ export class OrderService extends BaseService<OrderEntity> {
   }
 
   private generateOrderNo(): string {
-    let prefix = 'ORD';
-
-    // return `${prefix}-${new Date()
-    //   .toISOString()
-    //   .replace(/[-:T.]/g, '')
-    //   .slice(0, 14)}-${nanoid(12)}`;
-
-    return `${prefix}-${new Date()
+    return `ORD-${new Date()
       .toISOString()
       .replace(/[-:T.]/g, '')
       .slice(0, 14)}-${faker.database.mongodbObjectId()}`;
   }
-
-  // @Cron(CronExpression.EVERY_30_MINUTES)
-  // async handleExpiredOrders() {
-  //   this.logger.log(`Cron EVERY_30_MINUTES `);
-
-  //   const now = new Date();
-  //   const expiredTime = new Date(now.getTime() - 30 * 60 * 1000);
-
-  //   const pendingOrders = await this._repository.find({
-  //     where: {
-  //       status: OrderStatus.PENDING,
-  //       createdAt: LessThan(expiredTime),
-  //       transaction: {
-  //         status: TransactionStatus.PENDING,
-  //       },
-  //     },
-  //     relations: ['transaction'],
-  //   });
-
-  //   if (pendingOrders.length) {
-  //     this.logger.log(
-  //       `🕒 Found ${pendingOrders.length} pending orders older than 30 minutes.`,
-  //     );
-
-  //     for (const order of pendingOrders) {
-  //       order.status = OrderStatus.CANCELED;
-  //       order.transaction.status = TransactionStatus.FAILED;
-
-  //       await this._repository.save(order);
-  //       await this.transactionRepository.save(order.transaction);
-
-  //       this.logger.log(
-  //         `❌ Marked Order #${order.id} and Transaction #${order.transaction.id} as failed.`,
-  //       );
-  //     }
-  //   }
-  // }
-
-  //   @Cron(CronExpression.EVERY_30_MINUTES)
-  //   async handleExpiredOrders() {
-  //     // pseudo code
-  // const cancelledOrders = await Order.find({
-  //   status: 'cancelled',
-  //   isRefunded: false,
-  // });
-
-  // for (const order of cancelledOrders) {
-  //   const payment = await Payment.findOne({ orderId: order.id, status: 'paid' });
-  //   if (!payment) continue;
-
-  //   await UserTransaction.create({
-  //     userId: order.buyerId,
-  //     type: 'refund',
-  //     amount: payment.amount,
-  //     status: 'completed',
-  //     description: `Refund for cancelled order #${order.id}`,
-  //     orderId: order.id,
-  //   });
-
-  //   await UserWallet.increment({ userId: order.buyerId }, payment.amount);
-
-  //   await Order.update({ id: order.id }, { isRefunded: true });
-  //   }
 }

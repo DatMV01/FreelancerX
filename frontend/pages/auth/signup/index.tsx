@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { passwordSchema } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -14,12 +15,12 @@ const schema = z
   .object({
     email: z.string().email("Invalid email address"),
     fullName: z.string().min(2, "Full Name must be at least 2 characters"),
-    password: z.string().min(6, "Must be 6 or more characters long"),
-    confirmPassword: z.string().min(6, "Must be 6 or more characters long"),
+    password: passwordSchema,
+    confirmPassword: passwordSchema,
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
     path: ["confirmPassword"],
+    message: "Passwords do not match",
   });
 
 type FormData = z.infer<typeof schema>;
@@ -35,6 +36,10 @@ export default function SignUpPage() {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     mode: "onSubmit",
+    defaultValues: {
+      password: "user@123",
+      confirmPassword: "user@123",
+    },
   });
 
   const [message, setMessage] = useState<{

@@ -76,6 +76,10 @@ const UploadFile = ({
         return false;
       }
 
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image file must be smaller than 5MB.");
+        return false;
+      }
       // return new Promise<boolean>((resolve) => {
       //   const img = new Image();
       //   img.onload = () => {

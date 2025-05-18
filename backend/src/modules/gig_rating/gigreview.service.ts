@@ -9,19 +9,19 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseService } from '../base/base.service';
-import { GigReviewEntity } from './entities/gigreview.entity';
+import { GigRatingEntity } from './entities/gigreview.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
 import { OrderEntity } from '../order/entities/order.entity';
-import { CreateGigReviewDto } from './dto/create-gigreview.dto';
+import { CreateGigRatingDto } from './dto/create-gigreview.dto';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { OrderStatus } from '../order/enum/order.enum';
 
 @Injectable()
-export class GigReviewService extends BaseService<GigReviewEntity> {
+export class GigReviewService extends BaseService<GigRatingEntity> {
   constructor(
-    @InjectRepository(GigReviewEntity)
-    private readonly _repository: Repository<GigReviewEntity>,
+    @InjectRepository(GigRatingEntity)
+    private readonly _repository: Repository<GigRatingEntity>,
 
     @InjectRepository(GigEntity)
     private readonly gigRepo: Repository<GigEntity>,
@@ -37,7 +37,7 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
 
   async createReview(
     currentUser: JwtAccessPayloadType,
-    dto: CreateGigReviewDto,
+    dto: CreateGigRatingDto,
   ) {
     const { orderId, gigId } = dto;
 
@@ -77,6 +77,8 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
     });
 
     await this._repository.save(review);
+
+    await this.updateGigRating(order.gigId)
 
     return review;
   }
@@ -207,5 +209,19 @@ export class GigReviewService extends BaseService<GigReviewEntity> {
       .groupBy('review.rating')
       .getRawMany();
     return result;
+  }
+
+  async updateGigRating(gigId: string): Promise<void> {
+    const { avg, count } = await this._repository
+      .createQueryBuilder('review')
+      .select('AVG(review.rating)', 'avg')
+      .addSelect('COUNT(*)', 'count')
+      .where('review.gigId = :gigId', { gigId })
+      .getRawOne();
+
+    await this.gigRepo.update(gigId, {
+      ratingAverage: avg ? Number(avg) : 0,
+      ratingCount: Number(count),
+    });
   }
 }

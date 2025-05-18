@@ -32,6 +32,13 @@ export const gig_documentsUpload = [`document1`, `document2`];
 // schemas/gigSchema.ts
 import { z } from "zod";
 
+const fileSchema = z.object({
+  id: z.string(),
+  url: z.string().url(),
+  mimeType: z.string().nullable(),
+  provider: z.string().nullable(),
+});
+
 export const gigSchema = z.object({
   title: z.string().min(3),
   categoryId: z.string().nullable(),
@@ -61,31 +68,18 @@ export const gigSchema = z.object({
       answer: z.string(),
     }),
   ),
+  thumbnail: fileSchema.required(),
+  medias: z.record(fileSchema),
   images: z.object({
-    image1: z.object({
-      id: z.string(),
-      url: z.string().url(),
-      mimeType: z.string().nullable(),
-      provider: z.string().nullable(),
-    }),
-    image2: z.any().nullable(),
-    image3: z.any().nullable(),
+    image1: fileSchema.nullable(),
+    image2: fileSchema.nullable(),
+    image3: fileSchema.nullable(),
   }),
   documents: z.object({
-    document1: z.object({
-      id: z.string(),
-      url: z.string().url(),
-      mimeType: z.string().nullable(),
-      provider: z.string().nullable(),
-    }),
-    document2: z.any().nullable(),
+    document1: fileSchema.nullable(),
+    document2: fileSchema.nullable(),
   }),
-  video: z.object({
-    id: z.string(),
-    url: z.string().url(),
-    mimeType: z.string().nullable(),
-    provider: z.string().nullable(),
-  }),
+  video: fileSchema.nullable(),
   status: z
     .enum([
       GigStatus.ACTIVE,
@@ -190,10 +184,9 @@ const FreelancerCreateGigPage = () => {
   } = useForm<z.infer<typeof gigSchema>>({
     //  resolver: zodResolver(gigSchema),
     mode: "onChange",
-    //     defaultValues: {
-    //       email: "admin@example.com",
-    //       password: "user123",
-    //     },
+    // defaultValues: {
+    //   medias: [],
+    // },
   });
   const { countdown, isCounting, start } = useCountdownRedirect({ seconds: 5 });
 
@@ -510,10 +503,18 @@ const FreelancerCreateGigPage = () => {
           <div className="col-span-12">
             <GigGallaryInput
               onSetGallaryCb={(data: any) => {
-                const { documents, images, video } = data;
+                const { documents, images, video, thumbnail } = data;
+
+                setValue("thumbnail", thumbnail);
+
                 setValue("documents", documents);
                 setValue("images", images);
                 setValue("video", video);
+                setValue("medias", {
+                  documents,
+                  images,
+                  video,
+                });
               }}
             />
           </div>

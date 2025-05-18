@@ -16,12 +16,12 @@ import {
   GigFileInfo,
   GigImages,
   PricingPackage,
- 
 } from '../dto/gig.dto';
 import { GigStatus } from '../enum/gig.status';
 import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { GigTagEntity } from '../entities/gig.entity';
+import { FileEntity } from 'src/modules/files/entities/file.entity';
 
 export class GigFreelancerDto {
   @AutoMap()
@@ -137,14 +137,22 @@ export class CreateGigDto {
   @IsOptional()
   video: GigFileInfo;
 
+  @AutoMap(() => FileEntity)
+  @IsOptional()
+  thumbnail: FileEntity;
+
+  @AutoMap(() => [FileEntity])
+  @IsOptional()
+  medias: FileEntity[];
+
   @AutoMap()
   @IsEnum(GigStatus)
   @IsOptional()
   status: GigStatus = GigStatus.DRAFT;
 
-  @AutoMap(() => GigFileInfo)
-  @IsOptional()
-  thumbnail?: GigFileInfo | null;
+  // @AutoMap(() => GigFileInfo)
+  // @IsOptional()
+  // thumbnail?: GigFileInfo | null;
 
   // @AutoMap(() => [Requirement])
   // @IsArray()

@@ -34,7 +34,7 @@ const GigStatusButtonsFreelancer = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
@@ -46,7 +46,7 @@ const GigStatusButtonsFreelancer = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
@@ -58,7 +58,7 @@ const GigStatusButtonsFreelancer = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
@@ -70,7 +70,7 @@ const GigStatusButtonsFreelancer = ({
           </Button>
 
           <Button variant="outline">
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}

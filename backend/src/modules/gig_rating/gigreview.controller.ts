@@ -10,13 +10,13 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import { BaseController } from '../base/base.controller';
-import { GigReviewDto as GigReviewDto } from './dto/gigreview.dto';
+import { GigRatingDto as GigRatingDto } from './dto/gigreview.dto';
 import { GigReviewService } from './gigreview.service';
 
 import { CREATE_GROUP } from 'src/common/constant/serialize.group';
-import { CreateGigReviewDto } from './dto/create-gigreview.dto';
-import { UpdateGigReviewDto as UpdateGigReviewDto } from './dto/update-gigreview.dto';
-import { GigReviewEntity } from './entities/gigreview.entity';
+import { CreateGigRatingDto } from './dto/create-gigreview.dto';
+import { UpdateGigRatingDto as UpdateGigRatingDto } from './dto/update-gigreview.dto';
+import { GigRatingEntity } from './entities/gigreview.entity';
 
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,18 +26,18 @@ import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payloa
 
 @Controller('reviews')
 export class GigReviewController extends BaseController<
-  GigReviewEntity,
-  GigReviewDto,
-  CreateGigReviewDto,
-  UpdateGigReviewDto
+  GigRatingEntity,
+  GigRatingDto,
+  CreateGigRatingDto,
+  UpdateGigRatingDto
 > {
   constructor(protected readonly _service: GigReviewService) {
     super(
       _service,
-      GigReviewEntity,
-      GigReviewDto,
-      CreateGigReviewDto,
-      UpdateGigReviewDto,
+      GigRatingEntity,
+      GigRatingDto,
+      CreateGigRatingDto,
+      UpdateGigRatingDto,
     );
   }
 
@@ -54,16 +54,16 @@ export class GigReviewController extends BaseController<
   @UseGuards(AuthGuard('jwt'))
   @SerializeOptions({ groups: [CREATE_GROUP] })
   @ApiOperation({ summary: 'Create a new entity' })
-  @ApiBody({ type: CreateGigReviewDto, required: false })
+  @ApiBody({ type: CreateGigRatingDto, required: false })
   @ApiResponse({
     status: 201,
     description: 'Entity created successfully',
-    type: GigReviewDto,
+    type: GigRatingDto,
   })
   async createReview(
-    @Body() data: CreateGigReviewDto,
+    @Body() data: CreateGigRatingDto,
     @CurrentUser() currentUser: JwtAccessPayloadType,
-  ): Promise<GigReviewDto> {
+  ): Promise<GigRatingDto> {
     const review = await this._service.createReview(currentUser, data);
 
     return review as any;

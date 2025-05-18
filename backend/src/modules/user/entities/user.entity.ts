@@ -13,13 +13,13 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AuthProvidersEnum } from '../enum/user.provider';
 
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 import { UserFavoriteGigEntity } from '../../gig/entities/user_favorite_gigs.entity';
+import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -108,8 +108,8 @@ export class UserEntity extends BaseEntity {
   buyerorders: OrderEntity[];
 
   /* REVIEWS */
-  @OneToMany(() => GigReviewEntity, (review) => review.gig)
-  reviews: GigReviewEntity[];
+  @OneToMany(() => GigRatingEntity, (review) => review.gig)
+  reviews: GigRatingEntity[];
 
   /* NOTIFICATIONS */
   // @AutoMap(() => [NotificationEntity])

@@ -6,29 +6,17 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Req,
-  SerializeOptions,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
-  ApiBody,
-  ApiExtraModels,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
+  ApiExtraModels
 } from '@nestjs/swagger';
-import {
-  CREATE_GROUP,
-  UPDATE_GROUP,
-} from 'src/common/constant/serialize.group';
 import { CurrentUser } from 'src/common/decorators';
-import { QueryInput } from 'src/utils/typeorm-utils';
 import { JwtAccessPayloadType } from '../auth/strategies/types/jwt-access-payload.type';
 import { BaseController } from '../base/base.controller';
 import { PageDto } from '../base/dto/pagination';
-import { QueryDto } from '../base/dto/query.dto';
 import { RoleEnum } from '../role/enum/role.enum';
 import { WalletService } from '../wallet/wallet.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -57,14 +45,6 @@ export class OrderController extends BaseController<
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
-  @ApiBody({ type: CreateOrderDto, required: false })
-  @ApiResponse({
-    status: 201,
-    description: 'Entity created successfully',
-    type: OrderDto,
-  })
   async createOrder(
     @Body() data: CreateOrderDto,
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -82,9 +62,6 @@ export class OrderController extends BaseController<
 
   @Get('/checkout/:id')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get an entity by ID' })
-  @ApiParam({ name: 'id', type: String })
-  @ApiResponse({ status: 200, description: 'Entity found' })
   async getCheckoutOrder(@Param('id') id: string) {
     const entity = await this.baseService.findOneById(id);
 
@@ -93,15 +70,6 @@ export class OrderController extends BaseController<
 
   @Patch('/action/:id')
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [UPDATE_GROUP] })
-  @ApiOperation({ summary: 'Update an entity by action' })
-  @ApiParam({ name: 'id', type: String, required: false })
-  @ApiBody({ type: UpdateOrderDto, required: false })
-  @ApiResponse({
-    status: 200,
-    description: 'Entity updated successfully',
-    type: OrderDto,
-  })
   async updateOrderByAction(
     @Param('id') id: string,
     @Body() data: UpdateOrderDto,
@@ -124,12 +92,6 @@ export class OrderController extends BaseController<
 
   @Get('/buyer')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get all entities' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of entities',
-    type: PageDto<OrderEntity>,
-  })
   async findAllOrdersByBuyer(
     @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -143,13 +105,7 @@ export class OrderController extends BaseController<
 
   @Get('/freelancer')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get all entities' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of entities',
-    type: PageDto<OrderEntity>,
-  })
-  async findAllFreelancerTasks(
+  async findAllOrdersByFreelancer(
     @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<PageDto<OrderDto>> {
@@ -162,12 +118,6 @@ export class OrderController extends BaseController<
 
   @Get('/admin')
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Get all entities' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of entities',
-    type: PageDto<OrderEntity>,
-  })
   async findAllOrdersByAdmin(
     @Req() req: Request,
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -181,14 +131,7 @@ export class OrderController extends BaseController<
 
   @Post('/questions-answers')
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
-  @ApiResponse({
-    status: 201,
-    description: 'Entity created successfully',
-    type: OrderQuestionsEntity,
-  })
-  async addQuestionToOrder(
+  async addQuestionsAnswersToOrder(
     @Body() data: OrderQuestionsEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<OrderQuestionsEntity> {
@@ -197,13 +140,6 @@ export class OrderController extends BaseController<
 
   @Post('/delivery')
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
-  @ApiResponse({
-    status: 201,
-    description: 'Entity created successfully',
-    type: OrderDeliverablesEntity,
-  })
   async addDeliveryWork(
     @Body() data: OrderDeliverablesEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -213,13 +149,6 @@ export class OrderController extends BaseController<
 
   @Post('/re-delivery')
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [CREATE_GROUP] })
-  @ApiOperation({ summary: 'Create a new entity' })
-  @ApiResponse({
-    status: 201,
-    description: 'Entity created successfully',
-    type: OrderDeliverablesEntity,
-  })
   async addReDeliveryWork(
     @Body() data: OrderDeliverablesEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,
@@ -229,12 +158,7 @@ export class OrderController extends BaseController<
 
   @Patch('/questions-answers/:id')
   @UseGuards(AuthGuard('jwt'))
-  @SerializeOptions({ groups: [UPDATE_GROUP] })
-  @ApiOperation({ summary: 'Update an entity' })
-  @ApiParam({ name: 'id', type: String, required: false })
-  @ApiBody({ type: Object, required: false })
-  @ApiResponse({ status: 200, description: 'Entity updated successfully' })
-  async answerOrderQuestion(
+  async updateQuestionsAnswersToOrder(
     @Param('id') id: string | number,
     @Body() data: OrderQuestionsEntity,
     @CurrentUser() currentUser: JwtAccessPayloadType,

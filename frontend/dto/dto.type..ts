@@ -28,7 +28,7 @@ export interface SubCategory extends Category {
 
 export interface Tag {
   id: string;
-  name: string;
+  keyword: string;
 }
 
 export interface PricingPackage {

@@ -39,6 +39,13 @@ export const gig_documentsUpload = [`document1`, `document2`];
 // schemas/gigSchema.ts
 import { z } from "zod";
 
+const fileSchema = z.object({
+  id: z.string(),
+  url: z.string().url(),
+  mimeType: z.string().nullable(),
+  provider: z.string().nullable(),
+});
+
 export const gigSchema = z.object({
   id: z.string().optional().nullable(),
   freelancerId: z.string().optional().nullable(),
@@ -70,6 +77,8 @@ export const gigSchema = z.object({
       answer: z.string(),
     }),
   ),
+  thumbnail: fileSchema.required(),
+  medias: z.record(fileSchema),
   images: z.object({
     image1: z.object({
       id: z.string(),
@@ -240,7 +249,7 @@ const FreelancerEditGigPage = () => {
           categoryId: data.category.id,
           subCategoryId: data.subCategory.id,
           nestedSubcategoryId: data.nestedSubcategory.id,
-          tags: data.tags.map((tag) => tag.name),
+          tags: data.tags.map((tag) => tag.keyword),
         } as any);
 
         //   setFreelancer(data);
@@ -575,6 +584,7 @@ const FreelancerEditGigPage = () => {
                 images: watch("images"),
                 video: watch("video"),
                 documents: watch("documents"),
+                thumbnail: watch("thumbnail"),
               }}
               onSetGallaryCb={(data: any) => {
                 const { documents, images, video } = data;

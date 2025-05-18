@@ -135,10 +135,10 @@ const TableHeaderSection = ({
         </TableHead>
 
         <TableHead
-          onClick={() => handleSort("completeOrderCount")}
+          onClick={() => handleSort("orderCompleteCount")}
           className="cursor-pointer"
         >
-          Orders {getSortIcon("completeOrderCount")}
+          Orders {getSortIcon("orderCompleteCount")}
         </TableHead>
 
         <TableHead
@@ -321,7 +321,7 @@ function GigsManageTable({
                 {/* <Input
                  type="text"
                  placeholder="Search by title..."
-                 value={filters.keyword}
+                 value={filters.keyword}A
                  onChange={(e) => {
                    updateFilter({ keyword: e.target.value });
                  }}
@@ -405,7 +405,16 @@ function GigsManageTable({
 
                       <TableCell>{_.viewCount}</TableCell>
 
-                      <TableCell>{_.completeOrderCount}</TableCell>
+                      <TableCell>
+                        <span> {_.orderCompleteCount} </span>
+                        <span>
+                          (
+                          {(_.orderCompleteCount /
+                            (_.orderCount != 0 ? _.orderCount : 1)) *
+                            100}
+                          %)
+                        </span>
+                      </TableCell>
 
                       <TableCell>{_.favoriteCount}</TableCell>
                     </TableRow>

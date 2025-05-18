@@ -16,13 +16,13 @@ import { OrderTransactionEntity } from 'src/modules/order/entities/order_transac
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { AutoMap } from '@automapper/classes';
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { OrderLogsEntity } from './order_logs.entity';
 import { GigPackagesEntity } from 'src/modules/gig/entities/gig_packages.entity';
 import { OrderQuestionsEntity } from './order_questions.entity';
 import { OrderDeliverablesEntity } from './order_deliverables.entity';
 import { OrderStatus } from '../enum/order.enum';
-
+import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
+ 
 @Entity('orders')
 export class OrderEntity extends BaseEntity {
   @AutoMap()
@@ -149,26 +149,27 @@ export class OrderEntity extends BaseEntity {
   })
   deliverables: OrderDeliverablesEntity[];
 
-  @AutoMap(() => GigReviewEntity)
-  @OneToOne(() => GigReviewEntity, { eager: false })
-  review: GigReviewEntity;
+  @AutoMap(() => GigRatingEntity)
+  @OneToOne(() => GigRatingEntity, { eager: false })
+  rating: GigRatingEntity;
 
   @AutoMap(() => Date)
   @Column({ nullable: true })
   startDate: Date;
 
   @AutoMap(() => Date)
+  @Column({ nullable: true })
   endDate: Date;
 
   @AutoMap()
   action: string;
 
-  @AfterLoad()
-  afterLoad() {
-    if (this.startDate) {
-      const result = new Date(this.startDate);
-      result.setDate(result.getDate() + this.deliveryTime);
-      this.endDate = result;
-    }
-  }
+  // @AfterLoad()
+  // afterLoad() {
+  //   if (this.startDate) {
+  //     const result = new Date(this.startDate);
+  //     result.setDate(result.getDate() + this.deliveryTime);
+  //     this.endDate = result;
+  //   }
+  // }
 }

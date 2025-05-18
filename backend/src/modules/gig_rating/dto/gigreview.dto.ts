@@ -2,7 +2,7 @@ import { AutoMap } from '@automapper/classes';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseDto } from 'src/modules/base/dto/base.dto';
 
-export class GigReviewDto extends BaseDto<GigReviewDto> {
+export class GigRatingDto extends BaseDto<GigRatingDto> {
   @AutoMap()
   @ApiProperty({
     description: 'The unique identifier of the gig being rated',

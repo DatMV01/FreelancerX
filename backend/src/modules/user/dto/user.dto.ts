@@ -11,7 +11,7 @@ import { StatusDto } from 'src/modules/status/dto/status.dto';
 import { TransactionDto } from 'src/modules/wallet/dto/transaction.dto';
 import { undefinedTransformer } from 'src/utils/transformers/index.transformer';
 import { AuthProvidersEnum } from '../enum/user.provider';
-import { GigReviewDto } from 'src/modules/gigreview/dto/gigreview.dto';
+import { GigRatingDto } from 'src/modules/gig_rating/dto/gigreview.dto';
 
 export class UserDto extends BaseDto<UserDto> {
   @AutoMap()
@@ -79,10 +79,10 @@ export class UserDto extends BaseDto<UserDto> {
   buyerorders?: OrderDto[];
 
   /* RATINGS */
-  @AutoMap(() => [GigReviewDto])
+  @AutoMap(() => [GigRatingDto])
   // @Transform((params) => undefinedTransformer(params))
-  @ApiPropertyOptional({ type: [GigReviewDto], example: [], nullable: true })
-  reviews?: GigReviewDto[];
+  @ApiPropertyOptional({ type: [GigRatingDto], example: [], nullable: true })
+  reviews?: GigRatingDto[];
 
   // /* NOTIFICATIONS */
   // @AutoMap(() => [NotificationDto])

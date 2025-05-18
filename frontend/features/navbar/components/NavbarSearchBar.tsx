@@ -36,7 +36,7 @@ const NavbarSearchBar = ({ ...props }) => {
     isValidating,
     mutate,
   } = useFetchByQuery({
-    queryString,
+    queryString : inputValue != "" ? queryString : null,
     fetcherFn: searchGigByTag,
     key,
   });

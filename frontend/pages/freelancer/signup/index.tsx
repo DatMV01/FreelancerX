@@ -5,6 +5,7 @@ import UploadFile from "@/components/uploadfile/UploadFile";
 import { countries } from "@/data/countries";
 import { languages } from "@/data/languages";
 import { skills } from "@/data/skill";
+import { DashboardMainContentHeader } from "@/features/dashboard/components/DashboardMainContent";
 import {
   selectUser,
   signUpAsFreelancer,
@@ -12,6 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@mui/material";
+import clsx from "clsx";
 import { X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -272,12 +274,18 @@ export default function FreelancerSignupForm() {
   }
 
   return (
-    <div className="flex w-full flex-col items-center justify-center bg-gray-100">
-      <div className="items-center justify-center p-8 text-black">
-        <h1 className="text-center text-3xl font-bold">
+    <div className="flex w-full flex-col items-center justify-center">
+      <div
+        className={clsx(
+          "flex w-full flex-col items-center justify-center gap-x-2",
+          "flex items-center justify-center gap-x-2 border border-green-500 p-2",
+          "rounded-md text-center text-2xl font-bold text-green-500",
+        )}
+      >
+        <p className="text-center text-3xl font-bold">
           Sign up as a Freelancer
-        </h1>
-        <p className="mt-4 text-center text-gray-600">
+        </p>
+        <p className="mt-4 text-center text-sm text-gray-600">
           Join our platform and start earning today.
         </p>
       </div>

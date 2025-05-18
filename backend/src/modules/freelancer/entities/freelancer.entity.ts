@@ -26,7 +26,7 @@ import {
   LanguageEntity,
 } from './freelancer_languages.entity';
 import { FreelancersSkills } from './freelancer_skills.entity';
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
+import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
 import { WalletTransactionEntity } from 'src/modules/wallet/entities/wallet_transactions.entity';
 import { WalletEntity } from 'src/modules/wallet/entities/wallet.entity';
 
@@ -128,14 +128,14 @@ export class FreelancerEntity extends BaseEntity {
   })
   orders: OrderEntity[];
 
-  @AutoMap(() => [GigReviewEntity])
-  @OneToMany(() => GigReviewEntity, (gigReview) => gigReview.freelancer)
-  reviews: GigReviewEntity[];
+  @AutoMap(() => [GigRatingEntity])
+  @OneToMany(() => GigRatingEntity, (_) => _.freelancer)
+  ratings: GigRatingEntity[];
 
-  @AutoMap(() => WalletEntity)
-  @OneToOne(() => FreelancerEntity, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'wallet_id' })
-  wallet: WalletEntity;
+  // @AutoMap(() => WalletEntity)
+  // @OneToOne(() => FreelancerEntity, { onDelete: 'CASCADE' })
+  // @JoinColumn({ name: 'wallet_id' })
+  // wallet: WalletEntity;
 
   @AfterInsert()
   @AfterUpdate()

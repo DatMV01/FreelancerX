@@ -23,7 +23,11 @@ import {
   GigPackageType,
 } from './entities/gig_packages.entity';
 import { UserFavoriteGigEntity } from './entities/user_favorite_gigs.entity';
-import { QueryInput } from 'src/utils/typeorm-utils';
+import {
+  buildOrderClause,
+  buildWhereClause,
+  QueryInput,
+} from 'src/utils/typeorm-utils';
 
 @Injectable()
 export class GigService extends BaseService<GigEntity> {
@@ -111,7 +115,7 @@ export class GigService extends BaseService<GigEntity> {
     }
   }
 
-  async searchTags(
+  async findAllByTag(
     queryObj: QueryInput<GigTagEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<[GigTagEntity[], number]> {
@@ -142,7 +146,7 @@ export class GigService extends BaseService<GigEntity> {
     }
   }
 
-  async increaseSearchCount(keyword: string) {
+  async increaseSearchTagCount(keyword: string) {
     const tag = await this.gigTagRepo.findOneBy({
       keyword: capitalizeEachWord(keyword),
     });
@@ -153,6 +157,40 @@ export class GigService extends BaseService<GigEntity> {
     } else {
       const newTag = this.gigTagRepo.create({ keyword, searchCount: 1 });
       await this.gigTagRepo.save(newTag);
+    }
+  }
+
+  async findUserGigs(
+    queryObj: QueryInput<GigEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[GigEntity[], number]> {
+    const { page, pageSize, sorts, filters, fields } = queryObj;
+
+    try {
+      let options: FindManyOptions<GigEntity> = {
+        where: buildWhereClause(filters),
+        order: buildOrderClause(sorts),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: fields ? (fields as any) : undefined,
+      };
+
+      options = {
+        ...options,
+        where: {
+          ...options.where,
+          freelancerId: currentUser?.freelancerId,
+        },
+      };
+
+      const result = await this._repository.findAndCount(options);
+
+      return result;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      throw new Error(`Error fetching data: ${error}`);
     }
   }
 

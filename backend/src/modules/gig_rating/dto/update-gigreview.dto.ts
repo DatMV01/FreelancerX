@@ -1,9 +1,9 @@
 import { AutoMap } from '@automapper/classes';
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { CreateGigReviewDto } from './create-gigreview.dto';
+import { CreateGigRatingDto } from './create-gigreview.dto';
 
-export class UpdateGigReviewDto extends PartialType(CreateGigReviewDto) {
+export class UpdateGigRatingDto extends PartialType(CreateGigRatingDto) {
   @AutoMap()
   @ApiPropertyOptional({
     description: "Freelancer's reply to the review",

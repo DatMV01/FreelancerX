@@ -208,6 +208,8 @@ export class StripeService {
       status: OrderStatus.PENDING,
     });
 
+    await this.orderRepo.increment({ id: orderId }, 'orderCount', 1);
+
     await this.orderLogRepo.save({
       orderId,
       actorId: buyerId,

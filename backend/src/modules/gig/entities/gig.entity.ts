@@ -6,7 +6,6 @@ import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
 
-import { GigReviewEntity } from 'src/modules/gigreview/entities/gigreview.entity';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   AfterLoad,
@@ -33,6 +32,9 @@ import {
 import { GigStatus } from '../enum/gig.status';
 import { GigPackagesEntity, GigPackageType } from './gig_packages.entity';
 import { UserFavoriteGigEntity } from 'src/modules/gig/entities/user_favorite_gigs.entity';
+import { FileEntity } from 'src/modules/files/entities/file.entity';
+import { ppid } from 'process';
+import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
 
 @Entity('gig_tags')
 export class GigTagEntity {
@@ -193,8 +195,13 @@ export class GigEntity extends BaseEntity {
   /* Description & FAQ */
 
   /* Gallery */
-  @AutoMap(() => GigFileInfo)
-  thumbnail: GigFileInfo | null;
+  @AutoMap(() => FileEntity)
+  @Column({ type: 'json', nullable: false })
+  thumbnail: FileEntity;
+
+  @AutoMap(() => [FileEntity])
+  @Column({ type: 'json', nullable: false })
+  medias: FileEntity[];
 
   @AutoMap(() => GigImages)
   @Column({ type: 'json', nullable: true })
@@ -214,8 +221,8 @@ export class GigEntity extends BaseEntity {
   status: GigStatus;
 
   /* REVIEWS */
-  @OneToMany(() => GigReviewEntity, (review) => review.gig)
-  reviews: GigReviewEntity[];
+  @OneToMany(() => GigRatingEntity, (_) => _.gig)
+  reviews: GigRatingEntity[];
 
   @AutoMap()
   @Column({
@@ -241,7 +248,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
-  completeOrderCount: number;
+  orderCompleteCount: number;
 
   @AutoMap()
   @Column({ type: 'int', default: 0 })
@@ -290,9 +297,13 @@ export class GigEntity extends BaseEntity {
         this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)
           ?.price ?? 0;
     }
-
-    this.thumbnail =
-      this.images?.image1 || this.images?.image2 || this.images?.image3 || null;
+    if (!this.thumbnail) {
+      this.thumbnail =
+        this.images?.image1 ||
+        this.images?.image2 ||
+        this.images?.image3 ||
+        (null as any);
+    }
   }
 
   updateAllCategory() {

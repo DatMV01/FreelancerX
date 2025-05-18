@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class CreateGigReviewDto {
+export class CreateGigRatingDto {
   @AutoMap()
   @IsOptional()
   @IsUUID()

@@ -91,6 +91,12 @@ export const fetchGigsV2 = async (queryStr: string) => {
   return axiosInstanceV2.get(`${BASE}?${queryStr}`);
 };
 
+export const findUserGigs = async (queryStr: string) => {
+  debugger;
+  return axiosInstanceV1.get(`${BASE}/me?${queryStr}`);
+};
+
+
 export const fetchFavoritesGigs = async () => {
   const { data } = await axiosInstanceV1.get(gigUrl.favorites);
   return data;

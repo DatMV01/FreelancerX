@@ -17,6 +17,7 @@ import {
   Req,
   SerializeOptions,
   UseGuards,
+  Version,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -134,6 +135,45 @@ export class GigController extends BaseController<
     );
   }
 
+  @Get('/me')
+  @Version('1')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiQuery({
+    name: 'rawQuery',
+    description:
+      'Raw query string: page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    example: 'page=1&pageSize=50&sorts=createdAt:DESC,updatedAt:DESC',
+    required: false,
+    type: String,
+    allowReserved: false,
+    style: 'form',
+    explode: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of entities with pagination metadata',
+    type: PageDto<any>,
+  })
+  async findUserGigs(@Req() req: Request, @CurrentUser() currentUser: any) {
+    const rawQueryString = req.url.split('?')[1] ?? '';
+    const queryString = rawQueryString.replace(`rawQuery=`, '');
+
+    const queryObj = buildObjectFromQuery(queryString) as any;
+
+    const [results, count] = await this._service.findUserGigs(
+      queryObj,
+      currentUser,
+    );
+
+    return new PageDto<any>(
+      results,
+      new PageMetaDto({
+        itemCount: count,
+        pageOptionsDto: queryObj,
+      }),
+    );
+  }
+
   @Get('/search/tag')
   @UseGuards(JwtOptionalAuthGuard)
   @ApiQuery({
@@ -152,13 +192,13 @@ export class GigController extends BaseController<
     description: 'List of entities with pagination metadata',
     type: PageDto<any>,
   })
-  async searchTags(@Req() req: Request, @CurrentUser() currentUser: any) {
+  async findAllByTag(@Req() req: Request, @CurrentUser() currentUser: any) {
     const rawQueryString = req.url.split('?')[1] ?? '';
     const queryString = rawQueryString.replace(`rawQuery=`, '');
 
     const queryObj = buildObjectFromQuery(queryString) as any;
 
-    const [results, count] = await this._service.searchTags(
+    const [results, count] = await this._service.findAllByTag(
       queryObj,
       currentUser,
     );
@@ -173,12 +213,15 @@ export class GigController extends BaseController<
   }
 
   @Post('search-tags/increase')
-  increaseSearchCount(@Body('keyword') keyword: string) {
-    return this._service.increaseSearchCount(keyword);
+  async increaseSearchTagCount(@Body('keyword') keyword: string) {
+    return this._service.increaseSearchTagCount(keyword);
   }
 
   @Get('/slug/:slug')
-  async findOneBySlug(@Param('slug') slug: string) {
+  async findOneBySlug(
+    @Param('slug') slug: string,
+    currentUser?: JwtAccessPayloadType,
+  ) {
     const entity = await this._service.findOneBySlug({
       where: { slug },
       // relations: ['freelancer', 'freelancer.user'],
@@ -216,7 +259,7 @@ export class GigController extends BaseController<
 
   @Get('/favorites')
   @UseGuards(AuthGuard('jwt'))
-  async getFovoriteGigs(@CurrentUser() currentUser: JwtAccessPayloadType) {
+  async findFavoriteGigs(@CurrentUser() currentUser: JwtAccessPayloadType) {
     const [results, count] = await this._service.findFovoriteGigs(currentUser);
 
     return results;

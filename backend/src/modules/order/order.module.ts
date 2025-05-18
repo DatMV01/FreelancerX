@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { StripeModule } from 'src/stripe/stripe.module';
-import { StripeService } from 'src/stripe/stripe.service';
+import { StripeModule } from 'src/modules/stripe/stripe.module';
+import { StripeService } from 'src/modules/stripe/stripe.service';
 import { FreelancerEntity } from '../freelancer/entities/freelancer.entity';
 import { GigEntity } from '../gig/entities/gig.entity';
 import { OrderTransactionEntity } from './entities/order_transactions.entity';

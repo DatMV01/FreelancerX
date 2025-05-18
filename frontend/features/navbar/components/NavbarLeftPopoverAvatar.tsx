@@ -44,7 +44,7 @@ const NavbarLeftPopoverAvatar = () => {
 
             {isAdmin && (
               <Link
-                href={route.admin.users}
+                href={route.admin.orders}
                 className="flex p-4 hover:bg-green-50 hover:text-green-500"
               >
                 Admin Dashboard
@@ -148,7 +148,7 @@ const NavbarLeftPopoverAvatar = () => {
 
           <DropdownMenuSeparator />
 
-          {!isAdmin && (
+          {/* {!isAdmin && (
             <Link
               href={route.public.help}
               target="_blank"
@@ -156,7 +156,7 @@ const NavbarLeftPopoverAvatar = () => {
             >
               Help & Support
             </Link>
-          )}
+          )} */}
 
           <LogoutButton
             className="flex w-full items-center p-4 last:border-none hover:bg-green-50 hover:text-green-500"

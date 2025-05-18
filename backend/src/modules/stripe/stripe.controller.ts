@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { StripeService } from './stripe.service';
-import { CreatePayoutDto } from './payout.dto';
+import { CreatePayoutDto } from './dto/payout.dto';
 
 @Controller('stripe')
 export class StripeController {

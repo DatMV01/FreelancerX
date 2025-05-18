@@ -6,6 +6,7 @@ import { FreelancerDto } from 'src/modules/freelancer/dto/freelancer.dto';
 import { GigTagEntity } from '../entities/gig.entity';
 import { GigPackagesEntity } from '../entities/gig_packages.entity';
 import { GigStatus } from '../enum/gig.status';
+import { FileEntity } from 'src/modules/files/entities/file.entity';
 
 export class PricingPackage {
   @AutoMap()
@@ -139,9 +140,11 @@ export class GigDto extends BaseDto<GigDto> {
   /* Description & FAQ */
 
   /* Gallery */
+  @AutoMap(() => FileEntity)
+  thumbnail: FileEntity;
 
-  @AutoMap(() => GigFileInfo)
-  thumbnail: GigFileInfo | null;
+  @AutoMap(() => [FileEntity])
+  medias: FileEntity[];
 
   @AutoMap(() => GigImages)
   images: GigImages;
@@ -180,7 +183,7 @@ export class GigDto extends BaseDto<GigDto> {
   favoriteCount: number;
 
   @AutoMap()
-  completeOrderCount: number;
+  orderCompleteCount: number;
 
   @AutoMap()
   orderCount: number;

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -80,3 +81,11 @@ export function parsePriceRange(range?: string) {
 
 // const { query } = useRouter();
 // const { priceMin, priceMax } = parsePriceRange(query.priceRange as string);
+
+export const passwordSchema = z
+  .string()
+  .min(6, { message: "Password must be at least 6 characters long" })
+  .regex(/\d/, { message: "Password must include at least one number" })
+  .regex(/[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\;/]/, {
+    message: "Password must include at least one special character",
+  });

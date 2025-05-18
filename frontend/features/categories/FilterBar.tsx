@@ -103,7 +103,7 @@ export function FilterBar() {
               onValueChange={(val) => setParam("level", val)}
             >
               <SelectTrigger className="w-30">
-                <SelectValue placeholder="Freelancer Level" />
+                <SelectValue placeholder=" Level" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="NEW">New</SelectItem>
@@ -114,7 +114,7 @@ export function FilterBar() {
             </Select>
 
             {/* Language */}
-            <Select
+            {/* <Select
               value={params.language || ""}
               onValueChange={(val) => setParam("language", val)}
             >
@@ -126,10 +126,10 @@ export function FilterBar() {
                 <SelectItem value="Vietnamese">Vietnamese</SelectItem>
                 <SelectItem value="Japanese">Japanese</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
 
             {/* Country */}
-            <Select
+            {/* <Select
               value={params.country || ""}
               onValueChange={(val) => setParam("country", val)}
             >
@@ -141,7 +141,7 @@ export function FilterBar() {
                 <SelectItem value="USA">USA</SelectItem>
                 <SelectItem value="India">India</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
 
           {/* Clear Button + Apply Button */}

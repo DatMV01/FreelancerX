@@ -1,5 +1,5 @@
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
-import UpdatePasswordForm from "@/features/auth/components/UpdatePasswordForm";
+import ChangePasswordForm from "@/features/auth/components/ChangePasswordForm";
 import {
   DashboardMainContent,
   DashboardMainContentHeader,
@@ -13,7 +13,7 @@ function DashboardSettings() {
         <p>Settings</p>
       </DashboardMainContentHeader>
       
-      <UpdatePasswordForm />
+      <ChangePasswordForm />
     </DashboardMainContent>
   );
 }

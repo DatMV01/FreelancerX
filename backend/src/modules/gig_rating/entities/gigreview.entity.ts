@@ -13,31 +13,32 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity('user_review_gigs')
-export class GigReviewEntity extends BaseEntity {
+@Entity('user_rating_gigs')
+export class GigRatingEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   @AutoMap()
   id: string;
 
   /* GIG */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'gig_id', nullable: true })
+  @Column({ type: 'char', length: 36, name: 'gig_id' })
   gigId: string;
 
   @AutoMap(() => GigEntity)
-  @ManyToOne(() => GigEntity, (gig) => gig.reviews, { cascade: true })
+  @ManyToOne(() => GigEntity, (gig) => gig.reviews, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'gig_id' })
   gig: GigEntity;
 
   /* REVIEWER */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'reviewer_id', nullable: true })
+  @Column({ type: 'char', length: 36, name: 'reviewer_id' })
   reviewerId: string;
 
   @AutoMap()
-  @ManyToOne(() => UserEntity, (user) => user.reviews, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => UserEntity, (user) => user.reviews, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'reviewer_id' })
   reviewer: UserEntity;
 
@@ -52,10 +53,11 @@ export class GigReviewEntity extends BaseEntity {
   })
   orderId: string;
 
-  @OneToOne(() => OrderEntity, (order) => order.review)
+  @OneToOne(() => OrderEntity, (order) => order.rating)
   @JoinColumn({ name: 'order_id' })
   order: OrderEntity;
 
+  /* RATING */
   @AutoMap()
   @Column({ type: 'int' })
   rating: number;
@@ -67,11 +69,11 @@ export class GigReviewEntity extends BaseEntity {
 
   /* FREELANCER */
   @AutoMap()
-  @Column({ type: 'char', length: 36, name: 'freelancer_id', nullable: true })
+  @Column({ type: 'char', length: 36, name: 'freelancer_id' })
   freelancerId: string;
 
   @AutoMap()
-  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.reviews, {
+  @ManyToOne(() => FreelancerEntity, (freelancer) => freelancer.ratings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'freelancer_id' })
@@ -84,5 +86,5 @@ export class GigReviewEntity extends BaseEntity {
 
   @AutoMap(() => Date)
   @Column({ type: 'datetime', precision: 6, nullable: true, default: null })
-  repliedAt: Date;
+  replydAt: Date;
 }
