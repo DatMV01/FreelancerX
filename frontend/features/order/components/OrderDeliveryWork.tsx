@@ -20,14 +20,16 @@ interface DeliveryWorkCardProps {
 
 const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
   return (
-    <p className="flex w-full flex-wrap items-center gap-x-1 text-sm">
-      <span className="w-22 max-w-22">{k}</span>
-      <span>:</span>
-      {typeof v === "string" ? (
-        <span className="text-muted-foreground">{v}</span>
-      ) : (
-        v
-      )}
+    <p className="grid grid-cols-12 gap-2 text-sm">
+      <span className="col-span-3 break-words">{k}</span>
+
+      <p className="col-span-9">
+        {typeof v === "string" ? (
+          <span className="text-muted-foreground">{v}</span>
+        ) : (
+          v
+        )}
+      </p>
     </p>
   );
 };

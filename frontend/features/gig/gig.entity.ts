@@ -3,7 +3,9 @@ import { UserEntity } from "../user/user.entity";
 
 export interface GigTagEntity {
   id: string;
-  name: string;
+  keyword: string;
+  searchCount?: number;
+  createdAt?: Date;
 }
 
 export interface GigEntity extends BaseEntity {
@@ -33,7 +35,7 @@ export interface GigEntity extends BaseEntity {
   premiumPrice: number;
   packages: any[];
   pricingPackage: any[];
-
+  medias: any[];
   /** Description & FAQ */
   description: string;
   faqs: any[];

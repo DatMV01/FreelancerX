@@ -20,7 +20,7 @@ const MAX_SIZE_MB: Record<FileType, number> = {
   image: 5,
   video: 50,
   pdf: 10,
-  zip: 100,
+  zip: 30,
 };
 
 const ACCEPT_MIME: Record<FileType, string[]> = {

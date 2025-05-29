@@ -9,7 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Loader2, Paperclip } from "lucide-react";
+import { FileUploader } from "@/features/files/components/FileUploader";
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 
 const OrderDeliverWorkDialog = React.memo(
   ({
@@ -54,18 +56,37 @@ const OrderDeliverWorkDialog = React.memo(
 
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
+        <DialogContent className="w-full">
           <DialogHeader>
             <DialogTitle>Deliver Work</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <Textarea
+          <div className="w-full space-y-4 overflow-x-hidden">
+            {/* <Textarea
               placeholder="Add a message to the buyer..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+            /> */}
+            {/* <Input type="file" accept=".zip" onChange={handleFileChange} /> */}
+
+            <CharCountTextareaBasic
+              placeholder="Add a message to the buyer..."
+              value={message}
+              className="h-45"
+              onChange={(val) => setMessage(val)}
             />
-            <Input type="file" accept=".zip" onChange={handleFileChange} />
+            <label className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 text-sm">
+              <Paperclip className="h-4 w-4" />
+              Attach your .zip file (optional)
+            </label>
+            <FileUploader
+              accept={["zip"]}
+              className="h-45 w-full"
+              onChange={(file) => {
+                // setError("");
+                setFile(file);
+              }}
+            />
             {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
 

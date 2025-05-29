@@ -373,123 +373,127 @@ function GigsManageTable({
               />
 
               <TableBody>
-                {sortedGigs.map((_, index) => (
-                  <React.Fragment key={_.id}>
-                    <TableRow
-                      className={clsx(
-                        "w-fit",
-                        (deletingRows.includes(_.id) ||
-                          processingId === _.id) &&
-                          "pointer-events-none opacity-50",
-                      )}
-                    >
-                      <TableCell>{(page - 1) * pageSize + index + 1}</TableCell>
+                {sortedGigs.map((_, index) => {
+                  const completePercent = (
+                    (_.orderCompleteCount /
+                      (_.orderCount != 0 ? _.orderCount : 1)) *
+                    100
+                  ).toFixed(2);
 
-                      <TableCell className="max-w-[400px] truncate">
-                        {_.title}
-                      </TableCell>
+                  return (
+                    <React.Fragment key={_.id}>
+                      <TableRow
+                        className={clsx(
+                          "w-fit",
+                          (deletingRows.includes(_.id) ||
+                            processingId === _.id) &&
+                            "pointer-events-none opacity-50",
+                        )}
+                      >
+                        <TableCell>
+                          {(page - 1) * pageSize + index + 1}
+                        </TableCell>
 
-                      {actorType === ActorType.ADMIN && (
-                        <TableCell>{_.freelancer.email}</TableCell>
-                      )}
+                        <TableCell className="max-w-[400px] truncate">
+                          {_.title}
+                        </TableCell>
 
-                      <TableCell>
-                        {_.basicPrice} - {_.standardPrice} - {_.premiumPrice}
-                      </TableCell>
+                        {actorType === ActorType.ADMIN && (
+                          <TableCell>{_.freelancer.email}</TableCell>
+                        )}
 
-                      <TableCell>
-                        <GigStatusBadge status={_.status} />
-                      </TableCell>
+                        <TableCell>
+                          {_.basicPrice} - {_.standardPrice} - {_.premiumPrice}
+                        </TableCell>
 
-                      <TableCell>{_.ratingAverage}</TableCell>
+                        <TableCell>
+                          <GigStatusBadge status={_.status} />
+                        </TableCell>
 
-                      <TableCell>{_.viewCount}</TableCell>
+                        <TableCell>{_.ratingAverage}</TableCell>
 
-                      <TableCell>
-                        <span> {_.orderCompleteCount} </span>
-                        <span>
-                          (
-                          {(_.orderCompleteCount /
-                            (_.orderCount != 0 ? _.orderCount : 1)) *
-                            100}
-                          %)
-                        </span>
-                      </TableCell>
+                        <TableCell>{_.viewCount}</TableCell>
 
-                      <TableCell>{_.favoriteCount}</TableCell>
-                    </TableRow>
+                        <TableCell>
+                          <span> {_.orderCompleteCount} </span>
+                          <span>({completePercent} %)</span>
+                        </TableCell>
 
-                    {/* Action */}
-                    <TableRow
-                      className={clsx(
-                        "w-fit",
-                        (deletingRows.includes(_.id) ||
-                          processingId === _.id) &&
-                          "pointer-events-none opacity-50",
-                      )}
-                    >
-                      <TableCell colSpan={11} className="bg-gray-50">
-                        <div className="flex pl-10">
-                          {actorType == ActorType.FREELANCER && (
-                            <GigStatusButtonsFreelancer
-                              status={_.status}
-                              onViewDetails={() => {
-                                window.open(`/gig/${_.slug} `, "_blank");
-                              }}
-                              onActive={() => {
-                                setSelectedId(_.id);
-                                setShowActiveDialog(true);
-                              }}
-                              onEdit={() => {
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
-                              }}
-                              onPause={() => {
-                                setSelectedId(_.id);
-                                setShowPausePauseGigDialog(true);
-                              }}
-                              onDelete={() => {
-                                setSelectedId(_.id);
-                                setShowDeleteDialog(true);
-                              }}
-                            />
-                          )}
+                        <TableCell>{_.favoriteCount}</TableCell>
+                      </TableRow>
 
-                          {actorType == ActorType.ADMIN && (
-                            <GigStatusButtonsAdmin
-                              status={_.status}
-                              onViewDetails={() => {
-                                window.open(`/gig/${_.slug} `, "_blank");
-                              }}
-                              onActive={() => {
-                                setSelectedId(_.id);
-                                setShowActiveDialog(true);
-                              }}
-                              onEdit={() => {
-                                router.push(
-                                  `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
-                                );
-                              }}
-                              onPause={() => {
-                                setSelectedId(_.id);
-                                setShowPausePauseGigDialog(true);
-                              }}
-                              onDelete={() => {
-                                setSelectedId(_.id);
-                                setShowDeleteDialog(true);
-                              }}
-                              onReject={() => {
-                                setSelectedId(_.id);
-                                setShowRejectDialog(true);
-                              }}
-                            />
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                ))}
+                      {/* Action */}
+                      <TableRow
+                        className={clsx(
+                          "w-fit",
+                          (deletingRows.includes(_.id) ||
+                            processingId === _.id) &&
+                            "pointer-events-none opacity-50",
+                        )}
+                      >
+                        <TableCell colSpan={11} className="bg-gray-50">
+                          <div className="flex pl-10">
+                            {actorType == ActorType.FREELANCER && (
+                              <GigStatusButtonsFreelancer
+                                status={_.status}
+                                onViewDetails={() => {
+                                  window.open(`/gig/${_.slug} `, "_blank");
+                                }}
+                                onActive={() => {
+                                  setSelectedId(_.id);
+                                  setShowActiveDialog(true);
+                                }}
+                                onEdit={() => {
+                                  router.push(
+                                    `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
+                                  );
+                                }}
+                                onPause={() => {
+                                  setSelectedId(_.id);
+                                  setShowPausePauseGigDialog(true);
+                                }}
+                                onDelete={() => {
+                                  setSelectedId(_.id);
+                                  setShowDeleteDialog(true);
+                                }}
+                              />
+                            )}
+
+                            {actorType == ActorType.ADMIN && (
+                              <GigStatusButtonsAdmin
+                                status={_.status}
+                                onViewDetails={() => {
+                                  window.open(`/gig/${_.slug} `, "_blank");
+                                }}
+                                onActive={() => {
+                                  setSelectedId(_.id);
+                                  setShowActiveDialog(true);
+                                }}
+                                onEdit={() => {
+                                  router.push(
+                                    `/dashboard/freelancer/gigs/edit/?id=${_.id}`,
+                                  );
+                                }}
+                                onPause={() => {
+                                  setSelectedId(_.id);
+                                  setShowPausePauseGigDialog(true);
+                                }}
+                                onDelete={() => {
+                                  setSelectedId(_.id);
+                                  setShowDeleteDialog(true);
+                                }}
+                                onReject={() => {
+                                  setSelectedId(_.id);
+                                  setShowRejectDialog(true);
+                                }}
+                              />
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  );
+                })}
               </TableBody>
             </Table>
 

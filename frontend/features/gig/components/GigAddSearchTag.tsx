@@ -1,21 +1,23 @@
 import { createNewTag, searchGigByTag } from "@/features/gig/gig.api";
 import { useFetchByQuery } from "@/hooks/useFetch";
-import { buildUrlQuery } from "@/hooks/useQuerySync";
 import { buildQueryFromObject, QueryInput } from "@/lib/fitlers/query-utils";
 import clsx from "clsx";
-import { CircleX, Loader2 } from "lucide-react";
+import { CircleX, Loader2, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react"; // Thêm useRef vào import
 import { toast } from "sonner";
 import { GigTagEntity } from "../gig.types";
+import { Button } from "@/components/ui/button";
 
 const GigAddSearchTag = ({
   onSetGigTagCb,
   className,
+  showCreateTagBtn = true,
 }: {
   onSetGigTagCb?: any;
   className?: any;
+  showCreateTagBtn?: boolean;
 }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -34,7 +36,7 @@ const GigAddSearchTag = ({
   const latestKeywordRef = useRef("");
 
   const queryString = buildQueryFromObject(queryObj);
-  const key = `${pathname}?${buildUrlQuery(queryObj)}`;
+  const key = `${pathname}?${buildQueryFromObject(queryObj)}`;
 
   const {
     data: response,
@@ -131,7 +133,8 @@ const GigAddSearchTag = ({
     !(
       searchResults.length === 1 &&
       searchResults[0].keyword.toLowerCase() === inputValue.toLowerCase()
-    );
+    ) &&
+    showCreateTagBtn;
 
   return (
     <div ref={searchInputRef} className="relative w-full">
@@ -152,7 +155,7 @@ const GigAddSearchTag = ({
 
         {inputValue !== "" && (
           <button
-            className="absolute top-1/2 right-4 flex -translate-y-1/2 items-center justify-center"
+            className="absolute top-1/2 right-12 flex -translate-y-1/2 items-center justify-center"
             onClick={(e) => {
               e.preventDefault();
               setInputValue("");
@@ -166,7 +169,17 @@ const GigAddSearchTag = ({
             />
           </button>
         )}
+
+        <button
+          className="absolute top-1/2 right-2 flex h-[30px] w-[30px] -translate-y-1/2 cursor-default items-center justify-center rounded-sm bg-green-900"
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <Search size={16} color="white" strokeWidth={1} />
+        </button>
       </div>
+
       {inputValue !== "" && (
         <ul className="absolute z-51 mt-1 max-h-110 w-full space-y-1 overflow-hidden overflow-y-auto rounded-sm border-2 border-gray-200 bg-white p-2">
           {isLoading && (

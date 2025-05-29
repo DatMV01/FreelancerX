@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Rating } from "@mui/material";
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 
 interface ReviewProps {
   review: {
@@ -73,7 +74,7 @@ export default function OrderReview({
           </div>
         ) : isFreelancer ? (
           <div className="mt-3 space-y-2">
-            <Textarea
+            {/* <Textarea
               placeholder="Type response..."
               value={replyText}
               onChange={(e) => {
@@ -82,6 +83,7 @@ export default function OrderReview({
               }}
               className="min-h-[80px] !ring-0"
             />
+
             <div className="text-muted-foreground flex items-center justify-between text-xs">
               <span>
                 {replyText.length}/{MAX_LENGTH} characters
@@ -91,8 +93,13 @@ export default function OrderReview({
                   Exceeded 500 character limit
                 </span>
               )}
-            </div>
-
+            </div> */}
+            <CharCountTextareaBasic
+              placeholder="Type response..."
+              value={replyText}
+              className="h-45"
+              onChange={(val) => setReplyText(val)}
+            />
             <Button
               onClick={handleSubmit}
               variant="outline"

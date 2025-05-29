@@ -10,6 +10,8 @@ import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import Link from "next/link";
 import NavbarLeftPopover from "./NavbarLeftPopover";
+import GigAddSearchTag from "@/features/gig/components/GigAddSearchTag";
+import { GigTagEntity } from "@/features/gig/gig.entity";
 
 const NavbarMain = () => {
   const user = useAppSelector(selectUser);
@@ -45,6 +47,12 @@ const NavbarMain = () => {
 
         <div className="mx-4 flex-1">
           <NavbarSearchBar />
+          {/* <GigAddSearchTag
+            showCreateTagBtn={false}
+            onSetGigTagCb={async (gigTag: GigTagEntity) => {
+              console.log(gigTag);
+            }}
+          /> */}
         </div>
 
         <div className="flex items-center space-x-4">

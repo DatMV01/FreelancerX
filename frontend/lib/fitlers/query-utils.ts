@@ -162,6 +162,9 @@ console.log(query);
 
 console.log(buildObjectFromQuery(query));
 
+const decoded = decodeURIComponent(query);
+//console.log(decoded);
+
 const filters = {
   createdAt: "<_2023-01-01", // LessThan (date)
   price: "between_100_500", // Between (number)

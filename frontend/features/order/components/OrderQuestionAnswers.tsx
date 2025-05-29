@@ -1,3 +1,4 @@
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 import {
   Accordion,
   AccordionContent,
@@ -7,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FileUploader } from "@/features/files/components/FileUploader";
 import { FileDown, Paperclip, Send } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
@@ -233,7 +235,7 @@ export const OrderQuestionAnswers = ({
         </div>
       )}
 
-      <div className="h-full overflow-y-auto overflow-x-hidden pr-2 ">
+      <div className="h-full overflow-x-hidden overflow-y-auto pr-2">
         <Accordion
           type="multiple"
           defaultValue={defaultOpenItems}
@@ -256,14 +258,21 @@ export const OrderQuestionAnswers = ({
                     <div className="space-y-2">
                       {!submitted[item.id] && (
                         <>
-                          <Textarea
+                          {/* <Textarea
                             placeholder="Write your answer..."
                             value={answers[item.id] || ""}
                             onChange={(e) =>
                               handleAnswerChange(item.id, e.target.value)
                             }
+                          /> */}
+
+                          <CharCountTextareaBasic
+                            placeholder="Write your answer..."
+                            value={answers[item.id] || ""}
+                            onChange={(val) => handleAnswerChange(item.id, val)}
                           />
-                          <div className="flex items-center gap-2">
+
+                          {/* <div className="flex items-center gap-2">
                             <label
                               htmlFor={`file-${item.id}`}
                               className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 text-sm"
@@ -300,7 +309,26 @@ export const OrderQuestionAnswers = ({
                                 {errorAnswerMsg[item.id]}
                               </p>
                             )}
+                          </div> */}
+
+                          <div>
+                            <label
+                              htmlFor={`file-${item.id}`}
+                              className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1 text-sm"
+                            >
+                              <Paperclip className="h-4 w-4" />
+                              Attach your .zip file (optional)
+                            </label>
+
+                            <FileUploader
+                              accept={["zip"]}
+                              className="h-[200px]"
+                              onChange={(file) => {
+                                handleAnswerFileChange(item.id, file || null);
+                              }}
+                            />
                           </div>
+
                           <Button
                             size="sm"
                             variant="outline"

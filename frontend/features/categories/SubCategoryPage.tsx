@@ -25,6 +25,8 @@ import { PageMetaDto } from "@/dto/base/pagination";
 import useSWR from "swr";
 import { fetchGigs } from "../gig/gig.api";
 import CircularProgressCenter from "@/components/CircularProgressCenter";
+import ResultAndSortSection from "./ResultAndSortSection";
+import PaginationSection from "./PaginationSection";
 
 const DescriptionSection = ({ category }: any) => {
   if (!category) return null;
@@ -64,60 +66,7 @@ const RecommendSection = ({
   );
 };
 
-const ResultAndSortSection = () => {
-  const { params, setParam, resetParams, countActiveParams } =
-    useFilterParams();
-
-  return (
-    <div className="flex justify-end">
-      <div className="flex items-center">
-        <p className="mr-2">Sort by:</p>
-        <Select
-          value={params.sortBy || "latest"}
-          onValueChange={(val) => setParam("sortBy", val)}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Sort By" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="latest">Newest</SelectItem>
-            <SelectItem value="price_asc">Price: Low to High</SelectItem>
-            <SelectItem value="price_desc">Price: High to Low</SelectItem>
-            {/* <SelectItem value="popular">Most Popular</SelectItem>
-            <SelectItem value="rating">Top Rated</SelectItem> */}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
-};
-
-const PaginationSection = ({
-  pageMetaData,
-}: {
-  pageMetaData?: Partial<PageMetaDto>;
-}) => {
-  const { params, setParam } = useFilterParams();
-
-  const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setParam("limit", 50);
-    setParam("page", value);
-  };
-
-  const page = Number(pageMetaData?.page ?? params.page ?? 1);
-  const count = Number(pageMetaData?.pageCount ?? 100);
-
-  return (
-    <Pagination
-      className="my-8 flex justify-center"
-      boundaryCount={3}
-      count={count}
-      page={page}
-      onChange={handleChange}
-    />
-  );
-};
-
+ 
 const useFetchGigsByCategory = ({
   page = 1,
   limit = 10,

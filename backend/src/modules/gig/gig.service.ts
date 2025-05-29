@@ -64,6 +64,9 @@ export class GigService extends BaseService<GigEntity> {
     if (exists) return;
 
     const fav = this.userFavoriteGigRepo.create({ userId, gigId });
+
+    await this._repository.increment({ id: gigId }, 'favoriteCount', 1);
+
     await this.userFavoriteGigRepo.save(fav);
 
     return true;
@@ -76,6 +79,7 @@ export class GigService extends BaseService<GigEntity> {
     await this.dataSource
       .getRepository(UserFavoriteGigEntity)
       .delete({ userId, gigId });
+    await this._repository.decrement({ id: gigId }, 'favoriteCount', 1);
 
     return true;
   }

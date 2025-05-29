@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import useSWR from "swr";
 import { getOrderReviewById } from "../order.api";
 import { OrderEntity } from "../order.entity";
@@ -13,7 +13,23 @@ import { replyOrderComment } from "@/features/reviews/reviews.api";
 import { toast } from "sonner";
 import CircularProgressCenter from "@/components/CircularProgressCenter";
 
-const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
+export const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
+  return (
+    <p className="grid grid-cols-12 gap-2 text-sm">
+      <span className="col-span-3 break-words">{k}</span>
+
+      <p className="col-span-9">
+        {typeof v === "string" ? (
+          <span className="text-muted-foreground">{v}</span>
+        ) : (
+          v
+        )}
+      </p>
+    </p>
+  );
+};
+
+const RenderKeyValue2 = ({ k, v }: { k: string; v: any }) => {
   return (
     <p className="flex w-full flex-wrap items-center gap-x-1 text-sm">
       <span className="w-22 max-w-22">{k}</span>
@@ -26,6 +42,7 @@ const RenderKeyValue = ({ k, v }: { k: string; v: any }) => {
     </p>
   );
 };
+
 const OrderOverView = ({
   order,
   actorType,
@@ -61,7 +78,7 @@ const OrderOverView = ({
       </div>
     );
   }
-  
+
   if (isLoading || isValidating) {
     return (
       <div className="flex h-full flex-col gap-y-2 border-r">
@@ -72,11 +89,11 @@ const OrderOverView = ({
   }
 
   return (
-    <div className="flex h-full flex-col gap-y-2 border-r p-2">
+    <div className="flex h-full flex-col  gap-y-2 border-r p-2">
       <p className="text-center text-lg font-semibold">Overview</p>
 
-      <div className="flex h-full flex-col gap-y-2 overflow-y-auto">
-        <div className="flex flex-col">
+      <div className="flex h-full flex-col gap-y-2 overflow-x-hidden pr-2 overflow-y-auto">
+        <div className="flex flex-col gap-y-2">
           <RenderKeyValue
             k="Order No"
             v={
@@ -104,10 +121,22 @@ const OrderOverView = ({
           />
 
           <RenderKeyValue
-            k="Deadline"
+            k="End At"
             v={
               order.endDate
-                ? format(new Date(order.endDate), "dd/MM/yyyy")
+                ? format(new Date(order.startDate), "dd/MM/yyyy")
+                : "N/A"
+            }
+          />
+
+          <RenderKeyValue
+            k="Deadline"
+            v={
+              order.startDate
+                ? format(
+                    addDays(new Date(order.startDate), order.deliveryTime),
+                    "dd/MM/yyyy",
+                  )
                 : "N/A"
             }
           />
@@ -115,11 +144,13 @@ const OrderOverView = ({
 
         {/* Freelancer info */}
         <Separator />
-        <div className="flex flex-wrap items-center justify-between">
-          <div className="flex flex-col">
+        <div className="grid grid-cols-1 xl:grid-cols-2">
+          <div className="flex flex-col gap-y-2">
             <p className="font-bold">Buyer</p>
 
-            <RenderKeyValue k="Full Name" v={order.snapshot.buyer.fullName} />
+            {/* <RenderKeyValue k="Full Name" v={order.snapshot.buyer.fullName} /> */}
+
+            <RenderKeyValue k="Name" v={order.snapshot.buyer.fullName} />
 
             <RenderKeyValue
               k="Email"
@@ -131,13 +162,25 @@ const OrderOverView = ({
             />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-y-2">
             <p className="font-bold">Freelancer</p>
 
-            <RenderKeyValue
+            {/* <RenderKeyValue
               k="Display Name"
               v={order.snapshot.freelancer.displayName}
+            /> */}
+
+            <RenderKeyValue
+              k="Name"
+              v={order.snapshot.freelancer.displayName}
             />
+
+            {/* <div className="flex border text-sm">
+              <p className="w-5/12">Display Name</p>
+              <p className="text-muted-foreground">
+                {order.snapshot.freelancer.displayName}
+              </p>
+            </div> */}
 
             <RenderKeyValue
               k="Email"
@@ -152,7 +195,7 @@ const OrderOverView = ({
 
         {/* Order content */}
         <Separator />
-        <div>
+        <div className="flex flex-col gap-y-2">
           <p className="font-bold">Order Detail</p>
 
           <RenderKeyValue k="Total Price" v={order.totalAmount.toString()} />
@@ -175,10 +218,7 @@ const OrderOverView = ({
             v={order.snapshot.package.description.toString()}
           />
 
-          <RenderKeyValue
-            k=" Delivery Days"
-            v={order.deliveryTime.toString()}
-          />
+          <RenderKeyValue k="Delivery Days" v={order.deliveryTime.toString()} />
 
           <RenderKeyValue
             k="Revisions"

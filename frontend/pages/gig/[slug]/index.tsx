@@ -20,12 +20,7 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
 import { useAppSelector } from "@/lib/redux/hooks";
 import { CircularProgress, Tab, Tabs } from "@mui/material";
-import {
-  CheckCircle,
-  Clock,
-  Loader2,
-  RefreshCw
-} from "lucide-react";
+import { CheckCircle, Clock, Loader2, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -50,7 +45,7 @@ const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
 const PackageSideBar = ({
   gigId,
   gigPackage,
-  freelancerId,
+  gig,
   packageTitle,
   packageName,
   packagePrice,
@@ -62,7 +57,7 @@ const PackageSideBar = ({
 }: {
   gigId: string;
   gigPackage: GigPackage;
-  freelancerId: any;
+  gig: GigDto;
   packageTitle: string;
   packageName: string;
   packagePrice: string;
@@ -72,15 +67,14 @@ const PackageSideBar = ({
   packageIncluded: string[];
   continueCb?: any;
 }) => {
- 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const { mode } = router.query;
   const user = useAppSelector(selectUser);
 
-  const isGigOwner = freelancerId === user?.freelancer?.id;
- 
+  const isGigOwner = gig.freelancerId === user?.freelancer?.id;
+
   const handleScroll = () => {
     document
       .getElementById("compare-packages")
@@ -128,7 +122,7 @@ const PackageSideBar = ({
         <p className="text-xl font-semibold">{packageName}</p>
         <p className="text-2xl font-bold">${packagePrice}</p>
       </div>
-
+      {gig.status}
       <div className="flex items-center text-base text-gray-600">
         {packageDescription}
       </div>
@@ -162,18 +156,20 @@ const PackageSideBar = ({
       >
         Compare packages
       </button>
-
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          handlePlaceAnOrder();
-        }}
-        className="flex h-8 items-center justify-center space-x-2 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={loading || isGigOwner}
-      >
-        {loading && <Loader2 className="animate-spin" size={18} />}
-        <span> {loading ? "Processing..." : "Place an order"}</span>
-      </button>
+      
+      {gig.status.toUpperCase() === "ACTIVE" && !isGigOwner && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            handlePlaceAnOrder();
+          }}
+          className="flex h-8 items-center justify-center space-x-2 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading && <Loader2 className="animate-spin" size={18} />}
+          <span> {loading ? "Processing..." : "Place an order"}</span>
+        </button>
+      )}
     </div>
   );
 };
@@ -264,7 +260,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={basicPackage as any}
-            freelancerId={gig.freelancerId}
+            gig={gig}
             packageTitle="basic"
             packageName={packageName?.basic}
             packagePrice={pricePackage?.basic}
@@ -279,7 +275,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={standardPackage as any}
-            freelancerId={gig.freelancerId}
+            gig={gig}
             packageTitle="standard"
             packageName={packageName?.standard}
             packagePrice={pricePackage?.standard}
@@ -294,7 +290,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={premiumPackage as any}
-            freelancerId={gig.freelancerId}
+            gig={gig}
             packageTitle="premium"
             packageName={packageName?.premium}
             packagePrice={pricePackage?.premium}
