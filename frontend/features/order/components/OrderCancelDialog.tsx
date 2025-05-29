@@ -28,7 +28,7 @@ const OrderCancelDialog = ({
             onClick={handleCancelOrder}
           >
             {processing && <Loader2 className="animate-spin" size={18} />}
-            <span> {processing ? "Processing..." : "Cancel"}</span>
+            <span> {processing ? "Processing..." : "Confirm Cancel"}</span>
           </button>
         </DialogFooter>
       </DialogContent>

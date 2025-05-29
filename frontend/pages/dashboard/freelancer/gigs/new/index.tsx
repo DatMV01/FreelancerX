@@ -1,232 +1,630 @@
 "use client";
 
-import MyCkEditorWithNoSSR from "@/components/ckeditor/CkEditorWithNoSSR";
-import DashboardLayout from "@/components/layouts/DashboardLayout";
+import { CharCountTextarea } from "@/components/CharCountTextarea";
 import DashboardLayout2 from "@/components/layouts/DashboardLayout2";
 import { Button } from "@/components/ui/button";
-import { categories, Category, root_categories } from "@/data/categories";
-import { GigStatus } from "@/dto/dto.type.";
-import GigFrequentlyAskedQuestionsInput from "@/features/gig/components/GigFrequentlyAskedQuestionsInput";
-import GigGallaryInput from "@/features/gig/components/GigGallaryInput";
-import GigPricingInput from "@/features/gig/components/GigPricingInput";
-import { useCountdownRedirect } from "@/hooks/useCountdownRedirect";
-import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { useAppDispatch } from "@/lib/redux/hooks";
 import {
+  Form,
   FormControl,
-  InputLabel,
-  MenuItem,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
   Select,
-  Tooltip,
-} from "@mui/material";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { categories, Category } from "@/data/categories";
+import { DashboardMainContent } from "@/features/dashboard/components/DashboardMainContent";
+import { FeatureRowType } from "@/features/gig/components/feature/GigFeatureRowCreateUpdate";
+import GigAddSearchTag from "@/features/gig/components/GigAddSearchTag";
+import { uploadFile } from "@/features/files/file.api";
+import { faqSchema } from "@/features/gig/components/FAQ/GigFAQCreateUpdate";
+import GigFAQsInput from "@/features/gig/components/FAQ/GigFAQsInput";
+import {
+  FileChangesDetectedType,
+  FileListManager,
+  FileSlot,
+  fileSlotKeys,
+  fillMissingFileSlots,
+} from "@/features/gig/components/FileListManager";
+import GigPricingInput from "@/features/gig/components/GigPricingInput";
+import { createGig } from "@/features/gig/gig.api";
+import { GigStatus, GigTagEntity } from "@/features/gig/gig.types";
+import { useCountdownRedirect } from "@/hooks/useCountdownRedirect";
+import { zodResolver } from "@hookform/resolvers/zod";
+import clsx from "clsx";
+import { CircleArrowLeft } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { ReactElement, useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { ReactElement, useEffect, useRef, useState } from "react";
+import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-
-export const gig_imagesUpload = [`image1`, `image2`, `image3`];
-export const gig_videoUpload = [`video1`];
-export const gig_documentsUpload = [`document1`, `document2`];
-
-// schemas/gigSchema.ts
+import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
-const fileSchema = z.object({
-  id: z.string(),
-  url: z.string().url(),
-  mimeType: z.string().nullable(),
-  provider: z.string().nullable(),
+const CkEditorWithNoSSR2 = dynamic(
+  () => import("@/components/ckeditor2/CkEditorWithNoSSR2"),
+  {
+    ssr: false,
+  },
+);
+
+/* ======================== */
+
+export const GigPackageTypeEnum = z.enum(["basic", "standard", "premium"]);
+
+export const PackageFeatureSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  value: z.string(),
 });
 
-export const gigSchema = z.object({
-  title: z.string().min(3),
-  categoryId: z.string().nullable(),
-  category: z.string().min(3),
-  subCategoryId: z.string().nullable(),
-  subCategory: z.string().min(3),
-  nestedSubcategoryId: z.string().nullable(),
-  nestedSubcategory: z.string().min(3),
-  basicPrice: z.number(),
-  standardPrice: z.number(),
-  premiumPrice: z.number(),
-  tags: z.array(z.string()),
-  pricingPackage: z.array(
-    z.object({
-      id: z.union([z.number(), z.string()]),
-      package: z.string(),
-      basic: z.union([z.string(), z.number()]),
-      standard: z.union([z.string(), z.number()]),
-      premium: z.union([z.string(), z.number()]),
-    }),
+export const GigPackagesSchema = z.object({
+  id: z.string().uuid(),
+  gigId: z.string().uuid().optional(),
+  type: GigPackageTypeEnum,
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  deliveryTime: z.number().int().positive("Delivery days must be positive"),
+  revisions: z.number().int().nonnegative("Revisions must be non-negative"),
+  features: z.array(PackageFeatureSchema).optional(),
+});
+
+const ThreeGigPackagesSchema = z.array(GigPackagesSchema);
+/* ======================== */
+
+export const positiveNumberSchema = (msg: string) =>
+  z.number().int().positive(msg);
+
+export const featureSchema = z.object({
+  id: z.string(),
+  feature: z.string().min(3, "Minimum 3 characters"),
+  basic: z.string().optional(),
+  standard: z.string().optional(),
+  premium: z.string().optional(),
+  isRequired: z.boolean(),
+});
+
+export const titleSchema = featureSchema.extend({
+  basic: z
+    .string()
+    .nonempty("Basic title is required")
+    .max(150, "Maximum 150 characters"),
+  standard: z
+    .string()
+    .nonempty("Standard title is required")
+    .max(150, "Maximum 150 characters"),
+  premium: z
+    .string()
+    .nonempty("Premium title is required")
+    .max(150, "Maximum 150 characters"),
+});
+
+export const descriptionSchema = featureSchema.extend({
+  basic: z
+    .string()
+    .nonempty("Basic description is required")
+    .max(300, "Maximum 300 characters"),
+  standard: z
+    .string()
+    .nonempty("Standard description is required")
+    .max(300, "Maximum 300 characters"),
+  premium: z
+    .string()
+    .nonempty("Premium description is required")
+    .max(300, "Maximum 300 characters"),
+});
+
+export const deliveryDaysSchema = featureSchema.extend({
+  basic: positiveNumberSchema("Delivery days must be positive").max(
+    1000,
+    "Maximum 1000 days",
   ),
-  description: z.string(),
-  faqs: z.array(
-    z.object({
-      id: z.string(),
-      question: z.string(),
-      answer: z.string(),
-    }),
+  standard: positiveNumberSchema("Delivery days must be positive").max(
+    1000,
+    "Maximum 1000 days",
   ),
-  thumbnail: fileSchema.required(),
-  medias: z.record(fileSchema),
-  images: z.object({
-    image1: fileSchema.nullable(),
-    image2: fileSchema.nullable(),
-    image3: fileSchema.nullable(),
-  }),
-  documents: z.object({
-    document1: fileSchema.nullable(),
-    document2: fileSchema.nullable(),
-  }),
-  video: fileSchema.nullable(),
+  premium: positiveNumberSchema("Delivery days must be positive").max(
+    1000,
+    "Maximum 1000 days",
+  ),
+});
+
+export const revisionsSchema = featureSchema.extend({
+  basic: positiveNumberSchema("Revisions days must be positive").max(
+    10,
+    "Maximum 10 revisions",
+  ),
+  standard: positiveNumberSchema("Revisions days must be positive").max(
+    10,
+    "Maximum 10 revisions",
+  ),
+  premium: positiveNumberSchema("Revisions days must be positive").max(
+    10,
+    "Maximum 10 revisions",
+  ),
+});
+
+export const priceSchema = featureSchema.extend({
+  basic: z
+    .number()
+    .int()
+    .min(50, "Price must be greater than or equal to 50")
+    .max(10000, "Maximum price is 10,0000 USD"),
+  standard: z
+    .number()
+    .int()
+    .min(50, "Price must be greater than or equal to 50")
+    .max(10000, "Maximum price is 10,0000 USD"),
+  premium: z
+    .number()
+    .int()
+    .min(50, "Price must be greater than or equal to 50")
+    .max(10000, "Maximum price is 10,0000 USD"),
+});
+
+/**================================== */
+
+export const createFileOrInfoSchema = (allowNull: boolean) =>
+  z.any().superRefine((val, ctx) => {
+    if (val === null) {
+      if (!allowNull) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please upload a file.",
+        });
+      }
+      return;
+    }
+
+    const isFile = typeof File !== "undefined" && val instanceof File;
+    const isFileInfo =
+      typeof val === "object" &&
+      val !== null &&
+      "id" in val &&
+      "url" in val &&
+      "mimeType" in val &&
+      "provider" in val;
+
+    if (!isFile && !isFileInfo) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid file type. Please upload a valid file.",
+      });
+    }
+  });
+
+const gallerySchame = fileSlotKeys.reduce(
+  (acc, key) => {
+    const fieldSchema =
+      key === "thumbnail"
+        ? createFileOrInfoSchema(false)
+        : createFileOrInfoSchema(true);
+
+    acc[key] = fieldSchema;
+    return acc;
+  },
+  {} as Record<FileSlot, z.ZodTypeAny>,
+);
+
+const featuresSchema = z.array(z.any()).superRefine((items, ctx) => {
+  items.forEach((item: FeatureRowType, index) => {
+    let result;
+    //console.log("Validating feature at index:", index, item);
+
+    if (item.feature === "Title") {
+      result = titleSchema.safeParse(item);
+    } else if (item.feature === "Description") {
+      result = descriptionSchema.safeParse(item);
+    } else if (item.feature === "Delivery") {
+      result = deliveryDaysSchema.safeParse(item);
+    } else if (item.feature === "Revisions") {
+      result = revisionsSchema.safeParse(item);
+    } else if (item.feature === "Price") {
+      result = priceSchema.safeParse(item);
+    } else {
+      result = featureSchema.safeParse(item); // fallback
+    }
+
+    if (!result.success) {
+      result.error.errors.forEach((e) =>
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: e.message,
+          path: [index, ...e.path],
+        }),
+      );
+    }
+  });
+});
+
+export const descriptionGigSchema = z
+  .string()
+  .min(1, "Content is required")
+  .refine(
+    (value) => {
+      const plainText = value.replace(/<[^>]*>/g, "").trim();
+      return plainText.length > 0;
+    },
+    { message: "Content must include visible characters" },
+  )
+  .refine(
+    (value) => {
+      const plainText = value
+        .replaceAll(/<[^>]*>/g, "")
+        .replaceAll(/&nbsp;/g, " ");
+
+      return plainText.length <= 5000;
+    },
+    { message: "Maximum 5000 characters" },
+  );
+
+const gigSchema = z.object({
+  title: z
+    .string()
+    .nonempty("Title is required")
+    .min(20, "Minimum 20 characters")
+    .max(300, "Maximum 300 characters"),
+  categoryId: z.string().uuid(),
+  category: z.any().optional(),
+  subCategoryId: z.string().uuid(),
+  subCategory: z.any().optional(),
+  nestedSubcategoryId: z.string().uuid(),
+  nestedSubcategory: z.any().optional(),
+  tags: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+        keyword: z.string().min(1, "Tag is required"),
+        searchCount: z.number().optional(),
+        createdAt: z.date().optional(),
+      }),
+    )
+    .min(1, "Minimum 1 tags")
+    .max(5, "Maximum 5 tags"),
+  packages: ThreeGigPackagesSchema.optional(),
+  features: featuresSchema,
+  description: descriptionGigSchema,
+
+  faqs: z.array(faqSchema).optional(),
+  thumbnail: z.any().optional(),
+  medias: z.object(gallerySchame),
   status: z
     .enum([
       GigStatus.ACTIVE,
-      GigStatus.PENDING,
       GigStatus.DRAFT,
       GigStatus.PAUSED,
       GigStatus.REJECTED,
-      GigStatus.MODIFICATION,
     ])
     .default(GigStatus.DRAFT),
-  requirements: z.array(
-    z.object({
-      id: z.string(),
-      question: z.string(),
-      type: z.enum(["text", "file"]),
-      required: z.boolean(),
-    }),
-  ),
-  seller: z.object({
-    id: z.string(),
-  }),
 });
 
-const SearchTags = ({
-  tags,
-  onSetTagsCb,
-}: {
-  tags?: any;
-  onSetTagsCb?: any;
-}) => {
-  const [keywords, setKeywords] = useState<string[]>(tags || []);
-  const [inputValue, setInputValue] = useState("");
-  const [countdown, setCountdown] = useState<number | null>(null);
+export type GigForm = z.infer<typeof gigSchema>;
 
-  useEffect(() => {
-    onSetTagsCb && onSetTagsCb(keywords);
-  }, [keywords]);
-
-  const addKeyword = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const input = inputValue.trim();
-    if ((e.key === "Enter" || e.key === "Tab") && input !== "") {
-      e.preventDefault();
-      if (keywords.length < 5 && !keywords.includes(input)) {
-        setKeywords([...keywords, input]);
-        setInputValue("");
-      }
-    }
-  };
-
-  const removeKeyword = (keyword: string) => {
-    setKeywords(keywords.filter((k) => k !== keyword));
-  };
-
+const GigOverviewSection = ({ form }: { form: UseFormReturn<GigForm> }) => {
   return (
-    <div className="flex w-full flex-col space-y-2">
-      <label className="block text-sm font-semibold">Positive keywords</label>
-      <p className="text-xs text-gray-500">
-        Enter search terms you feel your buyers will use when looking for your
-        service.
-      </p>
-      <div className="flex min-h-[40px] flex-wrap gap-2 rounded-md border p-2">
-        {keywords.map((keyword) => (
-          <div
-            key={keyword}
-            className="flex items-center rounded-md bg-gray-200 px-2 py-1 text-sm"
-          >
-            {keyword}
-            <button
-              onClick={() => removeKeyword(keyword)}
-              className="ml-2 text-gray-600 hover:text-red-500"
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-        <input
-          type="text"
-          className="flex-grow px-1 text-sm outline-none"
-          placeholder=""
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={addKeyword}
-        />
-      </div>
+    <div className="flex flex-col">
+      <label className="font-semibold text-gray-700">Gig title</label>
 
-      <p className="text-xs text-gray-500">
-        1 tag minmum.5 tags maximum. Use letters and numbers only.
-      </p>
+      <div className="flex gap-x-2">
+        <div className="w-3/12">
+          <p className="text-sm text-gray-500">
+            As your Gig storefront, your&nbsp;
+            <strong>title is the most important place</strong> to include
+            keywords that buyers would likely use.
+          </p>
+        </div>
+
+        <div className="w-9/12">
+          <CharCountTextarea
+            name="title"
+            maxLength={150}
+            placeholder="I will do something I'm really good at"
+            form={form}
+            rows={5}
+          />
+        </div>
+      </div>
     </div>
   );
 };
 
-const FreelancerCreateGigPage = () => {
-  const {
-    register,
-    watch,
-    setValue,
-    getValues,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm<z.infer<typeof gigSchema>>({
-    //  resolver: zodResolver(gigSchema),
-    mode: "onChange",
-    // defaultValues: {
-    //   medias: [],
-    // },
-  });
-  const { countdown, isCounting, start } = useCountdownRedirect({ seconds: 5 });
-
-  const router = useRouter();
+const GigCategorySection = ({ form }: { form: UseFormReturn<GigForm> }) => {
   const [filterSubCategory, setFilterSubCategory] = useState<Category[]>([]);
   const [filterNestedSubCategory, setFilterNestedSubCategory] = useState<
     Category[]
   >([]);
-  const [message, setMessage] = useState<{
-    type: "success" | "errror";
-    message: string;
-  }>();
 
-  const dispatch = useAppDispatch();
-
-  const categoryId = watch("categoryId");
+  const categoryId = form.watch("categoryId");
   useEffect(() => {
     if (!categoryId || categoryId === "") return;
-    setValue("subCategoryId", "");
-    setValue("nestedSubcategoryId", "");
+    form.setValue("subCategoryId", "");
+    form.setValue("nestedSubcategoryId", "");
     const result = categories.filter((_) => _.parentId === categoryId);
 
     setFilterSubCategory(result);
   }, [categoryId]);
 
-  const subCategoryId = watch("subCategoryId");
+  const subCategoryId = form.watch("subCategoryId");
   useEffect(() => {
-    if (!subCategoryId) return;
+    if (!subCategoryId || subCategoryId === "") return;
+    form.setValue("nestedSubcategoryId", "");
 
     const result = categories.filter((_) => _.parentId === subCategoryId);
     setFilterNestedSubCategory(result);
   }, [subCategoryId]);
 
-  const onSubmit = async (values: z.infer<typeof gigSchema>) => {
-    console.log("onSubmit called with values:", values);
+  return (
+    <div className="flex flex-col">
+      <label className="font-semibold text-gray-700">Category</label>
 
+      <div className="flex gap-x-2">
+        <div className="w-3/12">
+          <p className="text-sm text-gray-500">
+            Choose the category and sub-category most suitable for your Gig.
+          </p>
+        </div>
+
+        <div className="flex w-9/12 gap-x-4">
+          <div className="w-1/3 overflow-hidden">
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose one" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem
+                        key={`3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f`}
+                        value={`3f1c9d2e-7b5a-4a8d-9e1c-2b7a1e5d3c4f`}
+                      >
+                        Programming & Tech
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-1/3 overflow-hidden">
+            <FormField
+              control={form.control}
+              name="subCategoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sub Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose one" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filterSubCategory.map((_) => (
+                        <SelectItem key={_.id} value={_.id}>
+                          {_.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-1/3 overflow-hidden">
+            <FormField
+              control={form.control}
+              name="nestedSubcategoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nested Sub Category</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Choose one" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filterNestedSubCategory.map((_) => (
+                        <SelectItem key={_.id} value={_.id}>
+                          {_.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GigAddTagsSection = ({ form }: { form: UseFormReturn<GigForm> }) => {
+  const { fields, append, update, remove } = useFieldArray({
+    control: form.control,
+    name: "tags",
+  });
+  return (
+    <div className="flex flex-col">
+      <label className="font-semibold text-gray-700">Search tags</label>
+
+      <div className="flex gap-x-2">
+        <div className="w-3/12">
+          <p className="text-sm text-gray-500">
+            Tag your Gig with buzz words that are relevant to the services you
+            offer. Use all 5 tags to get found.
+          </p>
+          <p className="mt-2 text-xs text-gray-400">
+            Enter search terms you feel your buyers will use when looking for
+            your service.
+          </p>
+        </div>
+
+        <div className="w-9/12">
+          <div className="flex gap-x-4">
+            <div className="w-1/2">
+              <GigAddSearchTag
+                className={clsx(
+                  {
+                    "disabled pointer-events-none bg-gray-200":
+                      form.getValues("tags").length >= 5,
+                  },
+                  form.getFieldState("tags").invalid
+                    ? "border border-red-500"
+                    : "",
+                )}
+                onSetGigTagCb={async (gigTag: GigTagEntity) => {
+                  const currentValues = form.getValues("tags");
+
+                  const isTagExist = currentValues.find(
+                    (tag) => tag.id === gigTag.id,
+                  );
+
+                  if (isTagExist) {
+                    toast.info(
+                      `Tag ${gigTag.keyword} already exists. Please choose another tag.`,
+                    );
+                  } else if (currentValues.length >= 5) {
+                    toast.error("You can only add a maximum of 5 tags.");
+                  } else {
+                    append({
+                      ...gigTag,
+                      createdAt: new Date(gigTag.createdAt as any),
+                    });
+                  }
+                  const result = await form.trigger("tags");
+                }}
+              />
+              <p className="mt-2 text-xs text-gray-400">
+                1 tag minmum.5 tags maximum. Use letters and numbers only.
+              </p>
+
+              {form.formState.errors.tags && (
+                <p className="text-red-500">
+                  {form.formState.errors.tags.message}
+                </p>
+              )}
+            </div>
+
+            <div className="w-1/2">
+              <div className="mt-2 flex flex-wrap gap-2">
+                {form.getValues("tags").map((keyword: GigTagEntity) => (
+                  <p
+                    key={keyword.id}
+                    className="flex items-center rounded-md bg-gray-200 px-2 py-1 text-sm"
+                  >
+                    <span>{keyword.keyword}</span>
+                    <button
+                      onClick={async () => {
+                        const newTags = form
+                          .getValues("tags")
+                          .filter((tag) => tag.id !== keyword.id);
+                        form.setValue("tags", newTags);
+
+                        const result = await form.trigger("tags");
+                      }}
+                      className="ml-2 text-gray-600 hover:text-red-500"
+                    >
+                      ✕
+                    </button>
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function FreelancerCreateGigPage() {
+  const form = useForm<GigForm>({
+    resolver: zodResolver(gigSchema),
+    mode: "onChange",
+    defaultValues: {
+      features: [
+        ...["Title", "Description", "Delivery", "Revisions", "Price"].map(
+          (feature) => ({
+            id: uuidv4(),
+            feature,
+            basic: "",
+            standard: "",
+            premium: "",
+            isRequired: true,
+          }),
+        ),
+      ],
+      tags: [],
+      medias: fillMissingFileSlots({}),
+      description: "",
+    },
+  });
+
+  const router = useRouter();
+  const { countdown, isCounting, start } = useCountdownRedirect({ seconds: 5 });
+
+  const [message, setMessage] = useState<{
+    type: "success" | "errror";
+    message: string;
+  }>();
+
+  const { setValue, watch, handleSubmit, formState, trigger } = form;
+  const { errors, isSubmitting, isValid } = formState;
+
+  const fileChangesDetectedRef = useRef<FileChangesDetectedType>({} as any);
+
+  console.log("✅ FORM:", watch());
+  console.log("✅ ERRROR:", errors);
+
+  const onSubmit = async (values: z.infer<typeof gigSchema>) => {
     values.status = GigStatus.DRAFT;
 
+    console.log("onSubmit called with values:", values);
+
+    for (const [slot, file] of Object.entries(fileChangesDetectedRef.current)) {
+      console.log(slot);
+      console.log(file);
+    }
+
+    for (const [slot, file] of Object.entries(
+      fileChangesDetectedRef.current.added,
+    )) {
+      console.log(slot);
+      console.log(file);
+
+      const { success, data, error } = await uploadFile({
+        file,
+        newFileName: `${Date.now()}`,
+      });
+
+      if (success) values.medias[slot as keyof typeof values.medias] = data;
+      if (!success) toast.error(error);
+    }
+
+    
+
     try {
-      const response = await axiosInstanceV1.post("/gigs", values);
+      const response = await createGig(values as any);
       const { slug } = response.data;
 
       toast.success(`Create a new service successfully!`);
@@ -258,347 +656,185 @@ const FreelancerCreateGigPage = () => {
     }
   };
 
-  const allValues = watch();
-  useEffect(() => {
-    console.log(allValues);
-  }, [allValues]);
-
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="grid grid-cols-12 items-center rounded-md border border-green-500 p-4 text-2xl font-bold text-green-500">
-        {/* Centered Title */}
-        <h1 className="col-span-4 col-start-5 text-center font-bold">
-          Create New Gig
-        </h1>
-
-        {/* Buttons on the Right */}
-        <div className="col-span-3 col-start-10 flex justify-end space-x-4">
-          <Tooltip title="Save gig and back to gig management page">
-            <button
-              className="flex items-center rounded bg-green-500 px-4 font-bold text-white hover:bg-green-600"
-              onClick={(e) => {
-                e.preventDefault();
-                router.replace(
-                  `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
-                );
-              }}
-            >
-              Back to Manage
-            </button>
-          </Tooltip>
+    <DashboardMainContent>
+      <>
+        <div
+          className={clsx(
+            "relative flex items-center justify-center gap-x-2 border border-green-500 p-2",
+            "rounded-md text-center text-xl font-bold text-green-500",
+          )}
+        >
+          <p>Create New Gig</p>
+          <Button
+            variant="outline"
+            className="absolute right-4"
+            onClick={(e) => {
+              e.preventDefault();
+              router.replace(
+                `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
+              );
+            }}
+          >
+            <CircleArrowLeft />
+            <span>Back</span>
+          </Button>
         </div>
-      </div>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault(); // chặn submit
-          }
-        }}
-      >
-        <div className="grid grid-cols-12 gap-y-6">
-          <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
-            OVERVIEW
-          </div>
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                OVERVIEW
+              </div>
 
-          {/* Gig Title */}
-          <div className="col-span-3">
-            <div>
-              <label className="font-semibold text-gray-700">Gig title</label>
-              <p className="text-sm text-gray-500">
-                As your Gig storefront, your &nbsp;
-                <strong>title is the most important place</strong> to include
-                keywords that buyers would likely use.
-              </p>
+              <GigOverviewSection form={form} />
+              <GigCategorySection form={form} />
+              <GigAddTagsSection form={form} />
             </div>
-          </div>
-          <div className="col-span-9">
-            <textarea
-              {...register("title")}
-              value={watch("title")}
-              placeholder="I will do something I'm really good at"
-              maxLength={200}
-              className="mt-2 h-full w-full rounded border p-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            {errors.title && (
-              <p className="text-red-500">{errors.title.message}</p>
-            )}
-          </div>
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                PRICING
+              </div>
 
-          {/* Category & Subcategory */}
-          <div className="col-span-3">
-            <div>
-              <label className="font-semibold text-gray-700">Category</label>
-              <p className="text-sm text-gray-500">
-                Choose the category and sub-category most suitable for your Gig.
-              </p>
+              <GigPricingInput form={form} />
             </div>
-          </div>
-          <div className="col-span-9">
-            <div className="grid grid-cols-2 gap-4">
-              <Controller
-                name="categoryId"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <FormControl
-                    variant="standard"
-                    fullWidth
-                    error={!!errors.category}
-                  >
-                    <InputLabel>Category</InputLabel>
-                    <Select {...field}>
-                      <MenuItem value="None">
-                        <em>None</em>
-                      </MenuItem>
-                      {root_categories.map((_) => {
-                        return (
-                          <MenuItem key={_.id} value={`${_.id}`}>
-                            {_.title}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
-              />
-
-              <Controller
-                name="subCategoryId"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <FormControl
-                    variant="standard"
-                    error={!!errors.subCategory}
-                    fullWidth
-                  >
-                    <InputLabel>SubCategory</InputLabel>
-
-                    <Select {...field} disabled={!filterSubCategory.length}>
-                      {filterSubCategory.map((_) => (
-                        <MenuItem key={_.id} value={`${_.id}`}>
-                          {_.title}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-              />
-
-              <Controller
-                name="nestedSubcategoryId"
-                control={control}
-                defaultValue=""
-                render={({ field }) => (
-                  <FormControl
-                    variant="standard"
-                    error={!!errors.subCategory}
-                    fullWidth
-                  >
-                    <InputLabel>Nested Sub Category</InputLabel>
-                    <Select
-                      {...field}
-                      disabled={!filterNestedSubCategory.length}
-                    >
-                      {filterNestedSubCategory.map((_) => (
-                        <MenuItem key={_.id} value={`${_.id}`}>
-                          {_.title}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Search Tags */}
-          <div className="col-span-3">
-            <div>
-              <label className="font-semibold text-gray-700">Search tags</label>
-              <p className="text-sm text-gray-500">
-                Tag your Gig with buzz words that are relevant to the services
-                you offer. Use all 5 tags to get found.
-              </p>
-            </div>
-          </div>
-          <div className="col-span-9">
-            <SearchTags
-              onSetTagsCb={(data: any) => {
-                setValue("tags", data);
-              }}
-            />
-          </div>
-
-          {/* Search metadata */}
-          {/* <div className="col-span-3">
-            <div>
-              <label className="font-semibold text-gray-700">
-                Gig metadata
-              </label>
-            </div>
-          </div>
-          <div className="col-span-9">
-            <div>Under development</div>
-          </div> */}
-
-          {/* PRICING */}
-          <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
-            PRICING
-          </div>
-          <div className="col-span-12">
-            <GigPricingInput
-              onPrincingPakageInputCb={(data: any) => {
-                const { basicPrice, standardPrice, premiumPrice, pricing } =
-                  data;
-
-                setValue("basicPrice", basicPrice);
-                setValue("standardPrice", standardPrice);
-                setValue("premiumPrice", premiumPrice);
-                setValue("pricingPackage", pricing);
-              }}
-            />
-          </div>
-
-          {/* DESCRIPTION & FAQ */}
-          <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
-            DESCRIPTION & FAQ
-          </div>
-          <div className="col-span-12">
-            <div className="">
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                DESCRIPTION & FAQ
+              </div>
               <div>
                 <p className="text-3xl">Description</p>
                 <p className="text-sm">Briefly Describe Your Gig</p>
+                <p className="text-xs text-gray-500">Maximum 5000 characters</p>
               </div>
 
-              <MyCkEditorWithNoSSR
-                onInputContentCb={(data: any) => {
-                  //  console.log(data);
-                  setValue("description", data);
-                }}
-              />
+              <div className="mx-auto w-full">
+                <CkEditorWithNoSSR2 name="description" control={form.control} />
+              </div>
             </div>
-
-            <div className=" ">
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                FREQUENTLY ASKED QUESTIONS
+              </div>
               <div>
                 <p className="text-3xl">Frequently Asked Questions</p>
                 <p className="text-sm">
                   Add Questions & Answers for Your Buyers.
                 </p>
               </div>
-              <GigFrequentlyAskedQuestionsInput
+
+              <GigFAQsInput
                 onFAQsCb={(data: any) => {
-                  // console.log(data);
                   setValue("faqs", data);
                 }}
               />
             </div>
-          </div>
 
-          <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
-            GALLERY
-          </div>
-          <div className="col-span-12">
-            <GigGallaryInput
-              onSetGallaryCb={(data: any) => {
-                const { documents, images, video, thumbnail } = data;
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                GALLERY
+              </div>
 
-                setValue("thumbnail", thumbnail);
+              <div>
+                <FileListManager
+                  form={form}
+                  galleryFiles={form.getValues("medias") || {}}
+                  onFileChangesDetected={(changes) => {
+                    fileChangesDetectedRef.current = changes;
 
-                setValue("documents", documents);
-                setValue("images", images);
-                setValue("video", video);
-                setValue("medias", {
-                  documents,
-                  images,
-                  video,
-                });
-              }}
-            />
-          </div>
+                    console.log("Added:", fileChangesDetectedRef.current.added);
+                    console.log(
+                      "Removed:",
+                      fileChangesDetectedRef.current.removed,
+                    );
+                    console.log(
+                      "Updated:",
+                      fileChangesDetectedRef.current.updated,
+                    );
+                  }}
+                  onFileChangesDetected2={(changes) => {
+                    console.log(changes);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <div className="bg-green-200 p-2 text-center font-bold text-green-600">
+                PUBLISH
+              </div>
+              <div className="flex h-full flex-col items-center justify-center space-y-2">
+                <Image src="/gig_publish.svg" alt="" width={500} height={500} />
 
-          <div className="col-span-12 bg-green-200 p-2 text-center font-bold text-green-600">
-            PUBLISH
-          </div>
-
-          <div className="col-span-12">
-            <div className="flex h-full flex-col items-center justify-center space-y-2">
-              <Image src="/gig_publish.svg" alt="" width={500} height={500} />
-
-              <p className="text-xl font-semibold">You're almost there!</p>
-              <p className="mt-2 text-gray-600">
-                Let's publish your Gig and get you ready to start selling.
-              </p>
-              <div className="flex space-x-2">
-                {/* <Tooltip title="Save gig as paused status and open review gig pagge">
-                  <Button
-                    className="flex items-center rounded bg-orange-500 p-2 px-2 font-bold text-white hover:bg-orange-600"
-                    type="button"
-                    disabled={isSubmitting || !isValid}
-                    onClick={(e) => {
-                      e.preventDefault(); // Prevent default form submission
-                      setActionType("draft");
-                      handleSubmit(onSubmit)(); // Manually trigger form submission
-                    }}
-                  >
-                    {isSubmitting ? "Processing..." : "Save as Draft & Preview"}
-                  </Button>
-                </Tooltip> */}
-
-                <Tooltip title="Save gig as actice status and open review gig pagge">
+                <p className="text-xl font-semibold">You're almost there!</p>
+                <p className="mt-2 text-gray-600">
+                  Let's publish your Gig and get you ready to start selling.
+                </p>
+                <div className="flex space-x-2">
                   <Button
                     className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isValid}
                     type="button"
                     onClick={(e) => {
-                      e.preventDefault(); // Prevent default form submission
-                      handleSubmit(onSubmit)(); // Manually trigger form submission
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      handleSubmit(onSubmit)();
                     }}
                   >
                     {isSubmitting ? "Processing..." : "Save & Preview"}
                   </Button>
-                </Tooltip>
 
-                <Button
-                  className="flex items-center rounded bg-blue-500 p-2 px-2 font-bold text-white hover:bg-blue-600"
-                  disabled={isSubmitting}
-                  type="button"
-                  onClick={(e) => {
-                    router.replace(
-                      `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
-                    );
-                  }}
-                >
-                  Back to manage
-                </Button>
-              </div>
+                  <Button
+                    className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
+                    type="button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
 
-              <div className="flex flex-col items-center justify-center">
-                {/* ✅ Success & Error Messages */}
-                {message && (
-                  <p
-                    className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
+                      const isValid = await trigger();
+                    }}
                   >
-                    {message.message}
-                  </p>
-                )}
+                    Trigger Validate
+                  </Button>
 
-                {/* Hiển thị thời gian đếm ngược nếu có */}
-                {isCounting && (
-                  <p className="text-center text-sm text-gray-600">
-                    Redirecting in {countdown} seconds...
-                  </p>
-                )}
+                  <Button
+                    className="flex items-center rounded bg-blue-500 p-2 px-2 font-bold text-white hover:bg-blue-600"
+                    disabled={isSubmitting}
+                    type="button"
+                    onClick={(e) => {
+                      router.replace(
+                        `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
+                      );
+                    }}
+                  >
+                    Back to manage
+                  </Button>
+                </div>
+
+                <div className="flex flex-col items-center justify-center">
+                  {message && (
+                    <p
+                      className={`mt-2 text-center text-sm ${message.type === "success" ? "text-green-500" : "text-red-500"}`}
+                    >
+                      {message.message}
+                    </p>
+                  )}
+
+                  {isCounting && (
+                    <p className="text-center text-sm text-gray-600">
+                      Redirecting in {countdown} seconds...
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </form>
-    </div>
+          </form>
+        </Form>
+      </>
+    </DashboardMainContent>
   );
-};
+}
 
 FreelancerCreateGigPage.getLayout = function getLayout(page: ReactElement) {
   return <DashboardLayout2>{page}</DashboardLayout2>;

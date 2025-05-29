@@ -8,6 +8,7 @@ import { OrderActions, OrderStatus } from 'src/modules/order/enum/order.enum';
 import { TransactionStatus } from 'src/modules/wallet/enum/transaction.enum';
 import Stripe from 'stripe';
 import { Repository } from 'typeorm';
+import { GigEntity } from '../gig/entities/gig.entity';
 
 interface CheckoutSessionBody {
   packageId: string;
@@ -30,6 +31,9 @@ export class StripeService {
 
     @InjectRepository(OrderEntity)
     private readonly orderRepo: Repository<OrderEntity>,
+
+    @InjectRepository(GigEntity)
+    private readonly gigRepo: Repository<GigEntity>,
 
     @InjectRepository(OrderLogsEntity)
     private readonly orderLogRepo: Repository<OrderLogsEntity>,
@@ -208,7 +212,7 @@ export class StripeService {
       status: OrderStatus.PENDING,
     });
 
-    await this.orderRepo.increment({ id: orderId }, 'orderCount', 1);
+    await this.gigRepo.increment({ id: gigId }, 'orderCount', 1);
 
     await this.orderLogRepo.save({
       orderId,

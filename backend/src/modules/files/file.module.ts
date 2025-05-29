@@ -136,7 +136,7 @@ const filename = (
   file: Express.Multer.File,
   callback: (error: Error | null, filename: string) => void,
 ): void => {
-  const uniqueSuffix = `___${Date.now()}-${randomStringGenerator()}`;
+  const uniqueSuffix = `${Date.now()}-${randomStringGenerator()}`;
 
   const ext = extname(file.originalname);
   const fileNameUTF8 = Buffer.from(file.originalname, 'latin1')

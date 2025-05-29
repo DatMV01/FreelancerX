@@ -9,3 +9,10 @@ export enum GigStatus {
 }
 
 export const gigStatus = Object.values(GigStatus);
+
+export interface GigTagEntity {
+  id: string;
+  keyword: string;
+  searchCount?: number;
+  createdAt?: Date;
+}

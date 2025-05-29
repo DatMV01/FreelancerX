@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { GigDto, GigPackage } from "@/dto/dto.type.";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Divider } from "@mui/material";
 import { CheckCircle, Clock, DollarSign, RefreshCw, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
@@ -11,10 +11,13 @@ import { useEffect, useState } from "react";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import { getOrderById } from "@/features/order/order.api";
 import { getGigById } from "@/features/gig/gig.api";
+import ButtonGreenBorder from "@/components/ButtonGreenBorder";
 
 const getValue = (pkg: GigPackage, feature: string) => {
-  const found = pkg.features.find((f) => f.package === feature);
-  return found?.value === "Yes" ? (
+  const found = pkg.features.find((f) => f.name === feature);
+  return found?.value === "Yes" ||
+    found?.value === "x" ||
+    found?.value === "X" ? (
     <CheckCircle className="text-green-500" size={18} />
   ) : found?.value ? (
     found.value
@@ -32,11 +35,12 @@ const FeaturesTable = ({
   allFeatures: string[];
   getValue: (pkg: GigPackage, feature: string) => React.ReactNode;
 }) => (
-  <div className="overflow-auto rounded-xl border border-gray-200 shadow-md">
+  <div className="mt-4 rounded-sm border border-gray-200">
     <table className="min-w-full table-fixed border border-gray-300 text-sm">
       <thead className="bg-gray-100 text-gray-700">
         <tr>
           <th className="w-1/2 px-4 py-2">Features</th>
+
           <th
             key={packageInfo.type}
             className="w-1/2 border px-4 py-2 text-center capitalize"
@@ -56,6 +60,39 @@ const FeaturesTable = ({
             </td>
           </tr>
         ))}
+        <tr className="border-t bg-gray-50 font-semibold">
+          <td className="px-4 py-2">
+            <span className="flex items-center space-x-1">
+              <RefreshCw size={18} className="text-green-500" />
+              <span>Revision</span>
+            </span>
+          </td>
+          <td key={packageInfo.type} className="px-4 py-2 text-center">
+            {packageInfo.revisions}
+          </td>
+        </tr>
+        <tr className="border-t bg-gray-50 font-semibold">
+          <td className="px-4 py-2">
+            <span className="flex items-center space-x-1">
+              <Clock size={18} className="text-orange-500" />
+              <span>Delivery (Days)</span>
+            </span>
+          </td>
+          <td key={packageInfo.type} className="px-4 py-2 text-center">
+            {packageInfo.deliveryTime}
+          </td>
+        </tr>
+        <tr className="border-t bg-gray-50 font-semibold">
+          <td className="px-4 py-2">
+            <span className="flex items-center space-x-1">
+              <DollarSign size={18} className="text-blue-500" />
+              <span>Price (USD)</span>
+            </span>
+          </td>
+          <td key={packageInfo.type} className="px-4 py-2 text-center">
+            ${packageInfo.price}
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -98,7 +135,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
   );
 
   const {
-    data: gig,
+    data: gigResonse,
     error: error2,
     isLoading: isLoading2,
     isValidating: isValidating2,
@@ -137,7 +174,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
       const packageInfo = order.snapshot.package;
       if (packageInfo) {
         const allFeatures = Array.from(
-          new Set(packageInfo.features.map((f: any) => f.package)),
+          new Set(packageInfo.features.map((f: any) => f.name)),
         ) as any;
 
         setPackageInfo(packageInfo);
@@ -158,6 +195,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
       </div>
     );
   }
+  const gig = gigResonse?.data;
 
   return (
     <div className="w-full">
@@ -165,104 +203,60 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
 
       {order && order.status === "UNPAID" && packageInfo && gig && (
         <div className="flex flex-col space-y-4">
-          <div className="flex">
-            <div className="flex-1">
-              <p className="text-xl">
-                <span className="mr-2 font-semibold">OrderNo:</span>
-                {order.orderNo}
-              </p>
+          <div className="grid grid-cols-2">
+            <div className="w-full space-y-4 pr-6">
+              <div className="space-y-4">
+                <div className="text-xl">
+                  <span className="text-muted-foreground mr-2 font-semibold">
+                    Order No:
+                  </span>
+                  <span className="break-words">{order.orderNo}</span>
+                </div>
 
-              <p className="text-xl">
-                <span className="mr-2 font-semibold">Gig:</span>
-                {gig.title}
-              </p>
-              <p className="text-xl">
-                <span className="mr-2 font-semibold">Package:</span>
-                {packageInfo.title}
-              </p>
-              <p className="text-xl">
-                <span className="mr-2 font-semibold">Description:</span>
-                {packageInfo.description}
-              </p>
-              <p className="text-xl">
-                <span className="mr-2 font-semibold">Price:</span>$
-                {packageInfo.price}
-              </p>
+                <div className="text-xl">
+                  <span className="text-muted-foreground mr-2 font-semibold">
+                    Gig:
+                  </span>
+                  <span className="break-words">{gig.title}</span>
+                </div>
+
+                <div className="text-xl">
+                  <span className="text-muted-foreground mr-2 font-semibold">
+                    Package:
+                  </span>
+                  <span className="break-words">{packageInfo.title}</span>
+                </div>
+
+                <div className="text-xl">
+                  <span className="text-muted-foreground mr-2 font-semibold">
+                    Description:
+                  </span>
+                  <span className="break-words">{packageInfo.description}</span>
+                </div>
+
+                <div className="text-xl">
+                  <span className="text-muted-foreground mr-2 font-semibold">
+                    Price:
+                  </span>
+                  <span className="font-semibold text-green-600">
+                    ${packageInfo.price}
+                  </span>
+                </div>
+              </div>
+              <hr className="py-2" />
+              <GigCarousel gig={gig} className="h-[300px] w-full" />
             </div>
 
-            <GigCarousel gig={gig} className="h-[300px] w-[100px] flex-1" />
+            <FeaturesTable
+              packageInfo={packageInfo}
+              allFeatures={allFeatures}
+              getValue={getValue}
+            />
           </div>
-
-          <div className="overflow-auto rounded-xl border border-gray-200 shadow-md">
-            <table className="min-w-full table-fixed border border-gray-300 text-sm">
-              <thead className="bg-gray-100 text-gray-700">
-                <tr>
-                  <th className="w-1/2 px-4 py-2">Features</th>
-
-                  <th
-                    key={packageInfo.type}
-                    className="w-1/2 border px-4 py-2 text-center capitalize"
-                  >
-                    {packageInfo.title}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {allFeatures.map((feature) => (
-                  <tr key={feature} className="border-t">
-                    <td className="px-4 py-2 font-medium">{feature}</td>
-                    <td key={packageInfo.type} className="border px-4 py-2">
-                      <span className="flex items-center justify-center">
-                        {getValue(packageInfo, feature)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                <tr className="border-t bg-gray-50 font-semibold">
-                  <td className="px-4 py-2">
-                    <span className="flex items-center space-x-1">
-                      <RefreshCw size={18} className="text-green-500" />
-                      <span>Revision</span>
-                    </span>
-                  </td>
-                  <td key={packageInfo.type} className="px-4 py-2 text-center">
-                    {packageInfo.revisions}
-                  </td>
-                </tr>
-                <tr className="border-t bg-gray-50 font-semibold">
-                  <td className="px-4 py-2">
-                    <span className="flex items-center space-x-1">
-                      <Clock size={18} className="text-orange-500" />
-                      <span>Delivery (Days)</span>
-                    </span>
-                  </td>
-                  <td key={packageInfo.type} className="px-4 py-2 text-center">
-                    {packageInfo.deliveryTime}
-                  </td>
-                </tr>
-                <tr className="border-t bg-gray-50 font-semibold">
-                  <td className="px-4 py-2">
-                    <span className="flex items-center space-x-1">
-                      <DollarSign size={18} className="text-blue-500" />
-                      <span>Price (USD)</span>
-                    </span>
-                  </td>
-                  <td key={packageInfo.type} className="px-4 py-2 text-center">
-                    ${packageInfo.price}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          {/* 
-          <FeaturesTable
-            packageInfo={packageInfo}
-            allFeatures={allFeatures}
-            getValue={getValue}
-          /> */}
 
           <div className="flex items-center justify-end">
-            <Button onClick={onNext}>Continue to Payment</Button>
+            {/* <Button onClick={onNext}>Continue to Payment</Button> */}
+            <ButtonGreenBorder onClick={onNext}>Continue</ButtonGreenBorder>
           </div>
         </div>
       )}

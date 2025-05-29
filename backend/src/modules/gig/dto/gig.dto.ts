@@ -25,27 +25,22 @@ export class PricingPackage {
   premium: string;
 }
 
-// export class Requirement {
-//   @IsString()
-//   @AutoMap()
-//   id: string;
+export class FeatureTables {
+  @AutoMap()
+  id: string;
 
-//   @IsString()
-//   @AutoMap()
-//   type: 'text' | 'file' | 'multiple_choice';
+  @AutoMap()
+  feature: string;
 
-//   @IsString()
-//   @AutoMap()
-//   question: string;
+  @AutoMap()
+  basic: string;
 
-//   @IsOptional()
-//   @AutoMap()
-//   options?: string[];
+  @AutoMap()
+  standard: string;
 
-//   @IsBoolean()
-//   @AutoMap()
-//   required: boolean;
-// }
+  @AutoMap()
+  premium: string;
+}
 
 export class FAQ {
   @AutoMap()
@@ -109,7 +104,7 @@ export class GigDto extends BaseDto<GigDto> {
   nestedSubcategory?: CategoryDto;
 
   @AutoMap(() => [GigTagEntity])
-  tags: string[];
+  tags: GigTagEntity[];
 
   @AutoMap()
   reviewCount: number;
@@ -129,6 +124,10 @@ export class GigDto extends BaseDto<GigDto> {
 
   @AutoMap(() => PricingPackage)
   pricingPackage: PricingPackage[];
+
+  @AutoMap(() => [FeatureTables])
+  features: FeatureTables[];
+
   /* Pricing */
 
   /* Description & FAQ */

@@ -29,7 +29,7 @@ const OrderCompleteDialog = ({
             onClick={handleCompleteOrder}
           >
             {processing && <Loader2 className="animate-spin" size={18} />}
-            <span> {processing ? "Processing..." : "Complete Order"}</span>
+            <span> {processing ? "Processing..." : "Confirm Complete"}</span>
           </button>
         </DialogFooter>
       </DialogContent>

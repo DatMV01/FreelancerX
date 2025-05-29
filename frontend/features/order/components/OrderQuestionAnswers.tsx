@@ -185,7 +185,7 @@ export const OrderQuestionAnswers = ({
   const defaultOpenItems = sorted.map((item) => item.id);
 
   return (
-    <div className="flex h-full flex-col gap-y-2 border-r">
+    <div className="flex h-full w-full flex-col gap-y-2 border-r break-words">
       <p className="text-center text-lg font-semibold">Questions & Answers</p>
 
       {!isBuyer && false && (
@@ -233,16 +233,18 @@ export const OrderQuestionAnswers = ({
         </div>
       )}
 
-      <div className="flex-1 overflow-x-hidden overflow-y-auto pr-2">
+      <div className="h-full overflow-y-auto overflow-x-hidden pr-2 ">
         <Accordion
           type="multiple"
           defaultValue={defaultOpenItems}
-          className="space-y-2"
+          className="w-full space-y-2"
         >
           {sorted.map((item) => (
             <AccordionItem key={item.id} value={item.id}>
-              <AccordionTrigger className="font-semibold">
-                {item.question}
+              <AccordionTrigger className="w-full break-words">
+                <div className="w-full font-semibold break-words">
+                  {item.question}
+                </div>
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-3 pt-2">

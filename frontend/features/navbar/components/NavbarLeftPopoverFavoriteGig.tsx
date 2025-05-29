@@ -15,7 +15,7 @@ const NavbarLeftPopoverFavoriteGig = () => {
   const [visibleCount, setVisibleCount] = useState(10);
   const [loading, setLoading] = useState(false);
   const favoriteGigs = useAppSelector(selectFavoriteGigs);
-
+  console.log("favoriteGigs", favoriteGigs);
   return (
     <Popover>
       <Tooltip title="View Orders">
@@ -63,7 +63,7 @@ const NavbarLeftPopoverFavoriteGig = () => {
                 >
                   <div className="relative w-20 flex-shrink-0">
                     <img
-                      src={gig.thumbnail.url}
+                      src={gig.medias.thumbnail.url}
                       alt="Gig Thumbnail"
                       className="w-full rounded-sm"
                     />

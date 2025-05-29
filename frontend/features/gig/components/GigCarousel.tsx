@@ -1,56 +1,15 @@
 "use client";
 
 import { GigDto } from "@/dto/dto.type.";
-import { faker } from "@faker-js/faker";
 import clsx from "clsx";
 import { ChevronLeft, ChevronRight, Expand, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { NavigationOptions } from "swiper/types";
-
-const fakeData = [
-  {
-    id: faker.string.uuid(),
-    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/187221060/original/498dee5818e4f41cec45d8abf27a15e081bdfaa7.jpg",
-    url2: "https://fiverr-res.cloudinary.com/image/upload/w_1260,q_auto,f_auto,pg_1/20240322/Haseeb_xnsjhx",
-    type: "image",
-    alt: "image",
-  },
-  {
-    id: faker.string.uuid(),
-    url: "http://localhost:3000/public/documents/document_demo.drawio.pdf",
-    type: "document",
-  },
-  {
-    id: faker.string.uuid(),
-    url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/pqadd5xxrezx4zithzpg",
-    type: "video",
-  },
-  {
-    id: faker.string.uuid(),
-    url: "https://fiverr-res.cloudinary.com/video/upload/t_fiverr_hd/gags7a77f6zybuusmf7g",
-    type: "video",
-  },
-
-  {
-    id: faker.string.uuid(),
-    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/118505834/original/eb828312a9e5e7f58c23a12981ccae2f8b475fd0.jpg",
-    url2: "https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/151755071/original/2da69a6c1ae0a528377d6a93d43c0cbd2a706fb8/design-shopify-dropshipping-store.jpg",
-    type: "image",
-    alt: "image",
-  },
-  {
-    id: faker.string.uuid(),
-    url: "https://fiverr-res.cloudinary.com/t_gig_cards_web,q_auto,f_auto/gigs/187221060/original/498dee5818e4f41cec45d8abf27a15e081bdfaa7.jpg",
-    url2: "https://fiverr-res.cloudinary.com/image/upload/w_1260,q_auto,f_auto,pg_1/20240322/Haseeb_xnsjhx",
-    type: "image",
-    alt: "image",
-  },
-];
 
 const GigCarousel = ({
   gig,
@@ -71,40 +30,14 @@ const GigCarousel = ({
   const [isFirstSlide, setIsFirstSlide] = useState(true);
   const [isLastSlide, setIsLastSlide] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const [videoTimes, setVideoTimes] = useState<{ [key: number]: number }>({});
 
-  const { documents, video, images } = gig || {};
-  const dataArr = (
-    gig
-      ? [
-          images?.image1 && {
-            type: "image",
-            ...images?.image1,
-          },
-          images?.image2 && {
-            type: "image",
-            ...images?.image2,
-          },
-          images?.image3 && {
-            type: "image",
-            ...images?.image3,
-          },
-          documents?.document1 && {
-            type: "document",
-            ...documents?.document1,
-          },
-          documents?.document2 && {
-            type: "document",
-            ...documents?.document2,
-          },
-          video && {
-            type: "video",
-            ...video,
-          },
-        ]
-      : fakeData
-  ).filter(Boolean);
+  const dataArr = useMemo(() => {
+    if (!gig?.medias) return [];
+    const { thumbnail, video, ...anothers } = gig.medias;
+    const values = Object.entries(anothers).map(([_, value]) => value);
+    return [thumbnail, video, ...values].filter(Boolean);
+  }, [gig]);
 
   const handleMouseEnter = () => {
     if (debounceTimeout.current) {
@@ -127,8 +60,11 @@ const GigCarousel = ({
 
     return () => document.body.classList.remove("overflow-hidden");
   }, [isFullScreen]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleSlideChange = (swiper: any) => {
+    setActiveIndex(swiper.activeIndex);
+
     setIsFirstSlide(swiper.isBeginning);
     setIsLastSlide(swiper.isEnd);
 
@@ -263,9 +199,9 @@ const GigCarousel = ({
             {
               "right-5 bottom-5": isFullScreen,
             },
-            {
-              hidden: !isHovered,
-            },
+            // {
+            //   hidden: !isHovered,
+            // },
           )}
         >
           <Expand size={isFullScreen ? 20 : 16} />
@@ -298,47 +234,64 @@ const GigCarousel = ({
           loop={false}
           className={`h-full w-full ${isFullScreen && "!pb-[10px]"}`}
         >
-          {dataArr.map(
-            (item, index) =>
-              item && (
-                <SwiperSlide
-                  key={item.id}
-                  className={clsx({
-                    "p-2": isFullScreen,
-                  })}
-                >
-                  <div className="flex h-full w-full items-center justify-center px-10">
-                    {item.type === "image" && (
-                      <img
-                        src={item.url}
-                        alt={"alt" in item ? (item.alt as string) : "Image"}
-                        className="h-full object-contain"
-                        loading="lazy"
-                      />
-                    )}
-                    {item.type === "video" && (
-                      <video
-                        ref={(el) => {
-                          if (el) videoRefs.current[index] = el;
-                        }}
-                        controls
-                        className="h-full"
-                      >
-                        <source src={item.url} type="video/mp4" />
-                      </video>
-                    )}
-                    {item.type === "document" && (
-                      <iframe
-                        ref={documentRef}
-                        src={item.url}
-                        width="100%"
-                        height="100%"
-                      />
-                    )}
-                  </div>
-                </SwiperSlide>
-              ),
-          )}
+          {dataArr.map((item: any, index) => {
+            if (!item) return null;
+
+            const renderMedia = () => {
+              if (item.mimeType.startsWith("image")) {
+                return (
+                  <img
+                    src={item.url}
+                    alt={"alt" in item ? (item.alt as string) : "Image"}
+                    className="h-full object-contain"
+                    loading="lazy"
+                  />
+                );
+              }
+
+              if (item.mimeType.startsWith("video")) {
+                return (
+                  <video
+                    ref={(el) => {
+                      if (el) videoRefs.current[index] = el;
+                    }}
+                    controls
+                    className="h-full "
+                  >
+                    <source src={item.url} type="video/mp4" />
+                  </video>
+                );
+              }
+
+              if (
+                item.mimeType.startsWith("application/pdf") &&
+                activeIndex === index
+              ) {
+                return (
+                  <iframe
+                    ref={documentRef}
+                    src={item.url}
+                    className="h-full w-full"
+                  />
+                );
+              }
+
+              return null;
+            };
+
+            return (
+              <SwiperSlide
+                key={item.id}
+                className={clsx({
+                  "p-2": isFullScreen,
+                })}
+              >
+                <div className="flex h-full w-full items-center justify-center px-10">
+                  {renderMedia()}
+                </div>
+              </SwiperSlide>
+            );
+          })}
 
           <div
             className={`custom-pagination ${!isFullScreen && "my-2"} flex items-center justify-center space-x-2`}

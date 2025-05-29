@@ -2,9 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GigDto } from "@/dto/dto.type.";
-import {
-  freelancerUrl
-} from "@/features/freelancer/freelancer.api";
+import { freelancerUrl } from "@/features/freelancer/freelancer.api";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import UserRank from "@/features/user/components/UserRank";
 import { useFetchV1 } from "@/hooks/useFetch";
@@ -45,9 +43,9 @@ const GigCardListingReview = ({ gig }: { gig: GigDto }) => {
           gig={gig}
           pauseVideoOnLeave
           className={clsx(
-            "h-full",
+            "h-[250px]",
             // "md:h-[250px]",
-            // "lg:h-[230px]",
+            // "lg:h-[300px]",
             // "xl:h-[250px]",
           )}
         />

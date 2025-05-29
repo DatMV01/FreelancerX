@@ -1,386 +1,175 @@
-import UploadFile from "@/components/uploadfile/UploadFile";
-import { Button, CircularProgress, Divider } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { FileUploader } from "@/features/files/components/FileUploader";
+import { Divider } from "@mui/material";
+import { useEffect, useState } from "react";
 
-interface Props {
+interface GigGallaryInputProps {
   gallarys?: any;
   onSetGallaryCb?: any;
 }
-
-type MediaItem = {
+export interface FileInfomation {
   id: string;
   url: string;
   mimeType: string;
   provider: string;
-};
+}
+export type FileWithOrder =
+  | (FileInfomation & { order: number })
+  | (File & { order: number });
+export function detectFileChanges(
+  original: FileInfomation[],
+  updated: (FileInfomation | File)[],
+) {
+  const added: File[] = [];
+  const removed: FileInfomation[] = [];
+  const kept: FileInfomation[] = [];
 
-type MediaData = {
-  thumbnail: MediaItem;
-  images: {
-    [key: string]: MediaItem | null;
+  const originalIds = original.map((f) => f.id);
+  const updatedIds = updated
+    .filter((f): f is FileInfomation => "id" in f)
+    .map((f) => f.id);
+
+  // Detect added
+  for (const f of updated) {
+    if (f instanceof File) {
+      added.push(f);
+    }
+  }
+
+  // Detect removed + kept
+  for (const orig of original) {
+    if (updatedIds.includes(orig.id)) {
+      kept.push(orig);
+    } else {
+      removed.push(orig);
+    }
+  }
+
+  // New: Ordered list of all final files
+  const finalOrdered = updated;
+
+  return {
+    added,
+    removed,
+    kept,
+    finalOrdered,
   };
-  documents: {
-    [key: string]: MediaItem | null;
-  };
-  video: MediaItem | null;
-};
+}
 
-export const gig_imagesUpload = [`image1`, `image2`, `image3`];
-export const gig_videoUpload = [`video1`];
-export const gig_documentsUpload = [`document1`, `document2`];
+const GigGallaryInput = ({
+  gallarys: initialFiles,
+  onSetGallaryCb,
+}: GigGallaryInputProps) => {
+  const [gallary, setGalarry] = useState<FileInfomation[]>(initialFiles || []);
+  const [files, setFiles] = useState<(FileInfomation | File)[]>(
+    initialFiles || [],
+  );
 
-const GigGallaryInput = ({ gallarys, onSetGallaryCb }: Props) => {
-  const [gallary, setGalarry] = useState<MediaData>(gallarys || {});
-
-console.log(gallary);
+  console.log(files);
 
   useEffect(() => {
     onSetGallaryCb && onSetGallaryCb(gallary);
   }, [gallary]);
 
+  const handleOnChange = (file: File) => {
+    console.log(file);
+    setFiles((prev) => [...prev, file]);
+  };
+
+  const handleRemove = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = () => {
+    const changes = detectFileChanges(initialFiles, files);
+    console.log("✅ Changes:", changes);
+    //onSubmit(changes);
+  };
+
   return (
-    <div className="relative my-6 flex w-full flex-col space-y-10">
-      <div className="w-full">
-        <div className="grid grid-cols-1 gap-2   md:grid-cols-3">
-          <div>
-            <strong className="text-2xl">Thumbnail (Required)</strong>
-                  <p className="invisible">
-              Capture buyers' attention with a video that showcases your
-              service.
-            </p>
-            <p className="mt-5 text-sm my-auto">
-              Please choose a image file smaller than 5MB.
-            </p>
+    <div className="flex flex-col gap-y-6">
+      <div className="flex gap-x-4">
+        <div className="w-1/3">
+          <strong className="text-xl text-green-500">Thumbnail </strong>
+          <span className="text-sm text-gray-400">(Required)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image"]}
+            onChange={handleOnChange}
+            //    onRemove={handleRemove}
+          />
+        </div>
 
-            <UploadFile
-              autoUpload
-              fileType="image"
-              className="h-[300px] w-full"
-              keyFile="thumbnail"
-              fileInfomation={gallary?.thumbnail}
-              onUploadSuccessCb={(data: any) => {
-                //  console.log(data);
-                setGalarry(
-                  (prev) =>
-                    ({
-                      ...prev,
-                      thumbnail: data.data,
-                    }) as any,
-                );
-              }}
-              onDeleteSuccessCb={(data: any) => {
-                console.log(data);
-
-                setGalarry(
-                  (prev) =>
-                    ({
-                      ...prev,
-                      images: {
-                        ...prev?.images,
-                        image1: null,
-                      },
-                    }) as any,
-                );
-              }}
-            />
-          </div>
-          <div className="col-span-2">
-            <strong className="text-2xl"> Video (Optional)</strong>
-            <p>
-              Capture buyers' attention with a video that showcases your
-              service.
-            </p>
-            <p className="mt-5 text-sm">
-              Please choose a video shorter than 75 seconds and smaller than
-              50MB
-            </p>
-
-            <UploadFile
-              fileType="video"
-              className="h-[300px] w-full"
-              keyFile={gig_videoUpload[0]}
-              autoUpload
-              fileInfomation={gallary?.video}
-              onUploadSuccessCb={(data: any) => {
-                //  console.log(data);
-
-                setGalarry(
-                  (prev) =>
-                    ({
-                      ...prev,
-                      video: data.data,
-                    }) as any,
-                );
-              }}
-              onDeleteSuccessCb={(data: any) => {
-                console.log(data);
-
-                setGalarry(
-                  (prev) =>
-                    ({
-                      ...prev,
-                      video: null,
-                    }) as any,
-                );
-              }}
-            />
-          </div>
+        <div className="w-2/3">
+          <strong className="text-xl">Video </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px] w-full"
+            accept={["video"]}
+            onChange={handleOnChange}
+          />
         </div>
       </div>
 
-      <div>
-        <strong className="text-2xl"> Images (Optional)</strong>
-        <p>
-          Get noticed by the right buyers with visual examples of your services.
-        </p>
-        <p className="mt-5 text-sm">
-          Please choose a image file smaller than 5MB.
-        </p>
-
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-          <UploadFile
-            autoUpload
-            fileType="image"
-            keyFile={gig_imagesUpload[0]}
-            fileInfomation={gallary?.images?.image1}
-            onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image1: data.data,
-                    },
-                    //
-                  }) as any,
-              );
-            }}
-            onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image1: null,
-                    },
-                  }) as any,
-              );
-            }}
-
-            // onFileChangeCb={(files: any) => {
-            //   console.log(files);
-            // }}
-          />
-          <UploadFile
-            autoUpload
-            fileType="image"
-            keyFile={gig_imagesUpload[1]}
-            fileInfomation={gallary?.images?.image2}
-            onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image2: data.data,
-                    },
-                  }) as any,
-              );
-            }}
-            onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image2: null,
-                    },
-                  }) as any,
-              );
-            }}
-
-            // onUploadSuccessCb={(data: any) => {
-            //   console.log(data);
-            // }}
-            // onDeleteSuccessCb={(data: any) => {
-            //   console.log(data);
-            // }}
-            //   onFileChangeCb={(files: any) => {
-            //     console.log(files);
-            //   }}
-          />
-          <UploadFile
-            autoUpload
-            fileType="image"
-            keyFile={gig_imagesUpload[2]}
-            fileInfomation={gallary?.images?.image3}
-            onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image3: data.data,
-                    },
-                  }) as any,
-              );
-            }}
-            onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    images: {
-                      ...prev?.images,
-                      image3: null,
-                    },
-                  }) as any,
-              );
-            }}
-          />
-        </div>
-      </div>
       <Divider />
 
-      {/* <div>
-        <strong className="text-2xl"> Video (one only)</strong>
-        <p>
-          Capture buyers' attention with a video that showcases your service.
-        </p>
-        <p className="mt-5 text-sm">
-          Please choose a video shorter than 75 seconds and smaller than 50MB
-        </p>
-
-        <UploadFile
-          fileType="video"
-          className="h-[400px] w-full"
-          keyFile={gig_videoUpload[0]}
-          autoUpload
-          fileInfomation={gallary?.video}
-          onUploadSuccessCb={(data: any) => {
-            //  console.log(data);
-
-            setGalarry(
-              (prev) =>
-                ({
-                  ...prev,
-                  video: data.data,
-                }) as any,
-            );
-          }}
-          onDeleteSuccessCb={(data: any) => {
-            console.log(data);
-
-            setGalarry(
-              (prev) =>
-                ({
-                  ...prev,
-                  video: null,
-                }) as any,
-            );
-          }}
-        />
-      </div>
-      <Divider /> */}
-
-      <div className="w-full">
-        <strong className="text-2xl"> Documents (Optional)</strong>
-        <p>Show some of the best work you created in a document (PDFs only) </p>
-
-        <p className="mt-5 text-sm">
-          Please choose a document file smaller than 5MB.
-        </p>
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          <UploadFile
-            fileType="document"
-            className="h-[400px] w-full"
-            keyFile={gig_documentsUpload[0]}
-            autoUpload
-            fileInfomation={gallary?.documents?.document1}
-            onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    documents: {
-                      ...prev?.documents,
-                      document1: data.data,
-                    },
-                  }) as any,
-              );
-            }}
-            onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    documents: {
-                      ...prev?.documents,
-                      document1: null,
-                    },
-                  }) as any,
-              );
-            }}
+      <div className="flex gap-x-4">
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
           />
+        </div>{" "}
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
+          />
+        </div>{" "}
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
+          />
+        </div>
+      </div>
 
-          <UploadFile
-            fileType="document"
-            className="h-[400px] w-full"
-            keyFile={gig_documentsUpload[0]}
-            autoUpload
-            fileInfomation={gallary?.documents?.document2}
-            onUploadSuccessCb={(data: any) => {
-              //  console.log(data);
+      <Divider />
 
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    documents: {
-                      ...prev?.documents,
-                      document2: data.data,
-                    },
-                  }) as any,
-              );
-            }}
-            onDeleteSuccessCb={(data: any) => {
-              console.log(data);
-
-              setGalarry(
-                (prev) =>
-                  ({
-                    ...prev,
-                    documents: {
-                      ...prev?.documents,
-                      document2: null,
-                    },
-                  }) as any,
-              );
-            }}
-
-            //   onFileChangeCb={(files: any) => {
-            //     console.log(files);
-            //   }}
+      <div className="flex gap-x-4">
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
+          />
+        </div>{" "}
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
+          />
+        </div>{" "}
+        <div className="w-1/3">
+          <strong className="text-xl">File </strong>
+          <span className="text-sm text-gray-400">(Optional)</span>
+          <FileUploader
+            className="h-[400px]"
+            accept={["image", "pdf"]}
+            onChange={handleOnChange}
           />
         </div>
       </div>

@@ -33,7 +33,11 @@ const RejectWithdrawDialog = ({
           onChange={(e) => setReason(e.target.value)}
         />
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            disabled={processing}
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
           <Button

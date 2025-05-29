@@ -341,7 +341,7 @@ function WalletTransactionTable({
       )}
 
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="flex h-[600px] w-[800px] flex-col md:max-w-full">
+        <DialogContent className="flex h-[90%] w-[800px] flex-col md:max-w-full">
           <VisuallyHidden.Root>
             <DialogHeader>DialogHeader</DialogHeader>
           </VisuallyHidden.Root>

@@ -36,7 +36,7 @@ const GigStatusButtonsAdmin = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
@@ -48,7 +48,7 @@ const GigStatusButtonsAdmin = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
@@ -60,26 +60,24 @@ const GigStatusButtonsAdmin = ({
           </Button>
 
           <Button variant="outline" onClick={onEdit}>
-            <Pencil className="h-4 text-green-500" /> EDIT
+            <Pencil className="h-4 text-green-500" /> Edit
           </Button>
         </>
       )}
 
-      {false && status == GigStatus.REJECTED && (
+      {true && status == GigStatus.REJECTED && (
         <>
-          <Button variant="outline">
-            <Send className="h-4 text-green-500" /> Submit for approval
-          </Button>
-
-          <Button variant="outline">
-            <Pencil className="h-4 text-green-500" /> EDIT
+          <Button variant="outline" onClick={onActive}>
+            <Send className="h-4 text-green-500" /> Active
           </Button>
         </>
       )}
 
-      <Button variant="outline" onClick={onReject}>
-        <Ban className="h-4 text-red-500" /> Reject
-      </Button>
+      {status !== GigStatus.REJECTED && (
+        <Button variant="outline" onClick={onReject}>
+          <Ban className="h-4 text-red-500" /> Reject
+        </Button>
+      )}
 
       <Button variant="outline" onClick={onDelete}>
         <X className="h-4 text-red-500" /> Delete

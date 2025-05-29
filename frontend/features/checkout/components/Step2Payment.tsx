@@ -11,6 +11,7 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CircularProgress } from "@mui/material";
 import { getOrderById } from "@/features/order/order.api";
 import StripePayment from "./StripePayment";
+import ButtonGreenBorder from "@/components/ButtonGreenBorder";
 
 type Props = {
   onNext: () => void;
@@ -126,19 +127,23 @@ export default function Step2Payment({ onNext, onBack }: Props) {
             </div>
           </div>
           <div className="flex items-center justify-end">
-            <Button
+            {/* <Button
               className="disabled:cursor-not-allowed disabled:opacity-50"
               onClick={onNext}
               disabled={!paymentSuccess}
             >
               Continue
-            </Button>
-            {/* <Button
+            </Button> */}
+            <ButtonGreenBorder onClick={onNext} disabled={!paymentSuccess}>
+              Continue
+            </ButtonGreenBorder>
+
+            <Button
           className="disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onNext}
         >
           Continue
-        </Button> */}
+        </Button>
           </div>
         </div>
       )}

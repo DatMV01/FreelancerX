@@ -29,7 +29,7 @@ const OrderRequestRevisionDialog = ({
             onClick={handleRequestRevision}
           >
             {processing && <Loader2 className="animate-spin" size={18} />}
-            <span> {processing ? "Processing..." : "Request Revision"}</span>
+            <span> {processing ? "Processing..." : "Confirm Request"}</span>
           </button>
         </DialogFooter>
       </DialogContent>

@@ -8,7 +8,7 @@ const DashboardMainContentHeader = ({ children }: Props) => {
     <div
       className={clsx(
         "flex items-center justify-center gap-x-2 border border-green-500 p-2",
-        "rounded-md text-center text-2xl font-bold text-green-500",
+        "rounded-md text-center text-xl font-bold text-green-500",
       )}
     >
       {children}

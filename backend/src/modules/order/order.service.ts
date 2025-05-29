@@ -91,9 +91,10 @@ export class OrderService extends BaseService<OrderEntity> {
     clientSecret: string;
     paymentIntentId: string;
   }> {
-    const { gig, buyer, gigPackage } = await this.validateEntities(createDto);
+    const { gig, buyer, gigPackage, freelancer } =
+      await this.validateEntities(createDto);
 
-    const snapshot = this.buildSnapshot(buyer, gig, gigPackage);
+    const snapshot = this.buildSnapshot(buyer, freelancer, gig, gigPackage);
 
     const totalAmount = Number(createDto.quantity) * Number(gigPackage.price);
     const currency = createDto.currency || 'USD';
@@ -181,19 +182,33 @@ export class OrderService extends BaseService<OrderEntity> {
       throw new NotFoundException(`Buyer with ID ${buyerId} not found`);
     }
 
+    const freelancer = await this.freelancerRepo.findOneBy({
+      id: String(gig.freelancerId),
+    });
+    if (!freelancer) {
+      consoleError(`Freelancer with ID ${buyerId} not found`);
+      throw new NotFoundException(`Freelancer with ID ${buyerId} not found`);
+    }
+
     const gigPackage = gig.packages.find((pkg) => pkg.id === packageId);
     if (!gigPackage) {
       consoleError(`Package with ID ${packageId} not found`);
       throw new NotFoundException(`Package with ID ${packageId} not found`);
     }
 
-    return { gig, buyer, gigPackage };
+    return { gig, buyer, freelancer, gigPackage };
   }
 
   // Build snapshot
-  private buildSnapshot(buyer: UserEntity, gig: GigEntity, gigPackage: any) {
+  private buildSnapshot(
+    buyer: UserEntity,
+    freelancer: FreelancerEntity,
+    gig: GigEntity,
+    gigPackage: any,
+  ) {
     const { createdAt, updatedAt, deletedAt, ...packageInfomation } =
       gigPackage;
+
     return {
       buyer: {
         id: buyer.id,
@@ -201,9 +216,9 @@ export class OrderService extends BaseService<OrderEntity> {
         email: buyer.email,
       },
       freelancer: {
-        id: gig.freelancerId,
-        displayName: gig.freelancer.displayName,
-        email: gig.freelancer.email,
+        id: freelancer.id,
+        displayName: freelancer.displayName,
+        email: freelancer.email,
       },
       gig: {
         id: gig.id,

@@ -51,7 +51,7 @@ export const OrderStatusButtonBuyer = ({
         <>
           <Button onClick={onPay} variant="outline">
             <CreditCard className="h-4" />
-            Pay
+            Re-pay
           </Button>
           <Button onClick={onCancel} variant="outline">
             <Ban className="h-4 text-red-500" /> Cancel

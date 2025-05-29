@@ -52,7 +52,7 @@ export function FilterBar() {
               value={params.priceRange || ""}
               onValueChange={(val) => setParam("priceRange", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Price Range" />
               </SelectTrigger>
               <SelectContent>
@@ -69,7 +69,7 @@ export function FilterBar() {
               value={params.deliveryTime || ""}
               onValueChange={(val) => setParam("deliveryTime", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Delivery Time" />
               </SelectTrigger>
               <SelectContent>
@@ -85,7 +85,7 @@ export function FilterBar() {
               value={params.rating || ""}
               onValueChange={(val) => setParam("rating", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Rating" />
               </SelectTrigger>
               <SelectContent>
@@ -102,7 +102,7 @@ export function FilterBar() {
               value={params.level || ""}
               onValueChange={(val) => setParam("level", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder=" Level" />
               </SelectTrigger>
               <SelectContent>
@@ -118,7 +118,7 @@ export function FilterBar() {
               value={params.language || ""}
               onValueChange={(val) => setParam("language", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent>
@@ -133,7 +133,7 @@ export function FilterBar() {
               value={params.country || ""}
               onValueChange={(val) => setParam("country", val)}
             >
-              <SelectTrigger className="w-30">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Country" />
               </SelectTrigger>
               <SelectContent>

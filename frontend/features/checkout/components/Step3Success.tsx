@@ -6,6 +6,9 @@ import { useRouter } from "next/router";
 import { z } from "zod";
 import { useSearchParams } from "next/navigation";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
+import { FileUploader } from "@/features/files/components/FileUploader";
+import ButtonGreenBorder from "@/components/ButtonGreenBorder";
 
 const MAX_SIZE_MB = 30;
 
@@ -96,7 +99,7 @@ export default function Step3Success() {
     answerformData.append("requirement", answer);
 
     if (result.data.file) {
-      const newFileName = `order___${orderId}___${result.data.file.name.replaceAll(" ", "_")}`;
+      const newFileName = `order___${Date.now()}}.zip`;
       const newFile = new File([result.data.file], newFileName, {
         type: result.data.file.type,
       });
@@ -127,7 +130,7 @@ export default function Step3Success() {
         "Do you have an idea of what you want?",
       );
       answerformData.append("answer", answer);
- 
+
       const { data, status } = await axiosInstanceV1.post(
         "/orders/questions-answers",
         answerformData,
@@ -155,21 +158,34 @@ export default function Step3Success() {
       {!submitted && (
         <form
           onSubmit={handleSubmit}
-          className="mt-6 space-y-6 rounded-2xl bg-white p-4 shadow-md"
+          className="mt-6 space-y-6 rounded-xl border bg-white p-4"
         >
           <div>
             <label className="mb-2 block text-lg font-semibold">
               Do you have an idea of what you want?
             </label>
-            <textarea
+            {/* <textarea
               className="w-full rounded-xl border p-3 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               rows={5}
               placeholder="Describe your idea here..."
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
+            /> */}
+            <CharCountTextareaBasic
+              value={answer}
+              placeholder="Describe your idea here..."
+              maxLength={500}
+              className={errorMsg ? "border-red-500" :""}
+              onChange={(val) => setAnswer(val)}
             />
-          </div>
 
+            {errorMsg && (
+              <p className="mt-2 text-base font-medium text-red-500">
+                {errorMsg}
+              </p>
+            )}
+          </div>
+          {/* 
           <div>
             <label className="mb-2 block text-lg font-semibold">
               Attach .zip file (optional, max {MAX_SIZE_MB}MB):
@@ -192,15 +208,43 @@ export default function Step3Success() {
                 {errorMsg}
               </p>
             )}
+          </div> */}
+
+          <div>
+            <label className="mb-2 block text-lg font-semibold">
+              Attach .zip file (optional):
+            </label>
+
+            <FileUploader
+              accept={["zip"]}
+              className="h-[300px]"
+              onChange={(file) => {
+                setFile(file ?? null);
+                setErrorMsg(null);
+              }}
+            />
           </div>
 
-          <button
+          {/* <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-xl bg-blue-600 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
+            className="w-fit rounded-xl bg-blue-600 px-4 py-3 text-white transition hover:bg-blue-700 disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit Answer"}
-          </button>
+          </button> */}
+
+          <div className="flex items-center justify-center">
+            <ButtonGreenBorder
+              type="submit"
+              disabled={submitting}
+              className="w-60"
+              onClick={() => {}}
+            >
+              <span className="text-xl">
+                {submitting ? "Submitting..." : "Submit Answer"}
+              </span>
+            </ButtonGreenBorder>
+          </div>
         </form>
       )}
 

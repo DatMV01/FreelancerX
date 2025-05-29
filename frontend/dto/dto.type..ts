@@ -39,6 +39,14 @@ export interface PricingPackage {
   premium: any;
 }
 
+export interface FeatureTables {
+  id: number;
+  feature: string;
+  basic: any;
+  standard: any;
+  premium: any;
+}
+
 export interface FAQ {
   id: string;
   question: string;
@@ -94,7 +102,7 @@ export interface Requirement {
 
 export type Feature = {
   value: string;
-  package: string;
+  name: string;
 };
 
 export type GigPackage = {
@@ -126,6 +134,8 @@ export class GigDto extends BaseDto<GigDto> {
   standardPrice!: string;
   premiumPrice!: string;
   pricingPackage!: PricingPackage[];
+  features!: FeatureTables[];
+  medias!:any;
   description!: string;
   reviewCount: number;
   faqs!: FAQ[];

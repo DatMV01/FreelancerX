@@ -21,6 +21,7 @@ import { GigEntity, GigTagEntity } from './entities/gig.entity';
 import {
   GigPackagesEntity,
   GigPackageType,
+  PackageFeature,
 } from './entities/gig_packages.entity';
 import { UserFavoriteGigEntity } from './entities/user_favorite_gigs.entity';
 import {
@@ -115,7 +116,7 @@ export class GigService extends BaseService<GigEntity> {
     }
   }
 
-  async findAllByTag(
+  async findAllTags(
     queryObj: QueryInput<GigTagEntity>,
     currentUser?: JwtAccessPayloadType,
   ): Promise<[GigTagEntity[], number]> {
@@ -146,9 +147,49 @@ export class GigService extends BaseService<GigEntity> {
     }
   }
 
+  async findGigsByTag(
+    queryObj: QueryInput<GigTagEntity>,
+    currentUser?: JwtAccessPayloadType,
+  ): Promise<[GigEntity[], number]> {
+    const { page, pageSize, sorts, filters, fields, keyword } = queryObj;
+
+    if (!keyword || keyword === '') {
+      return [[], 0];
+    }
+
+    try {
+      const results = await this._repository
+        .createQueryBuilder('gig')
+        .leftJoin('gig.tags', 'tag')
+        //.where('tag.keyword IN (:...keywords)', { keywords })
+        .where('tag.keyword = :keyword', { keyword })
+        .orderBy('gig.createdAt', 'DESC') // nếu có
+        .getManyAndCount();
+
+      return results;
+    } catch (error) {
+      console.log('====================================');
+      console.log(error);
+      console.log('====================================');
+      throw new Error(`Error fetching data: ${error}`);
+    }
+  }
+
+  async createTag(keyword: string) {
+    const tag = await this.gigTagRepo.findOneBy({
+      keyword: keyword.toLowerCase(),
+    });
+
+    if (!tag) {
+      return this.gigTagRepo.save({ keyword });
+    } else {
+      return tag;
+    }
+  }
+
   async increaseSearchTagCount(keyword: string) {
     const tag = await this.gigTagRepo.findOneBy({
-      keyword: capitalizeEachWord(keyword),
+      keyword: keyword.toLowerCase(),
     });
 
     if (tag) {
@@ -241,10 +282,11 @@ export class GigService extends BaseService<GigEntity> {
       where: { userId: createDto.userId },
     });
 
-    const createdTags = await this.createTags(createDto.tags || []);
+    const createdTags = await this.createTags2(createDto.tags as any);
 
+    //const createdTags = await this.createTags(createDto.tags as any);
     const [basic, standard, premium] = this.transformPackages(
-      createDto.pricingPackage,
+      createDto.features,
     );
 
     const basicPackage = this.gigPackageRepository.create(basic);
@@ -256,6 +298,10 @@ export class GigService extends BaseService<GigEntity> {
       id: uuidv4(),
       freelancer,
       tags: createdTags,
+      thumbnail: createDto?.medias?.thumbnail,
+      basicPrice: basicPackage.price,
+      standardPrice: standardPackage.price,
+      premiumPrice: premiumPackage.price,
       packages: [basicPackage, standardPackage, premiumPackage],
     });
 
@@ -267,9 +313,39 @@ export class GigService extends BaseService<GigEntity> {
     data: DeepPartial<GigEntity>,
   ): Promise<GigEntity> {
     const gigEntity = await this.findOneById(id);
+    if (data.tags) data.tags = await this.createTags2(data.tags as any);
 
-    if (data.tags) {
-      data.tags = await this.createTags(data.tags);
+    if (data.features) {
+      const [basic, standard, premium] = this.transformPackages(data.features);
+
+      const gigPackages = gigEntity.packages;
+      const gigBasicPackage = gigPackages.find(
+        (_) => _.type === GigPackageType.BASIC,
+      );
+
+      await this.gigPackageRepository.update(gigBasicPackage?.id as string, {
+        ...gigBasicPackage,
+        ...basic,
+      });
+      gigEntity.basicPrice = basic.price as any;
+
+      const gigStandardPackage = gigPackages.find(
+        (_) => _.type === GigPackageType.STANDARD,
+      );
+      await this.gigPackageRepository.update(gigStandardPackage?.id as string, {
+        ...gigStandardPackage,
+        ...standard,
+      });
+      gigEntity.standardPrice = standard.price as any;
+
+      const gigPremiumPackage = gigPackages.find(
+        (_) => _.type === GigPackageType.PREMIUM,
+      );
+      await this.gigPackageRepository.update(gigPremiumPackage?.id as string, {
+        ...gigPremiumPackage,
+        ...premium,
+      });
+      gigEntity.premiumPrice = premium.price as any;
     }
 
     const updateEntity: GigEntity = {
@@ -277,16 +353,30 @@ export class GigService extends BaseService<GigEntity> {
       category: undefined,
       subCategory: undefined,
       nestedSubcategory: undefined,
+      freelancerId: gigEntity.freelancerId,
       ...data,
+      ratingAverage: gigEntity.ratingAverage,
       ratingCount: gigEntity.ratingCount,
       viewCount: gigEntity.viewCount,
+      favoriteCount: gigEntity.favoriteCount,
+      orderCompleteCount: gigEntity.orderCompleteCount,
       orderCount: gigEntity.orderCount,
       freelancer: gigEntity.freelancer,
+      packages: undefined,
     } as any;
 
     const save = await super.create(updateEntity);
 
     return save;
+  }
+  async createTags2(tags: GigTagEntity[]): Promise<GigTagEntity[]> {
+    const allTags = await Promise.all(
+      tags.map(async (_) => {
+        return await this.gigTagRepository.findOneBy({ id: _.id });
+      }),
+    );
+
+    return allTags.filter((tag): tag is GigTagEntity => tag !== null);
   }
 
   async createTags(tags: any[]): Promise<any[]> {
@@ -447,14 +537,14 @@ export class GigService extends BaseService<GigEntity> {
         price: 0,
         deliveryTime: 0,
         revisions: 0,
-        features: [] as { package: string; value: string }[],
+        features: [] as PackageFeature[],
       };
 
       data.forEach((item) => {
         const value = item[type];
 
-        switch (item.package.toLowerCase()) {
-          case 'name':
+        switch (item.feature.toLowerCase()) {
+          case 'title':
             obj.title = value.replace(/[^\w ]/, '') ?? '';
             break;
           case 'description':
@@ -475,7 +565,7 @@ export class GigService extends BaseService<GigEntity> {
           default:
             obj.features = obj.features || [];
             obj.features.push({
-              package: item.package,
+              name: item.feature,
               value: value !== undefined ? value.toString() : '',
             });
             break;

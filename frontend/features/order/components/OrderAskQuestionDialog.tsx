@@ -1,3 +1,4 @@
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -5,7 +6,6 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -27,11 +27,12 @@ const OrderAskQuestionDialog = ({
       <DialogContent>
         <DialogHeader>Ask buyer a Question</DialogHeader>
 
-        <Textarea
+        <CharCountTextareaBasic
           placeholder="Enter your question..."
-          className="h-60"
+          maxLength={500}
+          className="h-70 w-full break-all"
           value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          onChange={(val) => setQuestion(val)}
         />
 
         <DialogFooter className="mt-4">

@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import {
   FAQ,
+  FeatureTables,
   GigDocuments,
   GigFileInfo,
   GigImages,
@@ -22,6 +23,7 @@ import { AutoMap } from '@automapper/classes';
 import { CategoryDto } from 'src/modules/category/dto/category.dto';
 import { GigTagEntity } from '../entities/gig.entity';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
+import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 
 export class GigFreelancerDto {
   @AutoMap()
@@ -87,11 +89,10 @@ export class CreateGigDto {
   // @IsOptional()
   // nestedSubcategory: CategoryDto;
 
-  @AutoMap(() => [String])
-  @IsOptional()
+  @AutoMap(() => [GigTagEntity])
   @IsArray()
-  @IsString({ each: true })
-  tags?: string[];
+  //@IsString({ each: true })
+  tags?: GigTagEntity[];
 
   @AutoMap()
   @IsNumber()
@@ -114,6 +115,10 @@ export class CreateGigDto {
   @AutoMap(() => [PricingPackage])
   @IsOptional()
   pricingPackage: PricingPackage[];
+
+  @AutoMap(() => [FeatureTables])
+  @IsOptional()
+  features: FeatureTables[];
 
   @AutoMap()
   @IsString()
@@ -173,12 +178,12 @@ export class CreateGigDto {
   // @ApiProperty()
   // totalReviews?: number;
 
-  @AutoMap(() => GigFreelancerDto)
+  @AutoMap(() => FreelancerEntity)
   @IsOptional()
-  @ValidateNested()
-  @Type(() => GigFreelancerDto)
+//  @ValidateNested()
+  @Type(() => FreelancerEntity)
   @ApiProperty({ type: () => GigFreelancerDto, required: false })
-  freelancer?: GigFreelancerDto;
+  freelancer?: FreelancerEntity;
 
   @AutoMap()
   @IsOptional()

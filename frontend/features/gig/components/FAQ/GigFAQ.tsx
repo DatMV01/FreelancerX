@@ -6,7 +6,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import { Typography } from "@mui/material";
 
-const GigFAQ = ({ gig }: { gig: GigDto }) => {
+const GigFAQHomePage = ({ gig }: { gig: GigDto }) => {
   const { faqs } = gig;
   return (
     <div className="pt-4">
@@ -32,4 +32,4 @@ const GigFAQ = ({ gig }: { gig: GigDto }) => {
   );
 };
 
-export default GigFAQ;
+export default GigFAQHomePage;

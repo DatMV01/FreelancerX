@@ -18,7 +18,7 @@ const FreelancerProfile = () => {
   }>();
 
   const { email } = router.query as any;
-  debugger;
+ 
   const {
     data: freelancer,
     error,

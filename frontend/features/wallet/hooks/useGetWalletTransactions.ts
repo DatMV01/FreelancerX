@@ -7,7 +7,7 @@ export const defaultWalletTransactionQuery: QueryInput<WalletTransactionEntity> 
   {
     page: 1,
     pageSize: 10,
-    sorts: { processedAt: "DESC", createdAt: "DESC" },
+    sorts: { createdAt: "DESC", processedAt: "DESC" },
   } as any;
 
 export function useGetWalletTransactions(

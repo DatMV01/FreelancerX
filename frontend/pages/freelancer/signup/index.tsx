@@ -263,7 +263,7 @@ export default function FreelancerSignupForm() {
     //     }, 1000);
     //   }
 
-    //   debugger;
+    //   
     //   console.log("Form Data Submitted Successfully:", response.data);
     // } catch (error) {
     //   setMessage({

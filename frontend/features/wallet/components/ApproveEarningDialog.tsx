@@ -24,7 +24,11 @@ const ApproveEarningDialog = ({
         <DialogHeader>Approve Earning Record</DialogHeader>
         <p>Are you sure you want to approve this earning?</p>
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            disabled={processing}
+            onClick={() => onOpenChange(false)}
+          >
             Cancel
           </Button>
           <Button

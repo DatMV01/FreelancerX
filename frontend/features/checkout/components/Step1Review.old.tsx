@@ -94,7 +94,7 @@ export default function Step1Review({ onNext }: { onNext: () => void }) {
   }, [order]);
 
   const getValue = (pkg: GigPackage, feature: string) => {
-    const found = pkg.features.find((f) => f.package === feature);
+    const found = pkg.features.find((f) => f.name === feature);
     if (found?.value) {
       if (found.value === "Yes") {
         return <CheckCircle className="text-green-500" size={18} />;

@@ -7,11 +7,17 @@ import { OrderTransactionEntity } from 'src/modules/order/entities/order_transac
 import Stripe from 'stripe';
 import { StripeController } from './stripe.controller';
 import { StripeService } from './stripe.service';
+import { GigEntity } from '../gig/entities/gig.entity';
 
 @Module({
   imports: [
     ConfigModule,
-    TypeOrmModule.forFeature([OrderTransactionEntity, OrderEntity, OrderLogsEntity]),
+    TypeOrmModule.forFeature([
+      OrderTransactionEntity,
+      OrderEntity,
+      GigEntity,
+      OrderLogsEntity,
+    ]),
   ],
   controllers: [StripeController],
   providers: [

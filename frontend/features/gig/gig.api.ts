@@ -77,25 +77,26 @@ const fetch = async (url: string, params: FetchOrderParams) => {
 };
 
 export const searchGig = async (queryStr: string) => {
-  debugger;
   return axiosInstanceV1.get(`${BASE}/search?${queryStr}`);
 };
 
 export const searchGigByTag = async (queryStr: string) => {
-  debugger;
-  return axiosInstanceV1.get(`${BASE}/search/tag?${queryStr}`);
+  return axiosInstanceV1.get(`${BASE}/tags/search?${queryStr}`);
+};
+
+export const createNewTag = async (keyword: string) => {
+  return axiosInstanceV1.post(`${BASE}/tags`, {
+    keyword,
+  });
 };
 
 export const fetchGigsV2 = async (queryStr: string) => {
-  debugger;
   return axiosInstanceV2.get(`${BASE}?${queryStr}`);
 };
 
 export const findUserGigs = async (queryStr: string) => {
-  debugger;
   return axiosInstanceV1.get(`${BASE}/me?${queryStr}`);
 };
-
 
 export const fetchFavoritesGigs = async () => {
   const { data } = await axiosInstanceV1.get(gigUrl.favorites);
@@ -113,8 +114,7 @@ export const removeFavoriteGig = async (id: string) => {
 };
 
 export const getGigById = async (id: string) => {
-  const { data } = await axiosInstanceV1.get(gigUrl.byId(id));
-  return data;
+  return await axiosInstanceV1.get(gigUrl.byId(id));
 };
 
 export const getGigBySlug = async (slug: string) =>
@@ -123,8 +123,7 @@ export const getGigBySlug = async (slug: string) =>
 export const createGig = async (
   gig: Omit<GigDto, "id" | "createdAt" | "updatedAt">,
 ) => {
-  const { data } = await axiosInstanceV1.post(gigUrl.root, gig);
-  return data;
+  return await axiosInstanceV1.post(gigUrl.root, gig);
 };
 
 export const updateGig = async (

@@ -8,10 +8,15 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react"; // Thêm useRef vào import
 
+type SearchResult = {
+  id: string;
+  keyword: string;
+};
+
 const NavbarSearchBar = ({ ...props }) => {
   const [inputValue, setInputValue] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [popularSearches, setPopularSearches] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [popularSearches, setPopularSearches] = useState<SearchResult[]>([]);
   const [noResults, setNoResults] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -22,8 +27,8 @@ const NavbarSearchBar = ({ ...props }) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [queryObj, setQueryObj] = useState<QueryInput<any>>({
-    ...defaulFetchGigsQuery,
-    pageSize: 50,
+  page: 1,
+  pageSize: 10,
   });
 
   const queryString = buildQueryFromObject(queryObj);
@@ -36,7 +41,7 @@ const NavbarSearchBar = ({ ...props }) => {
     isValidating,
     mutate,
   } = useFetchByQuery({
-    queryString : inputValue != "" ? queryString : null,
+    queryString: inputValue != "" ? queryString : null,
     fetcherFn: searchGigByTag,
     key,
   });
@@ -53,6 +58,11 @@ const NavbarSearchBar = ({ ...props }) => {
   };
 
   useEffect(() => {
+    // Always clear timeout first
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     if (inputValue === "") {
       setSearchResults([]);
       setPopularSearches([
@@ -61,10 +71,6 @@ const NavbarSearchBar = ({ ...props }) => {
         { id: "3", keyword: "UI/UX Design" },
       ]);
       return;
-    }
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
     }
 
     timeoutRef.current = setTimeout(() => {
@@ -96,7 +102,7 @@ const NavbarSearchBar = ({ ...props }) => {
     router.push(`/search/gigs?${_query}`);
   };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && searchResults.length > 0) {
       handleClickSearchResult(searchResults[0].keyword);
     }
   };

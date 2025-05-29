@@ -1,48 +1,31 @@
 "use client";
 
 import BreadcrumbCategory from "@/components/BreadcrumbCategory";
-import { Button } from "@/components/ui/button";
 import { GigDto, GigPackage } from "@/dto/dto.type.";
 import { freelancerUrl } from "@/features/freelancer/freelancer.api";
+import GigFAQHomePage from "@/features/gig/components/FAQ/GigFAQ";
 import GigCarousel from "@/features/gig/components/GigCarousel";
 import GigComments from "@/features/gig/components/GigComment";
-import GigComparePackage from "@/features/gig/components/GigComparePackage";
 import GigComparePackage2 from "@/features/gig/components/GigComparePackage2";
 import GigDescription from "@/features/gig/components/GigDescription";
-import GigFAQ from "@/features/gig/components/GigFAQ";
 import GigFavorite from "@/features/gig/components/GigFavorite";
 import GigMessagePopover from "@/features/gig/components/GigMessagePopover";
-import GigMetaData from "@/features/gig/components/GigMetaData";
 import GigPrototype from "@/features/gig/components/GigPrototype";
 import GigReviewStats from "@/features/gig/components/GigReviewStats";
-
 import GigSellerOverview from "@/features/gig/components/GigSellerOverview";
-import GigSellerPortfolio from "@/features/gig/components/GigSellerPortfolio";
 import GigSellerRank from "@/features/gig/components/GigSellerRank";
 import { getGigBySlug } from "@/features/gig/gig.api";
 import { useFetchV1 } from "@/hooks/useFetch";
 import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { selectUser } from "@/lib/redux/features/auth/authSlice";
-import {
-  addFavoriteGig,
-  removeFavoriteGig,
-  selectFavoriteGigs,
-  selectFavoriteGigsStatus,
-} from "@/lib/redux/features/gigs/gigsSlice";
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
-import { CircularProgress, Tab, Tabs, Tooltip } from "@mui/material";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { CircularProgress, Tab, Tabs } from "@mui/material";
 import {
   CheckCircle,
   Clock,
-  DollarSign,
-  Heart,
   Loader2,
-  Pencil,
-  RefreshCw,
-  Truck,
-  X,
+  RefreshCw
 } from "lucide-react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -67,6 +50,7 @@ const BreadcumSection = ({ gig }: { gig: GigDto | null }) => {
 const PackageSideBar = ({
   gigId,
   gigPackage,
+  freelancerId,
   packageTitle,
   packageName,
   packagePrice,
@@ -78,6 +62,7 @@ const PackageSideBar = ({
 }: {
   gigId: string;
   gigPackage: GigPackage;
+  freelancerId: any;
   packageTitle: string;
   packageName: string;
   packagePrice: string;
@@ -87,12 +72,15 @@ const PackageSideBar = ({
   packageIncluded: string[];
   continueCb?: any;
 }) => {
+ 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const { mode } = router.query;
-  const userId = useAppSelector(selectUser)?.id;
+  const user = useAppSelector(selectUser);
 
+  const isGigOwner = freelancerId === user?.freelancer?.id;
+ 
   const handleScroll = () => {
     document
       .getElementById("compare-packages")
@@ -100,7 +88,7 @@ const PackageSideBar = ({
   };
 
   const handlePlaceAnOrder = async () => {
-    if (!userId) {
+    if (!user?.id) {
       toast.info("Please login");
       return;
     }
@@ -181,7 +169,7 @@ const PackageSideBar = ({
           handlePlaceAnOrder();
         }}
         className="flex h-8 items-center justify-center space-x-2 rounded-sm border-2 border-green-500 bg-green-500 text-white hover:bg-green-600 disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={loading}
+        disabled={loading || isGigOwner}
       >
         {loading && <Loader2 className="animate-spin" size={18} />}
         <span> {loading ? "Processing..." : "Place an order"}</span>
@@ -192,6 +180,8 @@ const PackageSideBar = ({
 
 const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
   if (!gig) return;
+
+  console.log(gig);
 
   const router = useRouter();
 
@@ -205,37 +195,36 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
     packageRevisions,
     pricePackage,
     ...addtitionalPackages
-  ] = gig.pricingPackage || [];
+  ] = gig.features || [];
 
   const a = addtitionalPackages
     .filter((item) => item.basic !== "")
     .map((item) => {
       return item.basic === "x" || item.basic === "Yes"
-        ? item.package
-        : `${item.package}: ${item.basic}`;
+        ? item.feature
+        : `${item.feature}: ${item.basic}`;
     });
 
   const b = addtitionalPackages
     .filter((item) => item.standard !== "")
     .map((item) => {
       return item.standard === "x" || item.standard === "Yes"
-        ? item.package
-        : `${item.package}: ${item.standard}`;
+        ? item.feature
+        : `${item.feature}: ${item.standard}`;
     });
 
   const c = addtitionalPackages
     .filter((item) => item.premium !== "")
     .map((item) => {
       return item.premium === "x" || item.premium === "Yes"
-        ? item.package
-        : `${item.package}: ${item.premium}`;
+        ? item.feature
+        : `${item.feature}: ${item.premium}`;
     });
 
   const basicPackage = gig.packages.find((_) => _.type === "basic");
   const standardPackage = gig.packages.find((_) => _.type === "standard");
   const premiumPackage = gig.packages.find((_) => _.type === "premium");
 
-  const isGigOwner = gig?.freelancer?.email === user?.email;
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -275,6 +264,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={basicPackage as any}
+            freelancerId={gig.freelancerId}
             packageTitle="basic"
             packageName={packageName?.basic}
             packagePrice={pricePackage?.basic}
@@ -289,6 +279,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={standardPackage as any}
+            freelancerId={gig.freelancerId}
             packageTitle="standard"
             packageName={packageName?.standard}
             packagePrice={pricePackage?.standard}
@@ -303,6 +294,7 @@ const SideBarContent = ({ gig }: { gig: GigDto | null }) => {
           <PackageSideBar
             gigId={gig?.id}
             gigPackage={premiumPackage as any}
+            freelancerId={gig.freelancerId}
             packageTitle="premium"
             packageName={packageName?.premium}
             packagePrice={pricePackage?.premium}
@@ -364,6 +356,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigCarousel gig={gig} className="h-[300px] lg:h-[400px] xl:h-[600px]" />
 
+      {/* <GigCarousel2 gig={gig} /> */}
       <GigDescription gig={gig} />
 
       {/* <GigMetaData /> */}
@@ -376,7 +369,7 @@ const GigMainContent = ({ gig }: { gig: GigDto | null }) => {
 
       <GigComparePackage2 gig={gig} />
 
-      <GigFAQ gig={gig} />
+      <GigFAQHomePage gig={gig} />
 
       <GigReviewStats gig={gig} />
 
@@ -400,11 +393,10 @@ const GigDetail = () => {
   const [isLoading, setLoading] = useState(false);
   const [gig, setGig] = useState<GigDto | null>(null);
   const user = useAppSelector(selectUser);
-  debugger
+
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
-  
       setLoading(true);
 
       try {

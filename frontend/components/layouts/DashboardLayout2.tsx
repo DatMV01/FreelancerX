@@ -53,7 +53,7 @@ const freelancerNavItems = [
     roles: ["freelancer"],
   },
   {
-    label: "Taks",
+    label: "Tasks",
     href: route.freelancer.tasks,
     icon: ShoppingBag,
     roles: ["freelancer"],

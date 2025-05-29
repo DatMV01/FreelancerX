@@ -1,29 +1,23 @@
 import { GigDto, GigPackage } from "@/dto/dto.type.";
-import {
-  CheckCircle,
-  Clock,
-  DollarSign,
-  RefreshCw,
-  X
-} from "lucide-react";
+import { CheckCircle, Clock, DollarSign, RefreshCw, X } from "lucide-react";
 
 const GigComparePackage2 = ({ gig }: { gig: GigDto }) => {
   const orderedTypes = ["basic", "standard", "premium"];
-
+  
   const sortedPackages: GigPackage[] = orderedTypes.map((type) =>
     gig.packages.find((p) => p.type === type),
   ) as any;
 
-  const allFeatures = Array.from(
-    new Set(
-      sortedPackages.flatMap((pkg) => pkg.features.map((f) => f.package)),
-    ),
+  const allFeatureNames = sortedPackages.flatMap((pkg) =>
+    pkg.features.map((f) => f.name),
   );
 
+  const allFeatures = Array.from(new Set(allFeatureNames));
+
   const getValue = (pkg: GigPackage, feature: string) => {
-    const found = pkg.features.find((f) => f.package === feature);
+    const found = pkg.features.find((f) => f.name === feature);
     if (found?.value) {
-      if (found.value === "Yes") {
+      if (found.value === "Yes" || found.value === "x" || found.value === "X") {
         return <CheckCircle className="text-green-500" size={18} />;
       }
       return found.value;

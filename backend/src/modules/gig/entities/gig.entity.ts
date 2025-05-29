@@ -5,8 +5,6 @@ import { BaseEntity } from 'src/modules/base/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
 import { FreelancerEntity } from 'src/modules/freelancer/entities/freelancer.entity';
 import { OrderEntity } from 'src/modules/order/entities/order.entity';
-
-import { UserEntity } from 'src/modules/user/entities/user.entity';
 import {
   AfterLoad,
   BeforeInsert,
@@ -24,6 +22,7 @@ import {
 } from 'typeorm';
 import {
   FAQ,
+  FeatureTables,
   GigDocuments,
   GigFileInfo,
   GigImages,
@@ -33,7 +32,6 @@ import { GigStatus } from '../enum/gig.status';
 import { GigPackagesEntity, GigPackageType } from './gig_packages.entity';
 import { UserFavoriteGigEntity } from 'src/modules/gig/entities/user_favorite_gigs.entity';
 import { FileEntity } from 'src/modules/files/entities/file.entity';
-import { ppid } from 'process';
 import { GigRatingEntity } from 'src/modules/gig_rating/entities/gigreview.entity';
 
 @Entity('gig_tags')
@@ -41,7 +39,7 @@ export class GigTagEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true, type: 'varchar', length: 100 })
+  @Column({ unique: true, type: 'varchar', length: 50 })
   keyword: string;
 
   @Column({ default: 0 })
@@ -151,11 +149,6 @@ export class GigEntity extends BaseEntity {
   })
   tags: GigTagEntity[];
 
-  /**== FavoriteGigs ==*/
-  // @AutoMap(() => [UserEntity])
-  // @ManyToMany(() => UserEntity, (user) => user.favoriteGigLinks)
-  // favoritedByUsers: UserEntity[];
-
   @OneToMany(() => UserFavoriteGigEntity, (ufg) => ufg.gig)
   favoritedByLinks: UserFavoriteGigEntity[];
 
@@ -163,12 +156,15 @@ export class GigEntity extends BaseEntity {
 
   /* Pricing */
   @AutoMap()
+  @Column({ type: 'int', default: 0 })
   basicPrice: number;
 
   @AutoMap()
+  @Column({ type: 'int', default: 0 })
   standardPrice: number;
 
   @AutoMap()
+  @Column({ type: 'int', default: 0 })
   premiumPrice: number;
 
   @AutoMap(() => [GigPackagesEntity])
@@ -181,6 +177,10 @@ export class GigEntity extends BaseEntity {
   @AutoMap(() => PricingPackage)
   @Column({ type: 'json', nullable: true })
   pricingPackage: PricingPackage[];
+
+  @AutoMap(() => [FeatureTables])
+  @Column({ type: 'json', nullable: true })
+  features: FeatureTables[];
 
   /* Pricing */
 
@@ -201,7 +201,7 @@ export class GigEntity extends BaseEntity {
 
   @AutoMap(() => [FileEntity])
   @Column({ type: 'json', nullable: false })
-  medias: FileEntity[];
+  medias: Record<string, FileEntity>;
 
   @AutoMap(() => GigImages)
   @Column({ type: 'json', nullable: true })
@@ -270,12 +270,12 @@ export class GigEntity extends BaseEntity {
     const noAccents = `${removeAccents(this.title)}-${Date.now()}`;
     this.slug = `${slugify(noAccents, { lower: true, strict: true })}`;
 
-    this.updateAllCategory();
+    //this.updateAllCategory();
   }
 
   @BeforeUpdate()
   beforeUpdate() {
-    this.updateAllCategory();
+    //this.updateAllCategory();
   }
 
   @AfterLoad()
@@ -284,26 +284,26 @@ export class GigEntity extends BaseEntity {
     if (this.subCategory) this.subCategoryId = this.subCategory?.id ?? null;
     if (this.nestedSubcategory)
       this.nestedSubcategoryId = this.nestedSubcategory?.id ?? null;
-    if (this.packages) {
-      this.basicPrice =
-        this.packages.find((pkg) => pkg.type === GigPackageType.BASIC)?.price ??
-        0;
+    // if (this.packages) {
+    //   this.basicPrice =
+    //     this.packages.find((pkg) => pkg.type === GigPackageType.BASIC)?.price ??
+    //     0;
 
-      this.standardPrice =
-        this.packages.find((pkg) => pkg.type === GigPackageType.STANDARD)
-          ?.price ?? 0;
+    //   this.standardPrice =
+    //     this.packages.find((pkg) => pkg.type === GigPackageType.STANDARD)
+    //       ?.price ?? 0;
 
-      this.premiumPrice =
-        this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)
-          ?.price ?? 0;
-    }
-    if (!this.thumbnail) {
-      this.thumbnail =
-        this.images?.image1 ||
-        this.images?.image2 ||
-        this.images?.image3 ||
-        (null as any);
-    }
+    //   this.premiumPrice =
+    //     this.packages.find((pkg) => pkg.type === GigPackageType.PREMIUM)
+    //       ?.price ?? 0;
+    // }
+    // if (!this.thumbnail) {
+    //   this.thumbnail =
+    //     this.images?.image1 ||
+    //     this.images?.image2 ||
+    //     this.images?.image3 ||
+    //     (null as any);
+    // }
   }
 
   updateAllCategory() {

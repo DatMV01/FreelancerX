@@ -24,7 +24,7 @@ export enum GigPackageType {
 }
 
 export class PackageFeature {
-  package: string;
+  name: string;
   value: string;
 }
 
@@ -36,7 +36,7 @@ export class GigPackagesEntity extends BaseEntity {
   @AutoMap()
   @Column({
     name: 'gig_id',
-    nullable: false,
+    nullable: true,
     type: 'char',
     length: 36,
   })

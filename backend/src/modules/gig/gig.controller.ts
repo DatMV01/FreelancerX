@@ -1,6 +1,6 @@
 import { BaseController } from '../base/base.controller';
 import { CreateGigDto } from './dto/create-gig.dto';
-import { GigDto, PricingPackage } from './dto/gig.dto';
+import { FeatureTables, GigDto, PricingPackage } from './dto/gig.dto';
 import { UpdateGigDto } from './dto/update-gig.dto';
 import { GigEntity } from './entities/gig.entity';
 import { GigService } from './gig.service';
@@ -59,40 +59,19 @@ export class GigController extends BaseController<
   })
   async createGig(
     @Body() data: CreateGigDto,
-
     @CurrentUser() currentUser: JwtAccessPayloadType,
   ): Promise<GigDto> {
     if (data.pricingPackage) {
-      const pricePackage = Array.from(data.pricingPackage).find(
-        (_: PricingPackage) => _.package === 'Price',
+      const priceFeature = Array.from(data.features).find(
+        (_: FeatureTables) => _.feature === 'Price',
       );
 
-      data.basicPrice = Number(pricePackage?.basic || 0);
-
-      data.standardPrice = Number(pricePackage?.standard || 0);
-
-      data.premiumPrice = Number(pricePackage?.premium || 0);
+      data.basicPrice = Number(priceFeature?.basic || 0);
+      data.standardPrice = Number(priceFeature?.standard || 0);
+      data.premiumPrice = Number(priceFeature?.premium || 0);
     }
 
     data.userId = currentUser.id;
-
-    // if (String(data.category).includes('||')) {
-    //   const _ = data.category.split('||');
-    //   data.category = _[0];
-    //   data.categoryId = _[1];
-    // }
-
-    // if (String(data.subCategory).includes('||')) {
-    //   const _ = data.subCategory.split('||');
-    //   data.subCategory = _[0];
-    //   data.subCategoryId = _[1];
-    // }
-
-    // if (String(data.nestedSubcategory).includes('||')) {
-    //   const _ = data.nestedSubcategory.split('||');
-    //   data.nestedSubcategory = _[0];
-    //   data.nestedSubcategoryId = _[1];
-    // }
 
     return super.create(data);
   }
@@ -174,7 +153,7 @@ export class GigController extends BaseController<
     );
   }
 
-  @Get('/search/tag')
+  @Get('/tags/search')
   @UseGuards(JwtOptionalAuthGuard)
   @ApiQuery({
     name: 'rawQuery',
@@ -198,7 +177,7 @@ export class GigController extends BaseController<
 
     const queryObj = buildObjectFromQuery(queryString) as any;
 
-    const [results, count] = await this._service.findAllByTag(
+    const [results, count] = await this._service.findAllTags(
       queryObj,
       currentUser,
     );
@@ -212,7 +191,12 @@ export class GigController extends BaseController<
     );
   }
 
-  @Post('search-tags/increase')
+  @Post('/tags')
+  async createTag(@Body('keyword') keyword: string) {
+    return this._service.createTag(keyword);
+  }
+
+  @Post('/tags/increase')
   async increaseSearchTagCount(@Body('keyword') keyword: string) {
     return this._service.increaseSearchTagCount(keyword);
   }

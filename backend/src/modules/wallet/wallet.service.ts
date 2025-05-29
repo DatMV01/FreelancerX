@@ -210,7 +210,7 @@ export class WalletService {
       transaction.actorType = ActorType.FREELANCER;
       transaction.method = requestWithdrawalDto.method;
       transaction.metadata = {
-        methodMetadata: requestWithdrawalDto.methodMetadata,
+        bankInfo: requestWithdrawalDto.metatdata,
       };
       transaction.description = 'Request withdrawal';
 

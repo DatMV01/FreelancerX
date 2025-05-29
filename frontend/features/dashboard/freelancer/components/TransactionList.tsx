@@ -108,7 +108,7 @@ export function TransactionList({
                   </TableCell>
                   <TableCell>{tx.currency}</TableCell>
                   <TableCell>
-                    {formatDate(new Date(tx.createdAt), "dd/MM/yyyy hh:mm")}
+                    {formatDate(new Date(tx.createdAt), "dd/MM/yyyy HH:mm")}
                   </TableCell>
                 </TableRow>
               ))

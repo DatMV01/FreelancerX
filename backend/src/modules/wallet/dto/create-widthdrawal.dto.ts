@@ -16,6 +16,5 @@ export class RequestWithdrawalDto {
   method: TransactionMethod;
 
   @IsOptional()
-  @IsObject()
-  methodMetadata?: Record<string, any>;
+  metatdata: Record<string, any>;
 }
