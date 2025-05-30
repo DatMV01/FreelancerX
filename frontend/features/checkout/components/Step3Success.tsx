@@ -9,6 +9,7 @@ import { axiosInstanceV1 } from "@/lib/axios/axiosInstance";
 import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 import { FileUploader } from "@/features/files/components/FileUploader";
 import ButtonGreenBorder from "@/components/ButtonGreenBorder";
+import clsx from "clsx";
 
 const MAX_SIZE_MB = 30;
 
@@ -175,7 +176,7 @@ export default function Step3Success() {
               value={answer}
               placeholder="Describe your idea here..."
               maxLength={500}
-              className={errorMsg ? "border-red-500" :""}
+              className={clsx("h-[300px]", errorMsg && "border-red-500")}
               onChange={(val) => setAnswer(val)}
             />
 

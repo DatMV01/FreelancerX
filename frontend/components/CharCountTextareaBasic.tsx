@@ -34,7 +34,7 @@ export function CharCountTextareaBasic({
     const val = e.target.value;
     setText(val);
     setCharCount(val.length);
-    onChange?.(val);
+    onChange?.(val.trim());
   };
 
   return (

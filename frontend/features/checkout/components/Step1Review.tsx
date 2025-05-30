@@ -35,7 +35,7 @@ const FeaturesTable = ({
   allFeatures: string[];
   getValue: (pkg: GigPackage, feature: string) => React.ReactNode;
 }) => (
-  <div className="mt-4 rounded-sm border border-gray-200">
+  <div className="mt-4 rounded-sm ">
     <table className="min-w-full table-fixed border border-gray-300 text-sm">
       <thead className="bg-gray-100 text-gray-700">
         <tr>

@@ -138,12 +138,12 @@ export default function Step2Payment({ onNext, onBack }: Props) {
               Continue
             </ButtonGreenBorder>
 
-            <Button
+            {/* <Button
           className="disabled:cursor-not-allowed disabled:opacity-50"
           onClick={onNext}
         >
           Continue
-        </Button>
+        </Button> */}
           </div>
         </div>
       )}

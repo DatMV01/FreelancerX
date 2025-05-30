@@ -72,7 +72,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const [previewType, setPreviewType] = useState<FileType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [uploadDate, setUploadDate] = useState<string>("");
+  const [uploadDate, setUploadDate] = useState<Date>();
   const [zipEntries, setZipEntries] = useState<string[]>([]);
 
   const inputAccept = useRef(
@@ -125,7 +125,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
         setFile(file);
 
-        setUploadDate(new Date().toLocaleString());
+        setUploadDate(new Date());
         setPreviewType(fileType);
 
         if (["image", "video", "pdf"].includes(fileType)) {
@@ -166,7 +166,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
     setFile(file);
 
-    setUploadDate(new Date().toLocaleString());
+    setUploadDate(new Date());
     setPreviewType(fileType);
     onChange?.(file);
 
@@ -240,9 +240,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
                 <strong>Type:</strong> application/zip
               </p>
               <p>
-                <strong>Uploaded At:</strong>
-
-                {formatDate(new Date(uploadDate), "dd/MM/yyyy HH:mm")}
+                <strong>Uploaded At: </strong>
+                {uploadDate && formatDate(uploadDate, "dd/MM/yyyy HH:mm")}
               </p>
             </div>
 

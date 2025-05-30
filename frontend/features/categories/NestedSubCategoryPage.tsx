@@ -11,6 +11,12 @@ const NestedSubCategoryPage = () => {
     return (
       <div>
         <Breadcrumbs />
+
+        <div className="flex items-center justify-center text-center">
+          <strong>
+            <span>This category is under development.</span>
+          </strong>
+        </div>
       </div>
     );
   }
