@@ -210,7 +210,7 @@ export class WalletService {
       transaction.actorType = ActorType.FREELANCER;
       transaction.method = requestWithdrawalDto.method;
       transaction.metadata = {
-        bankInfo: requestWithdrawalDto.metatdata,
+        withdrawalMetadata: requestWithdrawalDto.metatdata,
       };
       transaction.description = 'Request withdrawal';
 
@@ -410,7 +410,7 @@ export class WalletService {
       refundTransaction.description = `Refund for canceled order #${order.id}`;
       refundTransaction.processedAt = new Date();
       refundTransaction.method = TransactionMethod.WALLET;
-      
+
       await queryRunner.manager.save(
         WalletTransactionEntity,
         refundTransaction,

@@ -15,6 +15,8 @@ import TransferForm from "./TransferForm";
 
 import React from "react";
 import Decimal from "decimal.js";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { selectUser } from "@/lib/redux/features/auth/authSlice";
 
 type Props = {};
 
@@ -207,6 +209,7 @@ export function WithdrawModal({
 
   const [amount, setAmount] = useState<number>(0);
   const [method, setMethod] = useState<string>("BANK");
+  const user = useAppSelector(selectUser);
 
   const [visaInfo, setVisaInfo] = useState({
     cardHolderName: "",
@@ -222,15 +225,21 @@ export function WithdrawModal({
   });
 
   const handleConfirm = () => {
-    if (amount <= 0 || amount > availableBalance) {
-      toast.error("Invalid amount");
+    if (amount < 50) {
+      toast.error("Minimum withdrawal is 50 USD");
       return;
     }
-
+    if (amount > availableBalance) {
+      toast.error(`Maximum withdrawal is ${availableBalance} USD`);
+      return;
+    }
     const form = {
       amount,
       method,
-      metatdata: bankInfo,
+      metatdata: {
+        bankInfo,
+        user
+      },
     };
 
     onSubmit(form);
@@ -253,7 +262,7 @@ export function WithdrawModal({
               type="number"
               value={amount}
               onChange={(e) => setAmount(parseFloat(e.target.value))}
-              min={1}
+              min={50}
               max={availableBalance}
             />
           </div>

@@ -19,12 +19,7 @@ import { useQuerySync } from "@/hooks/useQuerySync";
 import { format } from "date-fns";
 import Decimal from "decimal.js";
 import { saveAs } from "file-saver";
-import {
-  ArrowUpDown,
-  Download,
-  Eye,
-  RefreshCcw
-} from "lucide-react";
+import { ArrowUpDown, Download, Eye, RefreshCcw } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 import React, { ReactElement, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
@@ -32,12 +27,13 @@ import { defaultWalletTransactionQuery } from "../hooks/useGetWalletTransactions
 import {
   ActorType,
   transactionStatus,
-  WalletTransactionEntity
+  WalletTransactionEntity,
 } from "../wallet.type";
 import { WalletTransactionDetail } from "./WalletTransactionDetail";
 import { WalletTransactionMethodBadge } from "./WalletTransactionMethodBadge";
 import { WalletTransactionStatusBadge } from "./WalletTransactionStatusBadge";
 import { WalletTransactionTypeBadge } from "./WalletTransactionTypeBadge";
+import { ppid } from "process";
 
 const TableHeaderSection = ({
   handleSort,
@@ -250,9 +246,13 @@ function WalletTransactionTable({
               <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={query.filters?.status}
-                  onChange={(e) =>
-                    setQuery({ filters: { status: e.target.value }, page: 1 })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setQuery({
+                      filters: { status: value === "" ? undefined : value },
+                      page: 1,
+                    });
+                  }}
                   className="rounded border px-2 py-1 text-sm"
                 >
                   <option value="">All Statuses</option>

@@ -850,7 +850,7 @@ function FreelancerEditGigPage() {
                     {isSubmitting ? "Processing..." : "Update & Preview"}
                   </Button>
 
-                  <Button
+                  {/* <Button
                     className="flex items-center rounded bg-green-500 p-2 px-2 font-bold text-white hover:bg-green-600"
                     type="button"
                     onClick={async (e) => {
@@ -861,16 +861,17 @@ function FreelancerEditGigPage() {
                     }}
                   >
                     Trigger Validate
-                  </Button>
+                  </Button> */}
 
                   <Button
                     className="flex items-center rounded bg-blue-500 p-2 px-2 font-bold text-white hover:bg-blue-600"
                     disabled={isSubmitting}
                     type="button"
                     onClick={(e) => {
-                      router.replace(
-                        `/dashboard/freelancer/gigs?page=1&pageSize=10&status=${GigStatus.DRAFT}`,
-                      );
+                      // router.replace(
+                      //   `/dashboard/freelancer/gigs`,
+                      // );
+                      router.back()
                     }}
                   >
                     Back to manage

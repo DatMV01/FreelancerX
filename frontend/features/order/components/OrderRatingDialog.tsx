@@ -15,6 +15,7 @@ import { Loader2, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Rating } from "@mui/material";
 import { toast } from "sonner";
+import { CharCountTextareaBasic } from "@/components/CharCountTextareaBasic";
 
 type Props = {
   open: boolean;
@@ -47,7 +48,7 @@ export function OrderRatingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-green-900">{orderNo}</DialogTitle>
+          <DialogTitle className="text-green-900">Rating Service</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -60,11 +61,18 @@ export function OrderRatingDialog({
               setRating(newValue ?? 0);
             }}
           />
-
+          {/* 
           <Textarea
             placeholder="Your comment..."
             value={review}
             onChange={(e) => setReview(e.target.value)}
+          /> */}
+          <CharCountTextareaBasic
+            placeholder="Your comment..."
+            value={review}
+            className="h-[400px]"
+            maxLength={1000}
+            onChange={(e) => setReview(e)}
           />
         </div>
 

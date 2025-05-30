@@ -26,7 +26,7 @@ export default function OrderReview({
 }: ReviewProps) {
   const [replyText, setReplyText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const MAX_LENGTH = 500;
+  const MAX_LENGTH = 1000;
   const isTooLong = replyText.length > MAX_LENGTH;
 
   const formattedDate = new Date(review.createdAt).toLocaleDateString();
@@ -97,7 +97,8 @@ export default function OrderReview({
             <CharCountTextareaBasic
               placeholder="Type response..."
               value={replyText}
-              className="h-45"
+              className="h-50"
+              maxLength={1000}
               onChange={(val) => setReplyText(val)}
             />
             <Button

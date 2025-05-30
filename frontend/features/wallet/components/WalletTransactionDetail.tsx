@@ -118,7 +118,12 @@ export function WalletTransactionDetail({
       label: "Method",
       value: <WalletTransactionMethodBadge method={walletTransaction.method} />,
     },
-    { label: "Actor", value: walletTransaction.actorType },
+    // { label: "Account Type", value: walletTransaction.actorType },
+    { label: "Acount ID", value: walletTransaction.actorId },
+    walletTransaction.metadata?.withdrawalMetadata && {
+      label: "Email",
+      value: walletTransaction.metadata.withdrawalMetadata.user.email,
+    },
     { label: "Description", value: walletTransaction.description },
     {
       label: "Balance Before",
@@ -132,34 +137,6 @@ export function WalletTransactionDetail({
       label: "Created At",
       value: format(new Date(walletTransaction.createdAt), "dd/MM/yyyy HH:mm"),
     },
-
-
-
-
-
-
-
-
-
-
-    
- 
-    walletTransaction.metadata?.bankInfo && {
-      label: "Bank Name",
-      value: walletTransaction.metadata.bankInfo.bankName,
-    },
-    walletTransaction.metadata?.bankInfo && {
-      label: "SWIFTCODE",
-      value: walletTransaction.metadata.bankInfo.swiftCode,
-    },
-    walletTransaction.metadata?.bankInfo && {
-      label: "Account Number",
-      value: walletTransaction.metadata.bankInfo.accountNumber,
-    },
-    walletTransaction.metadata?.bankInfo && {
-      label: "Account HolderName",
-      value: walletTransaction.metadata.bankInfo.accountHolderName,
-    },
     walletTransaction.processedAt && {
       label: "Processed At",
       value: format(
@@ -171,10 +148,30 @@ export function WalletTransactionDetail({
       label: "Processed By",
       value: "ADMIN",
     },
+
+    walletTransaction.metadata?.withdrawalMetadata && {
+      label: "Bank Name",
+      value: walletTransaction.metadata.withdrawalMetadata.bankInfo.bankName,
+    },
+    walletTransaction.metadata?.withdrawalMetadata && {
+      label: "SWIFTCODE",
+      value: walletTransaction.metadata.withdrawalMetadata.bankInfo.swiftCode,
+    },
+    walletTransaction.metadata?.withdrawalMetadata && {
+      label: "Account Number",
+      value:
+        walletTransaction.metadata.withdrawalMetadata.bankInfo.accountNumber,
+    },
+    walletTransaction.metadata?.withdrawalMetadata && {
+      label: "Account HolderName",
+      value:
+        walletTransaction.metadata.withdrawalMetadata.bankInfo
+          .accountHolderName,
+    },
   ].filter(Boolean);
 
   return (
-    <div className="flex h-full flex-col   px-4">
+    <div className="flex h-full flex-col px-4">
       <div className="text-muted-foreground h-full space-y-4 overflow-y-auto rounded-xs p-2 text-sm">
         {details.map((item, index) => (
           <div key={index} className="flex justify-between">

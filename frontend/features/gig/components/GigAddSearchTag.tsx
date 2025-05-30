@@ -48,6 +48,7 @@ const GigAddSearchTag = ({
     queryString: inputValue != "" ? queryString : null,
     fetcherFn: searchGigByTag,
     key,
+    requireLogin:false
   });
 
   useEffect(() => {

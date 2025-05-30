@@ -322,7 +322,7 @@ export const OrderQuestionAnswers = ({
 
                             <FileUploader
                               accept={["zip"]}
-                              className="h-[200px]"
+                              className="h-[300px]"
                               onChange={(file) => {
                                 handleAnswerFileChange(item.id, file || null);
                               }}

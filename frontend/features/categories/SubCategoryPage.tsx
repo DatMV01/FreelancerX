@@ -66,7 +66,6 @@ const RecommendSection = ({
   );
 };
 
- 
 const useFetchGigsByCategory = ({
   page = 1,
   limit = 10,
@@ -146,9 +145,8 @@ const SubCategoryPage = () => {
       {recommendSectionData && (
         <RecommendSection recommendsCategoryData={recommendSectionData} />
       )}
-
-      <FilterBar />
-      <ResultAndSortSection />
+       {/* <FilterBar />
+      <ResultAndSortSection /> */}
       <GigLitstingSection data={data.data} />
       <PaginationSection pageMetaData={data.meta} />
 

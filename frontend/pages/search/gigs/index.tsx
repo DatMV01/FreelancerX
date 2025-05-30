@@ -32,6 +32,7 @@ export default function SearchGigsPage() {
     queryString: tagKeyword != "" ? queryString : null,
     fetcherFn: fetchGigsV2,
     key: url,
+    requireLogin: false,
   });
 
   console.log(response?.data);

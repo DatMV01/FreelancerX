@@ -330,10 +330,16 @@ function GigsManageTable({
                 <select
                   value={query.filters?.status}
                   onChange={(e) => {
+                    // setQuery({
+                    //   filters: {
+                    //     status: e.target.value,
+                    //   },
+                    //   page: 1,
+                    // });
+
+                    const value = e.target.value;
                     setQuery({
-                      filters: {
-                        status: e.target.value,
-                      },
+                      filters: { status: value === "" ? undefined : value },
                       page: 1,
                     });
                   }}
